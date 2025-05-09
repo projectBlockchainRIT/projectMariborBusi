@@ -30,7 +30,6 @@ suspend fun main() {
         out;
     """.trimIndent()
 
-    println(query)
 
 
     val response: HttpResponse = client.post("https://overpass-api.de/api/interpreter") {
@@ -39,7 +38,7 @@ suspend fun main() {
     }
 
     val json = response.bodyAsText()
-    File("bus_routes_maribor.json").writeText(json)
+    File("../../sharedLibraries/busRoutes/bus_routes_maribor.json").writeText(json)
     println("✔ Saved Overpass JSON to bus_stops_maribor.json")
 
     client.close()
