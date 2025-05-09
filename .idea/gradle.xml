@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/principiPJ/scraperMarprom" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/principiPJ/scraperMarprom" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/principiPJ/scraperMarprom/gradle/wrapper" />
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/principiPJ/scraperMarprom/src/main" />
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>
