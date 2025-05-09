@@ -2,8 +2,6 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.client.call.*
-import kotlinx.coroutines.*
 import java.io.File
 
 suspend fun main() {
@@ -32,6 +30,9 @@ suspend fun main() {
         out;
     """.trimIndent()
 
+    println(query)
+
+
     val response: HttpResponse = client.post("https://overpass-api.de/api/interpreter") {
         setBody("data=$query")
         headers.append("Content-Type", "application/x-www-form-urlencoded")
@@ -42,4 +43,7 @@ suspend fun main() {
     println("✔ Saved Overpass JSON to bus_stops_maribor.json")
 
     client.close()
+
+
+
 }
