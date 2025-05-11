@@ -1,15 +1,104 @@
 # Načrt za domensko-specifični jezik za opis mestne infrastrukture
 
-## določitev konstuktov
+## 1. Osnovni konstrukti
 
-1. enote
-2. realna števila
-3. nizi
-4. koordinate (x, y)
-5. bloki
-6. ukazi
+### `nil`
+```plaintext
+nil
+```
+nevtralni element, ne opravi nobene operacije
 
-## gramatika:
+### `realna števila`
+```
+Primeri: 2, 1, 1.2
+```
+števila s katerimi definiramo koordinate, kote, dolžine ipd.
+
+### `Nizi`
+```
+"NIZ"
+```
+Dvojni narekovaji označujejo besedilni niz (npr. ime mesta, zgradbe, postaje...).
+
+### `Koordinate`
+```
+(X, Y)
+```
+Predstavlja točko na zemljevidu, kjer je `X` longituda in `Y` latituda.
+
+### `Struktni bloki`
+#### `city`
+```
+city "IME_MESTA" {
+  BLOKI
+}
+```
+Glavni blok, ki definira celotno mesto. Vsebuje ceste, zgradbe, postaje in avtobusne linije.
+
+#### `road`
+```
+road "IME_CESTE" {
+  UKAZI
+}
+```
+Blok za opis ceste. Vsebuje ukaze za izris črt in krivulj.
+
+#### `building`
+```
+building "IME_ZGRADBE" {
+  UKAZI
+}
+```
+Blok za opis zgradbe. Vsebuje ukaze za izris oblike (mora biti zaprta oblika).
+
+#### `station`
+```
+station "IME_POSTAJE" {
+  location(POINT)
+}
+```
+Določa eno avtobusno postajo na točno določeni lokaciji.
+
+#### `busline`
+```
+busline "IME_LINIJE" {
+  route(POINT1, POINT2, ..., POINTn)
+}
+```
+Definira avtobusno linijo, ki povezuje več točk (npr. postaje).
+
+### `ukazi za izris`
+#### `line`
+```
+line(POINT1, POINT2)
+```
+Nariše ravno črto med dvema točkama.
+
+#### `bend`
+```
+bend(POINT1, POINT2, ANGLE)
+```
+Nariše krivuljo med točkama. Kot določa ukrivljenost:
+
+  -  0° = ravna črta
+
+  - 45° = četrtina kroga
+
+  - pozitivni koti = levo, negativni = desn
+
+#### `box`
+```
+box(POINT1, POINT2)
+```
+Nariše pravokotnik. Prva točka je zgornji levi kot, druga spodnji desni.
+
+#### `circ`
+```
+circ(POINT, RADIUS)
+```
+Nariše krog s podanim polmerom okoli izbrane točke.
+
+## 2. Gramatika:
 
 ```
 <program> ::= <city> | <program> <city>
@@ -34,7 +123,7 @@
 <number> ::= int | int . int
 ```
 
-## primeri:
+## 3. Primeri:
 
 1. Mesto z eno cesto in eno zgradbo
 ```city "TestCity" {
