@@ -1,17 +1,20 @@
 class LexicalAnalyzer {
     private val table = initializeTable()
     private val symbols = listOf("int", "double", "quote", "lparen", "rparen", "comma", "semi", "rcurly", "lcurly", "variable", "variable", "variable", "variable", "city",
-        "variable", "circ", "variable", "variable", "variable", "road", "variable", "variable", "variable", "line")
-    private val terminalSymbols = setOf('"', ';', ',', '(', ')', '{', '}')
+        "variable", "circ", "variable", "variable", "variable", "road", "variable", "variable", "variable", "line", "variable", "variable", "box", "variable", "variable",
+        "bend", "variable", "variable", "variable", "variable", "variable", "variable", "building", "variable", "variable", "variable", "variable", "variable", "bus_line",
+        "variable", "variable", "variable", "bus_stop", "assign")
+    private val terminalSymbols = setOf('"', ';', ',', '(', ')', '{', '}', '=')
 
     private fun initializeTable(): Array<IntArray> {
-        val table = Array(256) { IntArray(45) { 46 } }
+        val table = Array(256) { IntArray(48) { 49 } }
 
         //int
         for (i in 48..57) {
             table[i][0] = 1
             table[i][1] = 1
             table[i][2] = 2
+            table[i][10] = 10
         }
 
         table[46][1] = 2 //.
@@ -23,12 +26,19 @@ class LexicalAnalyzer {
         table[59][0] = 7 //;
         table[123][0] = 8 //{
         table[125][0] = 9 //}
+        table[61][0] = 48 //=
 
         //A-Z
         for (i in 65..90) {
             table[i][0] = 10
             table[i][10] = 10
         }
+        table[95][0] = 10 //_
+        table[95][10] = 10
+        for (i in 10..47) {
+            table[95][i] = 10
+        }
+
         //a-z
         for (i in 97..122) {
             table[i][0] = 10
@@ -47,6 +57,29 @@ class LexicalAnalyzer {
             table[i][22] = 10
             table[i][23] = 10
             table[i][24] = 10
+            table[i][25] = 10
+            table[i][26] = 10
+            table[i][27] = 10
+            table[i][28] = 10
+            table[i][29] = 10
+            table[i][30] = 10
+            table[i][31] = 10
+            table[i][32] = 10
+            table[i][33] = 10
+            table[i][34] = 10
+            table[i][35] = 10
+            table[i][36] = 10
+            table[i][37] = 10
+            table[i][38] = 10
+            table[i][39] = 10
+            table[i][40] = 10
+            table[i][41] = 10
+            table[i][42] = 10
+            table[i][43] = 10
+            table[i][44] = 10
+            table[i][45] = 10
+            table[i][46] = 10
+            table[i][47] = 10
         }
 
         //city
@@ -71,15 +104,38 @@ class LexicalAnalyzer {
         table[110][22] = 23 //n
         table[101][23] = 24 //e
 
-        //TODO: box
+        //box
+        table[98][0] = 25 //b
+        table[111][25] = 26 //o
+        table[120][26] = 27 //x
 
-        //TODO: bend
+        //bend
+        table[101][25] = 28 //e
+        table[110][28] = 29 //n
+        table[100][29] = 30 //d
 
-        //TODO building
+        //building
+        table[117][25] = 31 //u
+        table[105][31] = 32 //i
+        table[108][32] = 33 //l
+        table[100][33] = 34 //d
+        table[105][34] = 35 //i
+        table[110][35] = 36 //n
+        table[103][36] = 37 //g
 
-        //TODO bus_line
+        //bus_line
+        table[115][31] = 38 //s
+        table[95][38] = 39 //_
+        table[108][39] = 40 //l
+        table[105][40] = 41 //i
+        table[110][41] = 42 //n
+        table[101][42] = 43 //e
 
-        //TODO bus_stop
+        //bus_stop
+        table[115][39] = 44 //s
+        table[116][44] = 45 //t
+        table[111][45] = 46 //o
+        table[112][46] = 47 //p
 
         return table
     }
@@ -114,7 +170,7 @@ class LexicalAnalyzer {
             if (char.isWhitespace()) {
                 processLexemeIfExists(tokens, lexeme, prevState)
 
-                if (state == 46) {
+                if (state == 49) {
                     lexeme.append(char)
                     state = table[char.code][0]
                     prevState = state
@@ -131,7 +187,7 @@ class LexicalAnalyzer {
 
             when {
                 // Error state
-                state == 46 -> {
+                state == 49 -> {
                     processLexemeIfExists(tokens, lexeme, prevState)
                     if (lexeme.isEmpty()) {
                         throw IllegalArgumentException("Invalid token: $char")
@@ -139,10 +195,10 @@ class LexicalAnalyzer {
                 }
 
                 // Final states
-                state >= 45 -> {
+                state >= 48 -> {
                     processLexemeIfExists(tokens, lexeme, prevState)
 
-                    if (state == 46) {
+                    if (state == 49) {
                         lexeme.append(char)
                         state = table[char.code][0]
                         prevState = state

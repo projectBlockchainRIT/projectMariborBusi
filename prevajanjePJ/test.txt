@@ -1,1 +1,55 @@
-citru
+// Basic token tests
+123 45.67 "string" ( ) , ; { }
+
+// Variable tests
+testVariable anotherVar x123 _test
+
+// Keywords tests
+city
+circ
+road
+line
+box
+bend
+building
+bus_line
+bus_stop
+
+// Mixed case (should be recognized as variables)
+City
+BuS_LiNe
+BUILDING
+
+// Keywords in context
+city("New York") {
+  road("Broadway");
+  building("Empire State");
+  box(10, 20, 30, 40);
+}
+
+bend(45.5);
+line(10, 20, 30, 40);
+circ(15, 25, 5);
+
+// Bus related
+bus_line("B12") {
+  bus_stop("First Ave");
+  bus_stop("Second Ave");
+}
+
+// Comments test
+// This is a comment
+city("Boston"); // End of line comment
+
+// Combined tokens
+int x = 123;
+double y = 45.67;
+building("Library", 100, 200);
+
+// Test for invalid tokens
+// @#$% should throw errors
+
+// Edge cases
+bus_lineup // Should be recognized as variable, not bus_line
+busline // Should be recognized as variable, not bus_line
+bus_stop_sign // Should be recognized as variable, not bus_stop
