@@ -18,6 +18,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:2.3.4")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.4")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.4")
+    implementation("com.google.code.gson:gson:2.10.1")
 }
 
 tasks.test {
