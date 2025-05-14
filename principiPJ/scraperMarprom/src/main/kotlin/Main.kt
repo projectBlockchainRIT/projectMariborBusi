@@ -2,6 +2,8 @@ import org.jsoup.Jsoup
 import java.io.IOException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.io.File
+import com.google.gson.GsonBuilder
 
 data class BusStop(
     val id: String,
@@ -112,22 +114,11 @@ class MarpromScraper {
 
 fun main() {
     val scraper = MarpromScraper()
-
-    val startTime = System.currentTimeMillis()
     val allStops = scraper.scrapeAllStops()
-    val endTime = System.currentTimeMillis()
 
-    for (stop in allStops) {
-        println("Postajališče ${stop.number}: ${stop.name}")
-        println("ID: ${stop.id}")
+    val gson = GsonBuilder().setPrettyPrinting().create()
+    val json = gson.toJson(allStops)
 
-        for (departure in stop.departures) {
-            println("  Linija ${departure.line} - ${departure.direction}")
-            println("  Odhodi: ${departure.times.joinToString(", ")}")
-        }
-
-        println("----------------------------------------")
-    }
-
-    println("Porabljen cas: ${(endTime - startTime) / 1000.0} sekund")
+    val outputFile = File("stopsMarprom.json")
+    outputFile.writeText(json)
 }
