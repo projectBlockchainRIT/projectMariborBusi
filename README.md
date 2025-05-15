@@ -126,42 +126,11 @@ Za potrebe digitalnega dvojčka bomo obdelovali naslednje vrste podatkov:
 
 | Sloj               | Predlogi                                                |
 | ------------------ | ------------------------------------------------------- |
-| Frontend           | next.js + Google Maps API za zemljevid                  |
-| Backend            | Node.js                                                 |
+| Frontend           | React + Google Maps API za zemljevid                    |
+| Backend            | GOlang                                                  |
 | Baza podatkov      | PostgreSQL                                              |
-| DSL interpretacija | ?                                                       |
+| DSL interpretacija | Kotlin                                                  |
 | Strojno učenje     | Scikit-learn / TensorFlow (če gremo v to smer)          |
 
 ---
 
-## 6. Razdelitev dela v mikroskupini
-
-- Zbiranje podatkov: scraping / API-ji, ML
-- DSL: definicija jezika, parser, vizualizacija
-- Frontend: uporabniški vmesnik, zemljevid
-- Backend: API-ji, baza, model podatkov
-
----
-
-## 7. Interni roki
-
-| Faza                           | Rok               |
-| ------------------------------ | ----------------- |
-| Načrt podatkov in arhitekture  | do 27.4           |
-| Zbiranje / simulacija podatkov | do [vstavi datum] |
-| Backend API in baza            | do [vstavi datum] |
-| Frontend + zemljevid           | do [vstavi datum] |
-| DSL in integracija             | do [vstavi datum] |
-| Testiranje in zaključek        | do [vstavi datum] |
-
----
-
-## 8. začetek
-
-- zbiranje API storitev in zasnova potrebnih spletnih strgalnikov
-- vzpostavitev podatkovne baze
-- začetek zasnove DSL
-- začetek čelnega in zalednega dela
-- povezava spletne aplikacije s podatkovno bazo
-
----
