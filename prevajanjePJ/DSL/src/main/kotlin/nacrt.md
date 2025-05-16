@@ -33,7 +33,8 @@ city "IME_MESTA" {
   BLOKI
 }
 ```
-Glavni blok, ki definira celotno mesto. Vsebuje ceste, zgradbe, postaje in avtobusne linije.
+Glavni blok, ki definira celotno mestođ
+Vsebuje ceste, zgradbe, postaje in avtobusne linije.
 
 #### `road`
 ```
@@ -98,148 +99,295 @@ circ(POINT, RADIUS)
 ```
 Nariše krog s podanim polmerom okoli izbrane točke.
 
+### `style`
+
+#### `color`
+```
+#RRGGBB 
+```
+Lahko zapišemo barvo v HEX obliki (npr. #FF0000)
+
+#### `stil črte`
+```
+solid   // neprekinjena črta
+dashed  // črtkana črta
+dotted  // pikčasta črta
+```
+Nastavi stil črte za vse ukaze, ki sledijo.
+
+### `izrazi in spremenljivke`
+
+#### `spremenljivke`
+```
+x = 5
+```
+Določimo spremenljivko `x` in ji dodelimo vrednost 5.
+
+#### `izrazi`
+```
+x + y
+```
+Osnovni matematični izrazi, ki jih lahko uporabimo v ukazih.
+
+#### `funkcije`
+```
+distance(point1, point2)  // izračuna razdaljo med točkama
+midpoint(point1, point2)  // izračuna središčno točko
+```
+različne funkcije, ki jih lahko uporabimo v ukazih. Izračunajo različne vrednosti, ki jih lahko uporabimo v ukazih.
+
+### `kontrolne strukture` 
+
+#### `if`
+```
+if (pogoj) {
+  // ukazi, če je pogoj izpolnjen
+} else {
+  // opcijski ukazi, če pogoj ni izpolnjen
+}
+```
+pogojna struktura, ki omogoča izvajanje ukazov glede na izpolnjenost pogoja.
+
+#### `for`
+```
+for (i = 0; i < 10; i++) {
+  // ukazi, ki se ponavljajo
+}
+```
+Zanka, ki ponavlja ukaze določenokrat. `i` se povečuje za 1 pri vsakem ponovnem izvajanju.
+
+#### `increment/decrement`
+```
+i++  // poveča i za 1
+i--  // zmanjša i za 1
+```
+Osnovni ukazi za povečevanje in zmanjševanje vrednosti spremenljivk.
+
+### `modularnost`
+
+#### `include`
+```
+include "ime_datoteke"
+```
+Omogoča vključitev druge datoteke v trenutni program. Uporabno za ponovno uporabo kode in modularnost.
+
+
 ## 2. Gramatika:
 
 ```
-<program> ::= <city> | <program> <city>
+<program> ::= <stmt>* 
+
+<stmt> ::= <city>
+        | <include_stmt>
+        | <assignment>
+        | <if_stmt>
+        | <for_stmt>
+
+<include_stmt> ::= 'include' <string> ';'
 
 <city> ::= 'city' <string> '{' <city_body> '}'
-<city_body> ::= <element> | <citi_body> <element>
-<element> ::= <road> | <building> | <bus_stop> | <bus_line>
+<city_body> ::= <element>* 
 
-<road> ::= 'road' <string> '{' <command>* '}'
-<building> ::= 'building' <string> '{' <command> '}'
-<bus_stop> ::= 'bus stop' <string> int '{' <command> '}'
-<bust_line> ::= 'bus line' <string> int '{' <command> '}'
+<element> ::= <road>
+           | <building>
+           | <station>
+           | <busline>
 
-<command> ::= <line_cmd> <command> | <bend_cmd> <command> | <box_cmd> <command> | <circ_cmd> <command> | ε
-<line_cmd> ::= 'line' '(' <point> ',' <point> ')'';'
-<bend_cmd> ::= 'bend' '(' <point> ',' <point> ',' <number> ')'';'
-<box_cmd> ::= 'box' '(' <point> ',' <point> ')'';'
-<circ_cmd> ::= 'circ' '(' <point> ',' <number> ')'';'
+<road> ::= 'road' <string> '(' <style> ')' '{' <command>* '}'
+<building> ::= 'building' <string> '{' <command>* '}'
+<station> ::= 'bus_stop' <string> '{' 'location' '(' <point> ')' ';' '}'
+<busline> ::= 'busline' <string> '{' <command>* '}'
+
+<style> ::= <color> | <line_style>
+<color> ::= '#' <hex_color>
+<line_style> ::= 'solid' | 'dashed' | 'dotted'
+
+<command> ::= <draw_cmd> 
+           | <assignment>
+           | <function_call>
+           | <if_stmt>
+           | <for_stmt>
+           | ε
+
+<draw_cmd> ::= <line_cmd>
+             | <bend_cmd>
+             | <box_cmd>
+             | <circ_cmd>
+
+<line_cmd> ::= 'line' '(' <point> ',' <point> ')' ';'
+<bend_cmd> ::= 'bend' '(' <point> ',' <point> ',' <number> ')' ';'
+<box_cmd> ::= 'box' '(' <point> ',' <point> ')' ';'
+<circ_cmd> ::= 'circ' '(' <point> ',' <number> ')' ';'
+
+<assignment> ::= <identifier> '=' <expression> ';'
+
+<expression> ::= <number>
+              | <identifier>
+              | <expression> <op> <expression>
+              | <function_call>
+              | '(' <expression> ')'
+
+<op> ::= '+' | '-' | '*' | '/'
+
+<function_call> ::= <func_name> '(' <arg_list>? ')' ';'
+<func_name> ::= 'distance' | 'midpoint'
+
+<arg_list> ::= <expression> (',' <expression>)*
+
+<if_stmt> ::= 'if' '(' <expression> ')' '{' <command>* '}' ('else' '{' <command>* '}')?
+
+<for_stmt> ::= 'for' '(' <assignment> <expression> ';' <assignment> ')' '{' <command>* '}'
 
 <point> ::= '(' <number> ',' <number> ')'
+
 <string> ::= '"' <char>* '"'
-<number> ::= int | int . int
+<identifier> ::= [a-zA-Z_][a-zA-Z0-9_]*
+<number> ::= int | int '.' int
 ```
 
 ## 3. Primeri:
 
 1. Mesto z eno cesto in eno zgradbo
 ```city "TestCity" {
-  road "Main Street" {
-    line((0, 0), (10, 0));
+city "MiniMesto" {
+  road "Glavna" {
+    line((0,0), (10,0));
   }
-  building "Library" {
-    box((2, 2), (4, 3));
+
+  building "Trgovina" {
+    box((2,2), (4,4));
   }
 }
 ```
 
-2. Cesta z več ukazi (line in bend)
+2. Mesto z več postajami in avtobusno linijo
 ```
-city "CurvyTown" {
-  road "Snake Road" {
-    line((0, 0), (2, 2));
-    bend((2, 2), (4, 1), 30);
+city "BusMesto" {
+  station "Center" {
+    location((5,5));
+  }
+
+  station "Postaja2" {
+    location((10,10));
+  }
+
+  busline "Linija1" {
+    line((0,0), (5,5));
+    bend((5,5), (10,10), 45);
+  }
+}
+
+```
+
+3. Mesto z krivuljo
+```
+city "KrivuljaCity" {
+  building "Muzej" {
+    bend((1,1), (4,4), 45);
+    bend((4,4), (1,1), -45);
+  }
+}
+
+```
+
+4. Izris parka s uporabo sredine
+```
+x = midpoint((2,2), (6,6));
+
+city "SredinskiPark" {
+  building "Park" {
+    circ(x, 2);
+  }
+}
+
+```
+
+5. Pogojna izris
+```
+a = 3;
+
+if (a > 2) {
+  city "LogikaCity" {
+    road "Kratka" {
+      line((0,0), (1,1));
+    }
+  }
+} else {
+  city "RezervniCity" {
+    road "Rezervna" {
+      line((0,0), (5,5));
+    }
+  }
+}
+
+```
+
+6. Uporaba zanke za gradnjo več zgradb
+```
+city "KrogCity" {
+  for (i = 0; i < 3; i++) {
+    building "Krog" {
+      circ((i * 3, 0), 1);
+    }
   }
 }
 ```
 
-3. Krožni promet
+7. Uporaba zanke za izračun razdalje in shranje v spremenljivko
 ```
-city "circle road" {
-  road "Circular line" {
-    circ((3, 3), 1.5);
+d = distance((1,1), (4,5));
+
+city "RazdaljaCity" {
+  building "InfoTočka" {
+    circ((2,2), d);
   }
 }
+
 ```
 
-4. Avtobusna postaja z lokacijo
+8. Uporaba več stilov črt
 ```
-city "BusStop" {
-  bus stop "Main Station" 1 {
-    circ((1, 1), 0.3);
+city "StilCity" (
+ #FF0000
+ solid
+ ){
+  road "Moderna" {
+    line((0,0), (5,0));
+    bend((5,0), (5,5), 90);
+    box((6,6), (8,8));
   }
 }
+
+```
+9. Vključitev zunanje datoteke
+```
+include "zunanje_stavbe.dsl"
+
+city "ModularCity" {
+  road "Glavna" {
+    line((0,0), (5,5));
+  }
+}
+
 ```
 
-5. Avtobusna linija z ukrivljenim potekom
+10. Dinamična izbira zgradbe glede na razdaljo
 ```
-city "MetroCity" {
-  bus line "Line A" 10 {
-    line((0, 0), (2, 0));
-    bend((2, 0), (3, 2), 45);
-  }
-}
-```
-6. Kombinacija vseh entitet
-```
-city "ComplexCity" {
-  road "First Road" {
-    line((0, 0), (1, 1));
-  }
-  building "Office" {
-    box((1, 1), (2, 2));
-  }
-  bus stop "Central" 2 {
-    circ((2, 2), 0.4);
-  }
-  bus line "B1" 5 {
-    line((2, 2), (3, 3));
-  }
-}
-```
+p1 = (0, 0);
+p2 = (4, 3);
+d = distance(p1, p2);
 
-7. Več cest in zgradb
-```
-city "UrbanArea" {
-  road "North Road" {
-    line((0, 0), (0, 5));
+if (d > 5) {
+  city "PogojCity" {
+    building "VelikaZgradba" {
+      box(p1, p2);
+    }
   }
-  road "East Road" {
-    line((0, 5), (5, 5));
-  }
-  building "Mall" {
-    box((2, 2), (4, 4));
-  }
-  building "Warehouse" {
-    box((5, 1), (6, 3));
-  }
-}
-```
-
-8. Zgradba z več line ukazi (npr. trikotnik)
-```
-city "PolygonTown" {
-  building "Triangle Building" {
-    line((0, 0), (1, 2));
-    line((1, 2), (2, 0));
-    line((2, 0), (0, 0));
-  }
-}
-```
-9. Bus stop znotraj zgradbe
-```
-city "IntegrationCity" {
-  building "Station Complex" {
-    box((0, 0), (3, 3));
-  }
-  bus stop "Inside Stop" 3 {
-    circ((1.5, 1.5), 0.3);
-  }
-}
-```
-
-10. Več avtobusnih linij
-```
-city "TransportHub" {
-  bus line "Red Line" 1 {
-    line((0, 0), (5, 0));
-  }
-  bus line "Green Line" 2 {
-    bend((5, 0), (6, 2), 20);
-    line((6, 2), (7, 2));
+} else {
+  city "PogojCity" {
+    building "MajhnaZgradba" {
+      circ(midpoint(p1, p2), 1);
+    }
   }
 }
 ```
