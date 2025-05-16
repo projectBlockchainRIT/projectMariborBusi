@@ -1,14 +1,9 @@
-city "UrbanArea" {
-  road "North Road" {
-    line((0, 0), (0, 5));
+city "MiniMesto" {
+  road "Glavna" {
+    line((0,0), (10,0));
   }
-  road "East Road" {
-    line((0, 5), (5, 5));
-  }
-  building "Mall" {
-    box((2, 2), (4, 4));
-  }
-  building "Warehouse" {
-    box((5, 1), (6, 3));
+
+  building "Trgovina" {
+    box((2,2), (4,4));
   }
 }
