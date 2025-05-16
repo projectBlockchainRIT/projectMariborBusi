@@ -1,13 +1,16 @@
 class LexicalAnalyzer {
     private val table = initializeTable()
-    private val symbols = listOf("int", "double", "quote", "lparen", "rparen", "comma", "semi", "rcurly", "lcurly", "variable", "variable", "variable", "variable", "city",
+    private val symbols = listOf("int", "double", "quote", "lparen", "rparen", "comma", "semi", "lcurly", "rcurly", "variable", "variable", "variable", "variable", "city",
         "variable", "circ", "variable", "variable", "variable", "road", "variable", "variable", "variable", "line", "variable", "variable", "box", "variable", "variable",
         "bend", "variable", "variable", "variable", "variable", "variable", "variable", "building", "variable", "variable", "variable", "variable", "variable", "bus_line",
-        "variable", "variable", "variable", "bus_stop", "assign")
+        "variable", "variable", "variable", "bus_stop", "assign", "color", "variable", "variable", "variable", "variable", "solid", "variable", "variable", "variable", "variable",
+        "variable", "dashed", "variable", "variable", "variable", "variable", "dotted", "plus", "minus", "multiply", "divide", "variable", "variable", "variable", "variable", "variable",
+        "variable", "distance", "variable", "variable", "variable", "variable", "variable", "variable", "variable", "midpoint", "variable", "if", "variable", "variable", "variable", "else",
+        "variable", "variable", "variable", "variable", "import", "variable", "variable", "for")
     private val terminalSymbols = setOf('"', ';', ',', '(', ')', '{', '}', '=')
 
     private fun initializeTable(): Array<IntArray> {
-        val table = Array(256) { IntArray(48) { 49 } }
+        val table = Array(256) { IntArray(99) { 100 } }
 
         //int
         for (i in 48..57) {
@@ -15,6 +18,7 @@ class LexicalAnalyzer {
             table[i][1] = 1
             table[i][2] = 2
             table[i][10] = 10
+            table[i][49] = 49
         }
 
         table[46][1] = 2 //.
@@ -27,6 +31,13 @@ class LexicalAnalyzer {
         table[123][0] = 8 //{
         table[125][0] = 9 //}
         table[61][0] = 48 //=
+        table[43][0] = 66 // +
+        table[45][0] = 67 // -
+        table[42][0] = 68 // *
+        table[47][0] = 69 // /
+
+        table[35][0] = 49 //#
+
 
         //A-Z
         for (i in 65..90) {
@@ -38,48 +49,16 @@ class LexicalAnalyzer {
         for (i in 10..47) {
             table[95][i] = 10
         }
+        for (i in 65..70) {
+            table[i][49] = 49
+        }
 
         //a-z
         for (i in 97..122) {
             table[i][0] = 10
-            table[i][10] = 10
-            table[i][11] = 10
-            table[i][12] = 10
-            table[i][13] = 10
-            table[i][14] = 10
-            table[i][15] = 10
-            table[i][16] = 10
-            table[i][17] = 10
-            table[i][18] = 10
-            table[i][19] = 10
-            table[i][20] = 10
-            table[i][21] = 10
-            table[i][22] = 10
-            table[i][23] = 10
-            table[i][24] = 10
-            table[i][25] = 10
-            table[i][26] = 10
-            table[i][27] = 10
-            table[i][28] = 10
-            table[i][29] = 10
-            table[i][30] = 10
-            table[i][31] = 10
-            table[i][32] = 10
-            table[i][33] = 10
-            table[i][34] = 10
-            table[i][35] = 10
-            table[i][36] = 10
-            table[i][37] = 10
-            table[i][38] = 10
-            table[i][39] = 10
-            table[i][40] = 10
-            table[i][41] = 10
-            table[i][42] = 10
-            table[i][43] = 10
-            table[i][44] = 10
-            table[i][45] = 10
-            table[i][46] = 10
-            table[i][47] = 10
+            for (j in 10..65) {
+                table[i][j] = 10
+            }
         }
 
         //city
@@ -137,6 +116,67 @@ class LexicalAnalyzer {
         table[111][45] = 46 //o
         table[112][46] = 47 //p
 
+        // style_line
+        // solid, dashed, or dotted
+        table[115][0] = 50 // s
+        table[111][50] = 51 // o
+        table[108][51] = 52 // l
+        table[105][52] = 53 // i
+        table[100][53] = 54 // d
+
+        table[100][0] = 55 // d
+        table[97][55] = 56 // a
+        table[115][56] = 57 // s
+        table[104][57] = 58 // h
+        table[101][58] = 59 // e
+        table[100][59] = 60 // d
+
+        table[111][55] = 61 // o
+        table[116][61] = 62 // t
+        table[116][62] = 63 // t
+        table[101][63] = 64 // e
+        table[100][64] = 65 // d
+
+        // functions
+        table[105][55] = 70 // i
+        table[115][70] = 71 // s
+        table[116][71] = 72 // t
+        table[97][72] = 73 // a
+        table[110][73] = 74 // n
+        table[99][74] = 75 // c
+        table[101][75] = 76 // e
+
+        table[109][0] = 77 // m
+        table[105][77] = 78 // i
+        table[100][78] = 79 // d
+        table[112][79] = 80 // p
+        table[111][80] = 81 // o
+        table[105][81] = 82 // i
+        table[110][82] = 83 // n
+        table[116][83] = 84 // t
+
+        //if
+        table[105][0] = 85 // i
+        table[102][85] = 86 // f
+
+        // else
+        table[101][0] = 87 // e
+        table[108][87] = 88 // l
+        table[115][88] = 89 // s
+        table[101][89] = 90 // e
+
+        // import
+        table[109][85] = 91 // m
+        table[112][91] = 92 // p
+        table[111][92] = 93 // o
+        table[114][93] = 94 // r
+        table[116][94] = 95 // t
+
+        // for
+        table[102][0] = 96 // f
+        table[111][96] = 97 // o
+        table[114][97] = 98 // r
+
         return table
     }
 
@@ -170,7 +210,7 @@ class LexicalAnalyzer {
             if (char.isWhitespace()) {
                 processLexemeIfExists(tokens, lexeme, prevState)
 
-                if (state == 49) {
+                if (state == 100) {
                     lexeme.append(char)
                     state = table[char.code][0]
                     prevState = state
@@ -187,7 +227,7 @@ class LexicalAnalyzer {
 
             when {
                 // Error state
-                state == 49 -> {
+                state == 100 -> {
                     processLexemeIfExists(tokens, lexeme, prevState)
                     if (lexeme.isEmpty()) {
                         throw IllegalArgumentException("Invalid token: $char")
@@ -195,10 +235,10 @@ class LexicalAnalyzer {
                 }
 
                 // Final states
-                state >= 48 -> {
+                state >= 99 -> {
                     processLexemeIfExists(tokens, lexeme, prevState)
 
-                    if (state == 49) {
+                    if (state == 100) {
                         lexeme.append(char)
                         state = table[char.code][0]
                         prevState = state
@@ -238,8 +278,15 @@ class LexicalAnalyzer {
 
     private fun processLexemeIfExists(tokens: MutableList<String>, lexeme: StringBuilder, prevState: Int) {
         if (lexeme.isNotEmpty()) {
-            tokens.add("${symbols[prevState - 1]}(\"$lexeme\")")
-            lexeme.clear()
+            if (prevState == 49 && lexeme.length == 7) {
+                tokens.add("${symbols[prevState - 1]}(\"$lexeme\")")
+                lexeme.clear()
+            } else if (prevState == 49 && lexeme.length != 7) {
+                throw IllegalArgumentException("Invalid token: $lexeme")
+            } else {
+                tokens.add("${symbols[prevState - 1]}(\"$lexeme\")")
+                lexeme.clear()
+            }
         }
     }
 }

@@ -1,163 +1,240 @@
-class SyntaxAnalyzer {
-    private var tokens = listOf<String>()
+class Token(val type: String, val value: String) {
+    override fun toString(): String = "$type($value)"
+}
+
+class SyntaxAnalyzer (private val tokens: List<String>) {
     private var currentTokenIndex = 0
+    private val tokenStack = mutableListOf<Token>()
 
-    fun analyze(tokenList: List<String>): Boolean {
-        tokens = tokenList
-        currentTokenIndex = 0
+    // Parse tokens from the input format
+    fun parseTokens() {
+        for (tokenString in tokens) {
+            val parts = tokenString.split("(", limit = 2)
+            if (parts.size == 2) {
+                val type = parts[0]
+                val value = parts[1].removeSuffix("\")").removePrefix("\"")
+                tokenStack.add(Token(type, value))
+            }
+        }
+    }
 
+    // Start the recursive descent parsing
+    fun parse(): Boolean {
         try {
             program()
-
-            // Check if we consumed all tokens
-            if (currentTokenIndex < tokens.size) {
-                println("reject")
-                return false
-            }
-
-            println("accept")
-            return true
+            return currentTokenIndex == tokenStack.size
         } catch (e: Exception) {
-            println("reject")
             println("Syntax error: ${e.message}")
             return false
         }
     }
 
-    // <program> ::= <city> | <program> <city>
-    private fun program() {
-        city()
+    // Get the current token without consuming it
+    private fun peek(): Token? {
+        return if (currentTokenIndex < tokenStack.size) tokenStack[currentTokenIndex] else null
+    }
 
-        // Try to parse more cities if available
-        while (currentTokenIndex < tokens.size && peekToken().startsWith("city")) {
-            city()
+    // Consume the current token and move to the next
+    private fun consume(): Token? {
+        return if (currentTokenIndex < tokenStack.size) tokenStack[currentTokenIndex++] else null
+    }
+
+    // Match a token of a specific type, throw exception if not matched
+    private fun match(type: String) {
+        val token = peek()
+        if (token != null && token.type == type) {
+            consume()
+        } else {
+            throw Exception("Expected $type but found ${token?.type ?: "end of input"}")
         }
+    }
+
+    // <program> ::= <stmt>*
+    private fun program() {
+        while (peek() != null) {
+            stmt()
+        }
+    }
+
+    // <stmt> ::= <city> | <include_stmt> | <assignment> | <if_stmt> | <for_stmt>
+    private fun stmt() {
+        when (peek()?.type) {
+            "city" -> city()
+            "import" -> includeStmt()  // Using 'import' since that was in the lexer
+            "variable" -> {
+                // Look ahead to see if this is an assignment
+                val savedIndex = currentTokenIndex
+                consume() // variable
+                if (peek()?.type == "assign") {
+                    currentTokenIndex = savedIndex
+                    assignment()
+                } else {
+                    currentTokenIndex = savedIndex
+                    throw Exception("Expected assignment after variable")
+                }
+            }
+            "if" -> ifStmt()
+            "for" -> forStmt()
+            else -> throw Exception("Invalid statement starting with ${peek()?.type}")
+        }
+    }
+
+    // <include_stmt> ::= 'include' <string> ';'
+    private fun includeStmt() {
+        match("import")  // Using 'import' as that was in the lexer
+        match("quote")    // String is represented as a "quote" token
+        match("semi")     // semicolon
     }
 
     // <city> ::= 'city' <string> '{' <city_body> '}'
     private fun city() {
         match("city")
-        stringLiteral()
-        match("lcurly")
+        match("quote")
+        match("variable")
+        match("quote")
+        match("lcurly")    // '{'
         cityBody()
-        match("rcurly")
+        match("rcurly")    // '}'
     }
 
-    // <city_body> ::= <element> | <city_body> <element>
+    // <city_body> ::= <element>*
     private fun cityBody() {
-        // Check if there are elements to parse
-        if (isElementStart(peekToken())) {
+        while (peek()?.type in listOf("road", "building", "bus_stop", "bus_line")) {
             element()
-
-            // Parse more elements if available
-            while (isElementStart(peekToken())) {
-                element()
-            }
         }
     }
 
-    // <element> ::= <road> | <building> | <bus_stop> | <bus_line>
+    // <element> ::= <road> | <building> | <station> | <busline>
     private fun element() {
-        when {
-            peekToken().startsWith("road") -> road()
-            peekToken().startsWith("building") -> building()
-            peekToken().startsWith("bus_stop") -> busStop()
-            peekToken().startsWith("bus_line") -> busLine()
-            else -> throw Exception("Expected element but found ${peekToken()}")
+        when (peek()?.type) {
+            "road" -> road()
+            "building" -> building()
+            "bus_stop" -> station()
+            "bus_line" -> busline()  // Using bus_line as that was in the lexer
+            else -> throw Exception("Invalid element starting with ${peek()?.type}")
         }
     }
 
-    // <road> ::= 'road' <string> '{' <command>* '}'
+    // <road> ::= 'road' <string> '(' <style> ')' '{' <command>* '}'
     private fun road() {
         match("road")
-        stringLiteral()
-        match("lcurly")
-
-        // Parse commands if any
-        while (isCommandStart(peekToken())) {
+        match("quote")
+        match("variable") // String
+        match("quote")
+        if (peek()?.type == "lparen") {
+            match("lparen")
+            style()
+            match("rparen")
+        }
+        match("lcurly")   // '{'
+        while (isCommandStart()) {
             command()
         }
-
-        match("rcurly")
+        match("rcurly")   // '}'
     }
 
-    // <building> ::= 'building' <string> '{' <command> '}'
+    // <building> ::= 'building' <string> '{' <command>* '}'
     private fun building() {
         match("building")
-        stringLiteral()
-        match("lcurly")
-
-        // At least one command is required
-        if (isCommandStart(peekToken())) {
-            command()
-        } else {
-            throw Exception("Expected command in building block")
-        }
-
-        // Parse more commands if available
-        while (isCommandStart(peekToken())) {
+        match("quote")
+        match("variable") // String
+        match("quote")
+        match("lcurly")   // '{'
+        while (isCommandStart()) {
             command()
         }
-
-        match("rcurly")
+        match("rcurly")   // '}'
     }
 
-    // <bus_stop> ::= 'bus_stop' <string> int '{' <command> '}'
-    private fun busStop() {
+    // <station> ::= 'bus_stop' <string> '{' 'location' '(' <point> ')' ';' '}'
+    private fun station() {
         match("bus_stop")
-        stringLiteral()
-        intLiteral()
-        match("lcurly")
-
-        // At least one command is required
-        if (isCommandStart(peekToken())) {
-            command()
-        } else {
-            throw Exception("Expected command in bus_stop block")
-        }
-
-        // Parse more commands if available
-        while (isCommandStart(peekToken())) {
-            command()
-        }
-
-        match("rcurly")
+        match("quote")
+        match("variable") // String
+        match("quote")
+        match("lcurly")   // '{'
+        match("variable") // 'location'
+        match("lparen")   // '('
+        point()
+        match("rparen")   // ')'
+        match("semi")     // ';'
+        match("rcurly")   // '}'
     }
 
-    // <bus_line> ::= 'bus_line' <string> int '{' <command> '}'
-    private fun busLine() {
-        match("bus_line")
-        stringLiteral()
-        intLiteral()
-        match("lcurly")
-
-        // At least one command is required
-        if (isCommandStart(peekToken())) {
-            command()
-        } else {
-            throw Exception("Expected command in bus_line block")
+    // <busline> ::= 'busline' <string> '{' <command>* '}'
+    private fun busline() {
+        match("bus_line") // Using bus_line from lexer
+        match("quote")
+        match("variable") // String
+        match("quote")
+        if (peek()?.type == "lparen") {
+            match("lparen")
+            style()
+            match("rparen")
         }
-
-        // Parse more commands if available
-        while (isCommandStart(peekToken())) {
+        match("lcurly")   // '{'
+        while (isCommandStart()) {
             command()
         }
-
-        match("rcurly")
+        match("rcurly")   // '}'
     }
 
-    // <command> ::= <line_cmd> | <bend_cmd> | <box_cmd> | <circ_cmd>
+    // <style> ::= <color> | <line_style>
+    private fun style() {
+        when (peek()?.type) {
+            "color" -> match("color")
+            "solid", "dashed", "dotted" -> match(peek()!!.type)
+            else -> throw Exception("Invalid style: ${peek()?.type}")
+        }
+    }
+
+    // Helper to determine if token is the start of a command
+    private fun isCommandStart(): Boolean {
+        return when (peek()?.type) {
+            "line", "bend", "box", "circ", // draw commands
+            "variable",  // could be assignment or function call
+            "if", "for", // control structures
+            "distance", "midpoint" -> true // function calls
+            else -> false
+        }
+    }
+
+    // <command> ::= <draw_cmd> | <assignment> | <function_call> | <if_stmt> | <for_stmt> | ε
     private fun command() {
-        when {
-            peekToken().startsWith("line") -> lineCmd()
-            peekToken().startsWith("bend") -> bendCmd()
-            peekToken().startsWith("box") -> boxCmd()
-            peekToken().startsWith("circ") -> circCmd()
-            else -> throw Exception("Expected command but found ${peekToken()}")
+        when (peek()?.type) {
+            "line", "bend", "box", "circ" -> drawCmd()
+            "variable" -> {
+                // Check if assignment or variable reference
+                val savedIndex = currentTokenIndex
+                consume() // variable
+                if (peek()?.type == "assign") {
+                    currentTokenIndex = savedIndex
+                    assignment()
+                } else {
+                    currentTokenIndex = savedIndex
+                    expression()
+                    match("semi")
+                }
+            }
+            "distance", "midpoint" -> functionCall()
+            "if" -> ifStmt()
+            "for" -> forStmt()
+            else -> throw Exception("Invalid command starting with ${peek()?.type}")
         }
     }
 
-    // <line_cmd> ::= 'line' '(' <point> ',' <point> ')'';'
+    // <draw_cmd> ::= <line_cmd> | <bend_cmd> | <box_cmd> | <circ_cmd>
+    private fun drawCmd() {
+        when (peek()?.type) {
+            "line" -> lineCmd()
+            "bend" -> bendCmd()
+            "box" -> boxCmd()
+            "circ" -> circCmd()
+            else -> throw Exception("Invalid draw command: ${peek()?.type}")
+        }
+    }
+
+    // <line_cmd> ::= 'line' '(' <point> ',' <point> ')' ';'
     private fun lineCmd() {
         match("line")
         match("lparen")
@@ -168,7 +245,7 @@ class SyntaxAnalyzer {
         match("semi")
     }
 
-    // <bend_cmd> ::= 'bend' '(' <point> ',' <point> ',' <number> ')'';'
+    // <bend_cmd> ::= 'bend' '(' <point> ',' <point> ',' <number> ')' ';'
     private fun bendCmd() {
         match("bend")
         match("lparen")
@@ -181,7 +258,7 @@ class SyntaxAnalyzer {
         match("semi")
     }
 
-    // <box_cmd> ::= 'box' '(' <point> ',' <point> ')'';'
+    // <box_cmd> ::= 'box' '(' <point> ',' <point> ')' ';'
     private fun boxCmd() {
         match("box")
         match("lparen")
@@ -192,7 +269,7 @@ class SyntaxAnalyzer {
         match("semi")
     }
 
-    // <circ_cmd> ::= 'circ' '(' <point> ',' <number> ')'';'
+    // <circ_cmd> ::= 'circ' '(' <point> ',' <number> ')' ';'
     private fun circCmd() {
         match("circ")
         match("lparen")
@@ -203,6 +280,123 @@ class SyntaxAnalyzer {
         match("semi")
     }
 
+    // <assignment> ::= <identifier> '=' <expression> ';'
+    private fun assignment() {
+        match("variable") // identifier
+        match("assign")   // '='
+        expression()
+        match("semi")     // ';'
+    }
+
+    // <expression> ::= <number> | <identifier> | <expression> <op> <expression> | <function_call> | '(' <expression> ')'
+    private fun expression() {
+        term()
+        while (peek()?.type in listOf("plus", "minus", "multiply", "divide")) {
+            match(peek()!!.type) // operator
+            term()
+        }
+    }
+
+    // Helper for parsing terms in expressions
+    private fun term() {
+        when (peek()?.type) {
+            "int", "double" -> number()
+            "variable" -> match("variable") // identifier
+            "distance", "midpoint" -> functionCall()
+            "lparen" -> {
+                match("lparen")
+                expression()
+                match("rparen")
+            }
+            else -> throw Exception("Invalid term: ${peek()?.type}")
+        }
+    }
+
+    // <number> ::= int | int '.' int
+    private fun number() {
+        when (peek()?.type) {
+            "int", "double" -> match(peek()!!.type)
+            else -> throw Exception("Expected number but found ${peek()?.type}")
+        }
+    }
+
+    // <function_call> ::= <func_name> '(' <arg_list>? ')' ';'
+    private fun functionCall() {
+        when (peek()?.type) {
+            "distance", "midpoint" -> match(peek()!!.type)
+            else -> throw Exception("Invalid function name: ${peek()?.type}")
+        }
+        match("lparen")
+
+        // Optional arguments
+        if (peek()?.type != "rparen") {
+            argList()
+        }
+
+        match("rparen")
+        // Function calls inside expressions don't end with semicolon
+        if (peek()?.type == "semi") {
+            match("semi")
+        }
+    }
+
+    // <arg_list> ::= <expression> (',' <expression>)*
+    private fun argList() {
+        expression()
+        while (peek()?.type == "comma") {
+            match("comma")
+            expression()
+        }
+    }
+
+    // <if_stmt> ::= 'if' '(' <expression> ')' '{' <command>* '}' ('else' '{' <command>* '}')?
+    private fun ifStmt() {
+        match("if")
+        match("lparen")
+        expression()
+        match("rparen")
+        match("lcurly")
+
+        while (isCommandStart()) {
+            command()
+        }
+
+        match("rcurly")
+
+        // Optional else part
+        if (peek()?.type == "else") {
+            match("else")
+            match("lcurly")
+
+            while (isCommandStart()) {
+                command()
+            }
+
+            match("rcurly")
+        }
+    }
+
+    // <for_stmt> ::= 'for' '(' <assignment> 'to' <assignment> ')' '{' <command>* '}'
+    private fun forStmt() {
+        match("for")
+        match("lparen")
+        assignment()
+
+        // In the grammar it says 'to' here, but there's no token for this in lexer
+        // We'll assume it's a variable with 'to' value
+        match("variable") // 'to'
+
+        assignment()
+        match("rparen")
+        match("lcurly")
+
+        while (isCommandStart()) {
+            command()
+        }
+
+        match("rcurly")
+    }
+
     // <point> ::= '(' <number> ',' <number> ')'
     private fun point() {
         match("lparen")
@@ -210,67 +404,5 @@ class SyntaxAnalyzer {
         match("comma")
         number()
         match("rparen")
-    }
-
-    // <number> ::= int | int . int
-    private fun number() {
-        if (peekToken().startsWith("int") || peekToken().startsWith("double")) {
-            consumeToken()
-        } else {
-            throw Exception("Expected number but found ${peekToken()}")
-        }
-    }
-
-    // <string> ::= '"' <char>* '"'
-    private fun stringLiteral() {
-        if (peekToken().startsWith("quote")) {
-            consumeToken()
-        } else {
-            throw Exception("Expected string but found ${peekToken()}")
-        }
-    }
-
-    private fun intLiteral() {
-        if (peekToken().startsWith("int")) {
-            consumeToken()
-        } else {
-            throw Exception("Expected integer but found ${peekToken()}")
-        }
-    }
-
-    // Helper methods
-    private fun match(tokenType: String) {
-        if (currentTokenIndex < tokens.size) {
-            val currentToken = tokens[currentTokenIndex]
-            if (currentToken.startsWith(tokenType)) {
-                consumeToken()
-            } else {
-                throw Exception("Expected $tokenType but found $currentToken")
-            }
-        } else {
-            throw Exception("Expected $tokenType but reached end of input")
-        }
-    }
-
-    private fun peekToken(): String {
-        return if (currentTokenIndex < tokens.size) tokens[currentTokenIndex] else ""
-    }
-
-    private fun consumeToken() {
-        currentTokenIndex++
-    }
-
-    private fun isElementStart(token: String): Boolean {
-        return token.startsWith("road") ||
-                token.startsWith("building") ||
-                token.startsWith("bus_stop") ||
-                token.startsWith("bus_line")
-    }
-
-    private fun isCommandStart(token: String): Boolean {
-        return token.startsWith("line") ||
-                token.startsWith("bend") ||
-                token.startsWith("box") ||
-                token.startsWith("circ")
     }
 }

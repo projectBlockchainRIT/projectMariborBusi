@@ -156,13 +156,6 @@ for (i = 0; i < 10; i++) {
 ```
 Zanka, ki ponavlja ukaze določenokrat. `i` se povečuje za 1 pri vsakem ponovnem izvajanju.
 
-#### `increment/decrement`
-```
-i++  // poveča i za 1
-i--  // zmanjša i za 1
-```
-Osnovni ukazi za povečevanje in zmanjševanje vrednosti spremenljivk.
-
 ### `modularnost`
 
 #### `include`
@@ -196,7 +189,7 @@ Omogoča vključitev druge datoteke v trenutni program. Uporabno za ponovno upor
 <road> ::= 'road' <string> '(' <style> ')' '{' <command>* '}'
 <building> ::= 'building' <string> '{' <command>* '}'
 <station> ::= 'bus_stop' <string> '{' 'location' '(' <point> ')' ';' '}'
-<busline> ::= 'busline' <string> '{' <command>* '}'
+<busline> ::= 'busline' <string> '(' <style> ')' '{' <command>* '}'
 
 <style> ::= <color> | <line_style>
 <color> ::= '#' <hex_color>
@@ -236,7 +229,7 @@ Omogoča vključitev druge datoteke v trenutni program. Uporabno za ponovno upor
 
 <if_stmt> ::= 'if' '(' <expression> ')' '{' <command>* '}' ('else' '{' <command>* '}')?
 
-<for_stmt> ::= 'for' '(' <assignment> <expression> ';' <assignment> ')' '{' <command>* '}'
+<for_stmt> ::= 'for' '(' <assignment> 'to' <assignment> ')' '{' <command>* '}'
 
 <point> ::= '(' <number> ',' <number> ')'
 
@@ -325,7 +318,7 @@ if (a > 2) {
 6. Uporaba zanke za gradnjo več zgradb
 ```
 city "KrogCity" {
-  for (i = 0; i < 3; i++) {
+  for (i = 0 to 5) {
     building "Krog" {
       circ((i * 3, 0), 1);
     }
