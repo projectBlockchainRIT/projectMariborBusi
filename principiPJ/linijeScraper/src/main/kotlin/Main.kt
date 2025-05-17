@@ -38,7 +38,7 @@ suspend fun main() {
     }
 
     val json = response.bodyAsText()
-    File("../../sharedLibraries/busRoutes/bus_routes_maribor.json").writeText(json)
+    File("../../sharedLibraries/bus_routes_maribor.json").writeText(json)
     println("✔ Saved Overpass JSON to bus_stops_maribor.json")
 
     client.close()
