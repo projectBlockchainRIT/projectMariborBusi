@@ -225,7 +225,8 @@ Omogoča vključitev druge datoteke v trenutni program. Uporabno za ponovno upor
 <function_call> ::= <func_name> '(' <arg_list>? ')' ';'
 <func_name> ::= 'distance' | 'midpoint'
 
-<arg_list> ::= <expression> (',' <expression>)*
+<arg_list> ::= <point> ',' <arg_list>
+           | <point>
 
 <if_stmt> ::= 'if' '(' <expression> ')' '{' <command>* '}' ('else' '{' <command>* '}')?
 
@@ -233,6 +234,9 @@ Omogoča vključitev druge datoteke v trenutni program. Uporabno za ponovno upor
 
 <point> ::= '(' <number> ',' <number> ')'
 
+<primary> ::= <number>
+          | <string>
+          | <identifier>
 <string> ::= '"' <char>* '"'
 <identifier> ::= [a-zA-Z_][a-zA-Z0-9_]*
 <number> ::= int | int '.' int
@@ -256,20 +260,19 @@ city "MiniMesto" {
 2. Mesto z več postajami in avtobusno linijo
 ```
 city "BusMesto" {
-  station "Center" {
+  bus_stop "Center" {
     location((5,5));
   }
 
-  station "Postaja2" {
+  bus_stop "Postaja2" {
     location((10,10));
   }
 
-  busline "Linija1" {
+  bus_line "Linija1" {
     line((0,0), (5,5));
     bend((5,5), (10,10), 45);
   }
 }
-
 ```
 
 3. Mesto z krivuljo
@@ -280,7 +283,6 @@ city "KrivuljaCity" {
     bend((4,4), (1,1), -45);
   }
 }
-
 ```
 
 4. Izris parka s uporabo sredine
@@ -292,7 +294,6 @@ city "SredinskiPark" {
     circ(x, 2);
   }
 }
-
 ```
 
 5. Pogojna izris
@@ -312,13 +313,12 @@ if (a > 2) {
     }
   }
 }
-
 ```
 
 6. Uporaba zanke za gradnjo več zgradb
 ```
 city "KrogCity" {
-  for (i = 0 to 5) {
+  for (i = 0; to 5) {
     building "Krog" {
       circ((i * 3, 0), 1);
     }
@@ -331,11 +331,10 @@ city "KrogCity" {
 d = distance((1,1), (4,5));
 
 city "RazdaljaCity" {
-  building "InfoTočka" {
+  building "InfoTocka" {
     circ((2,2), d);
   }
 }
-
 ```
 
 8. Uporaba več stilov črt
@@ -350,18 +349,16 @@ city "StilCity" (
     box((6,6), (8,8));
   }
 }
-
 ```
 9. Vključitev zunanje datoteke
 ```
-include "zunanje_stavbe.dsl"
+import "zunanje_stavbe.dsl";
 
 city "ModularCity" {
   road "Glavna" {
     line((0,0), (5,5));
   }
 }
-
 ```
 
 10. Dinamična izbira zgradbe glede na razdaljo
