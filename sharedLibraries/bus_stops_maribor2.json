@@ -1,0 +1,3558 @@
+[
+  {
+    "id": "192",
+    "number": "001",
+    "name": "Avtobusna postaja",
+    "latitude": 46.559548,
+    "longitude": 15.656007
+  },
+  {
+    "id": "210",
+    "number": "002",
+    "name": "Avtobusna postaja",
+    "latitude": 46.559605,
+    "longitude": 15.655157
+  },
+  {
+    "id": "424",
+    "number": "003",
+    "name": "ŽP Maribor",
+    "latitude": 46.561728,
+    "longitude": 15.656944
+  },
+  {
+    "id": "423",
+    "number": "004",
+    "name": "ŽP Maribor",
+    "latitude": 46.561852,
+    "longitude": 15.656836
+  },
+  {
+    "id": "199",
+    "number": "005",
+    "name": "Prlek",
+    "latitude": 46.560518,
+    "longitude": 15.658035
+  },
+  {
+    "id": "200",
+    "number": "006",
+    "name": "Prlek",
+    "latitude": 46.560667,
+    "longitude": 15.657971
+  },
+  {
+    "id": "358",
+    "number": "007",
+    "name": "City - zdravstveni dom",
+    "latitude": 46.559151,
+    "longitude": 15.651256
+  },
+  {
+    "id": "359",
+    "number": "008",
+    "name": "City - zdravstveni dom",
+    "latitude": 46.558644,
+    "longitude": 15.650901
+  },
+  {
+    "id": "84",
+    "number": "009",
+    "name": "Glavni trg - Elektro",
+    "latitude": 46.557531,
+    "longitude": 15.647755
+  },
+  {
+    "id": "85",
+    "number": "010",
+    "name": "Glavni trg - Elektro",
+    "latitude": 46.557378,
+    "longitude": 15.646796
+  },
+  {
+    "id": "130",
+    "number": "018",
+    "name": "Koroški veter",
+    "latitude": 46.559166,
+    "longitude": 15.635392
+  },
+  {
+    "id": "131",
+    "number": "019",
+    "name": "Koroški veter",
+    "latitude": 46.559293,
+    "longitude": 15.635065
+  },
+  {
+    "id": "133",
+    "number": "020",
+    "name": "Koroška vrata - Mirni zaliv",
+    "latitude": 46.560205,
+    "longitude": 15.630971
+  },
+  {
+    "id": "134",
+    "number": "021",
+    "name": "Koroška vrata - Mirni zaliv",
+    "latitude": 46.560616,
+    "longitude": 15.629859
+  },
+  {
+    "id": "88",
+    "number": "022",
+    "name": "Univerzitetni kampus 1",
+    "latitude": 46.562867,
+    "longitude": 15.629161
+  },
+  {
+    "id": "89",
+    "number": "023",
+    "name": "Univerzitetni kampus 1",
+    "latitude": 46.562801,
+    "longitude": 15.628989
+  },
+  {
+    "id": "92",
+    "number": "025",
+    "name": "Gosposvetska - Kosarjeva",
+    "latitude": 46.562366,
+    "longitude": 15.631178
+  },
+  {
+    "id": "93",
+    "number": "026",
+    "name": "Gosposvetska - Kosarjeva",
+    "latitude": 46.561857,
+    "longitude": 15.633332
+  },
+  {
+    "id": "94",
+    "number": "027",
+    "name": "Gosposvetska - Vrbanska",
+    "latitude": 46.561371,
+    "longitude": 15.636204
+  },
+  {
+    "id": "95",
+    "number": "028",
+    "name": "Gosposvetska - Vrbanska",
+    "latitude": 46.561235,
+    "longitude": 15.636851
+  },
+  {
+    "id": "90",
+    "number": "029",
+    "name": "Tretja gimnazija",
+    "latitude": 46.560622,
+    "longitude": 15.640389
+  },
+  {
+    "id": "91",
+    "number": "030",
+    "name": "Tretja gimnazija",
+    "latitude": 46.560691,
+    "longitude": 15.640481
+  },
+  {
+    "id": "393",
+    "number": "032",
+    "name": "Mitnica",
+    "latitude": 46.565929,
+    "longitude": 15.633438
+  },
+  {
+    "id": "394",
+    "number": "033",
+    "name": "Mitnica",
+    "latitude": 46.566171,
+    "longitude": 15.632983
+  },
+  {
+    "id": "237",
+    "number": "035",
+    "name": "OŠ bratov Polančičev",
+    "latitude": 46.564297,
+    "longitude": 15.651606
+  },
+  {
+    "id": "357",
+    "number": "036",
+    "name": "Tomšičev drevored",
+    "latitude": 46.56561,
+    "longitude": 15.650571
+  },
+  {
+    "id": "144",
+    "number": "037",
+    "name": "Krekova - občina",
+    "latitude": 46.562065,
+    "longitude": 15.649602
+  },
+  {
+    "id": "303",
+    "number": "039",
+    "name": "Razlagova - EPF",
+    "latitude": 46.562136,
+    "longitude": 15.654084
+  },
+  {
+    "id": "143",
+    "number": "040",
+    "name": "Krekova",
+    "latitude": 46.562017,
+    "longitude": 15.643599
+  },
+  {
+    "id": "395",
+    "number": "041",
+    "name": "Kamniški drevored",
+    "latitude": 46.570028,
+    "longitude": 15.627758
+  },
+  {
+    "id": "396",
+    "number": "042",
+    "name": "Kamniški drevored",
+    "latitude": 46.570316,
+    "longitude": 15.627311
+  },
+  {
+    "id": "105",
+    "number": "043",
+    "name": "Kamnica - hipodrom",
+    "latitude": 46.573981,
+    "longitude": 15.623151
+  },
+  {
+    "id": "106",
+    "number": "044",
+    "name": "Kamnica - hipodrom",
+    "latitude": 46.574209,
+    "longitude": 15.622491
+  },
+  {
+    "id": "111",
+    "number": "045",
+    "name": "Kamnica - šola",
+    "latitude": 46.573562,
+    "longitude": 15.615887
+  },
+  {
+    "id": "112",
+    "number": "046",
+    "name": "Kamnica - šola",
+    "latitude": 46.573495,
+    "longitude": 15.617011
+  },
+  {
+    "id": "113",
+    "number": "047",
+    "name": "Kamnica - trgovina",
+    "latitude": 46.573793,
+    "longitude": 15.612425
+  },
+  {
+    "id": "114",
+    "number": "048",
+    "name": "Kamnica - trgovina",
+    "latitude": 46.574042,
+    "longitude": 15.612542
+  },
+  {
+    "id": "31",
+    "number": "049",
+    "name": "Cesta v Rošpoh 65",
+    "latitude": 46.57899,
+    "longitude": 15.613401
+  },
+  {
+    "id": "32",
+    "number": "050",
+    "name": "Cesta v Rošpoh 65",
+    "latitude": 46.579404,
+    "longitude": 15.613768
+  },
+  {
+    "id": "29",
+    "number": "051",
+    "name": "Cesta v Rošpoh 115",
+    "latitude": 46.584169,
+    "longitude": 15.615231
+  },
+  {
+    "id": "30",
+    "number": "052",
+    "name": "Cesta v Rošpoh 115",
+    "latitude": 46.583887,
+    "longitude": 15.615325
+  },
+  {
+    "id": "316",
+    "number": "053",
+    "name": "Rošpoh - odcep Urban",
+    "latitude": 46.587004,
+    "longitude": 15.616551
+  },
+  {
+    "id": "315",
+    "number": "054",
+    "name": "Rošpoh - odcep Urban",
+    "latitude": 46.587338,
+    "longitude": 15.616655
+  },
+  {
+    "id": "313",
+    "number": "055",
+    "name": "Rošpoh - Hojnik",
+    "latitude": 46.597751,
+    "longitude": 15.619571
+  },
+  {
+    "id": "312",
+    "number": "056",
+    "name": "Rošpoh",
+    "latitude": 46.601692,
+    "longitude": 15.621163
+  },
+  {
+    "id": "110",
+    "number": "057",
+    "name": "Kamnica",
+    "latitude": 46.572481,
+    "longitude": 15.612652
+  },
+  {
+    "id": "107",
+    "number": "058",
+    "name": "Kamnica - križišče",
+    "latitude": 46.571145,
+    "longitude": 15.612604
+  },
+  {
+    "id": "108",
+    "number": "059",
+    "name": "Kamnica - križišče",
+    "latitude": 46.571064,
+    "longitude": 15.614065
+  },
+  {
+    "id": "194",
+    "number": "060",
+    "name": "Mariborski otok - HE",
+    "latitude": 46.570163,
+    "longitude": 15.600708
+  },
+  {
+    "id": "195",
+    "number": "061",
+    "name": "Mariborski otok - HE",
+    "latitude": 46.570119,
+    "longitude": 15.601352
+  },
+  {
+    "id": "35",
+    "number": "062",
+    "name": "Čolnarna",
+    "latitude": 46.568112,
+    "longitude": 15.592015
+  },
+  {
+    "id": "36",
+    "number": "063",
+    "name": "Čolnarna",
+    "latitude": 46.568481,
+    "longitude": 15.593426
+  },
+  {
+    "id": "21",
+    "number": "064",
+    "name": "Bresternica - odcep",
+    "latitude": 46.567723,
+    "longitude": 15.584451
+  },
+  {
+    "id": "22",
+    "number": "065",
+    "name": "Bresternica - odcep",
+    "latitude": 46.567599,
+    "longitude": 15.585017
+  },
+  {
+    "id": "23",
+    "number": "066",
+    "name": "Bresternica - rondo",
+    "latitude": 46.566738,
+    "longitude": 15.578279
+  },
+  {
+    "id": "24",
+    "number": "067",
+    "name": "Bresternica - rondo",
+    "latitude": 46.566701,
+    "longitude": 15.57866
+  },
+  {
+    "id": "19",
+    "number": "068",
+    "name": "Bresternica - pošta",
+    "latitude": 46.566912,
+    "longitude": 15.578258
+  },
+  {
+    "id": "20",
+    "number": "069",
+    "name": "Bresternica - pošta",
+    "latitude": 46.566852,
+    "longitude": 15.578428
+  },
+  {
+    "id": "18",
+    "number": "070",
+    "name": "Bresternica",
+    "latitude": 46.566056,
+    "longitude": 15.571947
+  },
+  {
+    "id": "79",
+    "number": "071",
+    "name": "Gaj nad Mariborom",
+    "latitude": 46.619008,
+    "longitude": 15.565002
+  },
+  {
+    "id": "349",
+    "number": "073",
+    "name": "Fontana",
+    "latitude": 46.56558,
+    "longitude": 15.623574
+  },
+  {
+    "id": "350",
+    "number": "074",
+    "name": "Fontana",
+    "latitude": 46.564968,
+    "longitude": 15.624263
+  },
+  {
+    "id": "1",
+    "number": "075",
+    "name": "Akvarij",
+    "latitude": 46.564961,
+    "longitude": 15.649886
+  },
+  {
+    "id": "122",
+    "number": "076",
+    "name": "Kliček",
+    "latitude": 46.568597,
+    "longitude": 15.648833
+  },
+  {
+    "id": "123",
+    "number": "077",
+    "name": "Kliček",
+    "latitude": 46.568654,
+    "longitude": 15.648871
+  },
+  {
+    "id": "309",
+    "number": "078",
+    "name": "Ribnik 1",
+    "latitude": 46.573695,
+    "longitude": 15.644586
+  },
+  {
+    "id": "310",
+    "number": "079",
+    "name": "Ribnik 1",
+    "latitude": 46.573789,
+    "longitude": 15.644017
+  },
+  {
+    "id": "311",
+    "number": "080",
+    "name": "Ribniško selo",
+    "latitude": 46.576067,
+    "longitude": 15.641971
+  },
+  {
+    "id": "337",
+    "number": "081",
+    "name": "Šentiljska - Medved",
+    "latitude": 46.567076,
+    "longitude": 15.659232
+  },
+  {
+    "id": "338",
+    "number": "082",
+    "name": "Šentiljska - Medved",
+    "latitude": 46.567289,
+    "longitude": 15.658896
+  },
+  {
+    "id": "346",
+    "number": "083",
+    "name": "Šubičeva - vrtec",
+    "latitude": 46.568791,
+    "longitude": 15.657067
+  },
+  {
+    "id": "215",
+    "number": "084",
+    "name": "Nadvoz",
+    "latitude": 46.568097,
+    "longitude": 15.659518
+  },
+  {
+    "id": "135",
+    "number": "085",
+    "name": "Koš. dol - Pod vinogradi",
+    "latitude": 46.572788,
+    "longitude": 15.659274
+  },
+  {
+    "id": "138",
+    "number": "086",
+    "name": "Košaški dol - V zavoju",
+    "latitude": 46.574861,
+    "longitude": 15.662986
+  },
+  {
+    "id": "137",
+    "number": "087",
+    "name": "Košaški dol",
+    "latitude": 46.576146,
+    "longitude": 15.666803
+  },
+  {
+    "id": "136",
+    "number": "088",
+    "name": "Košaki - stiskalnica",
+    "latitude": 46.578054,
+    "longitude": 15.666996
+  },
+  {
+    "id": "214",
+    "number": "089",
+    "name": "Na prehodu",
+    "latitude": 46.581964,
+    "longitude": 15.666229
+  },
+  {
+    "id": "341",
+    "number": "093",
+    "name": "Šentiljska - veterinar",
+    "latitude": 46.581046,
+    "longitude": 15.662691
+  },
+  {
+    "id": "339",
+    "number": "095",
+    "name": "Šentiljska - Počehovska",
+    "latitude": 46.576391,
+    "longitude": 15.657536
+  },
+  {
+    "id": "340",
+    "number": "097",
+    "name": "Šentiljska - TMI Košaki",
+    "latitude": 46.570616,
+    "longitude": 15.658075
+  },
+  {
+    "id": "201",
+    "number": "098",
+    "name": "Meljska - trgovina",
+    "latitude": 46.560634,
+    "longitude": 15.663027
+  },
+  {
+    "id": "202",
+    "number": "099",
+    "name": "Meljska - trgovina",
+    "latitude": 46.560514,
+    "longitude": 15.662161
+  },
+  {
+    "id": "230",
+    "number": "101",
+    "name": "Oreško nabrežje 1",
+    "latitude": 46.556492,
+    "longitude": 15.662919
+  },
+  {
+    "id": "198",
+    "number": "103",
+    "name": "Melje",
+    "latitude": 46.559977,
+    "longitude": 15.66818
+  },
+  {
+    "id": "56",
+    "number": "104",
+    "name": "Dravograjska - Sokolska",
+    "latitude": 46.557532,
+    "longitude": 15.624998
+  },
+  {
+    "id": "52",
+    "number": "105",
+    "name": "Prometna šola Maribor",
+    "latitude": 46.552491,
+    "longitude": 15.623049
+  },
+  {
+    "id": "50",
+    "number": "106",
+    "name": "Dravograjska",
+    "latitude": 46.549182,
+    "longitude": 15.621149
+  },
+  {
+    "id": "397",
+    "number": "108",
+    "name": "Supernova",
+    "latitude": 46.544965,
+    "longitude": 15.619133
+  },
+  {
+    "id": "54",
+    "number": "109",
+    "name": "Supernova",
+    "latitude": 46.546461,
+    "longitude": 15.620128
+  },
+  {
+    "id": "280",
+    "number": "110",
+    "name": "Supernova 1",
+    "latitude": 46.545432,
+    "longitude": 15.620348
+  },
+  {
+    "id": "51",
+    "number": "111",
+    "name": "Dravograjska",
+    "latitude": 46.549942,
+    "longitude": 15.621805
+  },
+  {
+    "id": "53",
+    "number": "112",
+    "name": "Prometna šola Maribor",
+    "latitude": 46.553664,
+    "longitude": 15.624005
+  },
+  {
+    "id": "55",
+    "number": "113",
+    "name": "Dravograjska - Sokolska",
+    "latitude": 46.557368,
+    "longitude": 15.625449
+  },
+  {
+    "id": "163",
+    "number": "114",
+    "name": "Limbuška - Pekrska",
+    "latitude": 46.556562,
+    "longitude": 15.620111
+  },
+  {
+    "id": "164",
+    "number": "115",
+    "name": "Limbuška - Pekrska",
+    "latitude": 46.556416,
+    "longitude": 15.620624
+  },
+  {
+    "id": "166",
+    "number": "116",
+    "name": "Limbuška 47",
+    "latitude": 46.557197,
+    "longitude": 15.616584
+  },
+  {
+    "id": "167",
+    "number": "117",
+    "name": "Limbuška 47",
+    "latitude": 46.557069,
+    "longitude": 15.616917
+  },
+  {
+    "id": "331",
+    "number": "118",
+    "name": "Studenci",
+    "latitude": 46.556986,
+    "longitude": 15.611228
+  },
+  {
+    "id": "330",
+    "number": "119",
+    "name": "Studenci",
+    "latitude": 46.556847,
+    "longitude": 15.610385
+  },
+  {
+    "id": "161",
+    "number": "120",
+    "name": "Limbuška - Lesarska",
+    "latitude": 46.556424,
+    "longitude": 15.602803
+  },
+  {
+    "id": "162",
+    "number": "121",
+    "name": "Limbuška - Lesarska",
+    "latitude": 46.556424,
+    "longitude": 15.604549
+  },
+  {
+    "id": "154",
+    "number": "122",
+    "name": "Lesarska šola",
+    "latitude": 46.562266,
+    "longitude": 15.601788
+  },
+  {
+    "id": "196",
+    "number": "123",
+    "name": "Marles",
+    "latitude": 46.557844,
+    "longitude": 15.596415
+  },
+  {
+    "id": "165",
+    "number": "124",
+    "name": "Limbuška - rondo",
+    "latitude": 46.554951,
+    "longitude": 15.583604
+  },
+  {
+    "id": "157",
+    "number": "127",
+    "name": "Limbuš",
+    "latitude": 46.553939,
+    "longitude": 15.582293
+  },
+  {
+    "id": "159",
+    "number": "128",
+    "name": "Limbuš - pošta",
+    "latitude": 46.550344,
+    "longitude": 15.588568
+  },
+  {
+    "id": "160",
+    "number": "129",
+    "name": "Limbuš - pošta",
+    "latitude": 46.550618,
+    "longitude": 15.588177
+  },
+  {
+    "id": "248",
+    "number": "130",
+    "name": "Pekre",
+    "latitude": 46.548544,
+    "longitude": 15.594241
+  },
+  {
+    "id": "249",
+    "number": "131",
+    "name": "Pekre",
+    "latitude": 46.548657,
+    "longitude": 15.594099
+  },
+  {
+    "id": "74",
+    "number": "132",
+    "name": "Erjavčeva",
+    "latitude": 46.556453,
+    "longitude": 15.610227
+  },
+  {
+    "id": "75",
+    "number": "133",
+    "name": "Erjavčeva",
+    "latitude": 46.555365,
+    "longitude": 15.614664
+  },
+  {
+    "id": "77",
+    "number": "135",
+    "name": "Erjavčeva - ZD",
+    "latitude": 46.554633,
+    "longitude": 15.616999
+  },
+  {
+    "id": "335",
+    "number": "136",
+    "name": "Šarhova - pošta",
+    "latitude": 46.551724,
+    "longitude": 15.621286
+  },
+  {
+    "id": "336",
+    "number": "137",
+    "name": "Šarhova - pošta",
+    "latitude": 46.551581,
+    "longitude": 15.621506
+  },
+  {
+    "id": "334",
+    "number": "138",
+    "name": "Šarhova",
+    "latitude": 46.553252,
+    "longitude": 15.617321
+  },
+  {
+    "id": "126",
+    "number": "139",
+    "name": "Limbuška obvoznica",
+    "latitude": 46.555541,
+    "longitude": 15.604321
+  },
+  {
+    "id": "153",
+    "number": "142",
+    "name": "Lackova - Stara lipa",
+    "latitude": 46.538361,
+    "longitude": 15.612191
+  },
+  {
+    "id": "152",
+    "number": "143",
+    "name": "Lackova - Stara lipa",
+    "latitude": 46.538493,
+    "longitude": 15.611431
+  },
+  {
+    "id": "253",
+    "number": "144",
+    "name": "Pohorska - Mlada lipa",
+    "latitude": 46.539771,
+    "longitude": 15.606151
+  },
+  {
+    "id": "254",
+    "number": "145",
+    "name": "Pohorska - Mlada lipa",
+    "latitude": 46.539628,
+    "longitude": 15.605652
+  },
+  {
+    "id": "255",
+    "number": "146",
+    "name": "Pohorska - pošta",
+    "latitude": 46.537453,
+    "longitude": 15.603781
+  },
+  {
+    "id": "256",
+    "number": "147",
+    "name": "Pohorska - pošta",
+    "latitude": 46.537233,
+    "longitude": 15.603547
+  },
+  {
+    "id": "398",
+    "number": "148",
+    "name": "Vzpenjača",
+    "latitude": 46.533221,
+    "longitude": 15.599686
+  },
+  {
+    "id": "150",
+    "number": "149",
+    "name": "Lackova - Mlada lipa",
+    "latitude": 46.540574,
+    "longitude": 15.606969
+  },
+  {
+    "id": "151",
+    "number": "150",
+    "name": "Lackova - Na gorco",
+    "latitude": 46.54564,
+    "longitude": 15.600098
+  },
+  {
+    "id": "250",
+    "number": "151",
+    "name": "Pekre",
+    "latitude": 46.547527,
+    "longitude": 15.593973
+  },
+  {
+    "id": "17",
+    "number": "152",
+    "name": "Bezjakova",
+    "latitude": 46.541783,
+    "longitude": 15.590336
+  },
+  {
+    "id": "155",
+    "number": "153",
+    "name": "Lesjakova 1",
+    "latitude": 46.538239,
+    "longitude": 15.588906
+  },
+  {
+    "id": "156",
+    "number": "154",
+    "name": "Lesjakova 2",
+    "latitude": 46.537262,
+    "longitude": 15.591816
+  },
+  {
+    "id": "422",
+    "number": "155",
+    "name": "Zvezna ulica",
+    "latitude": 46.537056,
+    "longitude": 15.596948
+  },
+  {
+    "id": "229",
+    "number": "156",
+    "name": "Ob ribniku",
+    "latitude": 46.539462,
+    "longitude": 15.59855
+  },
+  {
+    "id": "326",
+    "number": "157",
+    "name": "Streliška - Ul. Poh. odr.",
+    "latitude": 46.536251,
+    "longitude": 15.620385
+  },
+  {
+    "id": "327",
+    "number": "158",
+    "name": "Streliška - Ul. Poh. odr.",
+    "latitude": 46.536224,
+    "longitude": 15.620682
+  },
+  {
+    "id": "242",
+    "number": "159",
+    "name": "OŠ Ludvika Pliberška",
+    "latitude": 46.537644,
+    "longitude": 15.620457
+  },
+  {
+    "id": "243",
+    "number": "160",
+    "name": "OŠ Ludvika Pliberška",
+    "latitude": 46.537643,
+    "longitude": 15.620659
+  },
+  {
+    "id": "240",
+    "number": "161",
+    "name": "Center Gustava Šiliha",
+    "latitude": 46.540425,
+    "longitude": 15.621986
+  },
+  {
+    "id": "241",
+    "number": "162",
+    "name": "Center Gustava Šiliha",
+    "latitude": 46.540432,
+    "longitude": 15.622139
+  },
+  {
+    "id": "223",
+    "number": "163",
+    "name": "Nova vas 2",
+    "latitude": 46.543159,
+    "longitude": 15.624149
+  },
+  {
+    "id": "224",
+    "number": "164",
+    "name": "Nova vas 2",
+    "latitude": 46.543812,
+    "longitude": 15.624338
+  },
+  {
+    "id": "282",
+    "number": "165",
+    "name": "Prol. brigad - vojašnica",
+    "latitude": 46.544819,
+    "longitude": 15.624193
+  },
+  {
+    "id": "283",
+    "number": "166",
+    "name": "Prol. brigad - vojašnica",
+    "latitude": 46.544607,
+    "longitude": 15.625679
+  },
+  {
+    "id": "297",
+    "number": "167",
+    "name": "Radvanjska - Borštnikova",
+    "latitude": 46.535775,
+    "longitude": 15.625033
+  },
+  {
+    "id": "298",
+    "number": "168",
+    "name": "Radvanjska - Borštnikova",
+    "latitude": 46.536279,
+    "longitude": 15.625321
+  },
+  {
+    "id": "295",
+    "number": "169",
+    "name": "Radvanjska - Antoličičeva",
+    "latitude": 46.537936,
+    "longitude": 15.626869
+  },
+  {
+    "id": "296",
+    "number": "170",
+    "name": "Radvanjska - Antoličičeva",
+    "latitude": 46.538366,
+    "longitude": 15.627125
+  },
+  {
+    "id": "299",
+    "number": "171",
+    "name": "Radvanjska - trgovina",
+    "latitude": 46.542801,
+    "longitude": 15.631095
+  },
+  {
+    "id": "300",
+    "number": "172",
+    "name": "Radvanjska - trgovina",
+    "latitude": 46.541651,
+    "longitude": 15.629961
+  },
+  {
+    "id": "116",
+    "number": "173",
+    "name": "Kardeljeva - Borštnikova",
+    "latitude": 46.533681,
+    "longitude": 15.629585
+  },
+  {
+    "id": "115",
+    "number": "174",
+    "name": "Kardeljeva - Borštnikova",
+    "latitude": 46.534392,
+    "longitude": 15.630204
+  },
+  {
+    "id": "246",
+    "number": "175",
+    "name": "OŠ Tabor I",
+    "latitude": 46.536735,
+    "longitude": 15.631356
+  },
+  {
+    "id": "247",
+    "number": "176",
+    "name": "OŠ Tabor I",
+    "latitude": 46.536681,
+    "longitude": 15.631055
+  },
+  {
+    "id": "119",
+    "number": "177",
+    "name": "Kardeljeva cesta 49",
+    "latitude": 46.543928,
+    "longitude": 15.634391
+  },
+  {
+    "id": "275",
+    "number": "178",
+    "name": "Prol. brigad - Kardeljeva",
+    "latitude": 46.543219,
+    "longitude": 15.632911
+  },
+  {
+    "id": "274",
+    "number": "179",
+    "name": "Prol. brigad - Kardeljeva",
+    "latitude": 46.542598,
+    "longitude": 15.634665
+  },
+  {
+    "id": "276",
+    "number": "180",
+    "name": "Prol. brigad - lekarna",
+    "latitude": 46.543982,
+    "longitude": 15.629472
+  },
+  {
+    "id": "277",
+    "number": "181",
+    "name": "Prol. brigad - lekarna",
+    "latitude": 46.544323,
+    "longitude": 15.628793
+  },
+  {
+    "id": "7",
+    "number": "182",
+    "name": "Betnavska - Goriška",
+    "latitude": 46.540409,
+    "longitude": 15.637128
+  },
+  {
+    "id": "8",
+    "number": "183",
+    "name": "Betnavska - Goriška",
+    "latitude": 46.540358,
+    "longitude": 15.637294
+  },
+  {
+    "id": "9",
+    "number": "184",
+    "name": "Betnavska - Knafelčeva",
+    "latitude": 46.538211,
+    "longitude": 15.635715
+  },
+  {
+    "id": "10",
+    "number": "185",
+    "name": "Betnavska - Knafelčeva",
+    "latitude": 46.537849,
+    "longitude": 15.635186
+  },
+  {
+    "id": "463",
+    "number": "186",
+    "name": "Lesjakova 1",
+    "latitude": 46.53841,
+    "longitude": 15.588516
+  },
+  {
+    "id": "117",
+    "number": "188",
+    "name": "Kardeljeva - Knafelčeva",
+    "latitude": 46.538595,
+    "longitude": 15.631963
+  },
+  {
+    "id": "118",
+    "number": "189",
+    "name": "Kardeljeva - Knafelčeva",
+    "latitude": 46.538949,
+    "longitude": 15.632643
+  },
+  {
+    "id": "177",
+    "number": "190",
+    "name": "Nova vas",
+    "latitude": 46.533502,
+    "longitude": 15.634789
+  },
+  {
+    "id": "172",
+    "number": "192",
+    "name": "Ljubljanska - stolpnica",
+    "latitude": 46.536635,
+    "longitude": 15.637329
+  },
+  {
+    "id": "173",
+    "number": "193",
+    "name": "Ljubljanska - stolpnica",
+    "latitude": 46.537296,
+    "longitude": 15.638018
+  },
+  {
+    "id": "174",
+    "number": "194",
+    "name": "Ljubljanska - TC Mercator",
+    "latitude": 46.539467,
+    "longitude": 15.639381
+  },
+  {
+    "id": "175",
+    "number": "195",
+    "name": "Ljubljanska - TC Mercator",
+    "latitude": 46.540333,
+    "longitude": 15.639733
+  },
+  {
+    "id": "278",
+    "number": "196",
+    "name": "Prol. brigad - Ljubljan.",
+    "latitude": 46.541427,
+    "longitude": 15.639756
+  },
+  {
+    "id": "279",
+    "number": "197",
+    "name": "Prol. brigad - Ljubljan.",
+    "latitude": 46.540904,
+    "longitude": 15.641137
+  },
+  {
+    "id": "212",
+    "number": "198",
+    "name": "Na Poljanah - Atletski stadion",
+    "latitude": 46.551745,
+    "longitude": 15.628734
+  },
+  {
+    "id": "213",
+    "number": "199",
+    "name": "Na Poljanah - Atletski stadion",
+    "latitude": 46.551892,
+    "longitude": 15.628447
+  },
+  {
+    "id": "70",
+    "number": "200",
+    "name": "Engelsova - Šarhova",
+    "latitude": 46.549346,
+    "longitude": 15.629735
+  },
+  {
+    "id": "71",
+    "number": "201",
+    "name": "Engelsova - Šarhova",
+    "latitude": 46.548919,
+    "longitude": 15.628775
+  },
+  {
+    "id": "72",
+    "number": "203",
+    "name": "Engelsova - vojašnica",
+    "latitude": 46.546828,
+    "longitude": 15.624751
+  },
+  {
+    "id": "73",
+    "number": "204",
+    "name": "Engelsova - vojašnica",
+    "latitude": 46.547295,
+    "longitude": 15.625758
+  },
+  {
+    "id": "301",
+    "number": "205",
+    "name": "Radvanjska - vojašnica",
+    "latitude": 46.545895,
+    "longitude": 15.634183
+  },
+  {
+    "id": "302",
+    "number": "206",
+    "name": "Radvanjska - vojašnica",
+    "latitude": 46.546526,
+    "longitude": 15.635159
+  },
+  {
+    "id": "67",
+    "number": "207",
+    "name": "Dvorana Tabor - Gorkega",
+    "latitude": 46.549492,
+    "longitude": 15.637156
+  },
+  {
+    "id": "68",
+    "number": "208",
+    "name": "Dvorana Tabor - Koresova",
+    "latitude": 46.549854,
+    "longitude": 15.636699
+  },
+  {
+    "id": "69",
+    "number": "209",
+    "name": "Dvorana Tabor - Koresova",
+    "latitude": 46.549942,
+    "longitude": 15.636722
+  },
+  {
+    "id": "86",
+    "number": "210",
+    "name": "Gorkega - Preradovičeva",
+    "latitude": 46.55112,
+    "longitude": 15.639839
+  },
+  {
+    "id": "87",
+    "number": "211",
+    "name": "Gorkega - Preradovičeva",
+    "latitude": 46.550584,
+    "longitude": 15.639119
+  },
+  {
+    "id": "11",
+    "number": "212",
+    "name": "Betnavska - Metelkova",
+    "latitude": 46.543233,
+    "longitude": 15.638539
+  },
+  {
+    "id": "12",
+    "number": "213",
+    "name": "Betnavska - Metelkova",
+    "latitude": 46.542351,
+    "longitude": 15.638437
+  },
+  {
+    "id": "5",
+    "number": "214",
+    "name": "Betnavska - Focheva",
+    "latitude": 46.546179,
+    "longitude": 15.639123
+  },
+  {
+    "id": "6",
+    "number": "215",
+    "name": "Betnavska - Focheva",
+    "latitude": 46.546786,
+    "longitude": 15.639532
+  },
+  {
+    "id": "13",
+    "number": "216",
+    "name": "OŠ Franceta Prešerna",
+    "latitude": 46.550416,
+    "longitude": 15.640798
+  },
+  {
+    "id": "14",
+    "number": "217",
+    "name": "OŠ Franceta Prešerna",
+    "latitude": 46.550335,
+    "longitude": 15.641006
+  },
+  {
+    "id": "244",
+    "number": "218",
+    "name": "OŠ Maksa Durjave",
+    "latitude": 46.553481,
+    "longitude": 15.639959
+  },
+  {
+    "id": "245",
+    "number": "219",
+    "name": "OŠ Maksa Durjave",
+    "latitude": 46.553781,
+    "longitude": 15.639109
+  },
+  {
+    "id": "425",
+    "number": "220",
+    "name": "ŽP Studenci",
+    "latitude": 46.554505,
+    "longitude": 15.635999
+  },
+  {
+    "id": "426",
+    "number": "221",
+    "name": "ŽP Studenci",
+    "latitude": 46.554546,
+    "longitude": 15.635401
+  },
+  {
+    "id": "391",
+    "number": "222",
+    "name": "OŠ Janka Padežnika",
+    "latitude": 46.556902,
+    "longitude": 15.626748
+  },
+  {
+    "id": "392",
+    "number": "223",
+    "name": "OŠ Janka Padežnika",
+    "latitude": 46.556541,
+    "longitude": 15.628123
+  },
+  {
+    "id": "389",
+    "number": "224",
+    "name": "Waldorfska šola",
+    "latitude": 46.556141,
+    "longitude": 15.630354
+  },
+  {
+    "id": "390",
+    "number": "225",
+    "name": "Waldorfska šola",
+    "latitude": 46.555811,
+    "longitude": 15.631387
+  },
+  {
+    "id": "347",
+    "number": "226",
+    "name": "UKC - Tabor",
+    "latitude": 46.553496,
+    "longitude": 15.644225
+  },
+  {
+    "id": "180",
+    "number": "227",
+    "name": "UKC - Pobreška",
+    "latitude": 46.554578,
+    "longitude": 15.646762
+  },
+  {
+    "id": "181",
+    "number": "228",
+    "name": "UKC - Pobreška",
+    "latitude": 46.554476,
+    "longitude": 15.647181
+  },
+  {
+    "id": "191",
+    "number": "229",
+    "name": "Maribor - UKC",
+    "latitude": 46.553028,
+    "longitude": 15.646453
+  },
+  {
+    "id": "182",
+    "number": "230",
+    "name": "UKC - Magdalenski park",
+    "latitude": 46.552755,
+    "longitude": 15.645782
+  },
+  {
+    "id": "170",
+    "number": "231",
+    "name": "Ljubljanska - II. gimn.",
+    "latitude": 46.548748,
+    "longitude": 15.645491
+  },
+  {
+    "id": "171",
+    "number": "232",
+    "name": "Ljubljanska - II. gimn.",
+    "latitude": 46.549561,
+    "longitude": 15.645558
+  },
+  {
+    "id": "168",
+    "number": "233",
+    "name": "Ljubljanska - Focheva",
+    "latitude": 46.54502,
+    "longitude": 15.643234
+  },
+  {
+    "id": "169",
+    "number": "234",
+    "name": "Ljubljanska - Focheva",
+    "latitude": 46.545074,
+    "longitude": 15.643485
+  },
+  {
+    "id": "273",
+    "number": "235",
+    "name": "Prol. brigad - Ferkova",
+    "latitude": 46.541641,
+    "longitude": 15.640899
+  },
+  {
+    "id": "355",
+    "number": "236",
+    "name": "Titova - Nasipna",
+    "latitude": 46.543712,
+    "longitude": 15.649091
+  },
+  {
+    "id": "356",
+    "number": "237",
+    "name": "Titova - Nasipna",
+    "latitude": 46.544594,
+    "longitude": 15.648782
+  },
+  {
+    "id": "367",
+    "number": "238",
+    "name": "Tržaška - Ptujska",
+    "latitude": 46.541329,
+    "longitude": 15.648398
+  },
+  {
+    "id": "382",
+    "number": "242",
+    "name": "Ul. Pariške komune",
+    "latitude": 46.548834,
+    "longitude": 15.641523
+  },
+  {
+    "id": "383",
+    "number": "243",
+    "name": "Ul. Pariške komune",
+    "latitude": 46.548726,
+    "longitude": 15.641515
+  },
+  {
+    "id": "281",
+    "number": "244",
+    "name": "Prol. brigad - Tržaška",
+    "latitude": 46.539799,
+    "longitude": 15.646367
+  },
+  {
+    "id": "15",
+    "number": "245",
+    "name": "Betnavski grad",
+    "latitude": 46.529618,
+    "longitude": 15.637662
+  },
+  {
+    "id": "16",
+    "number": "246",
+    "name": "Betnavski grad",
+    "latitude": 46.529503,
+    "longitude": 15.637461
+  },
+  {
+    "id": "307",
+    "number": "247",
+    "name": "Razvanje - vrtnarstvo",
+    "latitude": 46.521622,
+    "longitude": 15.635317
+  },
+  {
+    "id": "306",
+    "number": "248",
+    "name": "Razvanje - GD",
+    "latitude": 46.518901,
+    "longitude": 15.634317
+  },
+  {
+    "id": "305",
+    "number": "249",
+    "name": "Razvanje - GD",
+    "latitude": 46.517971,
+    "longitude": 15.634457
+  },
+  {
+    "id": "304",
+    "number": "250",
+    "name": "Razvanje",
+    "latitude": 46.515413,
+    "longitude": 15.6356531
+  },
+  {
+    "id": "348",
+    "number": "254",
+    "name": "E.Leclerc",
+    "latitude": 46.521225,
+    "longitude": 15.651598
+  },
+  {
+    "id": "372",
+    "number": "255",
+    "name": "Tržaška cesta - Rutar",
+    "latitude": 46.521951,
+    "longitude": 15.648881
+  },
+  {
+    "id": "365",
+    "number": "258",
+    "name": "Tržaška cesta - carinarnica",
+    "latitude": 46.526461,
+    "longitude": 15.648079
+  },
+  {
+    "id": "366",
+    "number": "259",
+    "name": "Tržaška cesta - carinarnica",
+    "latitude": 46.526525,
+    "longitude": 15.648251
+  },
+  {
+    "id": "370",
+    "number": "260",
+    "name": "Tržaška cesta - Lesnina",
+    "latitude": 46.530275,
+    "longitude": 15.646328
+  },
+  {
+    "id": "371",
+    "number": "261",
+    "name": "Tržaška cesta - Lesnina",
+    "latitude": 46.530925,
+    "longitude": 15.645941
+  },
+  {
+    "id": "251",
+    "number": "262",
+    "name": "Pobreška - Europark",
+    "latitude": 46.55473,
+    "longitude": 15.654307
+  },
+  {
+    "id": "252",
+    "number": "263",
+    "name": "Pobreška - Europark",
+    "latitude": 46.554732,
+    "longitude": 15.653071
+  },
+  {
+    "id": "203",
+    "number": "265",
+    "name": "Meljski hrib - most",
+    "latitude": 46.558419,
+    "longitude": 15.681445
+  },
+  {
+    "id": "204",
+    "number": "266",
+    "name": "Meljski hrib - most",
+    "latitude": 46.558068,
+    "longitude": 15.682489
+  },
+  {
+    "id": "139",
+    "number": "267",
+    "name": "Kovačič",
+    "latitude": 46.556493,
+    "longitude": 15.691105
+  },
+  {
+    "id": "140",
+    "number": "268",
+    "name": "Kovačič",
+    "latitude": 46.556431,
+    "longitude": 15.691654
+  },
+  {
+    "id": "178",
+    "number": "270",
+    "name": "Malečnik",
+    "latitude": 46.555131,
+    "longitude": 15.697163
+  },
+  {
+    "id": "179",
+    "number": "271",
+    "name": "Malečnik",
+    "latitude": 46.555402,
+    "longitude": 15.696661
+  },
+  {
+    "id": "186",
+    "number": "272",
+    "name": "Malečnik - odcep Trčova",
+    "latitude": 46.553079,
+    "longitude": 15.705175
+  },
+  {
+    "id": "187",
+    "number": "273",
+    "name": "Malečnik - odcep Trčova",
+    "latitude": 46.553011,
+    "longitude": 15.705251
+  },
+  {
+    "id": "27",
+    "number": "274",
+    "name": "Celestrina",
+    "latitude": 46.555618,
+    "longitude": 15.710577
+  },
+  {
+    "id": "28",
+    "number": "275",
+    "name": "Celestrina",
+    "latitude": 46.556035,
+    "longitude": 15.711244
+  },
+  {
+    "id": "219",
+    "number": "276",
+    "name": "Nebova I",
+    "latitude": 46.556982,
+    "longitude": 15.720101
+  },
+  {
+    "id": "220",
+    "number": "277",
+    "name": "Nebova I",
+    "latitude": 46.557287,
+    "longitude": 15.719664
+  },
+  {
+    "id": "221",
+    "number": "278",
+    "name": "Nebova II",
+    "latitude": 46.557705,
+    "longitude": 15.725053
+  },
+  {
+    "id": "222",
+    "number": "279",
+    "name": "Nebova II",
+    "latitude": 46.557634,
+    "longitude": 15.724085
+  },
+  {
+    "id": "188",
+    "number": "280",
+    "name": "Malečnik - odcep Trčova",
+    "latitude": 46.552997,
+    "longitude": 15.705808
+  },
+  {
+    "id": "317",
+    "number": "282",
+    "name": "Ruperče",
+    "latitude": 46.560819,
+    "longitude": 15.729387
+  },
+  {
+    "id": "318",
+    "number": "283",
+    "name": "Ruperče",
+    "latitude": 46.560761,
+    "longitude": 15.729293
+  },
+  {
+    "id": "145",
+    "number": "284",
+    "name": "Kronaveter",
+    "latitude": 46.556601,
+    "longitude": 15.733079
+  },
+  {
+    "id": "124",
+    "number": "285",
+    "name": "Knezar",
+    "latitude": 46.554317,
+    "longitude": 15.736326
+  },
+  {
+    "id": "208",
+    "number": "286",
+    "name": "Metava - odcep",
+    "latitude": 46.550199,
+    "longitude": 15.740111
+  },
+  {
+    "id": "404",
+    "number": "287",
+    "name": "Zimica - odcep",
+    "latitude": 46.551326,
+    "longitude": 15.743461
+  },
+  {
+    "id": "101",
+    "number": "288",
+    "name": "Grušova 1",
+    "latitude": 46.557164,
+    "longitude": 15.745885
+  },
+  {
+    "id": "102",
+    "number": "289",
+    "name": "Grušova 1",
+    "latitude": 46.557053,
+    "longitude": 15.745686
+  },
+  {
+    "id": "100",
+    "number": "290",
+    "name": "Grušova",
+    "latitude": 46.559594,
+    "longitude": 15.747312
+  },
+  {
+    "id": "189",
+    "number": "291",
+    "name": "Malečnik - trgovina",
+    "latitude": 46.552428,
+    "longitude": 15.708238
+  },
+  {
+    "id": "362",
+    "number": "292",
+    "name": "Trčova 31",
+    "latitude": 46.54768,
+    "longitude": 15.714955
+  },
+  {
+    "id": "363",
+    "number": "293",
+    "name": "Trčova 31",
+    "latitude": 46.547793,
+    "longitude": 15.714933
+  },
+  {
+    "id": "360",
+    "number": "294",
+    "name": "Trčova - Griček",
+    "latitude": 46.539405,
+    "longitude": 15.720482
+  },
+  {
+    "id": "225",
+    "number": "295",
+    "name": "Novak",
+    "latitude": 46.537613,
+    "longitude": 15.724272
+  },
+  {
+    "id": "206",
+    "number": "296",
+    "name": "Metava - Duplek križišče",
+    "latitude": 46.534851,
+    "longitude": 15.731278
+  },
+  {
+    "id": "205",
+    "number": "297",
+    "name": "Metava",
+    "latitude": 46.539722,
+    "longitude": 15.732907
+  },
+  {
+    "id": "96",
+    "number": "298",
+    "name": "Greenwich",
+    "latitude": 46.554504,
+    "longitude": 15.659352
+  },
+  {
+    "id": "97",
+    "number": "299",
+    "name": "Greenwich",
+    "latitude": 46.554659,
+    "longitude": 15.659808
+  },
+  {
+    "id": "218",
+    "number": "300",
+    "name": "Nasipna - Snaga",
+    "latitude": 46.551359,
+    "longitude": 15.656685
+  },
+  {
+    "id": "217",
+    "number": "301",
+    "name": "Nasipna - Snaga",
+    "latitude": 46.550584,
+    "longitude": 15.656246
+  },
+  {
+    "id": "3",
+    "number": "302",
+    "name": "Stražun",
+    "latitude": 46.542973,
+    "longitude": 15.654071
+  },
+  {
+    "id": "227",
+    "number": "303",
+    "name": "OŠ borcev za severno mejo",
+    "latitude": 46.547933,
+    "longitude": 15.656879
+  },
+  {
+    "id": "228",
+    "number": "304",
+    "name": "OŠ borcev za severno mejo",
+    "latitude": 46.547051,
+    "longitude": 15.656968
+  },
+  {
+    "id": "388",
+    "number": "305",
+    "name": "Ulica heroja Vojka",
+    "latitude": 46.544808,
+    "longitude": 15.653853
+  },
+  {
+    "id": "216",
+    "number": "306",
+    "name": "Nasipna - Cizerl",
+    "latitude": 46.545437,
+    "longitude": 15.652773
+  },
+  {
+    "id": "37",
+    "number": "307",
+    "name": "Črnogorska ul. 23",
+    "latitude": 46.545622,
+    "longitude": 15.656589
+  },
+  {
+    "id": "184",
+    "number": "308",
+    "name": "Makedonska",
+    "latitude": 46.542602,
+    "longitude": 15.657619
+  },
+  {
+    "id": "2",
+    "number": "309",
+    "name": "Stražun",
+    "latitude": 46.542928,
+    "longitude": 15.654167
+  },
+  {
+    "id": "427",
+    "number": "310",
+    "name": "ŽP Tezno",
+    "latitude": 46.539888,
+    "longitude": 15.650973
+  },
+  {
+    "id": "428",
+    "number": "311",
+    "name": "ŽP Tezno",
+    "latitude": 46.539447,
+    "longitude": 15.651313
+  },
+  {
+    "id": "401",
+    "number": "312",
+    "name": "Zagrebška - Kovinar",
+    "latitude": 46.534441,
+    "longitude": 15.658472
+  },
+  {
+    "id": "402",
+    "number": "313",
+    "name": "Zagrebška - Kovinar",
+    "latitude": 46.534721,
+    "longitude": 15.658095
+  },
+  {
+    "id": "399",
+    "number": "314",
+    "name": "Zagrebška - CSD",
+    "latitude": 46.531882,
+    "longitude": 15.664025
+  },
+  {
+    "id": "400",
+    "number": "315",
+    "name": "Zagrebška - CSD",
+    "latitude": 46.531271,
+    "longitude": 15.665202
+  },
+  {
+    "id": "120",
+    "number": "316",
+    "name": "Kavčičeva",
+    "latitude": 46.526876,
+    "longitude": 15.672361
+  },
+  {
+    "id": "121",
+    "number": "317",
+    "name": "Kavčičeva",
+    "latitude": 46.527143,
+    "longitude": 15.672036
+  },
+  {
+    "id": "406",
+    "number": "318",
+    "name": "Zolajeva - TŠC",
+    "latitude": 46.525953,
+    "longitude": 15.670998
+  },
+  {
+    "id": "264",
+    "number": "320",
+    "name": "Poštni center",
+    "latitude": 46.521946,
+    "longitude": 15.671974
+  },
+  {
+    "id": "294",
+    "number": "321",
+    "name": "Ptujska - Tržaška",
+    "latitude": 46.539701,
+    "longitude": 15.648591
+  },
+  {
+    "id": "286",
+    "number": "322",
+    "name": "Ptujska - hitra cesta",
+    "latitude": 46.538628,
+    "longitude": 15.654733
+  },
+  {
+    "id": "288",
+    "number": "323",
+    "name": "Ptujska - Kovinar",
+    "latitude": 46.5361004,
+    "longitude": 15.659813
+  },
+  {
+    "id": "284",
+    "number": "324",
+    "name": "Ptujska - Špelina",
+    "latitude": 46.533582,
+    "longitude": 15.664617
+  },
+  {
+    "id": "290",
+    "number": "325",
+    "name": "Ptujska - pošta",
+    "latitude": 46.532011,
+    "longitude": 15.667669
+  },
+  {
+    "id": "292",
+    "number": "326",
+    "name": "Ptujska - Cona Tezno",
+    "latitude": 46.528505,
+    "longitude": 15.672507
+  },
+  {
+    "id": "257",
+    "number": "329",
+    "name": "Karantanska",
+    "latitude": 46.518447,
+    "longitude": 15.683862
+  },
+  {
+    "id": "293",
+    "number": "331",
+    "name": "Ptujska - Cona Tezno",
+    "latitude": 46.529611,
+    "longitude": 15.671695
+  },
+  {
+    "id": "291",
+    "number": "332",
+    "name": "Ptujska - pošta",
+    "latitude": 46.531681,
+    "longitude": 15.668748
+  },
+  {
+    "id": "285",
+    "number": "333",
+    "name": "Ptujska - Špelina",
+    "latitude": 46.533447,
+    "longitude": 15.665435
+  },
+  {
+    "id": "289",
+    "number": "334",
+    "name": "Ptujska - Kovinar",
+    "latitude": 46.536927,
+    "longitude": 15.658624
+  },
+  {
+    "id": "287",
+    "number": "335",
+    "name": "Ptujska - hitra cesta",
+    "latitude": 46.539627,
+    "longitude": 15.654032
+  },
+  {
+    "id": "353",
+    "number": "336",
+    "name": "Tezno - dom st. občanov",
+    "latitude": 46.525556,
+    "longitude": 15.678967
+  },
+  {
+    "id": "354",
+    "number": "337",
+    "name": "Tezno - dom st. občanov",
+    "latitude": 46.525041,
+    "longitude": 15.678189
+  },
+  {
+    "id": "260",
+    "number": "338",
+    "name": "Pokop. Dobrava - vhod",
+    "latitude": 46.519089,
+    "longitude": 15.691251
+  },
+  {
+    "id": "259",
+    "number": "339",
+    "name": "Pokop. Dobrava - vhod",
+    "latitude": 46.519089,
+    "longitude": 15.692238
+  },
+  {
+    "id": "261",
+    "number": "340",
+    "name": "Pokopališče Dobrava",
+    "latitude": 46.519569,
+    "longitude": 15.696044
+  },
+  {
+    "id": "258",
+    "number": "341",
+    "name": "Karantanska",
+    "latitude": 46.518383,
+    "longitude": 15.686697
+  },
+  {
+    "id": "59",
+    "number": "342",
+    "name": "Dupleška - kanal",
+    "latitude": 46.525898,
+    "longitude": 15.700396
+  },
+  {
+    "id": "60",
+    "number": "343",
+    "name": "Dupleška - kanal",
+    "latitude": 46.526052,
+    "longitude": 15.701311
+  },
+  {
+    "id": "61",
+    "number": "344",
+    "name": "Dupleška - kanal",
+    "latitude": 46.526891,
+    "longitude": 15.700068
+  },
+  {
+    "id": "44",
+    "number": "345",
+    "name": "Dogoše - Gasilski dom",
+    "latitude": 46.523351,
+    "longitude": 15.703928
+  },
+  {
+    "id": "45",
+    "number": "346",
+    "name": "Dogoše - Gasilski dom",
+    "latitude": 46.523742,
+    "longitude": 15.703949
+  },
+  {
+    "id": "64",
+    "number": "347",
+    "name": "Dupleška cesta 239",
+    "latitude": 46.523932,
+    "longitude": 15.704634
+  },
+  {
+    "id": "65",
+    "number": "348",
+    "name": "Dupleška cesta 245",
+    "latitude": 46.523413,
+    "longitude": 15.705232
+  },
+  {
+    "id": "66",
+    "number": "349",
+    "name": "Dogoše",
+    "latitude": 46.521559,
+    "longitude": 15.705513
+  },
+  {
+    "id": "46",
+    "number": "350",
+    "name": "Dogoše - polje",
+    "latitude": 46.517439,
+    "longitude": 15.708728
+  },
+  {
+    "id": "47",
+    "number": "351",
+    "name": "Dogoše - polje",
+    "latitude": 46.516745,
+    "longitude": 15.709547
+  },
+  {
+    "id": "43",
+    "number": "352",
+    "name": "Dogoše - obračališče",
+    "latitude": 46.51468,
+    "longitude": 15.712493
+  },
+  {
+    "id": "403",
+    "number": "353",
+    "name": "Zg. Duplek",
+    "latitude": 46.515357,
+    "longitude": 15.717538
+  },
+  {
+    "id": "332",
+    "number": "354",
+    "name": "Svenškova ulica 40",
+    "latitude": 46.527311,
+    "longitude": 15.706298
+  },
+  {
+    "id": "333",
+    "number": "355",
+    "name": "Svenškova ulica 40",
+    "latitude": 46.528356,
+    "longitude": 15.706277
+  },
+  {
+    "id": "57",
+    "number": "356",
+    "name": "Dupleška - Jarčeva",
+    "latitude": 46.532164,
+    "longitude": 15.694953
+  },
+  {
+    "id": "58",
+    "number": "357",
+    "name": "Dupleška - Jarčeva",
+    "latitude": 46.532254,
+    "longitude": 15.694671
+  },
+  {
+    "id": "25",
+    "number": "358",
+    "name": "Brezje",
+    "latitude": 46.536185,
+    "longitude": 15.688982
+  },
+  {
+    "id": "26",
+    "number": "359",
+    "name": "Brezje",
+    "latitude": 46.536515,
+    "longitude": 15.688387
+  },
+  {
+    "id": "62",
+    "number": "360",
+    "name": "Dupleška - Tezenska",
+    "latitude": 46.541026,
+    "longitude": 15.683486
+  },
+  {
+    "id": "63",
+    "number": "361",
+    "name": "Dupleška - Tezenska",
+    "latitude": 46.541218,
+    "longitude": 15.683419
+  },
+  {
+    "id": "33",
+    "number": "362",
+    "name": "Cesta XIV. divizije",
+    "latitude": 46.544261,
+    "longitude": 15.677811
+  },
+  {
+    "id": "34",
+    "number": "363",
+    "name": "Cesta XIV. divizije",
+    "latitude": 46.544875,
+    "longitude": 15.676494
+  },
+  {
+    "id": "238",
+    "number": "364",
+    "name": "OŠ Draga Kobala",
+    "latitude": 46.546161,
+    "longitude": 15.672361
+  },
+  {
+    "id": "239",
+    "number": "365",
+    "name": "OŠ Draga Kobala",
+    "latitude": 46.546369,
+    "longitude": 15.672098
+  },
+  {
+    "id": "262",
+    "number": "366",
+    "name": "Pokopališče Pobrežje",
+    "latitude": 46.550152,
+    "longitude": 15.665808
+  },
+  {
+    "id": "263",
+    "number": "367",
+    "name": "Pokopališče Pobrežje",
+    "latitude": 46.550902,
+    "longitude": 15.664378
+  },
+  {
+    "id": "235",
+    "number": "368",
+    "name": "Osojnikova",
+    "latitude": 46.551776,
+    "longitude": 15.664403
+  },
+  {
+    "id": "236",
+    "number": "369",
+    "name": "Osojnikova - TVD Partizan",
+    "latitude": 46.554105,
+    "longitude": 15.665806
+  },
+  {
+    "id": "41",
+    "number": "370",
+    "name": "Čufarjeva - TVD Partizan",
+    "latitude": 46.555136,
+    "longitude": 15.665524
+  },
+  {
+    "id": "42",
+    "number": "371",
+    "name": "Čufarjeva - TVD Partizan",
+    "latitude": 46.554756,
+    "longitude": 15.666739
+  },
+  {
+    "id": "39",
+    "number": "372",
+    "name": "Čufarjeva - dom st. obč.",
+    "latitude": 46.554577,
+    "longitude": 15.672089
+  },
+  {
+    "id": "40",
+    "number": "373",
+    "name": "Čufarjeva - dom st. obč.",
+    "latitude": 46.554516,
+    "longitude": 15.673517
+  },
+  {
+    "id": "384",
+    "number": "374",
+    "name": "Ul. V. Vlahovića - S31",
+    "latitude": 46.551231,
+    "longitude": 15.676799
+  },
+  {
+    "id": "385",
+    "number": "375",
+    "name": "Ul. V. Vlahovića - S31",
+    "latitude": 46.550802,
+    "longitude": 15.676429
+  },
+  {
+    "id": "386",
+    "number": "376",
+    "name": "Novo Pobrežje",
+    "latitude": 46.548549,
+    "longitude": 15.675437
+  },
+  {
+    "id": "387",
+    "number": "377",
+    "name": "Novo Pobrežje",
+    "latitude": 46.547605,
+    "longitude": 15.674821
+  },
+  {
+    "id": "409",
+    "number": "378",
+    "name": "Zrkovska - Gasilski dom",
+    "latitude": 46.554347,
+    "longitude": 15.676824
+  },
+  {
+    "id": "420",
+    "number": "379",
+    "name": "Zrkovska cesta",
+    "latitude": 46.552191,
+    "longitude": 15.682277
+  },
+  {
+    "id": "416",
+    "number": "380",
+    "name": "Zrkovska - Na terasi",
+    "latitude": 46.549787,
+    "longitude": 15.694231
+  },
+  {
+    "id": "417",
+    "number": "381",
+    "name": "Zrkovska - Na terasi",
+    "latitude": 46.549674,
+    "longitude": 15.694727
+  },
+  {
+    "id": "408",
+    "number": "382",
+    "name": "Zrkovci",
+    "latitude": 46.549582,
+    "longitude": 15.700092
+  },
+  {
+    "id": "412",
+    "number": "383",
+    "name": "Zrkovci - Na Gorci 54",
+    "latitude": 46.546572,
+    "longitude": 15.705258
+  },
+  {
+    "id": "415",
+    "number": "384",
+    "name": "Zrkovci - Na Gorci 65",
+    "latitude": 46.544223,
+    "longitude": 15.706709
+  },
+  {
+    "id": "49",
+    "number": "388",
+    "name": "Dogoška - vrtec",
+    "latitude": 46.528173,
+    "longitude": 15.6749475
+  },
+  {
+    "id": "48",
+    "number": "389",
+    "name": "Dogoška - vrtec",
+    "latitude": 46.528314,
+    "longitude": 15.675737
+  },
+  {
+    "id": "147",
+    "number": "390",
+    "name": "MČ Tezno",
+    "latitude": 46.528448,
+    "longitude": 15.679731
+  },
+  {
+    "id": "148",
+    "number": "391",
+    "name": "MČ Tezno",
+    "latitude": 46.527904,
+    "longitude": 15.67982
+  },
+  {
+    "id": "149",
+    "number": "392",
+    "name": "MČ Tezno",
+    "latitude": 46.527886,
+    "longitude": 15.681957
+  },
+  {
+    "id": "352",
+    "number": "393",
+    "name": "Tezenska Dobrava",
+    "latitude": 46.526839,
+    "longitude": 15.687001
+  },
+  {
+    "id": "265",
+    "number": "402",
+    "name": "Cona Tezno - črpalka",
+    "latitude": 46.524584,
+    "longitude": 15.667554
+  },
+  {
+    "id": "269",
+    "number": "403",
+    "name": "Cona Tezno - OTP",
+    "latitude": 46.521965,
+    "longitude": 15.670191
+  },
+  {
+    "id": "270",
+    "number": "404",
+    "name": "Cona Tezno - OTP",
+    "latitude": 46.521951,
+    "longitude": 15.66984
+  },
+  {
+    "id": "266",
+    "number": "405",
+    "name": "Cona Tezno - črpalka",
+    "latitude": 46.524641,
+    "longitude": 15.667625
+  },
+  {
+    "id": "322",
+    "number": "408",
+    "name": "Smetanova - Teh. fakul.",
+    "latitude": 46.559391,
+    "longitude": 15.640427
+  },
+  {
+    "id": "127",
+    "number": "409",
+    "name": "Koroška - Pristan",
+    "latitude": 46.558804,
+    "longitude": 15.637914
+  },
+  {
+    "id": "132",
+    "number": "410",
+    "name": "Tržnica - GH Lent",
+    "latitude": 46.558211,
+    "longitude": 15.64124
+  },
+  {
+    "id": "376",
+    "number": "411",
+    "name": "Ul. Eve Lovše - Betnava",
+    "latitude": 46.537794,
+    "longitude": 15.638796
+  },
+  {
+    "id": "378",
+    "number": "412",
+    "name": "Betnavski gozd - Energetika",
+    "latitude": 46.535254,
+    "longitude": 15.642749
+  },
+  {
+    "id": "380",
+    "number": "413",
+    "name": "Ul. Eve Lovše - Betnavski gozd",
+    "latitude": 46.534288,
+    "longitude": 15.644301
+  },
+  {
+    "id": "374",
+    "number": "414",
+    "name": "Tržaška - Vodovodna",
+    "latitude": 46.533331,
+    "longitude": 15.646287
+  },
+  {
+    "id": "373",
+    "number": "415",
+    "name": "Tržaška cesta - Rutar",
+    "latitude": 46.521465,
+    "longitude": 15.648956
+  },
+  {
+    "id": "368",
+    "number": "416",
+    "name": "Tržaška cesta - Bauhaus",
+    "latitude": 46.519346,
+    "longitude": 15.650705
+  },
+  {
+    "id": "364",
+    "number": "417",
+    "name": "Trgovski center Merkur",
+    "latitude": 46.51779,
+    "longitude": 15.652969
+  },
+  {
+    "id": "369",
+    "number": "418",
+    "name": "Tržaška cesta - Bauhaus",
+    "latitude": 46.519863,
+    "longitude": 15.650517
+  },
+  {
+    "id": "375",
+    "number": "419",
+    "name": "Tržaška - Vodovodna",
+    "latitude": 46.533114,
+    "longitude": 15.646451
+  },
+  {
+    "id": "381",
+    "number": "420",
+    "name": "Ul. Eve Lovše - Betnavski gozd",
+    "latitude": 46.534833,
+    "longitude": 15.643674
+  },
+  {
+    "id": "379",
+    "number": "421",
+    "name": "Betnavski gozd - Energetika",
+    "latitude": 46.536107,
+    "longitude": 15.641725
+  },
+  {
+    "id": "377",
+    "number": "422",
+    "name": "Ul. Eve Lovše - Betnava",
+    "latitude": 46.537525,
+    "longitude": 15.639608
+  },
+  {
+    "id": "231",
+    "number": "501",
+    "name": "Oreško nabrežje 1",
+    "latitude": 46.556392,
+    "longitude": 15.66144
+  },
+  {
+    "id": "38",
+    "number": "507",
+    "name": "Črnogorska ul. 23",
+    "latitude": 46.545675,
+    "longitude": 15.656455
+  },
+  {
+    "id": "185",
+    "number": "508",
+    "name": "Makedonska",
+    "latitude": 46.542353,
+    "longitude": 15.657277
+  },
+  {
+    "id": "4",
+    "number": "509",
+    "name": "Belokranjska ulica 10",
+    "latitude": 46.543812,
+    "longitude": 15.65258
+  },
+  {
+    "id": "329",
+    "number": "513",
+    "name": "Šentiljska - Hofer",
+    "latitude": 46.586361,
+    "longitude": 15.666012
+  },
+  {
+    "id": "407",
+    "number": "518",
+    "name": "Zolajeva - TŠC",
+    "latitude": 46.5259,
+    "longitude": 15.670344
+  },
+  {
+    "id": "344",
+    "number": "523",
+    "name": "Šober - Žunko",
+    "latitude": 46.572741,
+    "longitude": 15.568531
+  },
+  {
+    "id": "342",
+    "number": "524",
+    "name": "Šober - dvor",
+    "latitude": 46.585389,
+    "longitude": 15.568522
+  },
+  {
+    "id": "319",
+    "number": "525",
+    "name": "Rušnikova žaga",
+    "latitude": 46.590991,
+    "longitude": 15.55646
+  },
+  {
+    "id": "323",
+    "number": "526",
+    "name": "Smolnikov mlin",
+    "latitude": 46.606638,
+    "longitude": 15.551653
+  },
+  {
+    "id": "158",
+    "number": "527",
+    "name": "Limbuš",
+    "latitude": 46.553985,
+    "longitude": 15.582052
+  },
+  {
+    "id": "80",
+    "number": "528",
+    "name": "Gaj nad MB - Šiker",
+    "latitude": 46.611834,
+    "longitude": 15.546949
+  },
+  {
+    "id": "82",
+    "number": "529",
+    "name": "Gaj nad MB - transform.",
+    "latitude": 46.616707,
+    "longitude": 15.553091
+  },
+  {
+    "id": "83",
+    "number": "530",
+    "name": "Gaj nad MB - transform.",
+    "latitude": 46.616856,
+    "longitude": 15.553231
+  },
+  {
+    "id": "81",
+    "number": "531",
+    "name": "Gaj nad MB - Šiker",
+    "latitude": 46.611832,
+    "longitude": 15.546845
+  },
+  {
+    "id": "324",
+    "number": "532",
+    "name": "Smolnikov mlin",
+    "latitude": 46.606682,
+    "longitude": 15.551517
+  },
+  {
+    "id": "320",
+    "number": "533",
+    "name": "Rušnikova žaga",
+    "latitude": 46.590903,
+    "longitude": 15.556379
+  },
+  {
+    "id": "343",
+    "number": "534",
+    "name": "Šober - dvor",
+    "latitude": 46.585282,
+    "longitude": 15.568568
+  },
+  {
+    "id": "345",
+    "number": "535",
+    "name": "Šober - Žunko",
+    "latitude": 46.572307,
+    "longitude": 15.56845
+  },
+  {
+    "id": "183",
+    "number": "539",
+    "name": "OŠ Franca Rozmana Staneta",
+    "latitude": 46.563044,
+    "longitude": 15.654677
+  },
+  {
+    "id": "308",
+    "number": "547",
+    "name": "Razvanje - vrtnarstvo",
+    "latitude": 46.521791,
+    "longitude": 15.635159
+  },
+  {
+    "id": "314",
+    "number": "555",
+    "name": "Rošpoh - Hojnik",
+    "latitude": 46.597776,
+    "longitude": 15.619418
+  },
+  {
+    "id": "460",
+    "number": "573",
+    "name": "Šentiljska - TMI Košaki",
+    "latitude": 46.571096,
+    "longitude": 15.658169
+  },
+  {
+    "id": "351",
+    "number": "574",
+    "name": "Šentiljska - Počehovska",
+    "latitude": 46.57709,
+    "longitude": 15.657794
+  },
+  {
+    "id": "461",
+    "number": "575",
+    "name": "Šentiljska - veterinar",
+    "latitude": 46.581055,
+    "longitude": 15.663103
+  },
+  {
+    "id": "421",
+    "number": "577",
+    "name": "Zrkovska cesta",
+    "latitude": 46.552228,
+    "longitude": 15.682309
+  },
+  {
+    "id": "411",
+    "number": "578",
+    "name": "Zrkovska - Gasilski dom",
+    "latitude": 46.554349,
+    "longitude": 15.676661
+  },
+  {
+    "id": "418",
+    "number": "579",
+    "name": "Zrkovska - trgovina",
+    "latitude": 46.550712,
+    "longitude": 15.686665
+  },
+  {
+    "id": "419",
+    "number": "580",
+    "name": "Zrkovska - trgovina",
+    "latitude": 46.550678,
+    "longitude": 15.68725
+  },
+  {
+    "id": "146",
+    "number": "581",
+    "name": "Kronaveter",
+    "latitude": 46.556547,
+    "longitude": 15.733096
+  },
+  {
+    "id": "125",
+    "number": "582",
+    "name": "Knezar",
+    "latitude": 46.554546,
+    "longitude": 15.736294
+  },
+  {
+    "id": "413",
+    "number": "583",
+    "name": "Zrkovci - Na Gorci 54",
+    "latitude": 46.546532,
+    "longitude": 15.705432
+  },
+  {
+    "id": "414",
+    "number": "584",
+    "name": "Zrkovci - Na Gorci 65",
+    "latitude": 46.544222,
+    "longitude": 15.706825
+  },
+  {
+    "id": "209",
+    "number": "585",
+    "name": "Metava - odcep",
+    "latitude": 46.550119,
+    "longitude": 15.740569
+  },
+  {
+    "id": "405",
+    "number": "586",
+    "name": "Zimica - odcep",
+    "latitude": 46.551379,
+    "longitude": 15.743682
+  },
+  {
+    "id": "190",
+    "number": "591",
+    "name": "Malečnik - trgovina",
+    "latitude": 46.552497,
+    "longitude": 15.708171
+  },
+  {
+    "id": "361",
+    "number": "594",
+    "name": "Trčova - Griček",
+    "latitude": 46.539504,
+    "longitude": 15.720569
+  },
+  {
+    "id": "226",
+    "number": "595",
+    "name": "Novak",
+    "latitude": 46.537569,
+    "longitude": 15.724293
+  },
+  {
+    "id": "207",
+    "number": "596",
+    "name": "Metava - Duplek križišče",
+    "latitude": 46.534931,
+    "longitude": 15.731634
+  },
+  {
+    "id": "141",
+    "number": "598",
+    "name": "Kraljeviča Marka ulica",
+    "latitude": 46.558651,
+    "longitude": 15.664065
+  },
+  {
+    "id": "142",
+    "number": "599",
+    "name": "Kraljeviča Marka ulica",
+    "latitude": 46.558764,
+    "longitude": 15.663918
+  },
+  {
+    "id": "211",
+    "number": "600",
+    "name": "Avtobusna postaja",
+    "latitude": 46.559717,
+    "longitude": 15.65543
+  },
+  {
+    "id": "434",
+    "number": "602",
+    "name": "Kamenškova",
+    "latitude": 46.548891,
+    "longitude": 15.611291
+  },
+  {
+    "id": "429",
+    "number": "603",
+    "name": "Kamenškova",
+    "latitude": 46.549534,
+    "longitude": 15.611103
+  },
+  {
+    "id": "435",
+    "number": "604",
+    "name": "MČ Pobrežje",
+    "latitude": 46.548691,
+    "longitude": 15.667511
+  },
+  {
+    "id": "432",
+    "number": "609",
+    "name": "Mladinska - Vrbanska",
+    "latitude": 46.565157,
+    "longitude": 15.634537
+  },
+  {
+    "id": "433",
+    "number": "611",
+    "name": "Turnerjeva",
+    "latitude": 46.563217,
+    "longitude": 15.630418
+  },
+  {
+    "id": "441",
+    "number": "614",
+    "name": "Lesjakova 2",
+    "latitude": 46.537168,
+    "longitude": 15.59225
+  },
+  {
+    "id": "442",
+    "number": "615",
+    "name": "Zvezna ulica",
+    "latitude": 46.5360899,
+    "longitude": 15.5963853
+  },
+  {
+    "id": "444",
+    "number": "616",
+    "name": "Bezjakova",
+    "latitude": 46.5403683,
+    "longitude": 15.5894664
+  },
+  {
+    "id": "445",
+    "number": "617",
+    "name": "Lackova - Na gorco",
+    "latitude": 46.545256,
+    "longitude": 15.60047
+  },
+  {
+    "id": "447",
+    "number": "619",
+    "name": "Lackova - Mlada lipa",
+    "latitude": 46.540938,
+    "longitude": 15.606056
+  },
+  {
+    "id": "448",
+    "number": "620",
+    "name": "Lackova - Ul. Jelenčevih",
+    "latitude": 46.547384,
+    "longitude": 15.596941
+  },
+  {
+    "id": "449",
+    "number": "621",
+    "name": "Lackova - Ul. Jelenčevih",
+    "latitude": 46.547277,
+    "longitude": 15.59738
+  },
+  {
+    "id": "443",
+    "number": "622",
+    "name": "Ob ribniku",
+    "latitude": 46.539139,
+    "longitude": 15.599502
+  },
+  {
+    "id": "450",
+    "number": "623",
+    "name": "Trčova 168",
+    "latitude": 46.542408,
+    "longitude": 15.719173
+  },
+  {
+    "id": "451",
+    "number": "624",
+    "name": "Trčova 168",
+    "latitude": 46.542435,
+    "longitude": 15.719209
+  },
+  {
+    "id": "452",
+    "number": "625",
+    "name": "OŠ Bojana Ilicha",
+    "latitude": 46.562953,
+    "longitude": 15.643877
+  },
+  {
+    "id": "453",
+    "number": "626",
+    "name": "Mladinska - muzej Maribor",
+    "latitude": 46.563011,
+    "longitude": 15.647843
+  },
+  {
+    "id": "527",
+    "number": "627",
+    "name": "Zrkovci - polje",
+    "latitude": 46.536288,
+    "longitude": 15.710143
+  },
+  {
+    "id": "528",
+    "number": "628",
+    "name": "Zrkovci - polje",
+    "latitude": 46.53641,
+    "longitude": 15.71018
+  },
+  {
+    "id": "533",
+    "number": "633",
+    "name": "P\u0026R Koroški most",
+    "latitude": 46.561231,
+    "longitude": 15.627061
+  },
+  {
+    "id": "534",
+    "number": "634",
+    "name": "Univerzitetni kampus",
+    "latitude": 46.564271,
+    "longitude": 15.623099
+  },
+  {
+    "id": "536",
+    "number": "636",
+    "name": "P\u0026R Koroški most",
+    "latitude": 46.561176,
+    "longitude": 15.627064
+  },
+  {
+    "id": "537",
+    "number": "637",
+    "name": "Dvorana Tabor - Gorkega",
+    "latitude": 46.548779,
+    "longitude": 15.636555
+  },
+  {
+    "id": "538",
+    "number": "638",
+    "name": "Rošpoh - vrtovi",
+    "latitude": 46.608633,
+    "longitude": 15.626059
+  },
+  {
+    "id": "540",
+    "number": "639",
+    "name": "Rošpoh - vrtovi",
+    "latitude": 46.608627,
+    "longitude": 15.625915
+  },
+  {
+    "id": "539",
+    "number": "640",
+    "name": "Morski jarek - Kozjak",
+    "latitude": 46.609465,
+    "longitude": 15.632868
+  },
+  {
+    "id": "541",
+    "number": "641",
+    "name": "Belokranjska ulica 10",
+    "latitude": 46.54384,
+    "longitude": 15.65273
+  },
+  {
+    "id": "542",
+    "number": "642",
+    "name": "Europark - Titov most",
+    "latitude": 46.554492,
+    "longitude": 15.650439
+  },
+  {
+    "id": "543",
+    "number": "643",
+    "name": "Tržaška - Ptujska",
+    "latitude": 46.538819,
+    "longitude": 15.64702
+  },
+  {
+    "id": "544",
+    "number": "644",
+    "name": "Europark - Titov most",
+    "latitude": 46.554466,
+    "longitude": 15.650609
+  },
+  {
+    "id": "546",
+    "number": "646",
+    "name": "Morski jarek - Rošpoh",
+    "latitude": 46.60933,
+    "longitude": 15.63847
+  },
+  {
+    "id": "547",
+    "number": "647",
+    "name": "Morski jarek - Kozjak",
+    "latitude": 46.609503,
+    "longitude": 15.631009
+  },
+  {
+    "id": "564",
+    "number": "648",
+    "name": "Šarhova",
+    "latitude": 46.55322,
+    "longitude": 15.6173
+  },
+  {
+    "id": "462",
+    "number": "704",
+    "name": "Botanični vrt",
+    "latitude": 46.507501,
+    "longitude": 15.639463
+  },
+  {
+    "id": "464",
+    "number": "705",
+    "name": "Podružnica OŠ Franceta Prešerna",
+    "latitude": 46.512917,
+    "longitude": 15.635321
+  },
+  {
+    "id": "579",
+    "number": "857",
+    "name": "OŠ Malečnik",
+    "latitude": 46.554811,
+    "longitude": 15.700671
+  },
+  {
+    "id": "580",
+    "number": "858",
+    "name": "Malečnik 23",
+    "latitude": 46.556428,
+    "longitude": 15.70416
+  },
+  {
+    "id": "581",
+    "number": "859",
+    "name": "Hrenca 11b",
+    "latitude": 46.56237,
+    "longitude": 15.70506
+  },
+  {
+    "id": "582",
+    "number": "860",
+    "name": "Hrenca 14a",
+    "latitude": 46.567559,
+    "longitude": 15.704568
+  },
+  {
+    "id": "583",
+    "number": "861",
+    "name": "Hrenca obračališče",
+    "latitude": 46.563815,
+    "longitude": 15.71877
+  },
+  {
+    "id": "584",
+    "number": "862",
+    "name": "Bračko K",
+    "latitude": 46.570213,
+    "longitude": 15.702362
+  },
+  {
+    "id": "585",
+    "number": "863",
+    "name": "Vodole Gorca K",
+    "latitude": 46.572039,
+    "longitude": 15.701743
+  },
+  {
+    "id": "586",
+    "number": "864",
+    "name": "Markuš K",
+    "latitude": 46.571704,
+    "longitude": 15.695422
+  },
+  {
+    "id": "587",
+    "number": "865",
+    "name": "Vodole 47",
+    "latitude": 46.56895,
+    "longitude": 15.700114
+  },
+  {
+    "id": "588",
+    "number": "866",
+    "name": "Malečnik 247",
+    "latitude": 46.564084,
+    "longitude": 15.700145
+  },
+  {
+    "id": "589",
+    "number": "867",
+    "name": "Malečnik 240",
+    "latitude": 46.56338,
+    "longitude": 15.695506
+  },
+  {
+    "id": "590",
+    "number": "868",
+    "name": "Malečnik 235",
+    "latitude": 46.56134,
+    "longitude": 15.692625
+  },
+  {
+    "id": "591",
+    "number": "869",
+    "name": "Malečnik 200",
+    "latitude": 46.55791,
+    "longitude": 15.689964
+  },
+  {
+    "id": "593",
+    "number": "870",
+    "name": "Kmečki turizem Mak",
+    "latitude": 46.572731,
+    "longitude": 15.681898
+  },
+  {
+    "id": "594",
+    "number": "871",
+    "name": "Stolni vrh 9",
+    "latitude": 46.57287,
+    "longitude": 15.67416
+  },
+  {
+    "id": "595",
+    "number": "872",
+    "name": "Križišče Anderlič",
+    "latitude": 46.572695,
+    "longitude": 15.672769
+  },
+  {
+    "id": "596",
+    "number": "873",
+    "name": "Meljski hrib 25",
+    "latitude": 46.565175,
+    "longitude": 15.66835
+  },
+  {
+    "id": "597",
+    "number": "874",
+    "name": "Meljski dol K",
+    "latitude": 46.566865,
+    "longitude": 15.660609
+  },
+  {
+    "id": "598",
+    "number": "875",
+    "name": "Vrtec Šubičeva",
+    "latitude": 46.568755,
+    "longitude": 15.657125
+  },
+  {
+    "id": "599",
+    "number": "876",
+    "name": "OŠ Franca Rozmana Staneta",
+    "latitude": 46.564307,
+    "longitude": 15.654941
+  },
+  {
+    "id": "600",
+    "number": "877",
+    "name": "Počehovska ulica 19",
+    "latitude": 46.57741,
+    "longitude": 15.65462
+  },
+  {
+    "id": "601",
+    "number": "878",
+    "name": "Počehova elektroinst.",
+    "latitude": 46.579811,
+    "longitude": 15.65281
+  },
+  {
+    "id": "602",
+    "number": "879",
+    "name": "Počehova 33 b",
+    "latitude": 46.582779,
+    "longitude": 15.652578
+  },
+  {
+    "id": "603",
+    "number": "880",
+    "name": "Počehova 59 c",
+    "latitude": 46.59205,
+    "longitude": 15.650655
+  },
+  {
+    "id": "604",
+    "number": "881",
+    "name": "Počehova 64 f",
+    "latitude": 46.592515,
+    "longitude": 15.655686
+  },
+  {
+    "id": "605",
+    "number": "882",
+    "name": "Počehova 62",
+    "latitude": 46.591355,
+    "longitude": 15.655575
+  },
+  {
+    "id": "606",
+    "number": "883",
+    "name": "Vinotoč Rožman",
+    "latitude": 46.588746,
+    "longitude": 15.65557
+  },
+  {
+    "id": "607",
+    "number": "884",
+    "name": "OŠ Franca R. Staneta - podružnica",
+    "latitude": 46.57226,
+    "longitude": 15.65794
+  },
+  {
+    "id": "614",
+    "number": "891",
+    "name": "Hrastje 20 a",
+    "latitude": 46.540041,
+    "longitude": 15.582721
+  },
+  {
+    "id": "615",
+    "number": "892",
+    "name": "Cotičeva križišče",
+    "latitude": 46.538921,
+    "longitude": 15.578881
+  },
+  {
+    "id": "616",
+    "number": "893",
+    "name": "Cotičeva Stegenškova",
+    "latitude": 46.546839,
+    "longitude": 15.589334
+  },
+  {
+    "id": "617",
+    "number": "894",
+    "name": "Hrastje 9",
+    "latitude": 46.547902,
+    "longitude": 15.58951
+  },
+  {
+    "id": "618",
+    "number": "895",
+    "name": "Ul. 30 maja križišče",
+    "latitude": 46.549671,
+    "longitude": 15.588751
+  },
+  {
+    "id": "619",
+    "number": "896",
+    "name": "Hrastje 52 b",
+    "latitude": 46.549226,
+    "longitude": 15.585889
+  },
+  {
+    "id": "620",
+    "number": "897",
+    "name": "OŠ Rada Robiča",
+    "latitude": 46.556741,
+    "longitude": 15.578241
+  },
+  {
+    "id": "621",
+    "number": "898",
+    "name": "Meranovo obračališče",
+    "latitude": 46.535841,
+    "longitude": 15.560961
+  },
+  {
+    "id": "622",
+    "number": "899",
+    "name": "Vrhov dol 9",
+    "latitude": 46.537381,
+    "longitude": 15.563971
+  },
+  {
+    "id": "623",
+    "number": "900",
+    "name": "Vrhov dol - Ob Blažovnici",
+    "latitude": 46.539021,
+    "longitude": 15.566381
+  },
+  {
+    "id": "624",
+    "number": "901",
+    "name": "Vrhodolska pot križišče",
+    "latitude": 46.544952,
+    "longitude": 15.568626
+  },
+  {
+    "id": "625",
+    "number": "902",
+    "name": "Gostišče vnukec",
+    "latitude": 46.547808,
+    "longitude": 15.571499
+  },
+  {
+    "id": "626",
+    "number": "903",
+    "name": "Ob Blažovici Biplast",
+    "latitude": 46.550381,
+    "longitude": 15.576041
+  },
+  {
+    "id": "627",
+    "number": "904",
+    "name": "Ob Blažovici 56a",
+    "latitude": 46.552223,
+    "longitude": 15.578468
+  },
+  {
+    "id": "633",
+    "number": "905",
+    "name": "Glavni trg - Rotovž",
+    "latitude": 46.557371,
+    "longitude": 15.645791
+  },
+  {
+    "id": "634",
+    "number": "906",
+    "name": "Glavni trg - Rotovž",
+    "latitude": 46.557431,
+    "longitude": 15.645841
+  },
+  {
+    "id": "635",
+    "number": "907",
+    "name": "Tržnica - GH Lent",
+    "latitude": 46.558601,
+    "longitude": 15.641611
+  },
+  {
+    "id": "636",
+    "number": "908",
+    "name": "UKC - Europark",
+    "latitude": 46.551291,
+    "longitude": 15.652211
+  },
+  {
+    "id": "637",
+    "number": "909",
+    "name": "Europark",
+    "latitude": 46.554431,
+    "longitude": 15.651911
+  },
+  {
+    "id": "643",
+    "number": "910",
+    "name": "Tabor - Jadranska",
+    "latitude": 46.536917,
+    "longitude": 15.643153
+  },
+  {
+    "id": "650",
+    "number": "911",
+    "name": "Cankarjeva",
+    "latitude": 46.560961,
+    "longitude": 15.653141
+  },
+  {
+    "id": "646",
+    "number": "912",
+    "name": "Dom pod Gorco",
+    "latitude": 46.556241,
+    "longitude": 15.611421
+  },
+  {
+    "id": "647",
+    "number": "913",
+    "name": "Dom pod Gorco",
+    "latitude": 46.555861,
+    "longitude": 15.612571
+  },
+  {
+    "id": "644",
+    "number": "914",
+    "name": "OŠ Franca Rozmana Staneta",
+    "latitude": 46.563141,
+    "longitude": 15.655271
+  },
+  {
+    "id": "648",
+    "number": "915",
+    "name": "Maribox",
+    "latitude": 46.557201,
+    "longitude": 15.653321
+  },
+  {
+    "id": "651",
+    "number": "916",
+    "name": "Maribox",
+    "latitude": 46.557144,
+    "longitude": 15.652877
+  },
+  {
+    "id": "655",
+    "number": "917",
+    "name": "Mladinska - Vrbanska",
+    "latitude": 46.564861,
+    "longitude": 15.634671
+  },
+  {
+    "id": "645",
+    "number": "920",
+    "name": "Zdravstveni dom Tezno",
+    "latitude": 46.533271,
+    "longitude": 15.674474
+  },
+  {
+    "id": "642",
+    "number": "921",
+    "name": "Zdravstveni dom Tezno",
+    "latitude": 46.533936,
+    "longitude": 15.675329
+  },
+  {
+    "id": "657",
+    "number": "922",
+    "name": "Teplyjevo naselje",
+    "latitude": 46.541091,
+    "longitude": 15.602131
+  },
+  {
+    "id": "658",
+    "number": "923",
+    "name": "Teplyjevo naselje",
+    "latitude": 46.541041,
+    "longitude": 15.602081
+  },
+  {
+    "id": "656",
+    "number": "924",
+    "name": "Vrbanska",
+    "latitude": 46.56173,
+    "longitude": 15.637112
+  },
+  {
+    "id": "659",
+    "number": "925",
+    "name": "Vrbanska",
+    "latitude": 46.562125,
+    "longitude": 15.636867
+  },
+  {
+    "id": "660",
+    "number": "926",
+    "name": "Supernova",
+    "latitude": 46.545991,
+    "longitude": 15.618611
+  },
+  {
+    "id": "654",
+    "number": "927",
+    "name": "MČ Pobrežje",
+    "latitude": 46.549011,
+    "longitude": 15.667261
+  },
+  {
+    "id": "649",
+    "number": "935",
+    "name": "Turnerjeva",
+    "latitude": 46.562925,
+    "longitude": 15.630317
+  },
+  {
+    "id": "666",
+    "number": "938",
+    "name": "Prometna šola - Na Poljanah",
+    "latitude": 46.552724,
+    "longitude": 15.624305
+  }
+]
