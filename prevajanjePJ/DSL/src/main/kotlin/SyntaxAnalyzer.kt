@@ -82,7 +82,9 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
     // <include_stmt> ::= 'include' <string> ';'
     private fun includeStmt() {
         match("import")  // Using 'import' as that was in the lexer
-        match("quote")    // String is represented as a "quote" token
+        match("quote")
+        match("variable") // String
+        match("quote")
         match("semi")     // semicolon
     }
 
@@ -92,6 +94,14 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
         match("quote")
         match("variable")
         match("quote")
+        if (peek()?.type == "lparen") {
+            match("lparen")
+            style()
+            if (peek()?.type != "rparen") {
+                style()
+            }
+            match("rparen")
+        }
         match("lcurly")    // '{'
         cityBody()
         match("rcurly")    // '}'
@@ -99,7 +109,8 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
 
     // <city_body> ::= <element>*
     private fun cityBody() {
-        while (peek()?.type in listOf("road", "building", "bus_stop", "bus_line")) {
+
+        while (peek()?.type in listOf("road", "building", "bus_stop", "bus_line", "for", "if")) {
             element()
         }
     }
@@ -111,6 +122,8 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
             "building" -> building()
             "bus_stop" -> station()
             "bus_line" -> busline()  // Using bus_line as that was in the lexer
+            "for" -> forStmt()
+            "if" -> ifStmt()
             else -> throw Exception("Invalid element starting with ${peek()?.type}")
         }
     }
@@ -124,6 +137,9 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
         if (peek()?.type == "lparen") {
             match("lparen")
             style()
+            if (peek()?.type != "rparen") {
+                style()
+            }
             match("rparen")
         }
         match("lcurly")   // '{'
@@ -153,7 +169,7 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
         match("variable") // String
         match("quote")
         match("lcurly")   // '{'
-        match("variable") // 'location'
+        match("location") // 'location'
         match("lparen")   // '('
         point()
         match("rparen")   // ')'
@@ -170,6 +186,9 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
         if (peek()?.type == "lparen") {
             match("lparen")
             style()
+            if (peek()?.type != "rparen") {
+                style()
+            }
             match("rparen")
         }
         match("lcurly")   // '{'
@@ -253,7 +272,7 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
         match("comma")
         point()
         match("comma")
-        number()
+        primary()
         match("rparen")
         match("semi")
     }
@@ -273,25 +292,50 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
     private fun circCmd() {
         match("circ")
         match("lparen")
-        point()
+        expression()
         match("comma")
-        number()
+        primary()
         match("rparen")
         match("semi")
     }
 
     // <assignment> ::= <identifier> '=' <expression> ';'
+    // <assignment> ::= <identifier> '=' (<expression> | <point>) ';'
     private fun assignment() {
         match("variable") // identifier
         match("assign")   // '='
-        expression()
-        match("semi")     // ';'
+
+        // Check if right-hand side is a point expression
+        if (peek()?.type == "lparen") {
+            // If it starts with '(', it might be a point
+            val savedIndex = currentTokenIndex
+            match("lparen")
+
+            expression()
+
+            if (peek()?.type == "comma") {
+                match("comma")
+                expression()
+                match("rparen")
+            } else {
+                // This was just a parenthesized expression
+                match("rparen")
+            }
+        } else if (peek()?.type in listOf("midpoint", "distance")) {
+            // Function call that might return a point
+            functionCall()
+        } else {
+            // Regular expression
+            expression()
+        }
+
+        match("semi") // ';'
     }
 
     // <expression> ::= <number> | <identifier> | <expression> <op> <expression> | <function_call> | '(' <expression> ')'
     private fun expression() {
         term()
-        while (peek()?.type in listOf("plus", "minus", "multiply", "divide")) {
+        while (peek()?.type in listOf("plus", "minus", "multiply", "divide", "less", "greater", "equal", "not_equal")) {
             match(peek()!!.type) // operator
             term()
         }
@@ -306,6 +350,10 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
             "lparen" -> {
                 match("lparen")
                 expression()
+                if (peek()?.type == "comma") {
+                    match("comma")
+                    expression()
+                }
                 match("rparen")
             }
             else -> throw Exception("Invalid term: ${peek()?.type}")
@@ -335,17 +383,15 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
 
         match("rparen")
         // Function calls inside expressions don't end with semicolon
-        if (peek()?.type == "semi") {
-            match("semi")
-        }
+
     }
 
-    // <arg_list> ::= <expression> (',' <expression>)*
+    // <arg_list> ::= <expression> ',' <arg_list> | <expression>
     private fun argList() {
-        expression()
+        point()
         while (peek()?.type == "comma") {
             match("comma")
-            expression()
+            point()
         }
     }
 
@@ -357,9 +403,14 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
         match("rparen")
         match("lcurly")
 
-        while (isCommandStart()) {
-            command()
+        if (peek()?.type == "city") {
+            stmt()
+        } else {
+            while (isCommandStart()) {
+                command()
+            }
         }
+
 
         match("rcurly")
 
@@ -368,8 +419,12 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
             match("else")
             match("lcurly")
 
-            while (isCommandStart()) {
-                command()
+            if (peek()?.type == "city") {
+                stmt()
+            } else {
+                while (isCommandStart()) {
+                    command()
+                }
             }
 
             match("rcurly")
@@ -382,16 +437,18 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
         match("lparen")
         assignment()
 
-        // In the grammar it says 'to' here, but there's no token for this in lexer
-        // We'll assume it's a variable with 'to' value
-        match("variable") // 'to'
+        match("to") // 'to'
 
-        assignment()
+        primary()
         match("rparen")
         match("lcurly")
 
-        while (isCommandStart()) {
-            command()
+        if (peek()?.type in listOf("road", "building", "bus_stop", "bus_line", "if", "for")) {
+            element()
+        } else {
+            while (isCommandStart()) {
+                command()
+            }
         }
 
         match("rcurly")
@@ -399,10 +456,22 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
 
     // <point> ::= '(' <number> ',' <number> ')'
     private fun point() {
-        match("lparen")
-        number()
-        match("comma")
-        number()
-        match("rparen")
+        if (peek()?.type == "variable") {
+            match("variable")
+        } else {
+            match("lparen")
+            expression()
+            match("comma")
+            expression()
+            match("rparen")
+        }
+    }
+
+    private fun primary() {
+        when (peek()?.type) {
+            "variable" -> match("variable")
+            "int", "double" -> number()
+            else -> throw Exception("Invalid primary: ${peek()?.type}")
+        }
     }
 }

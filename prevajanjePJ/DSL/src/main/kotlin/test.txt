@@ -1,9 +1,17 @@
-city "MiniMesto" {
-  road "Glavna" {
-    line((0,0), (10,0));
-  }
+p1 = (0, 0);
+p2 = (4, 3);
+d = distance(p1, p2);
 
-  building "Trgovina" {
-    box((2,2), (4,4));
+if (d > 5) {
+  city "PogojCity" {
+    building "VelikaZgradba" {
+      box(p1, p2);
+    }
+  }
+} else {
+  city "PogojCity" {
+    building "MajhnaZgradba" {
+      circ(midpoint(p1, p2), 1);
+    }
   }
 }
