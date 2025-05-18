@@ -262,8 +262,8 @@ def main():
 
     
     try:
-        # import_stops(conn, stops_data)
-        # import_departures(conn, arrivals_data)
+        import_stops(conn, stops_data)
+        import_departures(conn, arrivals_data)
         import_route_data(conn, routes_data)
         # counter = 1
         # for stop in routes_data:
