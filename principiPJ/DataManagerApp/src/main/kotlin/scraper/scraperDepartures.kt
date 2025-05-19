@@ -1,3 +1,5 @@
+package scraper
+
 import org.jsoup.Jsoup
 import java.io.IOException
 import java.time.LocalDate
@@ -119,6 +121,6 @@ fun main() {
     val gson = GsonBuilder().setPrettyPrinting().create()
     val json = gson.toJson(allStops)
 
-    val outputFile = File("stopsMarprom.json")
+    val outputFile = File("../../sharedLibraries/bus_stops_departures.json")
     outputFile.writeText(json)
 }
