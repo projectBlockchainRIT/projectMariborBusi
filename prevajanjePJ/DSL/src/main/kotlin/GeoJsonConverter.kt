@@ -61,9 +61,7 @@ class GeoJsonConverter {
                 }
 
                 is BendCommandNode -> {
-                    // Approximation of a bend
-                    coordinates.add(evaluatePoint(command.start))
-                    coordinates.add(evaluatePoint(command.end))
+
                 }
                 // Other commands don't directly contribute to the road path
             }
