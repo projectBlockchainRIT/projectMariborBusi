@@ -1,3 +1,5 @@
+package scraper
+
 import org.jsoup.Jsoup
 import java.io.IOException
 import java.time.LocalDate
