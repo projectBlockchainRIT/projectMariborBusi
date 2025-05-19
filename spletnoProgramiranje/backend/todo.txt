@@ -1,5 +1,10 @@
 handler za postaje:
 - pridobi seznam vseh postaj za buttone (ime, številka, id)  "/stations/list" ✅
 - pridobi podatke o lokaciji postaje (latitude, longitude) "/stations/location/id" ✅
-- pridobi podatke za specifično postajo (ime, številka, linije, odhodni časi) "/stations/id"
+- pridobi podatke za specifično postajo (ime, številka, linije, odhodni časi) "/stations/id" ✅
 - get postaje within specific location "/stations/closeBy/location"
+
+
+handler za poti:
+- pridobi pot specifične linije glede na id linije
+- pridobi linijo in vs epostaje, ki so na poti tote linije 
