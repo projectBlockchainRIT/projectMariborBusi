@@ -1,17 +1,14 @@
-p1 = (0, 0);
-p2 = (4, 3);
-d = distance(p1, p2);
-
-if (d > 5) {
-  city "PogojCity" {
-    building "VelikaZgradba" {
-      box(p1, p2);
-    }
+city "BusMesto" {
+  bus_stop "Center" {
+    location((5,5));
   }
-} else {
-  city "PogojCity" {
-    building "MajhnaZgradba" {
-      circ(midpoint(p1, p2), 1);
-    }
+
+  bus_stop "Postaja2" {
+    location((10,10));
+  }
+
+  bus_line "Linija1" {
+    line((0,0), (5,5));
+    bend((5,5), (10,10), 45);
   }
 }

@@ -2,7 +2,9 @@ class Token(val type: String, val value: String) {
     override fun toString(): String = "$type($value)"
 }
 
-class SyntaxAnalyzer (private val tokens: List<String>) {
+// src/main/kotlin/SyntaxAnalyzer.kt
+
+class SyntaxAnalyzer(private val tokens: List<String>) {
     private var currentTokenIndex = 0
     private val tokenStack = mutableListOf<Token>()
 
@@ -18,15 +20,10 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
         }
     }
 
-    // Start the recursive descent parsing
-    fun parse(): Boolean {
-        try {
-            program()
-            return currentTokenIndex == tokenStack.size
-        } catch (e: Exception) {
-            println("Syntax error: ${e.message}")
-            return false
-        }
+    // Start the recursive descent parsing and build AST
+    fun parse(): ProgramNode {
+        parseTokens()
+        return program()
     }
 
     // Get the current token without consuming it
@@ -40,31 +37,32 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
     }
 
     // Match a token of a specific type, throw exception if not matched
-    private fun match(type: String) {
+    private fun match(type: String): Token {
         val token = peek()
         if (token != null && token.type == type) {
-            consume()
+            return consume()!!
         } else {
             throw Exception("Expected $type but found ${token?.type ?: "end of input"}")
         }
     }
 
     // <program> ::= <stmt>*
-    private fun program() {
+    private fun program(): ProgramNode {
+        val programNode = ProgramNode()
         while (peek() != null) {
-            stmt()
+            programNode.statements.add(stmt())
         }
+        return programNode
     }
 
     // <stmt> ::= <city> | <include_stmt> | <assignment> | <if_stmt> | <for_stmt>
-    private fun stmt() {
-        when (peek()?.type) {
+    private fun stmt(): StatementNode {
+        return when (peek()?.type) {
             "city" -> city()
-            "import" -> includeStmt()  // Using 'import' since that was in the lexer
+            "import" -> includeStmt()
             "variable" -> {
-                // Look ahead to see if this is an assignment
                 val savedIndex = currentTokenIndex
-                consume() // variable
+                val varToken = consume()!!
                 if (peek()?.type == "assign") {
                     currentTokenIndex = savedIndex
                     assignment()
@@ -73,136 +71,188 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
                     throw Exception("Expected assignment after variable")
                 }
             }
-            "if" -> ifStmt()
-            "for" -> forStmt()
+
+            "if" -> ifStmt() as StatementNode
+            "for" -> forStmt() as StatementNode
             else -> throw Exception("Invalid statement starting with ${peek()?.type}")
-        }
+        } as StatementNode
     }
 
     // <include_stmt> ::= 'include' <string> ';'
-    private fun includeStmt() {
-        match("import")  // Using 'import' as that was in the lexer
+    private fun includeStmt(): ImportNode {
+        match("import")
         match("quote")
-        match("variable") // String
+        val path = consume()!!.value
         match("quote")
-        match("semi")     // semicolon
+        match("semi")
+        return ImportNode(path)
     }
 
-    // <city> ::= 'city' <string> '{' <city_body> '}'
-    private fun city() {
+    // <city> ::= 'city' <string> ('(' <style> (',' <style>)? ')')? '{' <city_body> '}'
+    private fun city(): CityNode {
         match("city")
         match("quote")
-        match("variable")
+        val name = consume()!!.value
         match("quote")
+
+        val styles = mutableListOf<StyleNode>()
         if (peek()?.type == "lparen") {
             match("lparen")
-            style()
+            styles.add(style())
             if (peek()?.type != "rparen") {
-                style()
+                styles.add(style())
             }
             match("rparen")
         }
-        match("lcurly")    // '{'
-        cityBody()
-        match("rcurly")    // '}'
+
+        match("lcurly")
+        val cityNode = CityNode(name, styles)
+        cityBody(cityNode)
+        match("rcurly")
+
+        return cityNode
     }
 
     // <city_body> ::= <element>*
-    private fun cityBody() {
-
+    private fun cityBody(cityNode: CityNode) {
         while (peek()?.type in listOf("road", "building", "bus_stop", "bus_line", "for", "if")) {
-            element()
+            cityNode.elements.add(element())
         }
     }
 
-    // <element> ::= <road> | <building> | <station> | <busline>
-    private fun element() {
-        when (peek()?.type) {
+    // <element> ::= <road> | <building> | <station> | <busline> | <if_stmt> | <for_stmt>
+    private fun element(): ElementNode {
+        return when (peek()?.type) {
             "road" -> road()
             "building" -> building()
             "bus_stop" -> station()
-            "bus_line" -> busline()  // Using bus_line as that was in the lexer
+            "bus_line" -> busline()
             "for" -> forStmt()
             "if" -> ifStmt()
             else -> throw Exception("Invalid element starting with ${peek()?.type}")
-        }
+        } as ElementNode
     }
 
-    // <road> ::= 'road' <string> '(' <style> ')' '{' <command>* '}'
-    private fun road() {
+    // <road> ::= 'road' <string> ('(' <style> (',' <style>)? ')')? '{' <command>* '}'
+    private fun road(): RoadNode {
         match("road")
         match("quote")
-        match("variable") // String
+        val name = consume()!!.value
         match("quote")
+
+        val styles = mutableListOf<StyleNode>()
         if (peek()?.type == "lparen") {
             match("lparen")
-            style()
+            styles.add(style())
             if (peek()?.type != "rparen") {
-                style()
+                styles.add(style())
             }
             match("rparen")
         }
-        match("lcurly")   // '{'
+
+        match("lcurly")
+        val roadNode = RoadNode(name, styles)
         while (isCommandStart()) {
-            command()
+            roadNode.commands.add(command())
         }
-        match("rcurly")   // '}'
+        match("rcurly")
+
+        return roadNode
     }
 
-    // <building> ::= 'building' <string> '{' <command>* '}'
-    private fun building() {
+    // <building> ::= 'building' <string> ('(' <style> (',' <style>)? ')')? '{' <command>* '}'
+    private fun building(): BuildingNode {
         match("building")
         match("quote")
-        match("variable") // String
+        val name = consume()!!.value
         match("quote")
-        match("lcurly")   // '{'
-        while (isCommandStart()) {
-            command()
-        }
-        match("rcurly")   // '}'
-    }
 
-    // <station> ::= 'bus_stop' <string> '{' 'location' '(' <point> ')' ';' '}'
-    private fun station() {
-        match("bus_stop")
-        match("quote")
-        match("variable") // String
-        match("quote")
-        match("lcurly")   // '{'
-        match("location") // 'location'
-        match("lparen")   // '('
-        point()
-        match("rparen")   // ')'
-        match("semi")     // ';'
-        match("rcurly")   // '}'
-    }
-
-    // <busline> ::= 'busline' <string> '{' <command>* '}'
-    private fun busline() {
-        match("bus_line") // Using bus_line from lexer
-        match("quote")
-        match("variable") // String
-        match("quote")
+        val styles = mutableListOf<StyleNode>()
         if (peek()?.type == "lparen") {
             match("lparen")
-            style()
+            styles.add(style())
             if (peek()?.type != "rparen") {
-                style()
+                styles.add(style())
             }
             match("rparen")
         }
-        match("lcurly")   // '{'
+
+        match("lcurly")
+        val buildingNode = BuildingNode(name, styles)
         while (isCommandStart()) {
-            command()
+            buildingNode.commands.add(command())
         }
-        match("rcurly")   // '}'
+        match("rcurly")
+
+        return buildingNode
+    }
+
+    // <station> ::= 'bus_stop' <string> ('(' <style> (',' <style>)? ')')? '{' 'location' '(' <point> ')' ';' '}'
+    private fun station(): BusStopNode {
+        match("bus_stop")
+        match("quote")
+        val name = consume()!!.value
+        match("quote")
+
+        val styles = mutableListOf<StyleNode>()
+        if (peek()?.type == "lparen") {
+            match("lparen")
+            styles.add(style())
+            if (peek()?.type != "rparen") {
+                styles.add(style())
+            }
+            match("rparen")
+        }
+
+        match("lcurly")
+        match("location")
+        match("lparen")
+        val location = point()
+        match("rparen")
+        match("semi")
+        match("rcurly")
+
+        return BusStopNode(name, styles, location)
+    }
+
+    // <busline> ::= 'busline' <string> ('(' <style> (',' <style>)? ')')? '{' <command>* '}'
+    private fun busline(): BusLineNode {
+        match("bus_line")
+        match("quote")
+        val name = consume()!!.value
+        match("quote")
+
+        val styles = mutableListOf<StyleNode>()
+        if (peek()?.type == "lparen") {
+            match("lparen")
+            styles.add(style())
+            if (peek()?.type != "rparen") {
+                styles.add(style())
+            }
+            match("rparen")
+        }
+
+        match("lcurly")
+        val busLineNode = BusLineNode(name, styles)
+        while (isCommandStart()) {
+            busLineNode.commands.add(command())
+        }
+        match("rcurly")
+
+        return busLineNode
     }
 
     // <style> ::= <color> | <line_style>
-    private fun style() {
-        when (peek()?.type) {
-            "color" -> match("color")
-            "solid", "dashed", "dotted" -> match(peek()!!.type)
+    private fun style(): StyleNode {
+        return when (peek()?.type) {
+            "color" -> {
+                val token = match("color")
+                ColorNode(token.value)
+            }
+            "solid", "dashed", "dotted" -> {
+                val token = match(peek()!!.type)
+                LineStyleNode(token.value)
+            }
             else -> throw Exception("Invalid style: ${peek()?.type}")
         }
     }
@@ -218,33 +268,42 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
         }
     }
 
-    // <command> ::= <draw_cmd> | <assignment> | <function_call> | <if_stmt> | <for_stmt> | ε
-    private fun command() {
-        when (peek()?.type) {
+    // <command> ::= <draw_cmd> | <assignment> | <function_call> | <if_stmt> | <for_stmt>
+    private fun command(): CommandNode {
+        return when (peek()?.type) {
             "line", "bend", "box", "circ" -> drawCmd()
             "variable" -> {
                 // Check if assignment or variable reference
                 val savedIndex = currentTokenIndex
-                consume() // variable
+                val varName = consume()!!.value
                 if (peek()?.type == "assign") {
-                    currentTokenIndex = savedIndex
-                    assignment()
+                    match("assign")
+                    val value = expression()
+                    match("semi")
+                    AssignmentNode(varName, value)
                 } else {
                     currentTokenIndex = savedIndex
-                    expression()
+                    val expr = expression()
                     match("semi")
+                    throw Exception("Expected assignment after variable") // This should probably be handled differently
                 }
             }
-            "distance", "midpoint" -> functionCall()
+
+            "distance", "midpoint" -> {
+                val funcCall = functionCall()
+                match("semi")
+                throw Exception("Function call as command not implemented") // This should be handled properly
+            }
+
             "if" -> ifStmt()
             "for" -> forStmt()
             else -> throw Exception("Invalid command starting with ${peek()?.type}")
-        }
+        } as CommandNode
     }
 
     // <draw_cmd> ::= <line_cmd> | <bend_cmd> | <box_cmd> | <circ_cmd>
-    private fun drawCmd() {
-        when (peek()?.type) {
+    private fun drawCmd(): CommandNode {
+        return when (peek()?.type) {
             "line" -> lineCmd()
             "bend" -> bendCmd()
             "box" -> boxCmd()
@@ -254,224 +313,228 @@ class SyntaxAnalyzer (private val tokens: List<String>) {
     }
 
     // <line_cmd> ::= 'line' '(' <point> ',' <point> ')' ';'
-    private fun lineCmd() {
+    private fun lineCmd(): LineCommandNode {
         match("line")
         match("lparen")
-        point()
+        val start = point()
         match("comma")
-        point()
+        val end = point()
         match("rparen")
         match("semi")
+        return LineCommandNode(start, end)
     }
 
-    // <bend_cmd> ::= 'bend' '(' <point> ',' <point> ',' <number> ')' ';'
-    private fun bendCmd() {
+    // <bend_cmd> ::= 'bend' '(' <point> ',' <point> ',' <expression> ')' ';'
+    private fun bendCmd(): BendCommandNode {
         match("bend")
         match("lparen")
-        point()
+        val start = point()
         match("comma")
-        point()
+        val end = point()
         match("comma")
-        primary()
+        val angle = expression()
         match("rparen")
         match("semi")
+        return BendCommandNode(start, end, angle)
     }
 
     // <box_cmd> ::= 'box' '(' <point> ',' <point> ')' ';'
-    private fun boxCmd() {
+    private fun boxCmd(): BoxCommandNode {
         match("box")
         match("lparen")
-        point()
+        val start = point()
         match("comma")
-        point()
+        val end = point()
         match("rparen")
         match("semi")
+        return BoxCommandNode(start, end)
     }
 
-    // <circ_cmd> ::= 'circ' '(' <point> ',' <number> ')' ';'
-    private fun circCmd() {
+    // <circ_cmd> ::= 'circ' '(' <point> ',' <expression> ')' ';'
+    private fun circCmd(): CircCommandNode {
         match("circ")
         match("lparen")
-        expression()
+        val center = point()
         match("comma")
-        primary()
+        val radius = expression()
         match("rparen")
         match("semi")
+        return CircCommandNode(center, radius)
     }
 
     // <assignment> ::= <identifier> '=' <expression> ';'
-    // <assignment> ::= <identifier> '=' (<expression> | <point>) ';'
-    private fun assignment() {
-        match("variable") // identifier
-        match("assign")   // '='
-
-        // Check if right-hand side is a point expression
-        if (peek()?.type == "lparen") {
-            // If it starts with '(', it might be a point
-            val savedIndex = currentTokenIndex
-            match("lparen")
-
-            expression()
-
-            if (peek()?.type == "comma") {
-                match("comma")
-                expression()
-                match("rparen")
-            } else {
-                // This was just a parenthesized expression
-                match("rparen")
-            }
-        } else if (peek()?.type in listOf("midpoint", "distance")) {
-            // Function call that might return a point
-            functionCall()
-        } else {
-            // Regular expression
-            expression()
-        }
-
-        match("semi") // ';'
+    private fun assignment(): AssignmentNode {
+        val varName = match("variable").value
+        match("assign")
+        val value = expression()
+        match("semi")
+        return AssignmentNode(varName, value)
     }
 
-    // <expression> ::= <number> | <identifier> | <expression> <op> <expression> | <function_call> | '(' <expression> ')'
-    private fun expression() {
-        term()
+    // <expression> ::= <term> (<op> <term>)*
+    private fun expression(): ExpressionNode {
+        var left = term()
+
         while (peek()?.type in listOf("plus", "minus", "multiply", "divide", "less", "greater", "equal", "not_equal")) {
-            match(peek()!!.type) // operator
-            term()
+            val op = match(peek()!!.type).type
+            val right = term()
+            left = BinaryOpNode(left, op, right)
         }
+
+        return left
     }
 
     // Helper for parsing terms in expressions
-    private fun term() {
-        when (peek()?.type) {
-            "int", "double" -> number()
-            "variable" -> match("variable") // identifier
+    private fun term(): ExpressionNode {
+        return when (peek()?.type) {
+            "int", "double" -> {
+                val token = match(peek()!!.type)
+                NumberNode(token.value.toDouble())
+            }
+            "variable" -> {
+                val token = match("variable")
+                VariableNode(token.value)
+            }
             "distance", "midpoint" -> functionCall()
             "lparen" -> {
                 match("lparen")
-                expression()
+                val first = expression()
+
                 if (peek()?.type == "comma") {
+                    // This is a point
                     match("comma")
-                    expression()
+                    val second = expression()
+                    match("rparen")
+                    PointNode(first, second)
+                } else {
+                    // This is just a parenthesized expression
+                    match("rparen")
+                    first
                 }
-                match("rparen")
             }
             else -> throw Exception("Invalid term: ${peek()?.type}")
         }
     }
 
-    // <number> ::= int | int '.' int
-    private fun number() {
-        when (peek()?.type) {
-            "int", "double" -> match(peek()!!.type)
-            else -> throw Exception("Expected number but found ${peek()?.type}")
-        }
-    }
-
-    // <function_call> ::= <func_name> '(' <arg_list>? ')' ';'
-    private fun functionCall() {
-        when (peek()?.type) {
-            "distance", "midpoint" -> match(peek()!!.type)
-            else -> throw Exception("Invalid function name: ${peek()?.type}")
-        }
+    // <function_call> ::= <func_name> '(' <arg_list>? ')'
+    private fun functionCall(): FunctionCallNode {
+        val funcName = match(peek()!!.type).type
         match("lparen")
 
-        // Optional arguments
+        val args = mutableListOf<ExpressionNode>()
         if (peek()?.type != "rparen") {
-            argList()
+            args.addAll(argList())
         }
 
         match("rparen")
-        // Function calls inside expressions don't end with semicolon
-
+        return FunctionCallNode(funcName, args)
     }
 
-    // <arg_list> ::= <expression> ',' <arg_list> | <expression>
-    private fun argList() {
-        point()
+    // <arg_list> ::= <expression> (',' <expression>)*
+    private fun argList(): List<ExpressionNode> {
+        val args = mutableListOf<ExpressionNode>()
+        args.add(expression())
+
         while (peek()?.type == "comma") {
             match("comma")
-            point()
+            args.add(expression())
         }
+
+        return args
     }
 
-    // <if_stmt> ::= 'if' '(' <expression> ')' '{' <command>* '}' ('else' '{' <command>* '}')?
-    private fun ifStmt() {
+    // <if_stmt> ::= 'if' '(' <expression> ')' '{' (<stmt> | <command>*) '}' ('else' '{' (<stmt> | <command>*) '}')?
+    private fun ifStmt(): IfNode {
         match("if")
         match("lparen")
-        expression()
+        val condition = expression()
         match("rparen")
         match("lcurly")
 
+        val thenBody = mutableListOf<ASTNode>()
         if (peek()?.type == "city") {
-            stmt()
+            thenBody.add(stmt())
         } else {
             while (isCommandStart()) {
-                command()
+                thenBody.add(command())
             }
         }
 
-
         match("rcurly")
 
-        // Optional else part
-        if (peek()?.type == "else") {
+        val elseBody = if (peek()?.type == "else") {
             match("else")
             match("lcurly")
 
+            val body = mutableListOf<ASTNode>()
             if (peek()?.type == "city") {
-                stmt()
+                body.add(stmt())
             } else {
                 while (isCommandStart()) {
-                    command()
+                    body.add(command())
                 }
             }
 
             match("rcurly")
-        }
+            body
+        } else null
+
+        return IfNode(condition, thenBody, elseBody)
     }
 
-    // <for_stmt> ::= 'for' '(' <assignment> 'to' <assignment> ')' '{' <command>* '}'
-    private fun forStmt() {
+    // <for_stmt> ::= 'for' '(' <assignment> 'to' <expression> ')' '{' (<element> | <command>*) '}'
+    private fun forStmt(): ForNode {
         match("for")
         match("lparen")
-        assignment()
 
-        match("to") // 'to'
+        val varNode = match("variable")
+        val variable = varNode.value
+        match("assign")
+        val start = expression()
 
-        primary()
+        match("to")
+        val end = expression()
+
         match("rparen")
         match("lcurly")
 
+        val body = mutableListOf<ASTNode>()
         if (peek()?.type in listOf("road", "building", "bus_stop", "bus_line", "if", "for")) {
-            element()
+            body.add(element())
         } else {
             while (isCommandStart()) {
-                command()
+                body.add(command())
             }
         }
 
         match("rcurly")
+
+        return ForNode(variable, start, end, body)
     }
 
-    // <point> ::= '(' <number> ',' <number> ')'
-    private fun point() {
+    // <point> ::= '(' <expression> ',' <expression> ')' or a variable reference
+    private fun point(): PointNode {
         if (peek()?.type == "variable") {
-            match("variable")
+            // Variable referring to a point
+            val varName = match("variable").value
+            return PointNode(VariableNode(varName), VariableNode("dummy"))  // This is a placeholder - actual handling would be more complex
         } else {
             match("lparen")
-            expression()
+            val x = expression()
             match("comma")
-            expression()
+            val y = expression()
             match("rparen")
+            return PointNode(x, y)
         }
     }
 
-    private fun primary() {
-        when (peek()?.type) {
-            "variable" -> match("variable")
-            "int", "double" -> number()
-            else -> throw Exception("Invalid primary: ${peek()?.type}")
+    // Get the AST tree as a string representation
+    fun getAstTreeString(): String {
+        val sb = StringBuilder()
+        sb.append("AST Tree:\n")
+        for (token in tokenStack) {
+            sb.append(token.toString()).append("\n")
         }
+        return sb.toString()
     }
 }
