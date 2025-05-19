@@ -13,10 +13,15 @@ fun main() {
         }
     }
     println(tokens)
+
     var SA = SyntaxAnalyzer(tokens)
     SA.parseTokens()
-    var result = SA.parse()
-    println(result)
 
+    val ast = SA.parse()
+    val geoJsonConverter = GeoJsonConverter()
+    val geoJson = geoJsonConverter.convertToGeoJson(ast)
 
+// Save to file for viewing in geojson.io
+    geoJsonConverter.saveToFile(geoJson, "output.geojson")
+    println("GeoJSON saved to output.geojson")
 }

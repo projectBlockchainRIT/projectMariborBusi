@@ -176,19 +176,21 @@ Omogoča vključitev druge datoteke v trenutni program. Uporabno za ponovno upor
         | <if_stmt>
         | <for_stmt>
 
-<include_stmt> ::= 'include' <string> ';'
+<include_stmt> ::= 'import' <string> ';'
 
-<city> ::= 'city' <string> '{' <city_body> '}'
+<city> ::= 'city' <string> '(' <style> ')' '{' <city_body> '}'
 <city_body> ::= <element>* 
 
 <element> ::= <road>
            | <building>
            | <station>
            | <busline>
+           | <if_stmt>
+           | <for_stmt>
 
 <road> ::= 'road' <string> '(' <style> ')' '{' <command>* '}'
-<building> ::= 'building' <string> '{' <command>* '}'
-<station> ::= 'bus_stop' <string> '{' 'location' '(' <point> ')' ';' '}'
+<building> ::= 'building' <string> '(' <style> ')' '{' <command>* '}'
+<station> ::= 'bus_stop' <string> '(' <style> ')' '{' 'location' '(' <point> ')' ';' '}'
 <busline> ::= 'busline' <string> '(' <style> ')' '{' <command>* '}'
 
 <style> ::= <color> | <line_style>
