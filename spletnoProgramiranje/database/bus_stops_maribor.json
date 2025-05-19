@@ -1,0 +1,6608 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.5 1bd436f1",
+  "osm3s": {
+    "timestamp_osm_base": "2025-05-17T21:45:29Z",
+    "timestamp_areas_base": "2024-12-31T00:49:33Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 813664107,
+  "lat": 46.5146344,
+  "lon": 15.7124737,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Dogoše - obračališče",
+    "network": "16",
+    "operator": "Marprom",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 879259962,
+  "lat": 46.5579656,
+  "lon": 15.5658852,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Laznica",
+    "network": "Arriva",
+    "network:wikidata": "Q680991",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 879260097,
+  "lat": 46.5577830,
+  "lon": 15.5662599,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Laznica",
+    "network": "Arriva",
+    "network:wikidata": "Q680991",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1673775964,
+  "lat": 46.5597788,
+  "lon": 15.6554224,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Avtobusna postaja",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1673775969,
+  "lat": 46.5592146,
+  "lon": 15.6550246,
+  "tags": {
+    "alt_name": "Maribor AP",
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "name": "Avtobusna postaja",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1673775979,
+  "lat": 46.5598465,
+  "lon": 15.6561410,
+  "tags": {
+    "alt_name": "Maribor AP",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Avtobusna postaja",
+    "public_transport": "platform",
+    "ref": "001",
+    "shelter": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1673803299,
+  "lat": 46.5585750,
+  "lon": 15.6508676,
+  "tags": {
+    "alt_name": "Maribor Slavija",
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "departures_board": "realtime",
+    "highway": "bus_stop",
+    "name": "City - zdravstveni dom",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "008",
+    "shelter": "yes",
+    "toilets:wheelchair": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1673803311,
+  "lat": 46.5590934,
+  "lon": 15.6512729,
+  "tags": {
+    "alt_name": "Maribor Slavija",
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "City - zdravstveni dom",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "007",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1673809882,
+  "lat": 46.5573834,
+  "lon": 15.6468635,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Glavni trg - Elektro",
+    "public_transport": "platform",
+    "ref": "010",
+    "shelter": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1673809883,
+  "lat": 46.5575807,
+  "lon": 15.6477567,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Glavni trg - Elektro",
+    "public_transport": "platform",
+    "ref": "009",
+    "shelter": "yes",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1673822716,
+  "lat": 46.5546002,
+  "lon": 15.6466549,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "no",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "UKC - Pobreška",
+    "public_transport": "platform",
+    "ref": "227",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1673822736,
+  "lat": 46.5544640,
+  "lon": 15.6473267,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "UKC - Pobreška",
+    "public_transport": "platform",
+    "ref": "228"
+  }
+},
+{
+  "type": "node",
+  "id": 1673831075,
+  "lat": 46.5531128,
+  "lon": 15.6464673,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Maribor - UKC",
+    "public_transport": "platform",
+    "ref": "229",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1673831079,
+  "lat": 46.5527477,
+  "lon": 15.6457846,
+  "tags": {
+    "bench": "yes",
+    "bin": "no",
+    "bus": "yes",
+    "departures_board": "realtime",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "UKC - Magdalenski park",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "230",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1673831098,
+  "lat": 46.5535092,
+  "lon": 15.6442170,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "departures_board": "realtime",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "UKC - Tabor",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "226",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1673838550,
+  "lat": 46.5487950,
+  "lon": 15.6455056,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Ljubljanska - II. gimn.",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1673838557,
+  "lat": 46.5497602,
+  "lon": 15.6456075,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Ljubljanska - II. gimn.",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1673839863,
+  "lat": 46.5483568,
+  "lon": 15.6432065,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Ul. Pariške komune",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1673864462,
+  "lat": 46.5488409,
+  "lon": 15.6414745,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Ul. Pariške komune",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1673864466,
+  "lat": 46.5438105,
+  "lon": 15.6490454,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Titova - Nasipna",
+    "public_transport": "platform",
+    "ref": "236"
+  }
+},
+{
+  "type": "node",
+  "id": 1673864467,
+  "lat": 46.5446030,
+  "lon": 15.6488038,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Titova - Nasipna",
+    "public_transport": "platform",
+    "ref": "237",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1673878031,
+  "lat": 46.5397445,
+  "lon": 15.6486953,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Ptujska - Tržaška",
+    "public_transport": "platform",
+    "ref": "321",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1673878035,
+  "lat": 46.5414255,
+  "lon": 15.6484224,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Tržaška - Ptujska",
+    "public_transport": "platform",
+    "ref": "238"
+  }
+},
+{
+  "type": "node",
+  "id": 1673901179,
+  "lat": 46.5386101,
+  "lon": 15.6547516,
+  "tags": {
+    "bench": "yes",
+    "highway": "bus_stop",
+    "name": "Ptujska - hitra cesta",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1673901184,
+  "lat": 46.5396226,
+  "lon": 15.6540235,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Ptujska - hitra cesta",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1674461763,
+  "lat": 46.5368957,
+  "lon": 15.6586556,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "check_date:shelter": "2021-12-27",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Ptujska - Kovinar",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1674461764,
+  "lat": 46.5398051,
+  "lon": 15.6463444,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Prol. brigad - Tržaška",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1674461765,
+  "lat": 46.5361053,
+  "lon": 15.6598558,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Ptujska - Kovinar",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1674477933,
+  "lat": 46.5335215,
+  "lon": 15.6646590,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Ptujska - Špelina",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1674477935,
+  "lat": 46.5334244,
+  "lon": 15.6654485,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Ptujska - Špelina",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1674480146,
+  "lat": 46.5316820,
+  "lon": 15.6687184,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Ptujska - pošta",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1674480147,
+  "lat": 46.5319968,
+  "lon": 15.6677377,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Ptujska - pošta",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1674485407,
+  "lat": 46.5282269,
+  "lon": 15.6750602,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Dogoška - vrtec",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1674485408,
+  "lat": 46.5295427,
+  "lon": 15.6717528,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Ptujska - Cona Tezno",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1674485410,
+  "lat": 46.5283468,
+  "lon": 15.6758917,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Dogoška - vrtec",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1674485411,
+  "lat": 46.5283986,
+  "lon": 15.6726460,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Ptujska - Cona Tezno",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1674494455,
+  "lat": 46.5268128,
+  "lon": 15.6869267,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Tezenska Dobrava",
+    "network": "1, K1",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s393",
+    "shelter": "yes",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1674494458,
+  "lat": 46.5278587,
+  "lon": 15.6819862,
+  "tags": {
+    "bench": "no",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "MČ Tezno",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1674494464,
+  "lat": 46.5250477,
+  "lon": 15.6781688,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "no",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Tezno - dom st. občanov",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1674494466,
+  "lat": 46.5255654,
+  "lon": 15.6789553,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "no",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Tezno - dom st. občanov",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1674494469,
+  "lat": 46.5284495,
+  "lon": 15.6798273,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "MČ Tezno",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1674494471,
+  "lat": 46.5279003,
+  "lon": 15.6798182,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "MČ Tezno",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1674543938,
+  "lat": 46.5504016,
+  "lon": 15.6408197,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Betnavska - Žolgarjeva",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s216",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1674554939,
+  "lat": 46.5503283,
+  "lon": 15.6409748,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "check_date:bench": "2023-07-12",
+    "covered": "no",
+    "departures_board": "realtime",
+    "highway": "bus_stop",
+    "name": "Betnavska - Žolgarjeva",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s217",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1674849443,
+  "lat": 46.5462012,
+  "lon": 15.6391810,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Betnavska - Focheva",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1674849445,
+  "lat": 46.5467052,
+  "lon": 15.6394559,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Betnavska - Focheva",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1674849449,
+  "lat": 46.5423813,
+  "lon": 15.6384799,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Betnavska - Metelkova",
+    "operator": "MARPROM",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1674849457,
+  "lat": 46.5431721,
+  "lon": 15.6385579,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Betnavska - Metelkova",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1674863609,
+  "lat": 46.5405656,
+  "lon": 15.6373826,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Betnavska - Goriška",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1674863614,
+  "lat": 46.5404919,
+  "lon": 15.6372081,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Betnavska - Goriška",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1674866562,
+  "lat": 46.5379106,
+  "lon": 15.6351129,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Betnavska - Knafelčeva",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1674866563,
+  "lat": 46.5385730,
+  "lon": 15.6319916,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Kardeljeva - Knafelčeva",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1674866564,
+  "lat": 46.5381226,
+  "lon": 15.6356987,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Betnavska - Knafelčeva",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1674866565,
+  "lat": 46.5389087,
+  "lon": 15.6327981,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "covered": "no",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Kardeljeva - Knafelčeva",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1674872833,
+  "lat": 46.5334504,
+  "lon": 15.6294937,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Kardeljeva - Borštnikova",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1674872834,
+  "lat": 46.5366396,
+  "lon": 15.6313060,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "OŠ Tabor 1",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1674872835,
+  "lat": 46.5366272,
+  "lon": 15.6310071,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "OŠ Tabor 1",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1674875238,
+  "lat": 46.5294399,
+  "lon": 15.6375913,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Betnavski grad",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1674875242,
+  "lat": 46.5292883,
+  "lon": 15.6374876,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Betnavski grad",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1674875245,
+  "lat": 46.5343701,
+  "lon": 15.6302066,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Kardeljeva - Borštnikova",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1674887995,
+  "lat": 46.5216998,
+  "lon": 15.6351724,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Razvanje - vrtnarstvo",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1674888005,
+  "lat": 46.5180472,
+  "lon": 15.6344751,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Razvanje - GD",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s249"
+  }
+},
+{
+  "type": "node",
+  "id": 1674888054,
+  "lat": 46.5216481,
+  "lon": 15.6352797,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Razvanje - vrtnarstvo",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1674888077,
+  "lat": 46.5188095,
+  "lon": 15.6343597,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Razvanje - GD",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s248"
+  }
+},
+{
+  "type": "node",
+  "id": 1675009667,
+  "lat": 46.5408421,
+  "lon": 15.6413234,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Prol. brigad - Ljubljan.",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675009670,
+  "lat": 46.5414271,
+  "lon": 15.6397477,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "name": "Prol. brigad - Ljubljan.",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675017287,
+  "lat": 46.5448382,
+  "lon": 15.6241467,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Prol. brigad - vojašnica",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675017288,
+  "lat": 46.5445777,
+  "lon": 15.6258848,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Prol. brigad - vojašnica",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675017289,
+  "lat": 46.5432093,
+  "lon": 15.6330127,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Prol. brigad - Kardeljeva",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "178"
+  }
+},
+{
+  "type": "node",
+  "id": 1675017290,
+  "lat": 46.5425467,
+  "lon": 15.6348021,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Prol. brigad - Kardeljeva",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675017291,
+  "lat": 46.5439595,
+  "lon": 15.6295578,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Prol. brigad - lekarna",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675017292,
+  "lat": 46.5443789,
+  "lon": 15.6286353,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Prol. brigad - lekarna",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675022375,
+  "lat": 46.5465069,
+  "lon": 15.6201606,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "name": "Supernova",
+    "public_transport": "platform",
+    "ref": "109",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675022381,
+  "lat": 46.5454050,
+  "lon": 15.6204894,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Supernova 1",
+    "public_transport": "platform",
+    "ref": "110",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675040445,
+  "lat": 46.5490402,
+  "lon": 15.6211074,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Dravograjska",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1675040446,
+  "lat": 46.5500410,
+  "lon": 15.6219488,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Dravograjska",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1675043696,
+  "lat": 46.5537701,
+  "lon": 15.6240876,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Prometna šola Maribor",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1675043697,
+  "lat": 46.5524384,
+  "lon": 15.6229695,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Prometna šola Maribor",
+    "public_transport": "platform",
+    "ref": "105",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675044624,
+  "lat": 46.5575246,
+  "lon": 15.6249993,
+  "tags": {
+    "bench": "yes",
+    "highway": "bus_stop",
+    "name": "Dravograjska - Sokolska",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1675044626,
+  "lat": 46.5573724,
+  "lon": 15.6255677,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Dravograjska - Sokolska",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675055874,
+  "lat": 46.5628865,
+  "lon": 15.6291442,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Univerzitetni kampus 1",
+    "public_transport": "platform",
+    "ref": "022",
+    "shelter": "yes",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675055875,
+  "lat": 46.5618737,
+  "lon": 15.6333123,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Gosposvetska - Kosarjeva",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1675055881,
+  "lat": 46.5627813,
+  "lon": 15.6290025,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Univerzitetni kampus 1",
+    "public_transport": "platform",
+    "ref": "023",
+    "shelter": "yes",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675055892,
+  "lat": 46.5622779,
+  "lon": 15.6313200,
+  "tags": {
+    "bench": "yes",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Gosposvetska - Kosarjeva",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675078770,
+  "lat": 46.5607421,
+  "lon": 15.6404837,
+  "tags": {
+    "alt_name": "Maribor STŠ",
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Tretja gimnazija",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675078773,
+  "lat": 46.5612356,
+  "lon": 15.6369724,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Gosposvetska - Vrbanska",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675078786,
+  "lat": 46.5606397,
+  "lon": 15.6402787,
+  "tags": {
+    "alt_name": "Maribor STŠ",
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Tretja gimnazija",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675078790,
+  "lat": 46.5613684,
+  "lon": 15.6361796,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Gosposvetska - Vrbanska",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1675084149,
+  "lat": 46.5586937,
+  "lon": 15.6416235,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Tržnica - GH Lent",
+    "public_transport": "platform",
+    "ref": "907",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1676384618,
+  "lat": 46.5427683,
+  "lon": 15.6310901,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "realtime",
+    "highway": "bus_stop",
+    "name": "Radvanjska - trgovina",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "171"
+  }
+},
+{
+  "type": "node",
+  "id": 1676384619,
+  "lat": 46.5439899,
+  "lon": 15.6344328,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Kardeljeva cesta 49",
+    "public_transport": "platform",
+    "ref": "177"
+  }
+},
+{
+  "type": "node",
+  "id": 1676385999,
+  "lat": 46.5565116,
+  "lon": 15.6281575,
+  "tags": {
+    "alt_name": "Maribor transformator Leningrajska ulica",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "OŠ Janka Padežnika",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1676386000,
+  "lat": 46.5448327,
+  "lon": 15.6190745,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Supernova",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1676386001,
+  "lat": 46.5515362,
+  "lon": 15.6216146,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Šarhova - pošta",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1676386002,
+  "lat": 46.5517456,
+  "lon": 15.6212786,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Šarhova - pošta",
+    "public_transport": "platform",
+    "ref": "136"
+  }
+},
+{
+  "type": "node",
+  "id": 1676386004,
+  "lat": 46.5569093,
+  "lon": 15.6267779,
+  "tags": {
+    "alt_name": "Maribor transformator Leningrajska ulica",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "OŠ Janka Padežnika",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1676392726,
+  "lat": 46.5574343,
+  "lon": 15.6458190,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Glavni trg - Rotovž",
+    "public_transport": "platform",
+    "ref": "906"
+  }
+},
+{
+  "type": "node",
+  "id": 1676392999,
+  "lat": 46.5573713,
+  "lon": 15.6458039,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Glavni trg - Rotovž",
+    "public_transport": "platform",
+    "ref": "905"
+  }
+},
+{
+  "type": "node",
+  "id": 1676393216,
+  "lat": 46.5545059,
+  "lon": 15.6504228,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Europark - Titov most",
+    "public_transport": "platform",
+    "ref": "642",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1676393217,
+  "lat": 46.5545037,
+  "lon": 15.6506278,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Europark - Titov most",
+    "public_transport": "platform",
+    "ref": "644",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678200354,
+  "lat": 46.5547054,
+  "lon": 15.6532131,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Pobreška - Europark",
+    "public_transport": "platform",
+    "ref": "263",
+    "shelter": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678200364,
+  "lat": 46.5547878,
+  "lon": 15.6543110,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Pobreška - Europark",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678200366,
+  "lat": 46.5544174,
+  "lon": 15.6519331,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Europark",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1678205857,
+  "lat": 46.5551379,
+  "lon": 15.6655289,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Čufarjeva - TVD Partizan",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678205859,
+  "lat": 46.5547105,
+  "lon": 15.6598253,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "check_date:bench": "2022-03-28",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Greenwich",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678205862,
+  "lat": 46.5544813,
+  "lon": 15.6593662,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Greenwich",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678212224,
+  "lat": 46.5540681,
+  "lon": 15.6657949,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Osojnikova - TVD Partizan",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678212227,
+  "lat": 46.5547004,
+  "lon": 15.6667464,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Čufarjeva - TVD Partizan",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678228339,
+  "lat": 46.5461676,
+  "lon": 15.6722910,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "OŠ Draga Kobala",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678228340,
+  "lat": 46.5508668,
+  "lon": 15.6644090,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "no",
+    "highway": "bus_stop",
+    "name": "Pokopališče Pobrežje",
+    "operator": "Marprom",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1678228341,
+  "lat": 46.5517579,
+  "lon": 15.6644358,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Osojnikova",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678228342,
+  "lat": 46.5501356,
+  "lon": 15.6658676,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Pokopališče Pobrežje",
+    "operator": "MARPROM",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678228344,
+  "lat": 46.5463633,
+  "lon": 15.6721950,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "covered": "no",
+    "highway": "bus_stop",
+    "name": "OŠ Draga Kobala",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1678229302,
+  "lat": 46.5448724,
+  "lon": 15.6765908,
+  "tags": {
+    "bench": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Cesta XIV. divizije",
+    "public_transport": "platform",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678229303,
+  "lat": 46.5442429,
+  "lon": 15.6778013,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "covered": "no",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Cesta XIV. divizije",
+    "public_transport": "platform",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678233548,
+  "lat": 46.5412719,
+  "lon": 15.6833894,
+  "tags": {
+    "bin": "yes",
+    "highway": "bus_stop",
+    "name": "Dupleška - Tezenska",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678235448,
+  "lat": 46.5362136,
+  "lon": 15.6889724,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Brezje",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678235450,
+  "lat": 46.5364709,
+  "lon": 15.6884066,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Brezje",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678235451,
+  "lat": 46.5409389,
+  "lon": 15.6835864,
+  "tags": {
+    "bin": "yes",
+    "highway": "bus_stop",
+    "name": "Dupleška - Tezenska",
+    "public_transport": "platform",
+    "shelter": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678241773,
+  "lat": 46.5321879,
+  "lon": 15.6949748,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Dupleška - Jarčeva",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678241791,
+  "lat": 46.5268818,
+  "lon": 15.7000552,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Dupleška - kanal",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678241792,
+  "lat": 46.5322213,
+  "lon": 15.6946857,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Dupleška - Jarčeva",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678246346,
+  "lat": 46.5257897,
+  "lon": 15.7005508,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Dupleška - kanal",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1678246347,
+  "lat": 46.5194888,
+  "lon": 15.6961518,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Pokopališče Dobrava",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s340",
+    "shelter": "yes",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1678246348,
+  "lat": 46.5260058,
+  "lon": 15.7013690,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Dupleška - kanal",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678287208,
+  "lat": 46.5190900,
+  "lon": 15.6912617,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Pokop. Dobrava - vhod",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s338",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678287209,
+  "lat": 46.5191242,
+  "lon": 15.6922766,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Pokop. Dobrava - vhod",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s339",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1678287211,
+  "lat": 46.5184545,
+  "lon": 15.6838491,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Karantanska",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s329",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678287213,
+  "lat": 46.5183899,
+  "lon": 15.6867578,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Karantanska",
+    "operator": "marprom",
+    "public_transport": "platform",
+    "ref": "s341"
+  }
+},
+{
+  "type": "node",
+  "id": 1678314659,
+  "lat": 46.5535005,
+  "lon": 15.6398967,
+  "tags": {
+    "alt_name": "Maribor tov.MTT Tabor",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "OŠ Maksa Durjave",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678314661,
+  "lat": 46.5538215,
+  "lon": 15.6388965,
+  "tags": {
+    "alt_name": "Maribor tov.MTT Tabor",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "OŠ Maksa Durjave",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678317143,
+  "lat": 46.5544910,
+  "lon": 15.6360585,
+  "tags": {
+    "alt_name": "Maribor tov.TVT",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "ŽP Studenci",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678317144,
+  "lat": 46.5557677,
+  "lon": 15.6314133,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Waldorfska šola",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678317145,
+  "lat": 46.5561344,
+  "lon": 15.6304043,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Waldorfska šola",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678317146,
+  "lat": 46.5545182,
+  "lon": 15.6354448,
+  "tags": {
+    "alt_name": "Maribor tov.TVT",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "ŽP Studenci",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678349355,
+  "lat": 46.5564093,
+  "lon": 15.6206342,
+  "tags": {
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Limbuška - Pekrska",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678349372,
+  "lat": 46.5565328,
+  "lon": 15.6202977,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Limbuška - Pekrska",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678369138,
+  "lat": 46.5569991,
+  "lon": 15.6112152,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Studenci",
+    "public_transport": "platform",
+    "ref": "118"
+  }
+},
+{
+  "type": "node",
+  "id": 1678369140,
+  "lat": 46.5570623,
+  "lon": 15.6170387,
+  "tags": {
+    "alt_name": "Maribor Štuhec pekarna",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Limbuška 47",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678369145,
+  "lat": 46.5571913,
+  "lon": 15.6166151,
+  "tags": {
+    "alt_name": "Maribor Štuhec pekarna",
+    "highway": "bus_stop",
+    "name": "Limbuška 47",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678369155,
+  "lat": 46.5527894,
+  "lon": 15.6241473,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Prometna šola - Na Poljanah",
+    "public_transport": "platform",
+    "ref": "938"
+  }
+},
+{
+  "type": "node",
+  "id": 1678369158,
+  "lat": 46.5568664,
+  "lon": 15.6105350,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Studenci",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678435064,
+  "lat": 46.5564382,
+  "lon": 15.6028351,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Limbuška - Lesarska",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1678435083,
+  "lat": 46.5563054,
+  "lon": 15.6044912,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Limbuška - Lesarska",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678435087,
+  "lat": 46.5564453,
+  "lon": 15.6102610,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Erjavčeva",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678441147,
+  "lat": 46.5474595,
+  "lon": 15.5939451,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Pekre",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1678447010,
+  "lat": 46.5506212,
+  "lon": 15.5882320,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Limbuš - pošta",
+    "public_transport": "platform",
+    "ref": "129"
+  }
+},
+{
+  "type": "node",
+  "id": 1678447062,
+  "lat": 46.5502741,
+  "lon": 15.5886432,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Limbuš - pošta",
+    "public_transport": "platform",
+    "ref": "128"
+  }
+},
+{
+  "type": "node",
+  "id": 1678447087,
+  "lat": 46.5486752,
+  "lon": 15.5940953,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Pekre",
+    "public_transport": "platform",
+    "ref": "131"
+  }
+},
+{
+  "type": "node",
+  "id": 1678447106,
+  "lat": 46.5484989,
+  "lon": 15.5943942,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Pekre",
+    "public_transport": "platform",
+    "ref": "130"
+  }
+},
+{
+  "type": "node",
+  "id": 1678451749,
+  "lat": 46.5562636,
+  "lon": 15.5787420,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Limbuš",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678451752,
+  "lat": 46.5567021,
+  "lon": 15.5782895,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Limbuš",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678451753,
+  "lat": 46.5539875,
+  "lon": 15.5822344,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Limbuš",
+    "public_transport": "platform",
+    "ref": "127"
+  }
+},
+{
+  "type": "node",
+  "id": 1678451755,
+  "lat": 46.5549635,
+  "lon": 15.5835686,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Limbuška - rondo",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1678455789,
+  "lat": 46.5578239,
+  "lon": 15.5963912,
+  "tags": {
+    "alt_name": "Limbuš tovarna Marles",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Marles",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679002310,
+  "lat": 46.5511046,
+  "lon": 15.6397746,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Gorkega - Preradovičeva",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "210",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679002314,
+  "lat": 46.5494353,
+  "lon": 15.6370066,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Dvorana Tabor - Gorkega",
+    "public_transport": "platform",
+    "ref": "207",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679002319,
+  "lat": 46.5506342,
+  "lon": 15.6392166,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "departures_board": "realtime",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Gorkega - Preradovičeva",
+    "public_transport": "platform",
+    "ref": "211",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679002329,
+  "lat": 46.5497975,
+  "lon": 15.6369704,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Dvorana Tabor - Koresova",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679002331,
+  "lat": 46.5499535,
+  "lon": 15.6367290,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Dvorana Tabor - Koresova",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679004593,
+  "lat": 46.5465118,
+  "lon": 15.6351532,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Radvanjska - vojašnica",
+    "public_transport": "platform",
+    "ref": "206",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679004595,
+  "lat": 46.5458603,
+  "lon": 15.6341259,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Radvanjska - vojašnica",
+    "public_transport": "platform",
+    "ref": "205",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679007196,
+  "lat": 46.5380369,
+  "lon": 15.6268866,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Radvanjska - Antoličičeva",
+    "public_transport": "platform",
+    "ref": "169"
+  }
+},
+{
+  "type": "node",
+  "id": 1679007201,
+  "lat": 46.5383184,
+  "lon": 15.6270635,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Radvanjska - Antoličičeva",
+    "public_transport": "platform",
+    "ref": "170"
+  }
+},
+{
+  "type": "node",
+  "id": 1679007205,
+  "lat": 46.5416559,
+  "lon": 15.6299335,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Radvanjska - trgovina",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "172",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679012111,
+  "lat": 46.5358408,
+  "lon": 15.6251116,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Radvanjska - Borštnikova",
+    "public_transport": "platform",
+    "ref": "167"
+  }
+},
+{
+  "type": "node",
+  "id": 1679012116,
+  "lat": 46.5361918,
+  "lon": 15.6251907,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Radvanjska - Borštnikova",
+    "public_transport": "platform",
+    "ref": "168"
+  }
+},
+{
+  "type": "node",
+  "id": 1679013185,
+  "lat": 46.5431966,
+  "lon": 15.6241646,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Nova vas 2",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679013186,
+  "lat": 46.5437557,
+  "lon": 15.6243310,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Nova vas 2",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679016052,
+  "lat": 46.5361588,
+  "lon": 15.6204172,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Streliška - Ul. Poh. odr.",
+    "public_transport": "platform",
+    "ref": "157"
+  }
+},
+{
+  "type": "node",
+  "id": 1679016058,
+  "lat": 46.5376372,
+  "lon": 15.6206362,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "OŠ Ludvika Pliberška",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679016067,
+  "lat": 46.5376194,
+  "lon": 15.6204848,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "OŠ Ludvika Pliberška",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679016071,
+  "lat": 46.5362055,
+  "lon": 15.6208256,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Streliška - Ul. Poh. odr.",
+    "public_transport": "platform",
+    "ref": "158"
+  }
+},
+{
+  "type": "node",
+  "id": 1679017674,
+  "lat": 46.5383943,
+  "lon": 15.6118024,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Lackova - Stara lipa",
+    "public_transport": "platform",
+    "ref": "143"
+  }
+},
+{
+  "type": "node",
+  "id": 1679017675,
+  "lat": 46.5383759,
+  "lon": 15.6122047,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Lackova - Stara lipa",
+    "public_transport": "platform",
+    "ref": "142"
+  }
+},
+{
+  "type": "node",
+  "id": 1679030528,
+  "lat": 46.5372043,
+  "lon": 15.6035144,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Pohorska - pošta",
+    "public_transport": "platform",
+    "ref": "147"
+  }
+},
+{
+  "type": "node",
+  "id": 1679030529,
+  "lat": 46.5331663,
+  "lon": 15.5997183,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Vzpenjača",
+    "public_transport": "platform",
+    "ref": "148"
+  }
+},
+{
+  "type": "node",
+  "id": 1679030542,
+  "lat": 46.5396139,
+  "lon": 15.6055770,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Pohorska - Mlada lipa",
+    "public_transport": "platform",
+    "ref": "145",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679030545,
+  "lat": 46.5374200,
+  "lon": 15.6037901,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Pohorska - pošta",
+    "public_transport": "platform",
+    "ref": "146",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679030547,
+  "lat": 46.5397910,
+  "lon": 15.6062261,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Pohorska - Mlada lipa",
+    "public_transport": "platform",
+    "ref": "144"
+  }
+},
+{
+  "type": "node",
+  "id": 1679055243,
+  "lat": 46.5405549,
+  "lon": 15.6070150,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Lackova - Mlada lipa",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679058195,
+  "lat": 46.5456314,
+  "lon": 15.6001349,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Lackova - Na gorco",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679076305,
+  "lat": 46.5620871,
+  "lon": 15.6496693,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "check_date:bench": "2023-07-05",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Krekova - občina",
+    "public_transport": "platform",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679083525,
+  "lat": 46.5620165,
+  "lon": 15.6433659,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "no",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Krekova",
+    "public_transport": "platform",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679090713,
+  "lat": 46.5659106,
+  "lon": 15.6334800,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Mitnica",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679090718,
+  "lat": 46.5659868,
+  "lon": 15.6332091,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Mitnica",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679101602,
+  "lat": 46.5741902,
+  "lon": 15.6225268,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Kamnica - hipodrom",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679101604,
+  "lat": 46.5699928,
+  "lon": 15.6277880,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Kamniški drevored",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679101606,
+  "lat": 46.5702901,
+  "lon": 15.6273919,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Kamniški drevored",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679101607,
+  "lat": 46.5734547,
+  "lon": 15.6172489,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Kamnica - šola",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679101625,
+  "lat": 46.5740350,
+  "lon": 15.6229490,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Kamnica - hipodrom",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679101633,
+  "lat": 46.5735740,
+  "lon": 15.6158278,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Kamnica - šola",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679101665,
+  "lat": 46.5724681,
+  "lon": 15.6128051,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "check_date:shelter": "2023-07-05",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Kamnica",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679105120,
+  "lat": 46.5740700,
+  "lon": 15.6125600,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Kamnica - trgovina",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679105128,
+  "lat": 46.5737589,
+  "lon": 15.6123896,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Kamnica - trgovina",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679110932,
+  "lat": 46.5977309,
+  "lon": 15.6196860,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Rošpoh - Hojnik",
+    "network": "7",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s55",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679110934,
+  "lat": 46.5873663,
+  "lon": 15.6166891,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Rošpoh - odcep Urban",
+    "network": "7",
+    "public_transport": "platform",
+    "ref": "s54",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679110935,
+  "lat": 46.6016525,
+  "lon": 15.6212824,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Rošpoh",
+    "network": "7",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s56",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679110936,
+  "lat": 46.5793796,
+  "lon": 15.6138179,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Cesta v Rošpoh 65",
+    "network": "7",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s49",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679110943,
+  "lat": 46.5840150,
+  "lon": 15.6153452,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Cesta v Rošpoh 115",
+    "network": "7",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s52",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679110948,
+  "lat": 46.5870160,
+  "lon": 15.6165656,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Rošpoh - odcep Urban",
+    "network": "7",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s53"
+  }
+},
+{
+  "type": "node",
+  "id": 1679110954,
+  "lat": 46.5789284,
+  "lon": 15.6133552,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Cesta v Rošpoh 65",
+    "network": "7",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s50"
+  }
+},
+{
+  "type": "node",
+  "id": 1679110957,
+  "lat": 46.5841901,
+  "lon": 15.6152352,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Cesta v Rošpoh 115",
+    "network": "7",
+    "operator": "marprom",
+    "public_transport": "platform",
+    "ref": "s51",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679113718,
+  "lat": 46.5655778,
+  "lon": 15.6235990,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Fontana",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679113721,
+  "lat": 46.5656296,
+  "lon": 15.6237463,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Terme Fontana",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679113724,
+  "lat": 46.5649191,
+  "lon": 15.6243386,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Fontana",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679118947,
+  "lat": 46.5546163,
+  "lon": 15.6721302,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Čufarjeva - dom st. obč.",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679118949,
+  "lat": 46.5544854,
+  "lon": 15.6735794,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "name": "Čufarjeva - dom st. obč.",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679121474,
+  "lat": 46.5543240,
+  "lon": 15.6769687,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Zrkovska - Gasilski dom",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679121476,
+  "lat": 46.5542438,
+  "lon": 15.6769781,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Zrkovska - Gasilski dom",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1679125643,
+  "lat": 46.5507493,
+  "lon": 15.6868089,
+  "tags": {
+    "bench": "no",
+    "highway": "bus_stop",
+    "name": "Zrkovska - trgovina",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679125644,
+  "lat": 46.5522264,
+  "lon": 15.6821585,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Zrkovska cesta",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679125645,
+  "lat": 46.5523192,
+  "lon": 15.6821052,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "check_date:bench": "2023-07-02",
+    "covered": "no",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Zrkovska cesta",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679125646,
+  "lat": 46.5506758,
+  "lon": 15.6867850,
+  "tags": {
+    "bench": "no",
+    "highway": "bus_stop",
+    "name": "Zrkovska - trgovina",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679127138,
+  "lat": 46.5498059,
+  "lon": 15.6941038,
+  "tags": {
+    "bench": "no",
+    "highway": "bus_stop",
+    "name": "Zrkovska - Na terasi",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1679127141,
+  "lat": 46.5440435,
+  "lon": 15.7068866,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Zrkovska - Na Gorci 65",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679127149,
+  "lat": 46.5496633,
+  "lon": 15.6946336,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Zrkovska - Na terasi",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679127152,
+  "lat": 46.5442112,
+  "lon": 15.7067433,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Zrkovska - Na Gorci 65",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679129797,
+  "lat": 46.5496437,
+  "lon": 15.7003866,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Zrkovci",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679129818,
+  "lat": 46.5465716,
+  "lon": 15.7054361,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Zrkovska - Na Gorci 54",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1679129855,
+  "lat": 46.5464830,
+  "lon": 15.7053637,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Zrkovska - Na Gorci 54",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680069139,
+  "lat": 46.5605014,
+  "lon": 15.6580618,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Prlek",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680069144,
+  "lat": 46.5607138,
+  "lon": 15.6579289,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Prlek",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680074938,
+  "lat": 46.5597639,
+  "lon": 15.6687530,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Melje",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680074943,
+  "lat": 46.5605250,
+  "lon": 15.6621021,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Meljska - trgovina",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680074990,
+  "lat": 46.5606669,
+  "lon": 15.6629621,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Meljska - trgovina",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680097080,
+  "lat": 46.5587748,
+  "lon": 15.6640387,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Kraljeviča Marka ulica",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680097081,
+  "lat": 46.5588167,
+  "lon": 15.6639117,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Kraljeviča Marka ulica",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680097082,
+  "lat": 46.5563896,
+  "lon": 15.6614562,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Oreško nabrežje 1",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680097089,
+  "lat": 46.5564932,
+  "lon": 15.6629753,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Oreško nabrežje 1",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680157309,
+  "lat": 46.5584453,
+  "lon": 15.6814196,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Meljski hrib - most",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680157328,
+  "lat": 46.5580562,
+  "lon": 15.6826159,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Meljski hrib - most",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680193724,
+  "lat": 46.5551212,
+  "lon": 15.6972326,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Malečnik",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680193754,
+  "lat": 46.5564635,
+  "lon": 15.6916171,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Kovačič",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680193759,
+  "lat": 46.5564777,
+  "lon": 15.6912295,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Kovačič",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680193762,
+  "lat": 46.5554236,
+  "lon": 15.6967241,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Malečnik",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680227830,
+  "lat": 46.5530686,
+  "lon": 15.7048432,
+  "tags": {
+    "bench": "no",
+    "highway": "bus_stop",
+    "name": "Malečnik - odcep Trčova",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680227923,
+  "lat": 46.5524334,
+  "lon": 15.7082990,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Malečnik - trgovina",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680227930,
+  "lat": 46.5393863,
+  "lon": 15.7205003,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Trčova - Griček",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680227939,
+  "lat": 46.5524933,
+  "lon": 15.7083298,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Malečnik - trgovina",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680227950,
+  "lat": 46.5394846,
+  "lon": 15.7206055,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Trčova - Griček",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680227955,
+  "lat": 46.5476982,
+  "lon": 15.7149298,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Trčova 31",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680227961,
+  "lat": 46.5528583,
+  "lon": 15.7054427,
+  "tags": {
+    "bench": "no",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Malečnik - odcep Trčova",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680228004,
+  "lat": 46.5478038,
+  "lon": 15.7149056,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Trčova 31",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680244612,
+  "lat": 46.5348119,
+  "lon": 15.7314614,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Metava - Duplek, križišče",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680244627,
+  "lat": 46.5374216,
+  "lon": 15.7248448,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Novak",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680244632,
+  "lat": 46.5375278,
+  "lon": 15.7248390,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Novak",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680244639,
+  "lat": 46.5397049,
+  "lon": 15.7328695,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Metava",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680244668,
+  "lat": 46.5348118,
+  "lon": 15.7316868,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Metava - Duplek, križišče",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680917033,
+  "lat": 46.5479921,
+  "lon": 15.6569419,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "OŠ borcev za severno mejo",
+    "network": "Marprom",
+    "operator": "Marprom",
+    "public_transport": "platform",
+    "ref": "227",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680917036,
+  "lat": 46.5513135,
+  "lon": 15.6566792,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Nasipna - Snaga",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680917041,
+  "lat": 46.5505673,
+  "lon": 15.6562678,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Nasipna - Snaga",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680917042,
+  "lat": 46.5470424,
+  "lon": 15.6569697,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "OŠ borcev za severno mejo",
+    "network": "Marprom",
+    "operator": "Marprom",
+    "public_transport": "platform",
+    "ref": "228",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680922385,
+  "lat": 46.5424585,
+  "lon": 15.6573776,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Makedonska",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680922389,
+  "lat": 46.5426484,
+  "lon": 15.6576637,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Makedonska",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680927655,
+  "lat": 46.5437662,
+  "lon": 15.6527237,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Belokranjska ulica 10",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680927664,
+  "lat": 46.5454525,
+  "lon": 15.6527869,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Nasipna - Cizerl",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680931302,
+  "lat": 46.5347219,
+  "lon": 15.6581321,
+  "tags": {
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Zagrebška - Kovinar",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680931317,
+  "lat": 46.5345938,
+  "lon": 15.6581435,
+  "tags": {
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Zagrebška - Kovinar",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680931320,
+  "lat": 46.5394785,
+  "lon": 15.6513132,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "ŽP Tezno",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680931325,
+  "lat": 46.5393355,
+  "lon": 15.6512294,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "ŽP Tezno",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680932337,
+  "lat": 46.5260350,
+  "lon": 15.6708106,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Zolajeva - TŠC",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680932338,
+  "lat": 46.5319137,
+  "lon": 15.6639952,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Zagrebška - CSD",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680932341,
+  "lat": 46.5312089,
+  "lon": 15.6652755,
+  "tags": {
+    "bench": "no",
+    "highway": "bus_stop",
+    "name": "Zagrebška - CSD",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680932344,
+  "lat": 46.5270864,
+  "lon": 15.6720776,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Kavčičeva",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680932345,
+  "lat": 46.5268825,
+  "lon": 15.6723798,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Kavčičeva",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680932920,
+  "lat": 46.5220447,
+  "lon": 15.6719518,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Poštni center - Tezno",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680933324,
+  "lat": 46.5259683,
+  "lon": 15.6710559,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Zolajeva - TŠC",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680936475,
+  "lat": 46.5604100,
+  "lon": 15.6303327,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Koroška vrata - Mirni zaliv",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680936477,
+  "lat": 46.5602306,
+  "lon": 15.6309611,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Koroška vrata - Mirni zaliv",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680936479,
+  "lat": 46.5591756,
+  "lon": 15.6354247,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Koroški veter",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680936480,
+  "lat": 46.5593524,
+  "lon": 15.6347551,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Koroški veter",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680937080,
+  "lat": 46.5711217,
+  "lon": 15.6125466,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Kamnica - križišče",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680937082,
+  "lat": 46.5716030,
+  "lon": 15.6136052,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Kamnica - križišče",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680937084,
+  "lat": 46.5710783,
+  "lon": 15.6142156,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Kamnica - križišče",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680938594,
+  "lat": 46.5675640,
+  "lon": 15.5851285,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Bresternica - odcep",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680938597,
+  "lat": 46.5684910,
+  "lon": 15.5935424,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Čolnarna",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680938598,
+  "lat": 46.5677473,
+  "lon": 15.5844592,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Bresternica - odcep",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680938601,
+  "lat": 46.5701652,
+  "lon": 15.6007438,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Mariborski otok - HE",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680938602,
+  "lat": 46.5701140,
+  "lon": 15.6014811,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Mariborski otok - HE",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680938606,
+  "lat": 46.5681247,
+  "lon": 15.5919871,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "name": "Čolnarna",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680941206,
+  "lat": 46.5667458,
+  "lon": 15.5782555,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Bresternica - rondo",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680942150,
+  "lat": 46.5666750,
+  "lon": 15.5787499,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Bresternica - rondo",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680942160,
+  "lat": 46.5659313,
+  "lon": 15.5719250,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Bresternica",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680943721,
+  "lat": 46.5617151,
+  "lon": 15.6568943,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "ŽP Maribor",
+    "public_transport": "platform",
+    "ref": "003",
+    "shelter": "yes",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680943722,
+  "lat": 46.5618591,
+  "lon": 15.6568471,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "ŽP Maribor",
+    "public_transport": "platform",
+    "ref": "004",
+    "shelter": "yes",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680944067,
+  "lat": 46.5670766,
+  "lon": 15.6592607,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Šentiljska - Medved",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680946484,
+  "lat": 46.5748337,
+  "lon": 15.6633556,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Košaški dol - V zavoju",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680946485,
+  "lat": 46.5672262,
+  "lon": 15.6588871,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Šentiljska - Medved",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680946487,
+  "lat": 46.5688791,
+  "lon": 15.6574348,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Šubičeva - vrtec",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680946489,
+  "lat": 46.5681174,
+  "lon": 15.6595548,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Nadvoz",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680946499,
+  "lat": 46.5728074,
+  "lon": 15.6593158,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Koš. dol - Pod vinogradi",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1680946501,
+  "lat": 46.5762148,
+  "lon": 15.6668957,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Košaški dol",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680950796,
+  "lat": 46.5820474,
+  "lon": 15.6661081,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Na prehodu",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680950797,
+  "lat": 46.5782779,
+  "lon": 15.6671452,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Košaki - stiskalnica",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680950906,
+  "lat": 46.5810354,
+  "lon": 15.6626174,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Šentiljska - veterinar",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680950934,
+  "lat": 46.5764076,
+  "lon": 15.6576480,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Šentiljska - Počehovska",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 1680956093,
+  "lat": 46.5706128,
+  "lon": 15.6580614,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Šentiljska - TMI Košaki",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680956094,
+  "lat": 46.5770004,
+  "lon": 15.6577033,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Šentiljska - Počehovska",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 1680966494,
+  "lat": 46.5861885,
+  "lon": 15.6649301,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Košaki Opekarna",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 1680966501,
+  "lat": 46.5914092,
+  "lon": 15.6655665,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Košaki Kos",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 1680966505,
+  "lat": 46.5922415,
+  "lon": 15.6663699,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Košaki Kos",
+    "public_transport": "stop_position"
+  }
+},
+{
+  "type": "node",
+  "id": 1680976694,
+  "lat": 46.5485544,
+  "lon": 15.6754761,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Novo Pobrežje",
+    "public_transport": "platform",
+    "ref": "376",
+    "shelter": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680976695,
+  "lat": 46.5512401,
+  "lon": 15.6768426,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Ul. V. Vlahovića - S31",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680976703,
+  "lat": 46.5475602,
+  "lon": 15.6747678,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Novo Pobrežje",
+    "public_transport": "platform",
+    "ref": "377",
+    "shelter": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680976706,
+  "lat": 46.5507357,
+  "lon": 15.6764043,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Ul. V. Vlahovića - S31",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1680981350,
+  "lat": 46.5176188,
+  "lon": 15.7087232,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Dogoše - polje",
+    "network": "16",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680981353,
+  "lat": 46.5237259,
+  "lon": 15.7039295,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Dogoše - Gasilski dom",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680981356,
+  "lat": 46.5234103,
+  "lon": 15.7039644,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Dogoše - Gasilski dom",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1680981358,
+  "lat": 46.5167125,
+  "lon": 15.7095487,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Dogoše - polje",
+    "network": "16",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681555763,
+  "lat": 46.5532862,
+  "lon": 15.6172874,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Šarhova",
+    "public_transport": "platform",
+    "ref": "138"
+  }
+},
+{
+  "type": "node",
+  "id": 1681555779,
+  "lat": 46.5545867,
+  "lon": 15.6171252,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Erjavčeva - ZD",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681562366,
+  "lat": 46.5517145,
+  "lon": 15.6287400,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Na Poljanah - Atletski stadion",
+    "public_transport": "platform",
+    "ref": "198"
+  }
+},
+{
+  "type": "node",
+  "id": 1681562374,
+  "lat": 46.5519123,
+  "lon": 15.6283924,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Na Poljanah - Atletski stadion",
+    "public_transport": "platform",
+    "ref": "199"
+  }
+},
+{
+  "type": "node",
+  "id": 1681594124,
+  "lat": 46.5644080,
+  "lon": 15.6516455,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "OŠ bratov Polančičev",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681594125,
+  "lat": 46.5647818,
+  "lon": 15.6499256,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "bus": "yes",
+    "crossing:markings": "zebra;dots",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Akvarij",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1681594126,
+  "lat": 46.5656413,
+  "lon": 15.6503058,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Tomšičev drevored",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1681611283,
+  "lat": 46.5739856,
+  "lon": 15.6436927,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Ribnik 1",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681611287,
+  "lat": 46.5686862,
+  "lon": 15.6487754,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Kliček",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1681611307,
+  "lat": 46.5736767,
+  "lon": 15.6445898,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Ribnik 1",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1681611315,
+  "lat": 46.5759492,
+  "lon": 15.6419599,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Ribniško selo",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681611339,
+  "lat": 46.5685559,
+  "lon": 15.6487652,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Kliček",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1681623375,
+  "lat": 46.5488670,
+  "lon": 15.6286941,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Engelsova - Šarhova",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681623379,
+  "lat": 46.5493245,
+  "lon": 15.6297517,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Engelsova - Šarhova",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681623382,
+  "lat": 46.5468268,
+  "lon": 15.6247742,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Engelsova - vojašnica",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681623401,
+  "lat": 46.5473249,
+  "lon": 15.6258455,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Engelsova - vojašnica",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681632118,
+  "lat": 46.5404058,
+  "lon": 15.6219795,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Center Gustava Šiliha",
+    "public_transport": "platform",
+    "ref": "161"
+  }
+},
+{
+  "type": "node",
+  "id": 1681632120,
+  "lat": 46.5404017,
+  "lon": 15.6222071,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Center Gustava Šiliha",
+    "public_transport": "platform",
+    "ref": "162",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1681641800,
+  "lat": 46.5416540,
+  "lon": 15.5902436,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Bezjakova",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1681641810,
+  "lat": 46.5381929,
+  "lon": 15.5890241,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Lesjakova 1",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681648795,
+  "lat": 46.5394901,
+  "lon": 15.5983548,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Ob ribniku",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681648815,
+  "lat": 46.5372252,
+  "lon": 15.5919356,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Lesjakova 2",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681648821,
+  "lat": 46.5370858,
+  "lon": 15.5969732,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Zvezna ulica",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681658431,
+  "lat": 46.5512614,
+  "lon": 15.6135744,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Korbunova - Kamenškova",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681658445,
+  "lat": 46.5465022,
+  "lon": 15.6150791,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Ilichova - RTV center",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681669085,
+  "lat": 46.5572760,
+  "lon": 15.7197270,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Nebova I",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681669095,
+  "lat": 46.5569366,
+  "lon": 15.7202447,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Nebova I",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681669110,
+  "lat": 46.5576506,
+  "lon": 15.7240457,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Nebova II",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681669116,
+  "lat": 46.5556492,
+  "lon": 15.7106504,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Celestrina",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681669126,
+  "lat": 46.5607368,
+  "lon": 15.7293213,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "highway": "bus_stop",
+    "name": "Ruperče",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1681669136,
+  "lat": 46.5608456,
+  "lon": 15.7294017,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Ruperče",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1681669139,
+  "lat": 46.5560516,
+  "lon": 15.7112757,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Celestrina",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681676154,
+  "lat": 46.5564713,
+  "lon": 15.7333079,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Kronaveter",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681676155,
+  "lat": 46.5543655,
+  "lon": 15.7363608,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Knezar",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681676172,
+  "lat": 46.5501323,
+  "lon": 15.7406872,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Metava - odcep",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681676184,
+  "lat": 46.5544633,
+  "lon": 15.7362589,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Knezar",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681676201,
+  "lat": 46.5502043,
+  "lon": 15.7405906,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Metava - odcep",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681676206,
+  "lat": 46.5564221,
+  "lon": 15.7332333,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Kronaveter",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681678680,
+  "lat": 46.5513811,
+  "lon": 15.7435115,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "name": "Zimica - odcep",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1681678681,
+  "lat": 46.5571746,
+  "lon": 15.7459389,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Grušova 1",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681678683,
+  "lat": 46.5570731,
+  "lon": 15.7456372,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Grušova 1",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681678690,
+  "lat": 46.5513903,
+  "lon": 15.7437690,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Zimica - odcep",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681678692,
+  "lat": 46.5595666,
+  "lon": 15.7472637,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Grušova",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681698034,
+  "lat": 46.5451142,
+  "lon": 15.6434775,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Ljubljanska - Focheva",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681698035,
+  "lat": 46.5392940,
+  "lon": 15.6392702,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Ljubljanska - TC Mercator",
+    "public_transport": "platform",
+    "ref": "194",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1681698036,
+  "lat": 46.5417433,
+  "lon": 15.6410044,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Prol. brigad - Ferkova",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681698037,
+  "lat": 46.5450834,
+  "lon": 15.6432561,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Ljubljanska - Focheva",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681698038,
+  "lat": 46.5365333,
+  "lon": 15.6372693,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Ljubljanska - stolpnica",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1681698039,
+  "lat": 46.5372907,
+  "lon": 15.6379373,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "check_date:shelter": "2023-02-19",
+    "highway": "bus_stop",
+    "name": "Ljubljanska - stolpnica",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1681698040,
+  "lat": 46.5403047,
+  "lon": 15.6397546,
+  "tags": {
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Ljubljanska - TC Mercator",
+    "public_transport": "platform",
+    "ref": "195",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1681722866,
+  "lat": 46.5340489,
+  "lon": 15.6351065,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Nova vas",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681722879,
+  "lat": 46.5337148,
+  "lon": 15.6349600,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "name": "Nova vas",
+    "public_transport": "platform",
+    "ref": "190",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 1681727044,
+  "lat": 46.5212356,
+  "lon": 15.6516503,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "E.Leclerc",
+    "public_transport": "platform",
+    "ref": "254"
+  }
+},
+{
+  "type": "node",
+  "id": 1681735297,
+  "lat": 46.5218723,
+  "lon": 15.6488592,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Tržaška cesta - Rutar",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681735306,
+  "lat": 46.5265526,
+  "lon": 15.6482143,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Tržaška cesta - carinarnica",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681735308,
+  "lat": 46.5331366,
+  "lon": 15.6454221,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Tržaška cesta - ELKO",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681735313,
+  "lat": 46.5302435,
+  "lon": 15.6462994,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Tržaška cesta - Lesnina",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681979213,
+  "lat": 46.5727596,
+  "lon": 15.5685620,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Šober - Žunko",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681979227,
+  "lat": 46.5852828,
+  "lon": 15.5685782,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Šober - dvor",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681979240,
+  "lat": 46.5895566,
+  "lon": 15.5581652,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Rušnikova žaga",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681979245,
+  "lat": 46.5722623,
+  "lon": 15.5684477,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Šober - Žunko",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681979248,
+  "lat": 46.5896616,
+  "lon": 15.5581710,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Rušnikova žaga",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681979268,
+  "lat": 46.5853546,
+  "lon": 15.5686639,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Šober - dvor",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681989238,
+  "lat": 46.6067118,
+  "lon": 15.5514790,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Smolnikov mlin",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1681989316,
+  "lat": 46.6067487,
+  "lon": 15.5515997,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Smolnikov mlin",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1682003753,
+  "lat": 46.6168576,
+  "lon": 15.5531647,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Gaj nad MB - transform.",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1682003782,
+  "lat": 46.6166946,
+  "lon": 15.5531177,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Gaj nad MB - transform.",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1682003831,
+  "lat": 46.6190323,
+  "lon": 15.5650128,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Gaj nad Mariborom",
+    "network": "151",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s71"
+  }
+},
+{
+  "type": "node",
+  "id": 1682003886,
+  "lat": 46.6118195,
+  "lon": 15.5469595,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Gaj nad MB - Šiker",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1682003893,
+  "lat": 46.6118785,
+  "lon": 15.5468549,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Gaj nad MB - Šiker",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1902278374,
+  "lat": 46.5234643,
+  "lon": 15.7052176,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Dupleška cesta 245",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1902278375,
+  "lat": 46.5283548,
+  "lon": 15.7062864,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Svenškova ulica 40",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1902278376,
+  "lat": 46.5216014,
+  "lon": 15.7056114,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Dogoše",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1902278377,
+  "lat": 46.5273502,
+  "lon": 15.7062933,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Svenškova ulica 40",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1902278378,
+  "lat": 46.5239311,
+  "lon": 15.7046000,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Dupleška cesta 239",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1941579861,
+  "lat": 46.5456112,
+  "lon": 15.6565746,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Črnogorska ul. 23",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 1941579867,
+  "lat": 46.5456204,
+  "lon": 15.6564512,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Črnogorska ul. 23",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 1941602061,
+  "lat": 46.5331558,
+  "lon": 15.6463983,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Tržaška - Vodovodna",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 2603049288,
+  "lat": 46.5177830,
+  "lon": 15.6512290,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Maribor Jeklotehna",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 2603049289,
+  "lat": 46.5164559,
+  "lon": 15.6515884,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Maribor Jeklotehna",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 2603071406,
+  "lat": 46.5308931,
+  "lon": 15.6459768,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Tržaška cesta - Lesnina",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 2840098223,
+  "lat": 46.5459800,
+  "lon": 15.6186269,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Supernova",
+    "public_transport": "platform",
+    "ref": "926"
+  }
+},
+{
+  "type": "node",
+  "id": 3065269838,
+  "lat": 46.5530210,
+  "lon": 15.7057942,
+  "tags": {
+    "bench": "no",
+    "highway": "bus_stop",
+    "name": "Malečnik - odcep Trčova",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 3681375379,
+  "lat": 46.5577183,
+  "lon": 15.7250852,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Nebova II",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 4020442952,
+  "lat": 46.5343455,
+  "lon": 15.6442156,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Ul. Eve Lovše - Betnavski gozd",
+    "public_transport": "platform",
+    "ref": "413",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 4020442953,
+  "lat": 46.5346393,
+  "lon": 15.6439843,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Ul. Eve Lovše - Betnavski gozd",
+    "public_transport": "platform",
+    "ref": "420",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276692,
+  "lat": 46.5448210,
+  "lon": 15.6538820,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Ulica heroja Vojka",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276693,
+  "lat": 46.5428636,
+  "lon": 15.6541780,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Stražun",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276694,
+  "lat": 46.5429140,
+  "lon": 15.6542634,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Stražun",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276699,
+  "lat": 46.5246648,
+  "lon": 15.6675263,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Cona Tezno - črpalka",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276700,
+  "lat": 46.5247826,
+  "lon": 15.6676160,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Cona Tezno - črpalka",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276701,
+  "lat": 46.5219245,
+  "lon": 15.6699961,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Cona Tezno - OTP",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276702,
+  "lat": 46.5219263,
+  "lon": 15.6696387,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Cona Tezno - OTP",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276703,
+  "lat": 46.5353196,
+  "lon": 15.6426958,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Betnavski gozd - Energetika",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276704,
+  "lat": 46.5361887,
+  "lon": 15.6416305,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Betnavski gozd - Energetika",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276705,
+  "lat": 46.5378345,
+  "lon": 15.6387602,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Ul. Eve Lovše - Betnava",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276706,
+  "lat": 46.5376568,
+  "lon": 15.6395141,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Ul. Eve Lovše - Betnava",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276707,
+  "lat": 46.5333878,
+  "lon": 15.6463199,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Tržaška - Vodovodna",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276708,
+  "lat": 46.5265457,
+  "lon": 15.6480775,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Tržaška cesta - carinarnica",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276709,
+  "lat": 46.5215234,
+  "lon": 15.6489328,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Tržaška cesta - Rutar",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276710,
+  "lat": 46.5194584,
+  "lon": 15.6506681,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Tržaška cesta - Bauhaus",
+    "public_transport": "platform",
+    "ref": "416"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276711,
+  "lat": 46.5198053,
+  "lon": 15.6505313,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Tržaška cesta - Bauhaus",
+    "public_transport": "platform",
+    "ref": "418"
+  }
+},
+{
+  "type": "node",
+  "id": 4382276712,
+  "lat": 46.5177717,
+  "lon": 15.6529851,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Trgovski center Merkur",
+    "public_transport": "platform",
+    "ref": "417"
+  }
+},
+{
+  "type": "node",
+  "id": 4394714796,
+  "lat": 46.5174558,
+  "lon": 15.6845125,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Maribor pokop.Dobrava K",
+    "network": "Arriva",
+    "network:wikidata": "Q680991",
+    "operator": "ARRIVA",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 5027927637,
+  "lat": 46.5686935,
+  "lon": 15.6143983,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Mariborski otok - obračališče",
+    "network": "MPP Maribor",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 6104234188,
+  "lat": 46.5596386,
+  "lon": 15.6554157,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "bus_routes": "Flixbus 060, 403, 907, 950, 951, 977, 987, 995, N60, N261, N536, N403, N881, N903, N906, N950",
+    "highway": "bus_stop",
+    "name": "Avtobusna postaja Maribor",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 9761865893,
+  "lat": 46.5621667,
+  "lon": 15.6539957,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Razlagova - EPF",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 9762184643,
+  "lat": 46.5599881,
+  "lon": 15.6683920,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Melje",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 9762186622,
+  "lat": 46.5669020,
+  "lon": 15.5782012,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Bresternica - pošta",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 9762186623,
+  "lat": 46.5668060,
+  "lon": 15.5782401,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Bresternica - pošta",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 9762195423,
+  "lat": 46.5623169,
+  "lon": 15.6017532,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Lesarska šola",
+    "public_transport": "platform",
+    "ref": "122",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 9762616831,
+  "lat": 46.5594459,
+  "lon": 15.6403209,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Smetanova - Teh. fakul.",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 9762626281,
+  "lat": 46.5472718,
+  "lon": 15.5973270,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Lackova - Ul. Jelenčevih",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 9762626282,
+  "lat": 46.5473639,
+  "lon": 15.5971628,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Lackova - Ul. Jelenčevih",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 9762626283,
+  "lat": 46.5424381,
+  "lon": 15.7191347,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Trčova 168",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 9762626284,
+  "lat": 46.5424777,
+  "lon": 15.7192075,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Trčova 168",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 9762626285,
+  "lat": 46.5629858,
+  "lon": 15.6478214,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Mladinska - muzej Maribor",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 9762626286,
+  "lat": 46.5362538,
+  "lon": 15.7101062,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Zrkovci - polje",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 9762626288,
+  "lat": 46.5129867,
+  "lon": 15.6352585,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Podružnica Osnovna šola Franceta Prešerna",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s705",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 9762631030,
+  "lat": 46.5587855,
+  "lon": 15.6380080,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Koroška - Pristan",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 9762631031,
+  "lat": 46.5582548,
+  "lon": 15.6410951,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Tržnica - GH Lent",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 9762686502,
+  "lat": 46.5630323,
+  "lon": 15.6547383,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "OŠ Franca Rozmana Staneta",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 9762686503,
+  "lat": 46.5495142,
+  "lon": 15.6111104,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Kamenškova",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 9762686504,
+  "lat": 46.5491062,
+  "lon": 15.6116636,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Korbunova",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 9762686505,
+  "lat": 46.5651330,
+  "lon": 15.6345251,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Mladinska - Vrbanska",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 9762686506,
+  "lat": 46.5631829,
+  "lon": 15.6303286,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Turnerjeva",
+    "public_transport": "platform",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 10563830553,
+  "lat": 46.6086145,
+  "lon": 15.6260549,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Rošpoh - vrtovi",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 10563830554,
+  "lat": 46.6085988,
+  "lon": 15.6259248,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Rošpoh - vrtovi",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 10563862879,
+  "lat": 46.5629342,
+  "lon": 15.6438003,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "OŠ Bojana Ilicha",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s625",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 10564090212,
+  "lat": 46.5531943,
+  "lon": 15.6172907,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Šarhova",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 10564987667,
+  "lat": 46.5438358,
+  "lon": 15.6528022,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Belokranjska ulica 10",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 10566625894,
+  "lat": 46.5403220,
+  "lon": 15.5894514,
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Bezjakova",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 10566625895,
+  "lat": 46.5384594,
+  "lon": 15.5885190,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Lesjakova 1",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 10566625896,
+  "lat": 46.5372278,
+  "lon": 15.5922369,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Lesjakova 2",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 10566625897,
+  "lat": 46.5359436,
+  "lon": 15.5962653,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Zvezna ulica",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 10566625898,
+  "lat": 46.5396191,
+  "lon": 15.5983881,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Ob ribniku",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 10566640374,
+  "lat": 46.5154075,
+  "lon": 15.6356110,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Razvanje",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "s250"
+  }
+},
+{
+  "type": "node",
+  "id": 10566656310,
+  "lat": 46.5577038,
+  "lon": 15.5966506,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Marles",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 10566656311,
+  "lat": 46.5408990,
+  "lon": 15.6061601,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Lackova - Mlada lipa",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 10566656312,
+  "lat": 46.5452692,
+  "lon": 15.6003740,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Lackova - Na gorco",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 10566656313,
+  "lat": 46.5539609,
+  "lon": 15.5820314,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Limbuš",
+    "public_transport": "platform",
+    "ref": "527"
+  }
+},
+{
+  "type": "node",
+  "id": 10568895611,
+  "lat": 46.5362780,
+  "lon": 15.7102137,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Zrkovci - polje",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 10778736587,
+  "lat": 46.5554999,
+  "lon": 15.6042485,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Limbuška obvoznica",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 10778736588,
+  "lat": 46.5557240,
+  "lon": 15.6027371,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 11215241900,
+  "lat": 46.5488688,
+  "lon": 15.6112397,
+  "tags": {
+    "bench": "yes",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Kamenškova",
+    "passenger_information_display": "no",
+    "public_transport": "platform",
+    "ref": "602",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 11215241904,
+  "lat": 46.5497763,
+  "lon": 15.6101319,
+  "tags": {
+    "bench": "yes",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Kamenškova",
+    "passenger_information_display": "no",
+    "public_transport": "platform",
+    "ref": "603",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 11389747565,
+  "lat": 46.5489339,
+  "lon": 15.6366539,
+  "tags": {
+    "bus": "yes",
+    "departures_board": "timetable",
+    "highway": "bus_stop",
+    "name": "Dvorana Tabor - Gorkega",
+    "operator": "MARPROM",
+    "public_transport": "platform",
+    "ref": "637",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 11634663334,
+  "lat": 46.5710252,
+  "lon": 15.6582130,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Šentiljska - TMI Košaki",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12642546801,
+  "lat": 46.5332739,
+  "lon": 15.6744615,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Zdravstveni dom Tezno",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12642548601,
+  "lat": 46.5338409,
+  "lon": 15.6751248,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Zdravstveni dom Tezno",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12651784496,
+  "lat": 46.5641728,
+  "lon": 15.6230959,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Univerzitetni kampus",
+    "operator": "Marprom",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 12760496279,
+  "lat": 46.5562254,
+  "lon": 15.6115560,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Dom pod Gorco",
+    "public_transport": "platform",
+    "ref": "912"
+  }
+},
+{
+  "type": "node",
+  "id": 12760496280,
+  "lat": 46.5558863,
+  "lon": 15.6125098,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Dom pod Gorco",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12760496281,
+  "lat": 46.5632057,
+  "lon": 15.6552415,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "OŠ Franca Rozmana Staneta",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12760496283,
+  "lat": 46.5369146,
+  "lon": 15.6432011,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Tabor - Jadranska",
+    "public_transport": "platform",
+    "ref": "910"
+  }
+},
+{
+  "type": "node",
+  "id": 12760700977,
+  "lat": 46.5611629,
+  "lon": 15.6270540,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "P&R Koroški most",
+    "public_transport": "platform",
+    "ref": "636"
+  }
+},
+{
+  "type": "node",
+  "id": 12760700978,
+  "lat": 46.5612138,
+  "lon": 15.6270728,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "P&R Koroški most",
+    "public_transport": "platform",
+    "ref": "633"
+  }
+},
+{
+  "type": "node",
+  "id": 12760700979,
+  "lat": 46.5512604,
+  "lon": 15.6520085,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "UKC - Europark",
+    "public_transport": "platform",
+    "ref": "908"
+  }
+},
+{
+  "type": "node",
+  "id": 12761074752,
+  "lat": 46.5489794,
+  "lon": 15.6673312,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "MČ Pobrežje",
+    "operator": "Marprom",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12761074753,
+  "lat": 46.5487069,
+  "lon": 15.6675030,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "MČ Pobrežje",
+    "operator": "Marprom",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12762113858,
+  "lat": 46.5411089,
+  "lon": 15.6021027,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Teplyjevo naselje",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12762113859,
+  "lat": 46.5410532,
+  "lon": 15.6020841,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Teplyjevo naselje",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12762113860,
+  "lat": 46.5621451,
+  "lon": 15.6368892,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Vrbanska",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12762113861,
+  "lat": 46.5616665,
+  "lon": 15.6371254,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Vrbanska",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12762113862,
+  "lat": 46.5648789,
+  "lon": 15.6346764,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Mladinska - Vrbanska",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12762113863,
+  "lat": 46.5628902,
+  "lon": 15.6303369,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Turnerjeva",
+    "public_transport": "platform",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 12762113864,
+  "lat": 46.5389269,
+  "lon": 15.6469860,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Tržaška - Ptujska",
+    "public_transport": "platform",
+    "ref": "643"
+  }
+},
+{
+  "type": "node",
+  "id": 12762113865,
+  "lat": 46.5864716,
+  "lon": 15.6661508,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Šentiljska - Hofer",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12762113866,
+  "lat": 46.5809904,
+  "lon": 15.6629532,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Šentiljska - veterinar",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12762113867,
+  "lat": 46.5764072,
+  "lon": 15.6575117,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Šentiljska - Počehovska",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12762113868,
+  "lat": 46.5769812,
+  "lon": 15.6578484,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Šentiljska - Počehovska",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12762113869,
+  "lat": 46.5609231,
+  "lon": 15.6531318,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Cankarjeva",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 12762113870,
+  "lat": 46.5571962,
+  "lon": 15.6533433,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Maribox",
+    "public_transport": "platform",
+    "ref": "915"
+  }
+},
+{
+  "type": "node",
+  "id": 12762113871,
+  "lat": 46.5571337,
+  "lon": 15.6529261,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Maribox",
+    "public_transport": "platform",
+    "ref": "916"
+  }
+},
+{
+  "type": "node",
+  "id": 12763290427,
+  "lat": 46.5553652,
+  "lon": 15.6146555,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Erjavčeva",
+    "public_transport": "platform",
+    "ref": "133"
+  }
+}
+
+  ]
+}

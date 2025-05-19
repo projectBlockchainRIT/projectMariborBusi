@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/internal/data"
 	"fmt"
 	"net/http"
 	"time"
@@ -11,10 +12,20 @@ import (
 
 type app struct {
 	serverConfig config
+	store        data.Storage
 }
 
 type config struct {
 	address string
+	db      dbConfig
+	env     string
+}
+
+type dbConfig struct {
+	addr               string
+	maxOpenConnections int
+	maxIdleConnections int
+	maxIdleTime        string
 }
 
 func (app *app) mount() http.Handler {
@@ -25,13 +36,19 @@ func (app *app) mount() http.Handler {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	// Set a timeout value on the request context (ctx), that will signal
-	// through ctx.Done() that the request has timed out and further
-	// processing should be stopped.
 	r.Use(middleware.Timeout(60 * time.Second))
 
+	// version 1.0 group of the api routes
+	// easy addition of new handlers and routes in the future without breaking the current funcionality
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/health", app.healthCheckHandler)
+
+		r.Route("/stations", func(r chi.Router) {
+			r.Get("/list", app.stationsListHandler)
+			r.Get("/location/{stationId}", app.getStationHandler)
+			r.Get("/{stationId}", app.getStationMetadataHandler)
+			//r.Get("/geoList", app.stationsGeoListHandler)
+		})
 	})
 
 	return r
