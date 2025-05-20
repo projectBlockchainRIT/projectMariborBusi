@@ -20,7 +20,7 @@ func (app *app) stationsListHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := writeJSON(w, http.StatusOK, stops); err != nil {
+	if err := app.writeJSONResponse(w, http.StatusOK, stops); err != nil {
 		writeJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -46,7 +46,7 @@ func (app *app) getStationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := writeJSON(w, http.StatusOK, stop); err != nil {
+	if err := app.writeJSONResponse(w, http.StatusOK, stop); err != nil {
 		writeJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -72,7 +72,7 @@ func (app *app) getStationMetadataHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err := writeJSON(w, http.StatusOK, stopMetadata); err != nil {
+	if err := app.writeJSONResponse(w, http.StatusOK, stopMetadata); err != nil {
 		writeJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
