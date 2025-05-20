@@ -3,6 +3,8 @@ package dao.postgres
 import dao.DepartureDao
 import model.Departure
 import db.DatabaseConnector
+import java.sql.Time
+import java.time.LocalTime
 
 class PostgreDepartureDao : DepartureDao {
     override fun getById(id: Int): Departure? {
@@ -29,7 +31,7 @@ class PostgreDepartureDao : DepartureDao {
             conn!!.prepareStatement(query).use { stmt ->
                 stmt.setInt(1, entity.stopId)
                 stmt.setInt(2, entity.directionId)
-                stmt.setString(3, entity.departure)
+                stmt.setTime(3, Time.valueOf(LocalTime.parse(entity.departure)))
                 return stmt.executeUpdate() > 0
             }
         }

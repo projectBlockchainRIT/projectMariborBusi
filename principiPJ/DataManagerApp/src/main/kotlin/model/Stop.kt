@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Stop(
-    val id: Int? = null,
+    val id: Int,
     var number: String,
     var name: String,
     var latitude: Double,
