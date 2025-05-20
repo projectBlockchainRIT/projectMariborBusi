@@ -28,11 +28,12 @@ class PostgreStopDao : StopDao {
 
     override fun insert(entity: Stop): Boolean {
         val query = """
-            INSERT INTO stops (number, name, latitude, longitude)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO stops (id, number, name, latitude, longitude)
+            VALUES (?, ?, ?, ?, ?)
         """
         DatabaseConnector.getConnection().use { conn ->
             conn!!.prepareStatement(query).use { stmt ->
+                stmt.setInt(1, entity.id)
                 stmt.setString(2, entity.number)
                 stmt.setString(3, entity.name)
                 stmt.setDouble(4, entity.latitude)
