@@ -1,76 +1,79 @@
-// Base AST node class
-abstract class ASTNode
+// Base AST node interface
+interface ASTNode
 
 // Root node for the entire program
-class ProgramNode(val statements: MutableList<StatementNode> = mutableListOf()) : ASTNode()
+class ProgramNode(val statements: MutableList<StatementNode> = mutableListOf()) : ASTNode
 
 // Statement types
-abstract class StatementNode : ASTNode()
+interface StatementNode : ASTNode
 
 class CityNode(
     val name: String,
     val styles: List<StyleNode> = listOf(),
     val elements: MutableList<ElementNode> = mutableListOf()
-) : StatementNode()
+) : StatementNode
 
-class ImportNode(val path: String) : StatementNode()
+class ImportNode(val path: String) : StatementNode
 
 // City elements
-abstract class ElementNode : ASTNode()
+interface ElementNode : ASTNode
 
 class RoadNode(
     val name: String,
     val styles: List<StyleNode> = listOf(),
     val commands: MutableList<CommandNode> = mutableListOf()
-) : ElementNode()
+) : ElementNode
 
 class BuildingNode(
     val name: String,
     val styles: List<StyleNode> = listOf(),
     val commands: MutableList<CommandNode> = mutableListOf()
-) : ElementNode()
+) : ElementNode
 
 class BusStopNode(val name: String,
                   val styles: List<StyleNode> = listOf(),
                   val location: PointNode
-) : ElementNode()
+) : ElementNode
 
 class BusLineNode(
     val name: String,
     val styles: List<StyleNode> = listOf(),
     val commands: MutableList<CommandNode> = mutableListOf()
-) : ElementNode()
+) : ElementNode
 
-// Control structures
 class IfNode(
     val condition: ExpressionNode,
     val thenBody: MutableList<ASTNode> = mutableListOf(),
     val elseBody: MutableList<ASTNode>? = null
-) : StatementNode()
+) : StatementNode, ElementNode, CommandNode
 
 class ForNode(
     val variable: String,
     val start: ExpressionNode,
     val end: ExpressionNode,
     val body: MutableList<ASTNode> = mutableListOf()
-) : StatementNode()
+) : StatementNode, ElementNode, CommandNode
+
+class AssignmentNode(
+    val variableName: String,
+    val value: ExpressionNode
+) : StatementNode, CommandNode
 
 // Commands
-abstract class CommandNode : ASTNode()
+interface CommandNode : ASTNode
 
-class LineCommandNode(val start: PointNode, val end: PointNode) : CommandNode()
-class BendCommandNode(val start: PointNode, val end: PointNode, val angle: ExpressionNode) : CommandNode()
-class BoxCommandNode(val start: PointNode, val end: PointNode) : CommandNode()
-class CircCommandNode(val center: PointNode, val radius: ExpressionNode) : CommandNode()
-class AssignmentNode(val variable: String, val value: ExpressionNode) : CommandNode()
+class LineCommandNode(val start: PointNode, val end: PointNode) : CommandNode
+class BendCommandNode(val start: PointNode, val end: PointNode, val angle: ExpressionNode) : CommandNode
+class BoxCommandNode(val start: PointNode, val end: PointNode) : CommandNode
+class CircCommandNode(val center: PointNode, val radius: ExpressionNode) : CommandNode
 
 // Styles
-abstract class StyleNode : ASTNode()
+abstract class StyleNode : ASTNode
 class ColorNode(val colorValue: String) : StyleNode()
 class LineStyleNode(val style: String) : StyleNode() // solid, dashed, dotted
 
 // Expressions
-abstract class ExpressionNode : ASTNode()
+abstract class ExpressionNode : ASTNode
 class NumberNode(val value: Double) : ExpressionNode()
 class VariableNode(val name: String) : ExpressionNode()
 class BinaryOpNode(val left: ExpressionNode, val operator: String, val right: ExpressionNode) : ExpressionNode()
