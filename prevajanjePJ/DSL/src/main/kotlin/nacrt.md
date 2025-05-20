@@ -247,7 +247,7 @@ Omogoča vključitev druge datoteke v trenutni program. Uporabno za ponovno upor
 ## 3. Primeri:
 
 1. Mesto z eno cesto in eno zgradbo
-```city "TestCity" {
+```
 city "MiniMesto" {
   road "Glavna" {
     line((0,0), (10,0));

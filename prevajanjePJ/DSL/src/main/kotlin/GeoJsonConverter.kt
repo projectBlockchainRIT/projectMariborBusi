@@ -3,6 +3,9 @@
 import java.io.File
 
 class GeoJsonConverter {
+    private var globalVariables: MutableMap<String, PointNode> = mutableMapOf()
+
+
     fun convertToGeoJson(program: ProgramNode): String {
         val featureCollection = mutableMapOf<String, Any>()
         featureCollection["type"] = "FeatureCollection"
@@ -16,13 +19,11 @@ class GeoJsonConverter {
                 // Other top-level statements don't produce GeoJSON features
             }
         }
-
         featureCollection["features"] = features
         return jsonToString(featureCollection)
     }
 
     private fun processCity(city: CityNode, features: MutableList<Map<String, Any>>) {
-        // Add a feature for the city itself (could be a point)
         features.add(
             mapOf(
                 "type" to "Feature",

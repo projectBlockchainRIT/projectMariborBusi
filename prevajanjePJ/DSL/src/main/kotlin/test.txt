@@ -1,6 +1,35 @@
-city "KrivuljaCity" {
-  building "Muzej" {
-    bend((1,1), (4,4), 45);
-    bend((4,4), (1,1), -45);
+import "zunanje_stavbe.dsl";
+
+x = midpoint((2,2), (6,6));
+y = 3;
+d = distance((1,1), (4,5));
+
+city "SredinskiPark" (
+      #FF0000
+      solid
+  ) {
+  if (y < 2) {
+    road "Park" {
+        line(x, (5,5));
+    }
+  } else {
+        bus_stop "Center" {
+         location((5,5));
+       }
+
+       bus_stop "Postaja2" {
+         location((10,10));
+       }
+
+       bus_line "Linija1" {
+         line((0,0), (5,5));
+         bend((5,5), (10,10), 45);
+       }
+
+       for (i = 0 to 5) {
+           building "Krog" {
+             circ((i * 3, 0), d);
+           }
+       }
   }
 }
