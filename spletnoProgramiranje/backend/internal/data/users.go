@@ -69,7 +69,7 @@ func (s *UsersStorage) GetByEmail(ctx context.Context, email string) (*User, err
 }
 
 func (s *UsersStorage) GetById(ctx context.Context, id int) (*User, error) {
-	rows, err := s.db.Query("SELECT * FROM users WHERE id = ?", id)
+	rows, err := s.db.Query("SELECT * FROM users WHERE id = $1", id)
 
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func (s *UsersStorage) GetById(ctx context.Context, id int) (*User, error) {
 	var user User
 
 	for rows.Next() {
-		err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.CreatedAt)
+		err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.CreatedAt, &user.LastLogin)
 		if err != nil {
 			return nil, err
 		}
