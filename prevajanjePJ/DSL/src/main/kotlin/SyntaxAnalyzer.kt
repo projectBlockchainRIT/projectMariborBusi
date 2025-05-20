@@ -2,8 +2,6 @@ class Token(val type: String, val value: String) {
     override fun toString(): String = "$type($value)"
 }
 
-// src/main/kotlin/SyntaxAnalyzer.kt
-
 class SyntaxAnalyzer(private val tokens: List<String>) {
     private var currentTokenIndex = 0
     private val tokenStack = mutableListOf<Token>()
@@ -72,10 +70,10 @@ class SyntaxAnalyzer(private val tokens: List<String>) {
                 }
             }
 
-            "if" -> ifStmt() as StatementNode
-            "for" -> forStmt() as StatementNode
+            "if" -> ifStmt()
+            "for" -> forStmt()
             else -> throw Exception("Invalid statement starting with ${peek()?.type}")
-        } as StatementNode
+        }
     }
 
     // <include_stmt> ::= 'include' <string> ';'
@@ -452,11 +450,19 @@ class SyntaxAnalyzer(private val tokens: List<String>) {
         match("lcurly")
 
         val thenBody = mutableListOf<ASTNode>()
-        if (peek()?.type == "city") {
-            thenBody.add(stmt())
-        } else {
-            while (isCommandStart()) {
-                thenBody.add(command())
+        while (peek()?.type != "rcurly") {
+            when (peek()?.type) {
+                "city" -> {
+                    thenBody.add(stmt())
+                }
+                in listOf("road", "building", "bus_stop", "bus_line", "if", "for") -> {
+                    thenBody.add(element())
+                }
+                else -> {
+                    while (isCommandStart()) {
+                        thenBody.add(command())
+                    }
+                }
             }
         }
 
@@ -467,11 +473,19 @@ class SyntaxAnalyzer(private val tokens: List<String>) {
             match("lcurly")
 
             val body = mutableListOf<ASTNode>()
-            if (peek()?.type == "city") {
-                body.add(stmt())
-            } else {
-                while (isCommandStart()) {
-                    body.add(command())
+            while (peek()?.type != "rcurly") {
+                when (peek()?.type) {
+                    "city" -> {
+                        body.add(stmt())
+                    }
+                    in listOf("road", "building", "bus_stop", "bus_line", "if", "for") -> {
+                        body.add(element())
+                    }
+                    else -> {
+                        while (isCommandStart()) {
+                            body.add(command())
+                        }
+                    }
                 }
             }
 
@@ -517,7 +531,7 @@ class SyntaxAnalyzer(private val tokens: List<String>) {
         if (peek()?.type == "variable") {
             // Variable referring to a point
             val varName = match("variable").value
-            return PointNode(VariableNode(varName), VariableNode("dummy"))  // This is a placeholder - actual handling would be more complex
+            return PointNode(VariableNode(varName + "1"), VariableNode(varName + "2"))
         } else {
             match("lparen")
             val x = expression()
