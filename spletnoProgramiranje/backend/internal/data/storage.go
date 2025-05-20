@@ -8,6 +8,8 @@ import (
 type Storage struct {
 	User interface {
 		Create(context.Context, *User) error
+		GetByEmail(context.Context, string) (*User, error)
+		GetById(context.Context, int) (*User, error)
 	}
 	Stations interface {
 		ReadStation(context.Context, int64) (*Stop, error)

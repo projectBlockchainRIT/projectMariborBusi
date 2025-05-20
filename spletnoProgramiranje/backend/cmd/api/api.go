@@ -41,7 +41,7 @@ func (app *app) mount() http.Handler {
 	// version 1.0 group of the api routes
 	// easy addition of new handlers and routes in the future without breaking the current funcionality
 	r.Route("/v1", func(r chi.Router) {
-		r.Get("/health", app.healthCheckHandler)
+		r.Get("/health", app.WithJWTAuth(app.healthCheckHandler))
 
 		r.Route("/stations", func(r chi.Router) {
 			r.Get("/list", app.stationsListHandler)               // fetch a list of basic station data for displaying a list
@@ -55,10 +55,9 @@ func (app *app) mount() http.Handler {
 			r.Get("/list", app.routesListHandler)                      // fetch all routes to display entire bus coverage on the map
 		})
 
-		r.Route("/user", func(r chi.Router) {
-			r.Post("/create", app.getRouteOfLineHandler)               // fetch the route of a specifc line based on the id
-			r.Get("/stations/{lineId}", app.getStationsOnRouteHandler) // fetch all stops that appear on this route
-			r.Get("/list", app.routesListHandler)                      // fetch all routes to display entire bus coverage on the map
+		r.Route("/authentication", func(r chi.Router) {
+			r.Post("/register", app.usersResgisterUser) // creating a new user
+			r.Post("/login", app.usersLoginUser)        // logging in an existing user
 		})
 	})
 
@@ -75,7 +74,7 @@ func (app *app) run(mux http.Handler) error {
 		IdleTimeout:  time.Minute,
 	}
 
-	fmt.Printf("Listening on port: %s", app.serverConfig.address)
+	fmt.Printf("Listening on port: %s\n", app.serverConfig.address)
 
 	return server.ListenAndServe()
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/cmd/utils"
 	"backend/internal/data"
 	"net/http"
 	"strconv"
@@ -16,12 +17,12 @@ func (app *app) stationsListHandler(w http.ResponseWriter, r *http.Request) {
 	stops, err := app.store.Stations.ReadList(ctx)
 
 	if err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if err := app.writeJSONResponse(w, http.StatusOK, stops); err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+	if err := utils.WriteJSONResponse(w, http.StatusOK, stops); err != nil {
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -32,7 +33,7 @@ func (app *app) getStationHandler(w http.ResponseWriter, r *http.Request) {
 	stationId, err := strconv.ParseInt(idParam, 10, 64)
 
 	if err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -42,12 +43,12 @@ func (app *app) getStationHandler(w http.ResponseWriter, r *http.Request) {
 	stop, err := app.store.Stations.ReadStation(ctx, stationId)
 
 	if err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if err := app.writeJSONResponse(w, http.StatusOK, stop); err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+	if err := utils.WriteJSONResponse(w, http.StatusOK, stop); err != nil {
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -58,7 +59,7 @@ func (app *app) getStationMetadataHandler(w http.ResponseWriter, r *http.Request
 	stationId, err := strconv.ParseInt(idParam, 10, 64)
 
 	if err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -68,12 +69,12 @@ func (app *app) getStationMetadataHandler(w http.ResponseWriter, r *http.Request
 	stopMetadata, err := app.store.Stations.ReadStationMetadata(ctx, stationId)
 
 	if err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if err := app.writeJSONResponse(w, http.StatusOK, stopMetadata); err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+	if err := utils.WriteJSONResponse(w, http.StatusOK, stopMetadata); err != nil {
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
