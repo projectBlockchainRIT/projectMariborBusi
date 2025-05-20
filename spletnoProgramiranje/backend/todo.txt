@@ -1,10 +1,26 @@
 handler za postaje:
 - pridobi seznam vseh postaj za buttone (ime, številka, id)  "/stations/list" ✅
-- pridobi podatke o lokaciji postaje (latitude, longitude) "/stations/location/id" ✅
-- pridobi podatke za specifično postajo (ime, številka, linije, odhodni časi) "/stations/id" ✅
-- get postaje within specific location "/stations/closeBy/location"
+- pridobi podatke o lokaciji postaje (latitude, longitude) "/stations/location/stationId" ✅
+- pridobi podatke za specifično postajo (ime, številka, linije, odhodni časi) "/stations/stationId" ✅
+- get postaje within specific location "/stations/closeBy/location" (to z implementacijo geoprostorskih poizvedbe)
 
 
-handler za poti:
-- pridobi pot specifične linije glede na id linije
-- pridobi linijo in vs epostaje, ki so na poti tote linije 
+handler za linije:
+- pridobi pot specifične linije glede na id linije "/routes/lineId" ✅
+- pridobi pot linije in vse postaje, ki so na poti tote linije "/routes/stations/lineId" ✅
+- pridobi vse linije (id, koda linije) "/routes/list" ✅
+- simulacija avtobusov na trenutni poti "/routes/simulate/lineId" (to z implementacijo web sockets)
+
+
+handler za uporabnike:
+- ustvari uporabnika
+- pridobi uporabnika po id-ju
+- avtentikacija in avtorizacija (to z implementacijo JWT)
+
+
+
+če de čas, spremeni departures table tak, ka de seznam departerov, ne pa vsak departure posebej
+naredi, ka vzemes lokacijo, ti poisce nejbljizjo postajo, ki te vodi do tja, kam ces iti
+
+
+

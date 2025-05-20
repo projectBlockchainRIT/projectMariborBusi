@@ -44,10 +44,21 @@ func (app *app) mount() http.Handler {
 		r.Get("/health", app.healthCheckHandler)
 
 		r.Route("/stations", func(r chi.Router) {
-			r.Get("/list", app.stationsListHandler)
-			r.Get("/location/{stationId}", app.getStationHandler)
-			r.Get("/{stationId}", app.getStationMetadataHandler)
-			//r.Get("/geoList", app.stationsGeoListHandler)
+			r.Get("/list", app.stationsListHandler)               // fetch a list of basic station data for displaying a list
+			r.Get("/location/{stationId}", app.getStationHandler) // fetch geolocation data of a station
+			r.Get("/{stationId}", app.getStationMetadataHandler)  // fetch detailed station data, like the geolocation, depatrute times and associated bus lines
+		})
+
+		r.Route("/routes", func(r chi.Router) {
+			r.Get("/{lineId}", app.getRouteOfLineHandler)              // fetch the route of a specifc line based on the id
+			r.Get("/stations/{lineId}", app.getStationsOnRouteHandler) // fetch all stops that appear on this route
+			r.Get("/list", app.routesListHandler)                      // fetch all routes to display entire bus coverage on the map
+		})
+
+		r.Route("/user", func(r chi.Router) {
+			r.Post("/create", app.getRouteOfLineHandler)               // fetch the route of a specifc line based on the id
+			r.Get("/stations/{lineId}", app.getStationsOnRouteHandler) // fetch all stops that appear on this route
+			r.Get("/list", app.routesListHandler)                      // fetch all routes to display entire bus coverage on the map
 		})
 	})
 
