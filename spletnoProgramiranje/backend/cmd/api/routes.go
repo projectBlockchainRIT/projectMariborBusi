@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/cmd/utils"
 	"backend/internal/data"
 	"net/http"
 	"strconv"
@@ -13,7 +14,7 @@ func (app *app) getRouteOfLineHandler(w http.ResponseWriter, r *http.Request) {
 	lineId, err := strconv.ParseInt(idParam, 10, 64)
 
 	if err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -23,12 +24,12 @@ func (app *app) getRouteOfLineHandler(w http.ResponseWriter, r *http.Request) {
 	route, err := app.store.Routes.ReadRoute(ctx, lineId)
 
 	if err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if err := app.writeJSONResponse(w, http.StatusOK, route); err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+	if err := utils.WriteJSONResponse(w, http.StatusOK, route); err != nil {
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -39,7 +40,7 @@ func (app *app) getStationsOnRouteHandler(w http.ResponseWriter, r *http.Request
 	lineId, err := strconv.ParseInt(idParam, 10, 64)
 
 	if err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -49,12 +50,12 @@ func (app *app) getStationsOnRouteHandler(w http.ResponseWriter, r *http.Request
 	route, err := app.store.Routes.ReadRouteStations(ctx, lineId)
 
 	if err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if err := app.writeJSONResponse(w, http.StatusOK, route); err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+	if err := utils.WriteJSONResponse(w, http.StatusOK, route); err != nil {
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -68,12 +69,12 @@ func (app *app) routesListHandler(w http.ResponseWriter, r *http.Request) {
 	routes, err := app.store.Routes.ReadRoutesList(ctx)
 
 	if err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if err := app.writeJSONResponse(w, http.StatusOK, routes); err != nil {
-		writeJSONError(w, http.StatusInternalServerError, err.Error())
+	if err := utils.WriteJSONResponse(w, http.StatusOK, routes); err != nil {
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
