@@ -24,6 +24,27 @@ class PostgreDirectionDao : DirectionDao {
         return null
     }
 
+    override fun getAll(): List<Direction> {
+        val query = "SELECT * FROM directions"
+        val directions = mutableListOf<Direction>()
+
+        DatabaseConnector.getConnection().use { conn ->
+            conn!!.prepareStatement(query).use { stmt ->
+                val rs = stmt.executeQuery()
+                while (rs.next()) {
+                    directions.add(
+                        Direction(
+                            id = rs.getInt("id"),
+                            lineId = rs.getInt("line_id"),
+                            name = rs.getString("name")
+                        )
+                    )
+                }
+            }
+        }
+        return  directions
+    }
+
     override fun insert(entity: Direction): Boolean {
         val query = "INSERT INTO directions (line_id, name) VALUES (?, ?)"
         DatabaseConnector.getConnection().use { conn ->

@@ -26,6 +26,29 @@ class PostgreStopDao : StopDao {
         return null
     }
 
+    override fun getAll(): List<Stop> {
+        val query = "SELECT * FROM stops"
+        val stops = mutableListOf<Stop>()
+
+        DatabaseConnector.getConnection().use { conn ->
+            conn!!.prepareStatement(query).use { stmt ->
+                val rs = stmt.executeQuery()
+                while (rs.next()) {
+                    stops.add(
+                        Stop(
+                            id = rs.getInt("id"),
+                            number = rs.getString("number"),
+                            name = rs.getString("name"),
+                            latitude = rs.getDouble("latitude"),
+                            longitude = rs.getDouble("longitude")
+                        )
+                    )
+                }
+            }
+        }
+        return stops
+    }
+
     override fun insert(entity: Stop): Boolean {
         val query = """
             INSERT INTO stops (id, number, name, latitude, longitude)

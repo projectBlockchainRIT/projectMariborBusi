@@ -25,6 +25,28 @@ class PostgreDepartureDao : DepartureDao {
         }
     }
 
+    override fun getAll(): List<Departure> {
+        val query = "SELECT * FROM departures"
+        val departures = mutableListOf<Departure>()
+
+        DatabaseConnector.getConnection().use { conn ->
+            conn!!.prepareStatement(query).use { stmt ->
+                val rs = stmt.executeQuery()
+                while (rs.next()) {
+                    departures.add(
+                        Departure(
+                            id = rs.getInt("id"),
+                            stopId = rs.getInt("stop_id"),
+                            directionId = rs.getInt("direction_id"),
+                            departure = rs.getString("departure")
+                        )
+                    )
+                }
+            }
+        }
+        return departures
+    }
+
     override fun insert(entity: Departure): Boolean {
         val query = "INSERT INTO departures (stop_id, direction_id, departure) VALUES (?, ?, ?)"
         DatabaseConnector.getConnection().use { conn ->

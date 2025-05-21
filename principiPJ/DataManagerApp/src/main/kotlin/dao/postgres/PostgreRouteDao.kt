@@ -29,6 +29,30 @@ class PostgreRouteDao : RouteDao {
         return null
     }
 
+    override fun getAll(): List<Route> {
+        val query = "SELECT * FROM routes"
+        val routes = mutableListOf<Route>()
+
+        DatabaseConnector.getConnection().use { conn ->
+            conn!!.prepareStatement(query).use { stmt ->
+                val rs = stmt.executeQuery()
+                while (rs.next()) {
+                    val pathString = rs.getString("path")
+                    val jsonPath = Json.parseToJsonElement(pathString)
+                    routes.add(
+                        Route(
+                            id = rs.getInt("id"),
+                            name = rs.getString("name"),
+                            path = jsonPath,
+                            lineId = rs.getInt("line_id")
+                        )
+                    )
+                }
+            }
+        }
+        return  routes
+    }
+
     override fun insert(entity: Route): Boolean {
         val query = """
             INSERT INTO routes (name, path, line_id)
