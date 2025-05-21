@@ -15,6 +15,7 @@ type Storage struct {
 		ReadStation(context.Context, int64) (*Stop, error)
 		ReadList(context.Context) ([]Stop, error)
 		ReadStationMetadata(context.Context, int64) (*StopMetadata, error)
+		ReadStationsCloseBy(context.Context, *Location) ([]Stop, error)
 	}
 	Routes interface {
 		ReadRoute(context.Context, int64) (*Route, error)
