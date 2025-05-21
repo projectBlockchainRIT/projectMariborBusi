@@ -3,6 +3,7 @@ package main
 import (
 	"backend/cmd/utils"
 	"backend/internal/data"
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -65,7 +66,6 @@ func (app *app) getStationMetadataHandler(w http.ResponseWriter, r *http.Request
 
 	ctx := r.Context()
 
-	//log.Printf("sem tu notri")
 	stopMetadata, err := app.store.Stations.ReadStationMetadata(ctx, stationId)
 
 	if err != nil {
@@ -74,6 +74,38 @@ func (app *app) getStationMetadataHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := utils.WriteJSONResponse(w, http.StatusOK, stopMetadata); err != nil {
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+}
+
+func (app *app) getStationsCloseBy(w http.ResponseWriter, r *http.Request) {
+	if r.Body == nil {
+		utils.WriteJSONError(w, http.StatusInternalServerError, "No user data in request body")
+		return
+	}
+
+	var payload data.Location
+	err := json.NewDecoder(r.Body).Decode(&payload)
+
+	//fmt.Printf("Latitude: %f\nLongitude: %f\nRadius: %d\n", payload.Latitude, payload.Longitude, payload.Radius)
+
+	if err != nil {
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ctx := r.Context()
+
+	stops, err := app.store.Stations.ReadStationsCloseBy(ctx, &payload)
+
+	if err != nil {
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if err := utils.WriteJSONResponse(w, http.StatusOK, stops); err != nil {
 		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

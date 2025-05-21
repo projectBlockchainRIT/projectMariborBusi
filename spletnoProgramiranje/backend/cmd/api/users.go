@@ -9,6 +9,14 @@ import (
 )
 
 func (app *app) usersResgisterUser(w http.ResponseWriter, r *http.Request) {
+	/*
+		{
+		"Username": "testUser"
+		"Email": "testEmail@email.com",
+		"Password": "yoyo"
+		}
+	*/
+
 	if r.Body == nil {
 		utils.WriteJSONError(w, http.StatusInternalServerError, "No user data in request body")
 		return
@@ -61,6 +69,13 @@ func (app *app) usersResgisterUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *app) usersLoginUser(w http.ResponseWriter, r *http.Request) {
+	/*
+		{
+		"Email": "testEmail@email.com",
+		"Password": "yoyo"
+		}
+	*/
+
 	if r.Body == nil {
 		utils.WriteJSONError(w, http.StatusInternalServerError, "No user data in request body")
 		return
