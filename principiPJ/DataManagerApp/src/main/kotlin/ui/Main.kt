@@ -47,32 +47,32 @@ fun App() {
                     .clip(RoundedCornerShape(8.dp))
             ) {
                 NavItem(
-                    text = "Add Bus Stop",
+                    text = "ADD",
                     icon = Icons.Default.Add,
                     isSelected = selectedScreen == "addBusStop",
                     onClick = { selectedScreen = "addBusStop" }
                 )
 
                 NavItem(
-                    text = "Bus Stops",
+                    text = "LIST",
                     icon = Icons.Default.Menu,
                     isSelected = selectedScreen == "busStops",
                     onClick = { selectedScreen = "busStops" }
                 )
 
                 Divider(
-                    Modifier.padding(vertical = 8.dp)
+                    Modifier.padding(vertical = 0.dp)
                 )
 
                 NavItem(
-                    text = "Scraper",
+                    text = "SCRAPER",
                     icon = Icons.Outlined.Share,
                     isSelected = selectedScreen == "scraper",
                     onClick = { selectedScreen = "scraper" }
                 )
 
                 NavItem(
-                    text = "Generator",
+                    text = "GENERATOR",
                     icon = Icons.Outlined.Edit,
                     isSelected = selectedScreen == "generator",
                     onClick = { selectedScreen = "generator" }
@@ -83,7 +83,7 @@ fun App() {
                 )
 
                 NavItem(
-                    text = "About",
+                    text = "ABOUT",
                     icon = Icons.Outlined.Info,
                     isSelected = selectedScreen == "about",
                     onClick = { selectedScreen = "about" }
@@ -96,12 +96,11 @@ fun App() {
                     .weight(3f)
                     .padding(8.dp)
                     .border(1.dp, Color.LightGray, shape = RoundedCornerShape(8.dp))
-                    .padding(8.dp)
                     .fillMaxSize()
             ) {
                 when (selectedScreen) {
-                    "addBusStop" -> AddStopScreen()
-                    "busStops" -> StopsListScreen()
+                    "addBusStop" -> AddObjectScreen()
+                    "busStops" -> ListScreen()
                     "scraper" -> ScraperScreen()
                     "generator" -> GeneratorScreen()
                     "about" -> AboutScreen()
