@@ -26,7 +26,8 @@ fun NavItem(
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .background(
-                if (isSelected) Color.LightGray.copy(alpha = 0.3f) else Color.Transparent
+                //if (isSelected) Color.LightGray.copy(alpha = 0.3f) else
+                Color.Transparent
             )
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically

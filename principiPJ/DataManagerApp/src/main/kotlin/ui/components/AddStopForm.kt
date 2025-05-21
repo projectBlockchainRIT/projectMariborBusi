@@ -1,24 +1,21 @@
-package ui.screens
+package ui.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import model.Stop
-import dao.*
 import dao.postgres.PostgreStopDao
-import model.*
-
+import model.Stop
 
 @Composable
-fun AddStopScreen() {
+fun AddStopForm() {
     val stopDao = PostgreStopDao()
 
     var id by remember { mutableStateOf("") }
@@ -30,22 +27,20 @@ fun AddStopScreen() {
 
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Card(
-            elevation = 8.dp,
-            shape = RoundedCornerShape(16.dp),
+        Surface(
+            color = MaterialTheme.colors.surface,
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight() // zavzema 90% višine zaslona
+                .fillMaxHeight()
         ) {
             Column(
                 modifier = Modifier
                     .padding(24.dp)
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState()), // omogoča scroll
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -90,39 +85,6 @@ fun AddStopScreen() {
 
                 Spacer(Modifier.weight(1f))
 
-                Button(
-                    onClick = {
-                        val stopId = id.toIntOrNull()
-                        if (stopId == null) {
-                            errorMessage = "ID mora biti številka."
-                        } else {
-                            val existing = stopDao.getById(stopId)
-                            if (existing != null) {
-                                errorMessage = "Postaja z ID $stopId že obstaja!"
-                            } else {
-                                val stop = Stop(
-                                    id = stopId,
-                                    number = number,
-                                    name = name,
-                                    latitude = latitude.toDoubleOrNull() ?: 0.0,
-                                    longitude = longitude.toDoubleOrNull() ?: 0.0
-                                )
-                                stopDao.insert(stop)
-                                errorMessage = "Postaja uspešno dodana."
-                            }
-                        }
-
-                        id = ""
-                        number = ""
-                        name = ""
-                        latitude = ""
-                        longitude = ""
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Shrani postajo")
-                }
-
                 if (errorMessage.isNotBlank()) {
                     Text(
                         text = errorMessage,
@@ -131,7 +93,55 @@ fun AddStopScreen() {
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
+
+                Spacer(Modifier.weight(1f))
+
+                Button(
+                    onClick = {
+                        if (id.isBlank() || number.isBlank() || name.isBlank() || latitude.isBlank() || longitude.isBlank()) {
+                            errorMessage = "Vsa polja morajo biti izpolnjena."
+                            return@Button
+                        }
+
+                        val stopId = id.toIntOrNull()
+                        if (stopId == null) {
+                            errorMessage = "ID mora biti številka."
+                        } else {
+                            val existing = stopDao.getById(stopId)
+                            if (existing != null) {
+                                errorMessage = "Postaja z ID $stopId že obstaja!"
+                            } else {
+                                val lat = latitude.toDoubleOrNull()
+                                val lon = longitude.toDoubleOrNull()
+                                if (lat == null || lon == null) {
+                                    errorMessage = "Latitude in longitude morata biti decimalni števili."
+                                    return@Button
+                                }
+
+                                val stop = Stop(
+                                    id = stopId,
+                                    number = number,
+                                    name = name,
+                                    latitude = lat,
+                                    longitude = lon
+                                )
+                                stopDao.insert(stop)
+                                errorMessage = "Postaja uspešno dodana."
+
+                                id = ""
+                                number = ""
+                                name = ""
+                                latitude = ""
+                                longitude = ""
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Dodaj")
+                }
             }
         }
     }
+
 }
