@@ -29,6 +29,12 @@ type DepartureGroup struct {
 	Times     []string `json:"times"`
 }
 
+type Location struct {
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
+	Radius    int     `json:"radius"`
+}
+
 type StopStorage struct {
 	db *sql.DB
 }
@@ -167,4 +173,43 @@ func (s *StopStorage) ReadStationMetadata(ctx context.Context, id int64) (*StopM
 	}
 
 	return &stopMetadata, nil
+}
+
+func (s *StopStorage) ReadStationsCloseBy(ctx context.Context, payload *Location) ([]Stop, error) {
+	query := `
+        SELECT id, number, name, latitude, longitude
+		FROM stops
+		WHERE ST_DWithin(
+			geom,
+			ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography,
+			$3
+		);
+    `
+
+	rows, err := s.db.QueryContext(ctx, query, payload.Longitude, payload.Latitude, payload.Radius)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var stops []Stop
+	for rows.Next() {
+		var stop Stop
+		err := rows.Scan(&stop.ID, &stop.Number, &stop.Name, &stop.Latitude, &stop.Longitude)
+		if err != nil {
+			return nil, err
+		}
+		stops = append(stops, stop)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	if len(stops) == 0 {
+		return []Stop{}, nil
+	}
+
+	return stops, nil
 }
