@@ -39,6 +39,7 @@ class LexicalAnalyzer {
         table[45][0] = 67 // -
         table[42][0] = 68 // *
         table[47][0] = 69 // /
+        table[47][10] = 10 // /
 
         // < >
         table[60][0] = 108 // <

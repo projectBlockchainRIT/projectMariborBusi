@@ -1,6 +1,10 @@
 // src/main/kotlin/GeoJsonConverter.kt
 
 import java.io.File
+import java.util.*
+import kotlin.math.*
+import org.json.JSONObject
+import org.json.JSONArray
 
 class GeoJsonConverter {
     private var globalVariables: MutableMap<String, PointNode> = mutableMapOf()
@@ -16,6 +20,31 @@ class GeoJsonConverter {
         for (statement in program.statements) {
             when (statement) {
                 is CityNode -> processCity(statement, features)
+                is ImportNode -> {
+                    val LA = LexicalAnalyzer()
+                    var tokens = listOf<String>()
+
+                    File(statement.path).bufferedReader().use { reader ->
+                        reader.forEachLine { line ->
+                            tokens += LA.getTokens(line)
+                        }
+                    }
+
+                    val SA = SyntaxAnalyzer(tokens)
+                    val ast = SA.parse()
+                    val geoJsonConverter = GeoJsonConverter()
+                    val geoJsonString = geoJsonConverter.convertToGeoJson(ast)
+
+                    // Parse string to JSONObject
+                    val parsed = JSONObject(geoJsonString)
+                    val importedFeatures = parsed.getJSONArray("features")
+
+                    // Append each feature from imported file into the current feature list
+                    for (i in 0 until importedFeatures.length()) {
+                        val featureObj = importedFeatures.getJSONObject(i)
+                        features.add(jsonToMap(featureObj))
+                    }
+                }
                 // Other top-level statements don't produce GeoJSON features
             }
         }
@@ -172,8 +201,14 @@ class GeoJsonConverter {
                 }
 
                 is BendCommandNode -> {
-                    coordinates.add(evaluatePoint(command.start))
-                    coordinates.add(evaluatePoint(command.end))
+
+                    val start = evaluatePoint(command.start)
+                    val end = evaluatePoint(command.end)
+                    val angle = evaluateExpression(command.angle)
+
+                    // Calculate bend points
+                    val bendPoints = calculateBendPoints(start, end, angle)
+                    coordinates.addAll(bendPoints)
                 }
                 // Other commands don't directly contribute to the bus line path
             }
@@ -197,6 +232,87 @@ class GeoJsonConverter {
     }
 
     // Helper methods for evaluating expressions and points
+    private fun calculateBendPoints(start: List<Double>, end: List<Double>, angleDegrees: Double, segments: Int = 10): List<List<Double>> {
+        val points = mutableListOf<List<Double>>()
+        val x1 = start[0]
+        val y1 = start[1]
+        val x2 = end[0]
+        val y2 = end[1]
+
+        // Calculate the midpoint
+        val mx = (x1 + x2) / 2
+        val my = (y1 + y2) / 2
+
+        // Calculate the vector from start to end
+        val dx = x2 - x1
+        val dy = y2 - y1
+
+        // Calculate the length of the segment
+        val length = Math.sqrt(dx * dx + dy * dy)
+
+        // Calculate the normal vector (perpendicular to the segment)
+        val nx = -dy / length
+        val ny = dx / length
+
+        // Calculate the distance from the midpoint to the arc center
+        val angleRad = Math.toRadians(angleDegrees)
+        val radius = length / (2 * Math.sin(angleRad / 2))
+        val h = Math.sqrt(radius * radius - (length / 2) * (length / 2))
+
+        // Determine the center of the arc
+        val direction = if (angleDegrees > 0) 1 else -1
+        val cx = mx + direction * nx * h
+        val cy = my + direction * ny * h
+
+        // Calculate start and end angles
+        val startAngle = Math.atan2(y1 - cy, x1 - cx)
+        val endAngle = Math.atan2(y2 - cy, x2 - cx)
+
+        // Ensure the arc is drawn in the correct direction
+        val sweep = if (direction > 0 && endAngle < startAngle) endAngle + 2 * Math.PI else endAngle
+        val step = (sweep - startAngle) / segments
+
+        for (i in 0..segments) {
+            val theta = startAngle + i * step
+            val px = cx + radius * Math.cos(theta)
+            val py = cy + radius * Math.sin(theta)
+            points.add(listOf(px, py))
+        }
+
+        return points
+    }
+
+    private fun jsonToMap(jsonObject: JSONObject): Map<String, Any> {
+        val map = mutableMapOf<String, Any>()
+        val keys = jsonObject.keys()
+        while (keys.hasNext()) {
+            val key = keys.next()
+            val value = jsonObject.get(key)
+            map[key] = when (value) {
+                is JSONObject -> jsonToMap(value)
+                is JSONArray -> jsonToList(value)
+                else -> value
+            }
+        }
+        return map
+    }
+
+    private fun jsonToList(jsonArray: JSONArray): List<Any> {
+        val list = mutableListOf<Any>()
+        for (i in 0 until jsonArray.length()) {
+            val value = jsonArray.get(i)
+            list.add(
+                when (value) {
+                    is JSONObject -> jsonToMap(value)
+                    is JSONArray -> jsonToList(value)
+                    else -> value
+                }
+            )
+        }
+        return list
+    }
+
+
 
     private fun evaluatePoint(point: PointNode): List<Double> {
         val x = evaluateExpression(point.x)
