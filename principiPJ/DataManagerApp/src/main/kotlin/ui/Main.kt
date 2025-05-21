@@ -1,17 +1,17 @@
+package ui
+
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.material.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
@@ -27,7 +27,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-
+import ui.components.*
+import ui.screens.*
 
 @Composable
 @Preview
@@ -99,8 +100,8 @@ fun App() {
                     .fillMaxSize()
             ) {
                 when (selectedScreen) {
-                    "addBusStop" -> AddBusStopScreen()
-                    "busStops" -> BusStopsListScreen()
+                    "addBusStop" -> AddStopScreen()
+                    "busStops" -> StopsListScreen()
                     "scraper" -> ScraperScreen()
                     "generator" -> GeneratorScreen()
                     "about" -> AboutScreen()
@@ -108,119 +109,6 @@ fun App() {
                 }
             }
         }
-    }
-}
-
-//komponente
-@Composable
-fun AddBusStopScreen() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Add Bus Stop")
-        //dodajanje postaje
-    }
-}
-
-@Composable
-fun BusStopsListScreen() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("List of Bus Stops")
-        //seznam postaj
-    }
-}
-
-@Composable
-fun ScraperScreen() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Scraper")
-        //scraper
-    }
-}
-
-@Composable
-fun GeneratorScreen() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Generator")
-        //generator postaj
-    }
-}
-
-@Composable
-fun AboutScreen() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Project: M-Busi", style = MaterialTheme.typography.h5)
-
-        Spacer(
-            Modifier.height(16.dp)
-        )
-
-        Text(
-            text = "Aplikacija za upravljanje s podatkovno bazo s funkcijami " +
-                    "izpisovanja, urejanja in dodajanja podatkov.",
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(
-            Modifier.height(16.dp)
-        )
-
-        Text("App version: 1.0.0")
-    }
-}
-
-@Composable
-fun NavItem(
-    text: String,
-    icon: ImageVector,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .background(
-                if (isSelected) Color.LightGray.copy(alpha = 0.3f) else Color.Transparent
-            )
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = text,
-            tint = if (isSelected) MaterialTheme.colors.primary else MaterialTheme.colors.onSurface,
-            modifier = Modifier.size(24.dp)
-        )
-
-        Spacer(
-            Modifier.width(8.dp)
-        )
-
-        Text(
-            text = text,
-            modifier = Modifier.fillMaxWidth(),
-            color = if (isSelected) MaterialTheme.colors.primary else MaterialTheme.colors.onSurface
-        )
     }
 }
 
