@@ -47,6 +47,7 @@ func (app *app) mount() http.Handler {
 			r.Get("/list", app.stationsListHandler)               // fetch a list of basic station data for displaying a list
 			r.Get("/location/{stationId}", app.getStationHandler) // fetch geolocation data of a station
 			r.Get("/{stationId}", app.getStationMetadataHandler)  // fetch detailed station data, like the geolocation, depatrute times and associated bus lines
+			r.Post("/closeBy", app.getStationsCloseBy)            // fetch all of the stations in a specified radius from the given location
 		})
 
 		r.Route("/routes", func(r chi.Router) {
