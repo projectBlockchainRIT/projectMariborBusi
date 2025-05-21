@@ -7,7 +7,8 @@ import org.json.JSONObject
 import org.json.JSONArray
 
 class GeoJsonConverter {
-    private var globalVariables: MutableMap<String, PointNode> = mutableMapOf()
+    private var globalPoints: MutableMap<String, PointNode> = mutableMapOf()
+    private var globalVariables: MutableMap<String, Double> = mutableMapOf()
 
 
     fun convertToGeoJson(program: ProgramNode): String {
@@ -45,7 +46,66 @@ class GeoJsonConverter {
                         features.add(jsonToMap(featureObj))
                     }
                 }
-                // Other top-level statements don't produce GeoJSON features
+                is AssignmentNode -> {
+                    if (statement.value is PointNode) {
+                        val point = statement.value
+                        globalPoints[statement.variableName] = point
+                    } else if (statement.value is NumberNode) {
+                        val value = evaluateExpression(statement.value)
+                        globalVariables[statement.variableName] = value
+                    } else if (statement.value is FunctionCallNode  && statement.value.name == "distance") {
+                        val value = evaluateExpression(statement.value)
+                        globalVariables[statement.variableName] = value
+                    } else if (statement.value is FunctionCallNode && statement.value.name == "midpoint") {
+                        if (statement.value.args.size == 2 && statement.value.args[0] is PointNode && statement.value.args[1] is PointNode) {
+                            val p1 = evaluatePoint(statement.value.args[0] as PointNode)
+                            val p2 = evaluatePoint(statement.value.args[1] as PointNode)
+
+                            // Calculate midpoint coordinates
+                            val midX = (p1[0] + p2[0]) / 2
+                            val midY = (p1[1] + p2[1]) / 2
+
+                            // Create a new PointNode with NumberNode values
+                            val midpointNode = PointNode(NumberNode(midX), NumberNode(midY))
+                            globalPoints[statement.variableName] = midpointNode
+                        }
+                    }
+
+                }
+                is IfNode -> {
+                    val condition = evaluateExpression(statement.condition)
+                    if (condition != 0.0) {
+                        for (bodyStatement in statement.thenBody) {
+                            when (bodyStatement) {
+                                is CityNode -> processCity(bodyStatement, features)
+                                is AssignmentNode -> {
+                                    if (bodyStatement.value is PointNode) {
+                                        val point = bodyStatement.value
+                                        globalPoints[bodyStatement.variableName] = point
+                                    } else if (bodyStatement.value is NumberNode) {
+                                        val value = evaluateExpression(bodyStatement.value)
+                                        globalVariables[bodyStatement.variableName] = value
+                                    }
+                                }
+                            }
+                        }
+                    } else if (statement.elseBody != null) {
+                        for (bodyStatement in statement.elseBody) {
+                            when (bodyStatement) {
+                                is CityNode -> processCity(bodyStatement, features)
+                                is AssignmentNode -> {
+                                    if (bodyStatement.value is PointNode) {
+                                        val point = bodyStatement.value
+                                        globalPoints[bodyStatement.variableName] = point
+                                    } else if (bodyStatement.value is NumberNode) {
+                                        val value = evaluateExpression(bodyStatement.value)
+                                        globalVariables[bodyStatement.variableName] = value
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         featureCollection["features"] = features
@@ -62,7 +122,7 @@ class GeoJsonConverter {
                 ),
                 "geometry" to mapOf(
                     "type" to "Point",
-                    "coordinates" to listOf(0, 0)  // Default city center
+                    "coordinates" to listOf(0, 0)
                 )
             )
         )
@@ -74,7 +134,7 @@ class GeoJsonConverter {
                 is BuildingNode -> processBuilding(element, features)
                 is BusStopNode -> processBusStop(element, features)
                 is BusLineNode -> processBusLine(element, features)
-                // Control structures are handled recursively
+
             }
         }
     }
@@ -91,7 +151,13 @@ class GeoJsonConverter {
                 }
 
                 is BendCommandNode -> {
+                    val start = evaluatePoint(command.start)
+                    val end = evaluatePoint(command.end)
+                    val angle = evaluateExpression(command.angle)
 
+                    // Calculate bend points
+                    val bendPoints = calculateBendPoints(start, end, angle)
+                    coordinates.addAll(bendPoints)
                 }
                 // Other commands don't directly contribute to the road path
             }
@@ -323,7 +389,22 @@ class GeoJsonConverter {
     private fun evaluateExpression(expr: ExpressionNode): Double {
         return when (expr) {
             is NumberNode -> expr.value
-            is VariableNode -> 0.0  // In a full implementation, this would look up variable values
+            is VariableNode -> {
+                val name = expr.name
+                if (globalVariables.containsKey(name)) {
+                    globalVariables[name] ?: 0.0
+                } else if (globalPoints.containsKey(name.dropLast(1))  || globalPoints.containsKey(name.dropLast(1))) {
+                    if (name.endsWith("1")) {
+                        globalPoints[name.dropLast(1)]?.let { evaluatePoint(it) }?.get(0) ?: 0.0
+                    } else if (name.endsWith("2")) {
+                        globalPoints[name.dropLast(1)]?.let { evaluatePoint(it) }?.get(1) ?: 0.0
+                    } else {
+                        0.0
+                    }
+                } else {
+                    0.0
+                }
+            }
             is BinaryOpNode -> {
                 val left = evaluateExpression(expr.left)
                 val right = evaluateExpression(expr.right)
@@ -332,12 +413,15 @@ class GeoJsonConverter {
                     "minus" -> left - right
                     "multiply" -> left * right
                     "divide" -> left / right
+                    "greater" -> if (left > right) 1.0 else 0.0
+                    "less" -> if (left < right) 1.0 else 0.0
+                    "equal" -> if (left == right) 1.0 else 0.0
+                    "not_equal" -> if (left != right) 1.0 else 0.0
                     else -> 0.0
                 }
             }
 
             is FunctionCallNode -> {
-                // A simple implementation for common functions
                 when (expr.name) {
                     "distance" -> {
                         if (expr.args.size >= 2 && expr.args[0] is PointNode && expr.args[1] is PointNode) {
@@ -346,7 +430,6 @@ class GeoJsonConverter {
                             Math.sqrt(Math.pow(p2[0] - p1[0], 2.0) + Math.pow(p2[1] - p1[1], 2.0))
                         } else 0.0
                     }
-
                     else -> 0.0
                 }
             }

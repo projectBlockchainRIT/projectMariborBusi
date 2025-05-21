@@ -1,11 +1,15 @@
-import "src/main/kotlin/test1.txt";
+a = 1;
 
-city "MiniMesto" {
-  road "Glavna" {
-    line((0,0), (10,0));
+if (a > 2) {
+  city "LogikaCity" {
+    road "Kratka" {
+      line((0,0), (1,1));
+    }
   }
-
-  building "Trgovina" {
-    box((2,2), (4,4));
+} else {
+  city "RezervniCity" {
+    road "Rezervna" {
+      line((0,0), (5,5));
+    }
   }
 }
