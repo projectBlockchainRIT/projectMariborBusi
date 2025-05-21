@@ -37,6 +37,14 @@ fun main() {
             lastLogin = null
         )
 
+        val user2 = User (
+            username = "test2",
+            email = "test2@example.com",
+            password = "1234",
+            createdAt = "2025-05-21T12:00:00+02:00",
+            lastLogin = null
+        )
+
         val line = Line (
             lineCode = "G13"
         )
@@ -83,22 +91,24 @@ fun main() {
         println("Ins line: $lineIns")
         val stopIns = stopDao.insert(stop)
         println("Ins stop: $stopIns")
-
         val directionIns = directionDao.insert(direction)
         println("Ins direction: $directionIns")
         val departureIns = departureDao.insert(departure)
         println("Ins departure: $departureIns")
-
         val routeIns = routeDao.insert(route)
         println("Ins route: $routeIns")
         */
 
+        /*
         println(userDao.getById(5))
         println(stopDao.getById(1))
         println(lineDao.getById(4))
         println(routeDao.getById(1))
         println(directionDao.getById(1))
         println(departureDao.getById(1))
+         */
+
+        println(userDao.getAll())
 
         val updatedDirection = direction.copy(id = 1, lineId = 4, name = "nova smer")
 

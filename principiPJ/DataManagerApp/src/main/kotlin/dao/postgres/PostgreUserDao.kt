@@ -29,6 +29,30 @@ class PostgreUserDao : UserDao {
         }
     }
 
+    override fun getAll(): List<User> {
+        val query = "SELECT * FROM users"
+        val users = mutableListOf<User>()
+
+        DatabaseConnector.getConnection().use { conn ->
+            conn!!.prepareStatement(query).use { stmt ->
+                val rs = stmt.executeQuery()
+                while (rs.next()) {
+                    users.add(
+                        User(
+                            id = rs.getInt("id"),
+                            username = rs.getString("username"),
+                            email = rs.getString("email"),
+                            password = rs.getString("password"),
+                            createdAt = rs.getString("created_at"),
+                            lastLogin = rs.getString("last_login")
+                        )
+                    )
+                }
+            }
+        }
+        return users
+    }
+
     override fun insert(entity: User): Boolean {
         val query = """
             INSERT INTO users (username, email, password, created_at, last_login)

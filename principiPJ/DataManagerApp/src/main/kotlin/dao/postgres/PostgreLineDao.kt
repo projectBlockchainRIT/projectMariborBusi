@@ -23,6 +23,26 @@ class PostgreLineDao : LineDao {
         }
     }
 
+    override fun getAll(): List<Line> {
+        val query = "SELECT * FROM lines"
+        val lines = mutableListOf<Line>()
+
+        DatabaseConnector.getConnection().use { conn ->
+            conn!!.prepareStatement(query).use { stmt ->
+                val rs = stmt.executeQuery()
+                while (rs.next()) {
+                    lines.add(
+                        Line(
+                            id = rs.getInt("id"),
+                            lineCode = rs.getString("line_code")
+                        )
+                    )
+                }
+            }
+        }
+        return lines
+    }
+
     override fun insert(entity: Line): Boolean {
         val query = "INSERT INTO lines (line_code) VALUES (?)"
         DatabaseConnector.getConnection().use { conn ->
