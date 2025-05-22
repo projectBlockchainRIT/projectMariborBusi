@@ -1,1 +1,1 @@
-{"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"name": "RezervniCity", "type": "city"}, "geometry": {"type": "Point", "coordinates": [0, 0]}}, {"type": "Feature", "properties": {"name": "Rezervna", "type": "road"}, "geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [5.0, 5.0]]}}]}
+{"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"name": "Kratka", "type": "road"}, "geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}}]}
