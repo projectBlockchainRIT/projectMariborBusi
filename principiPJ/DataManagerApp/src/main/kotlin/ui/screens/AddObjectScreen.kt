@@ -55,9 +55,9 @@ fun AddObjectScreen() {
             "Stop" -> AddStopForm()
             "Line" -> AddLineForm()
             "User" -> AddUserForm()
-            /*"Route" -> AddRouteForm()
+            "Route" -> AddRouteForm()
             "Direction" -> AddDirectionForm()
-            "Departure" -> AddDepartureForm()*/
+            "Departure" -> AddDepartureForm()
             else -> Text("Izberi entiteto za dodajanje")
         }
     }
