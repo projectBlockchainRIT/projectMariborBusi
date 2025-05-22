@@ -106,8 +106,6 @@ fun AddDirectionForm() {
                     )
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
-
                 Button(
                     onClick = {
                         if (directionName.isBlank()) {

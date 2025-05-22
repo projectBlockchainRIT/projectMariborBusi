@@ -42,6 +42,9 @@ fun AddLineForm() {
                     modifier = Modifier.fillMaxWidth()
                 )
 
+
+                Spacer(Modifier.weight(1f))
+
                 if (errorMessage.isNotBlank()) {
                     Text(
                         text = errorMessage,
@@ -50,8 +53,6 @@ fun AddLineForm() {
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-
-                Spacer(modifier = Modifier.weight(1f))
 
                 Button(
                     onClick = {

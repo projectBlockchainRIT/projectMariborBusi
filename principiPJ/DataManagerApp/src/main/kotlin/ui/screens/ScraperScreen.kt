@@ -1,21 +1,62 @@
 package ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.Divider
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import ui.components.*
 
 @Composable
-fun ScraperScreen() {
+fun ScraperScreen() { var selectedEntity by remember { mutableStateOf("Scraper") }
+    val entities = listOf("Scraper", "Json")
+
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
     ) {
-        Text("Scraper")
-        //scraper
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            entities.forEach { entity ->
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { selectedEntity = entity }
+                        .padding(vertical = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = entity,
+                        style = if (selectedEntity == entity) {
+                            MaterialTheme.typography.body1.copy(color = MaterialTheme.colors.primary)
+                        } else {
+                            MaterialTheme.typography.body1
+                        },
+                        maxLines = 1
+                    )
+                }
+            }
+        }
+
+        Divider(modifier = Modifier.padding(vertical = 0.dp))
+
+        when (selectedEntity) {
+            "Scraper" -> RunScraperForm()
+            "Json" -> AddJsonForm()
+            else -> Text("Izberi entiteto za dodajanje")
+        }
     }
 }
