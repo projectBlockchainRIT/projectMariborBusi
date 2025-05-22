@@ -54,6 +54,7 @@ func (app *app) mount() http.Handler {
 			r.Get("/{lineId}", app.getRouteOfLineHandler)              // fetch the route of a specifc line based on the id
 			r.Get("/stations/{lineId}", app.getStationsOnRouteHandler) // fetch all stops that appear on this route
 			r.Get("/list", app.routesListHandler)                      // fetch all routes to display entire bus coverage on the map
+			r.Get("/simulate/{lineId}", app.getRealtimeLine)
 		})
 
 		r.Route("/authentication", func(r chi.Router) {
