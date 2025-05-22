@@ -1,4 +1,4 @@
-a = 1;
+a = 3;
 
 if (a > 2) {
   city "LogikaCity" {

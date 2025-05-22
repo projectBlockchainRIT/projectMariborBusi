@@ -320,7 +320,7 @@ if (a > 2) {
 6. Uporaba zanke za gradnjo več zgradb
 ```
 city "KrogCity" {
-  for (i = 0; to 5) {
+  for (i = 0 to 5) {
     building "Krog" {
       circ((i * 3, 0), 1);
     }

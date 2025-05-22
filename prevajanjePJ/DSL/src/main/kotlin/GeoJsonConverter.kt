@@ -21,91 +21,10 @@ class GeoJsonConverter {
         for (statement in program.statements) {
             when (statement) {
                 is CityNode -> processCity(statement, features)
-                is ImportNode -> {
-                    val LA = LexicalAnalyzer()
-                    var tokens = listOf<String>()
-
-                    File(statement.path).bufferedReader().use { reader ->
-                        reader.forEachLine { line ->
-                            tokens += LA.getTokens(line)
-                        }
-                    }
-
-                    val SA = SyntaxAnalyzer(tokens)
-                    val ast = SA.parse()
-                    val geoJsonConverter = GeoJsonConverter()
-                    val geoJsonString = geoJsonConverter.convertToGeoJson(ast)
-
-                    // Parse string to JSONObject
-                    val parsed = JSONObject(geoJsonString)
-                    val importedFeatures = parsed.getJSONArray("features")
-
-                    // Append each feature from imported file into the current feature list
-                    for (i in 0 until importedFeatures.length()) {
-                        val featureObj = importedFeatures.getJSONObject(i)
-                        features.add(jsonToMap(featureObj))
-                    }
-                }
-                is AssignmentNode -> {
-                    if (statement.value is PointNode) {
-                        val point = statement.value
-                        globalPoints[statement.variableName] = point
-                    } else if (statement.value is NumberNode) {
-                        val value = evaluateExpression(statement.value)
-                        globalVariables[statement.variableName] = value
-                    } else if (statement.value is FunctionCallNode  && statement.value.name == "distance") {
-                        val value = evaluateExpression(statement.value)
-                        globalVariables[statement.variableName] = value
-                    } else if (statement.value is FunctionCallNode && statement.value.name == "midpoint") {
-                        if (statement.value.args.size == 2 && statement.value.args[0] is PointNode && statement.value.args[1] is PointNode) {
-                            val p1 = evaluatePoint(statement.value.args[0] as PointNode)
-                            val p2 = evaluatePoint(statement.value.args[1] as PointNode)
-
-                            // Calculate midpoint coordinates
-                            val midX = (p1[0] + p2[0]) / 2
-                            val midY = (p1[1] + p2[1]) / 2
-
-                            // Create a new PointNode with NumberNode values
-                            val midpointNode = PointNode(NumberNode(midX), NumberNode(midY))
-                            globalPoints[statement.variableName] = midpointNode
-                        }
-                    }
-
-                }
-                is IfNode -> {
-                    val condition = evaluateExpression(statement.condition)
-                    if (condition != 0.0) {
-                        for (bodyStatement in statement.thenBody) {
-                            when (bodyStatement) {
-                                is CityNode -> processCity(bodyStatement, features)
-                                is AssignmentNode -> {
-                                    if (bodyStatement.value is PointNode) {
-                                        val point = bodyStatement.value
-                                        globalPoints[bodyStatement.variableName] = point
-                                    } else if (bodyStatement.value is NumberNode) {
-                                        val value = evaluateExpression(bodyStatement.value)
-                                        globalVariables[bodyStatement.variableName] = value
-                                    }
-                                }
-                            }
-                        }
-                    } else if (statement.elseBody != null) {
-                        for (bodyStatement in statement.elseBody) {
-                            when (bodyStatement) {
-                                is CityNode -> processCity(bodyStatement, features)
-                                is AssignmentNode -> {
-                                    if (bodyStatement.value is PointNode) {
-                                        val point = bodyStatement.value
-                                        globalPoints[bodyStatement.variableName] = point
-                                    } else if (bodyStatement.value is NumberNode) {
-                                        val value = evaluateExpression(bodyStatement.value)
-                                        globalVariables[bodyStatement.variableName] = value
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                is ImportNode -> processImport(statement, features)
+                is AssignmentNode -> processAssignment(statement)
+                is IfNode -> processIfNode(statement, features)
+                is ForNode -> processForLoop( statement, features)
             }
         }
         featureCollection["features"] = features
@@ -113,6 +32,7 @@ class GeoJsonConverter {
     }
 
     private fun processCity(city: CityNode, features: MutableList<Map<String, Any>>) {
+        /*
         features.add(
             mapOf(
                 "type" to "Feature",
@@ -126,6 +46,7 @@ class GeoJsonConverter {
                 )
             )
         )
+         */
 
         // Process all elements in the city
         for (element in city.elements) {
@@ -134,7 +55,7 @@ class GeoJsonConverter {
                 is BuildingNode -> processBuilding(element, features)
                 is BusStopNode -> processBusStop(element, features)
                 is BusLineNode -> processBusLine(element, features)
-
+                is ForNode -> processForLoop(element, features)
             }
         }
     }
@@ -297,6 +218,122 @@ class GeoJsonConverter {
         }
     }
 
+    private fun processImport(importNode: ImportNode, features: MutableList<Map<String, Any>>) {
+        val LA = LexicalAnalyzer()
+        var tokens = listOf<String>()
+
+        File(importNode.path).bufferedReader().use { reader ->
+            reader.forEachLine { line ->
+                tokens += LA.getTokens(line)
+            }
+        }
+
+        val SA = SyntaxAnalyzer(tokens)
+        val ast = SA.parse()
+        val geoJsonConverter = GeoJsonConverter()
+        val geoJsonString = geoJsonConverter.convertToGeoJson(ast)
+
+        // Parse string to JSONObject
+        val parsed = JSONObject(geoJsonString)
+        val importedFeatures = parsed.getJSONArray("features")
+
+        // Append each feature from imported file into the current feature list
+        for (i in 0 until importedFeatures.length()) {
+            val featureObj = importedFeatures.getJSONObject(i)
+            features.add(jsonToMap(featureObj))
+        }
+    }
+
+    private fun processAssignment(statement: AssignmentNode) {
+        if (statement.value is PointNode) {
+            val point = statement.value
+            globalPoints[statement.variableName] = point
+        } else if (statement.value is NumberNode) {
+            val value = evaluateExpression(statement.value)
+            globalVariables[statement.variableName] = value
+        } else if (statement.value is FunctionCallNode && statement.value.name == "distance") {
+            val value = evaluateExpression(statement.value)
+            globalVariables[statement.variableName] = value
+        } else if (statement.value is FunctionCallNode && statement.value.name == "midpoint") {
+            if (statement.value.args.size == 2 && statement.value.args[0] is PointNode && statement.value.args[1] is PointNode) {
+                val p1 = evaluatePoint(statement.value.args[0] as PointNode)
+                val p2 = evaluatePoint(statement.value.args[1] as PointNode)
+
+                // Calculate midpoint coordinates
+                val midX = (p1[0] + p2[0]) / 2
+                val midY = (p1[1] + p2[1]) / 2
+
+                // Create a new PointNode with NumberNode values
+                val midpointNode = PointNode(NumberNode(midX), NumberNode(midY))
+                globalPoints[statement.variableName] = midpointNode
+            }
+        }
+    }
+
+    private fun processIfNode(statement: IfNode, features: MutableList<Map<String, Any>>) {
+        val condition = evaluateExpression(statement.condition)
+        if (condition != 0.0) {
+            for (bodyStatement in statement.thenBody) {
+                when (bodyStatement) {
+                    is CityNode -> processCity(bodyStatement, features)
+                    is AssignmentNode -> {
+                        if (bodyStatement.value is PointNode) {
+                            val point = bodyStatement.value
+                            globalPoints[bodyStatement.variableName] = point
+                        } else if (bodyStatement.value is NumberNode) {
+                            val value = evaluateExpression(bodyStatement.value)
+                            globalVariables[bodyStatement.variableName] = value
+                        }
+                    }
+                }
+            }
+        } else if (statement.elseBody != null) {
+            for (bodyStatement in statement.elseBody) {
+                when (bodyStatement) {
+                    is CityNode -> processCity(bodyStatement, features)
+                    is AssignmentNode -> {
+                        if (bodyStatement.value is PointNode) {
+                            val point = bodyStatement.value
+                            globalPoints[bodyStatement.variableName] = point
+                        } else if (bodyStatement.value is NumberNode) {
+                            val value = evaluateExpression(bodyStatement.value)
+                            globalVariables[bodyStatement.variableName] = value
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun processForLoop(forLoop: ForNode, features: MutableList<Map<String, Any>>) {
+        val start = evaluateExpression(forLoop.start)
+        val end = evaluateExpression(forLoop.end)
+
+        for (i in start.toInt()..end.toInt()) {
+            globalVariables[forLoop.variable] = i.toDouble()
+
+            for (bodyStatement in forLoop.body) {
+                when (bodyStatement) {
+                    is CityNode -> processCity(bodyStatement, features)
+                    is AssignmentNode -> {
+                        if (bodyStatement.value is PointNode) {
+                            val point = bodyStatement.value
+                            globalPoints[bodyStatement.variableName] = point
+                        } else if (bodyStatement.value is NumberNode) {
+                            val value = evaluateExpression(bodyStatement.value)
+                            globalVariables[bodyStatement.variableName] = value
+                        }
+                    }
+                    is RoadNode -> processRoad(bodyStatement, features)
+                    is BuildingNode -> processBuilding(bodyStatement, features)
+                    is BusStopNode -> processBusStop(bodyStatement, features)
+                    is BusLineNode -> processBusLine(bodyStatement, features)
+                    is ForNode -> processForLoop(bodyStatement, features)
+                }
+            }
+        }
+    }
+
     // Helper methods for evaluating expressions and points
     private fun calculateBendPoints(start: List<Double>, end: List<Double>, angleDegrees: Double, segments: Int = 10): List<List<Double>> {
         val points = mutableListOf<List<Double>>()
@@ -448,6 +485,8 @@ class GeoJsonConverter {
             val y = centerY + radius * Math.sin(angle)
             coordinates.add(listOf(x, y))
         }
+        // Close the circle by adding the first point at the end
+        coordinates.add(coordinates[0])
 
         return coordinates
     }
