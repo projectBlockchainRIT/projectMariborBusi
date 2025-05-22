@@ -2,6 +2,7 @@ package dao.postgres
 
 import dao.DirectionDao
 import db.DatabaseConnector
+import model.Departure
 import model.Direction
 
 class PostgreDirectionDao : DirectionDao {
@@ -44,6 +45,8 @@ class PostgreDirectionDao : DirectionDao {
         }
         return  directions
     }
+
+
 
     override fun insert(entity: Direction): Boolean {
         val query = "INSERT INTO directions (line_id, name) VALUES (?, ?)"

@@ -3,6 +3,7 @@ package dao.postgres
 import dao.StopDao
 import model.Stop
 import db.DatabaseConnector
+import model.Departure
 
 class PostgreStopDao : StopDao {
 
@@ -24,6 +25,30 @@ class PostgreStopDao : StopDao {
             }
         }
         return null
+    }
+
+    override fun getDeparturesForStop(stopId: Int): List<Departure> {
+        val departures = mutableListOf<Departure>()
+        val query = "SELECT id, stop_id, direction_id, departure FROM departures WHERE stop_id = ?"
+
+        DatabaseConnector.getConnection().use { conn ->
+            conn!!.prepareStatement(query).use { stmt ->
+                stmt.setInt(1, stopId)
+                stmt.executeQuery().use { rs ->
+                    while (rs.next()) {
+                        departures.add(
+                            Departure(
+                                id = rs.getInt("id"),
+                                stopId = rs.getInt("stop_id"),
+                                directionId = rs.getInt("direction_id"),
+                                departure = rs.getString("departure") // pričakovan format: "HH:mm:ss"
+                            )
+                        )
+                    }
+                }
+            }
+        }
+        return departures
     }
 
     override fun getAll(): List<Stop> {
