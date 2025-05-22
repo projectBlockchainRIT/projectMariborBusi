@@ -32,11 +32,11 @@ class MarpromScraper {
         val stops = mutableListOf<BusStop>()
 
         try {
-            val doc = Jsoup.connect("$baseUrl/").get()
+            val doc = Jsoup.connect("$baseUrl/").userAgent("Mozilla/5.0").get()
 
             //postajalisce - iskanje po id=TableOfStops
             val stopRows = doc.select("table#TableOfStops > tbody > tr")
-
+            println("Najdenih vrstic: ${stopRows.size}")
             //podrobnost postajalisca
             for (row in stopRows) {
                 //onClick vsebuje ID med 'stop=' in '&'
@@ -71,7 +71,7 @@ class MarpromScraper {
 
         try {
             val todayDate = getTodayDateString()
-            val doc = Jsoup.connect("$baseUrl/?stop=$stopId&datum=$todayDate").get()
+            val doc = Jsoup.connect("$baseUrl/?stop=$stopId&datum=$todayDate").userAgent("Mozilla/5.0").get()
 
             //odhodi PO linijah
             val tables = doc.select("div.modal-body table.table-bordered")
