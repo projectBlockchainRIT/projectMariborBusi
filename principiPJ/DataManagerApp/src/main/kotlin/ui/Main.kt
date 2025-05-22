@@ -47,14 +47,14 @@ fun App() {
                     .clip(RoundedCornerShape(8.dp))
             ) {
                 NavItem(
-                    text = "ADD",
+                    text = "Add",
                     icon = Icons.Default.Add,
                     isSelected = selectedScreen == "addBusStop",
                     onClick = { selectedScreen = "addBusStop" }
                 )
 
                 NavItem(
-                    text = "LIST",
+                    text = "List",
                     icon = Icons.Default.Menu,
                     isSelected = selectedScreen == "busStops",
                     onClick = { selectedScreen = "busStops" }
@@ -65,14 +65,14 @@ fun App() {
                 )
 
                 NavItem(
-                    text = "SCRAPER",
+                    text = "Scraper",
                     icon = Icons.Outlined.Share,
                     isSelected = selectedScreen == "scraper",
                     onClick = { selectedScreen = "scraper" }
                 )
 
                 NavItem(
-                    text = "GENERATOR",
+                    text = "Generator",
                     icon = Icons.Outlined.Edit,
                     isSelected = selectedScreen == "generator",
                     onClick = { selectedScreen = "generator" }
@@ -83,13 +83,12 @@ fun App() {
                 )
 
                 NavItem(
-                    text = "ABOUT",
+                    text = "About",
                     icon = Icons.Outlined.Info,
                     isSelected = selectedScreen == "about",
                     onClick = { selectedScreen = "about" }
                 )
             }
-
 
             Column (
                 modifier = Modifier
