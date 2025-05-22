@@ -60,6 +60,8 @@ fun AddUserForm() {
                     modifier = Modifier.fillMaxWidth()
                 )
 
+                Spacer(Modifier.weight(1f))
+
                 if (errorMessage.isNotBlank()) {
                     Text(
                         text = errorMessage,
@@ -68,8 +70,6 @@ fun AddUserForm() {
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-
-                Spacer(modifier = Modifier.weight(1f))
 
                 Button(
                     onClick = {

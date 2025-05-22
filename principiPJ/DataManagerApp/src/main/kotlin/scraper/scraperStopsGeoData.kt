@@ -93,6 +93,19 @@ class MarpromStopScraper {
     }
 }
 
+suspend fun runStopsScraperToLocation(outputPath: String) {
+    val stopsGeo = MarpromStopScraper().scrapeAllStops()
+    val gson = GsonBuilder().setPrettyPrinting().create()
+    val jsonOutput = gson.toJson(stopsGeo)
+
+    try {
+        File(outputPath).writeText(jsonOutput)
+        println("Scraping completed. Saved to $outputPath. Total routes: ${stopsGeo.size}")
+    } catch (e: IOException) {
+        println("Error writing file: ${e.message}")
+    }
+}
+
 fun main() {
     val scraper = MarpromStopScraper()
     val busStops = scraper.scrapeAllStops()
@@ -100,7 +113,7 @@ fun main() {
     val gson = GsonBuilder().setPrettyPrinting().create()
     val json = gson.toJson(busStops)
 
-    val outputFile = File("../../sharedLibraries/bus_stops_maribor.json")
+    val outputFile = File("../../sharedLibraries/NEW_bus_stops_maribor.json")
     outputFile.writeText(json)
 
     println("Scraping completed successfully.")

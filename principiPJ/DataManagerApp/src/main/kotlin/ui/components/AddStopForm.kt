@@ -94,8 +94,6 @@ fun AddStopForm() {
                     )
                 }
 
-                Spacer(Modifier.weight(1f))
-
                 Button(
                     onClick = {
                         if (id.isBlank() || number.isBlank() || name.isBlank() || latitude.isBlank() || longitude.isBlank()) {
