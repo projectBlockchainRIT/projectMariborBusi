@@ -5,7 +5,7 @@ import java.time.ZonedDateTime
 
 @Serializable
 data class User(
-    val id: Int,
+    val id: Int? = null,
     var username: String,
     var email: String,
     var password: String,
