@@ -100,7 +100,7 @@ fun main() {
     val gson = GsonBuilder().setPrettyPrinting().create()
     val json = gson.toJson(busStops)
 
-    val outputFile = File("../../sharedLibraries/bus_stops_maribor.json")
+    val outputFile = File("../../sharedLibraries/NEW_bus_stops_maribor.json")
     outputFile.writeText(json)
 
     println("Scraping completed successfully.")
