@@ -82,7 +82,7 @@ fun main() {
     // Convert to JSON and write
     val gson = GsonBuilder().setPrettyPrinting().create()
     val jsonOutput = gson.toJson(routes)
-    File("../../sharedLibraries/routes_maribor_$date.json").writeText(jsonOutput)
+    File("../../sharedLibraries/NEW_routes_maribor_$date.json").writeText(jsonOutput)
 
     println("Scraping completed. Total routes: ${'$'}{routes.size}")
 }

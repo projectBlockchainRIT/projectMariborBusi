@@ -121,6 +121,6 @@ fun main() {
     val gson = GsonBuilder().setPrettyPrinting().create()
     val json = gson.toJson(allStops)
 
-    val outputFile = File("../../sharedLibraries/bus_stops_departures.json")
+    val outputFile = File("../../sharedLibraries/NEW_bus_stops_departures.json")
     outputFile.writeText(json)
 }
