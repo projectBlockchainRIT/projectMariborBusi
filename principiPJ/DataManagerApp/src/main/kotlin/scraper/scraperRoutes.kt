@@ -74,6 +74,19 @@ class MarpromRouteScraper(private val date: String) {
     }
 }
 
+suspend fun runRoutesScraperToLocation(outputPath: String) {
+    val stopsRoutes = MarpromRouteScraper("2025-5-22").scrapeAllRoutes()
+    val gson = GsonBuilder().setPrettyPrinting().create()
+    val jsonOutput = gson.toJson(stopsRoutes)
+
+    try {
+        File(outputPath).writeText(jsonOutput)
+        println("Scraping completed. Saved to $outputPath. Total routes: ${stopsRoutes.size}")
+    } catch (e: IOException) {
+        println("Error writing file: ${e.message}")
+    }
+}
+
 fun main() {
     val date = "2025-05-19" // or accept as command-line arg
     val scraper = MarpromRouteScraper(date)
@@ -84,5 +97,5 @@ fun main() {
     val jsonOutput = gson.toJson(routes)
     File("../../sharedLibraries/NEW_routes_maribor_$date.json").writeText(jsonOutput)
 
-    println("Scraping completed. Total routes: ${'$'}{routes.size}")
+    println("Scraping completed. Total routes: ${routes.size}")
 }

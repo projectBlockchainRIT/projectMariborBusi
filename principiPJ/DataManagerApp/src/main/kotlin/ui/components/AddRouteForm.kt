@@ -127,6 +127,8 @@ fun AddRouteForm() {
                     }
                 }
 
+                Spacer(Modifier.weight(1f))
+
                 if (errorMessage.isNotBlank()) {
                     Text(
                         text = errorMessage,
@@ -135,8 +137,6 @@ fun AddRouteForm() {
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-
-                Spacer(modifier = Modifier.weight(1f))
 
                 Button(
                     onClick = {
