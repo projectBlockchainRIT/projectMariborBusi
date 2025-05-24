@@ -21,6 +21,11 @@ fun main() {
     val printer = ASTPrettyPrinter()
     println(printer.print(ast))
 
+    val validator = BusStopValidator(ast)
+    if (!validator.validate()) {
+        println("Warning: Some bus stops are not connected to any bus line.")
+    }
+
     val geoJsonConverter = GeoJsonConverter()
     val geoJson = geoJsonConverter.convertToGeoJson(ast)
 
