@@ -99,6 +99,8 @@ circ(POINT, RADIUS)
 ```
 Nariše krog s podanim polmerom okoli izbrane točke.
 
+## 2. Dodatni konstrukti
+
 ### `style`
 
 #### `color`
@@ -164,8 +166,36 @@ include "ime_datoteke"
 ```
 Omogoča vključitev druge datoteke v trenutni program. Uporabno za ponovno uporabo kode in modularnost.
 
+### `validacija avtobusnih postaj`
 
-## 2. Gramatika:
+Avtobusne postaje morajo biti definirane tako da so vse postaje povezane z avtobusnimi linijami. Saj je nesmiselno imeti postaje, ki niso dosegljive z nobeno linijo.
+
+### `povprašanje po najbližji postaji`
+
+#### `nearest_station`
+```
+nearest_station(point)
+```
+Funkcija, ki vrne najbližjo avtobusno postajo glede na dano točko. Uporabna za iskanje najbližje postaje v mestu.
+
+#### `povprašanje po postajah v radiusu`
+```
+radius_stations(point, radius)
+```
+Funkcija, ki vrne seznam avtobusnih postaj znotraj določenega radija od dane točke. Uporabno za iskanje postaj v bližini.
+
+#### `metapodatki`
+```
+station "IME_POSTAJE" (
+    linije: ["Linija1", "Linija2"],
+    klopca: true,
+    nadstrešek: false
+) {
+  location(POINT);
+}
+```
+
+## 3. Gramatika:
 
 ```
 <program> ::= <stmt>* 
@@ -190,12 +220,17 @@ Omogoča vključitev druge datoteke v trenutni program. Uporabno za ponovno upor
 
 <road> ::= 'road' <string> '(' <style> ')' '{' <command>* '}'
 <building> ::= 'building' <string> '(' <style> ')' '{' <command>* '}'
-<station> ::= 'bus_stop' <string> '(' <style> ')' '{' 'location' '(' <point> ')' ';' '}'
+<station> ::= 'bus_stop' <string> '(' <meta> ')' '{' 'location' '(' <point> ')' ';' '}'
 <busline> ::= 'busline' <string> '(' <style> ')' '{' <command>* '}'
 
 <style> ::= <color> | <line_style>
 <color> ::= '#' <hex_color>
 <line_style> ::= 'solid' | 'dashed' | 'dotted'
+
+<meta> ::= <meta_podatki> | ε
+<meta_podatki> ::= 'linije' ':' <string_list> ',' 
+               | 'klopca' ':' <boolean> ','
+               | 'nadstrešek' ':' <boolean>
 
 <command> ::= <draw_cmd> 
            | <assignment>
@@ -225,7 +260,7 @@ Omogoča vključitev druge datoteke v trenutni program. Uporabno za ponovno upor
 <op> ::= '+' | '-' | '*' | '/'
 
 <function_call> ::= <func_name> '(' <arg_list>? ')' ';'
-<func_name> ::= 'distance' | 'midpoint'
+<func_name> ::= 'distance' | 'midpoint' | 'nearest_station' | 'radius_stations'
 
 <arg_list> ::= <point> ',' <arg_list>
            | <point>
@@ -244,7 +279,7 @@ Omogoča vključitev druge datoteke v trenutni program. Uporabno za ponovno upor
 <number> ::= int | int '.' int
 ```
 
-## 3. Primeri:
+## 4. Primeri:
 
 1. Mesto z eno cesto in eno zgradbo
 ```
@@ -266,7 +301,11 @@ city "BusMesto" {
     location((5,5));
   }
 
-  bus_stop "Postaja2" {
+  bus_stop "Postaja2" (
+    linije: ["Linija1", "Linija2"],
+    klopca: true,
+    nadstrešek: false
+  ) {
     location((10,10));
   }
 
