@@ -542,13 +542,5 @@ class SyntaxAnalyzer(private val tokens: List<String>) {
         }
     }
 
-    // Get the AST tree as a string representation
-    fun getAstTreeString(): String {
-        val sb = StringBuilder()
-        sb.append("AST Tree:\n")
-        for (token in tokenStack) {
-            sb.append(token.toString()).append("\n")
-        }
-        return sb.toString()
-    }
+
 }
