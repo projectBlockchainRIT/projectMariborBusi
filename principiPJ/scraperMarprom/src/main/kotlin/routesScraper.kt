@@ -31,25 +31,18 @@ class MarpromRouteScraper(private val date: String) {
         return result
     }
 
-    /**
-     * Fetches the HTML for a single route and extracts all clusters of path coordinates
-     * in the exact order within each `path: [ ... ]` array literal, concatenating them.
-     */
+
     private fun scrapeRoutePath(route: String): List<List<Double>> {
         val url = "$baseUrl/?datum=$date&route1=&route=$route"
         val coords = mutableListOf<List<Double>>()
         try {
             val doc = Jsoup.connect(url).get()
-            // collect all script blocks
             val scripts = doc.select("script").map { it.html() }
-            // pattern to find each PathStyle's array literal
             val arrayRegex = Regex("path\\s*:\\s*\\[([\\s\\S]*?)\\]")
-            // pattern to match LatLng within literal
             val latLngPattern = Pattern.compile("new google\\.maps\\.LatLng\\((-?[0-9]+\\.[0-9]+),\\s*(-?[0-9]+\\.[0-9]+)\\)")
 
             for (scriptHtml in scripts) {
                 if (scriptHtml.contains("new google.maps.Polyline")) {
-                    // extract each cluster array
                     arrayRegex.findAll(scriptHtml).forEach { match ->
                         val arrayContent = match.groupValues[1]
                         val matcher = latLngPattern.matcher(arrayContent)
@@ -73,11 +66,10 @@ class MarpromRouteScraper(private val date: String) {
 }
 
 fun main() {
-    val date = "2025-05-19" // or accept as command-line arg
+    val date = "2025-05-19"
     val scraper = MarpromRouteScraper(date)
     val routes = scraper.scrapeAllRoutes()
 
-    // Convert to JSON and write
     val gson = GsonBuilder().setPrettyPrinting().create()
     val jsonOutput = gson.toJson(routes)
     File("../../sharedLibraries/routes_maribor_$date.json").writeText(jsonOutput)
