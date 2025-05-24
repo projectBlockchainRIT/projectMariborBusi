@@ -1,15 +1,18 @@
-a = 3;
-
-if (a > 2) {
-  city "LogikaCity" {
-    road "Kratka" {
-      line((0,0), (1,1));
-    }
+city "BusMesto" {
+  bus_stop "Center" {
+    location((5,5));
   }
-} else {
-  city "RezervniCity" {
-    road "Rezervna" {
-      line((0,0), (5,5));
-    }
+
+  bus_stop "Postaja2" {
+    location((10,10));
+  }
+
+  bus_stop "Postaja3" {
+    location((15,15));
+  }
+
+  bus_line "Linija1" {
+    line((0,0), (5,5));
+    bend((5,5), (10,10), 45);
   }
 }
