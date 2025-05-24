@@ -17,6 +17,10 @@ fun main() {
     var SA = SyntaxAnalyzer(tokens)
 
     val ast = SA.parse()
+
+    val printer = ASTPrettyPrinter()
+    println(printer.print(ast))
+
     val geoJsonConverter = GeoJsonConverter()
     val geoJson = geoJsonConverter.convertToGeoJson(ast)
 
