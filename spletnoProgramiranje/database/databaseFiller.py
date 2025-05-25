@@ -184,8 +184,8 @@ def import_route_data(conn, routes_data):
 
     for item in routes_data:
         try:
-            route_name = item['route']       # e.g. "G1"
-            path_list  = item.get('path', [])  # list of [lat, lng] pairs
+            route_name = item['route']      
+            path_list  = item.get('path', [])  
             if not path_list:
                 print(f"Skipping empty path for route {route_name}")
                 continue

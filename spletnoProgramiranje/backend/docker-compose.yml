@@ -1,0 +1,58 @@
+# Specify the Docker Compose file format version.
+version: '3.8'
+
+# Define the services (containers) that make up your application.
+services:
+  # Service for your Go backend application.
+  backend:
+    # Build the image from the Dockerfile located in the 'backend' directory.
+    build:
+      context: . # The build context is the current directory (where docker-compose.yml is).
+      dockerfile: ./Dockerfile # Path to your Dockerfile relative to the context.
+    # Map port 8080 on your host machine to port 8080 inside the 'backend' container.
+    # This allows you to access your Go API via http://localhost:8080.
+    ports:
+      - "8080:8080"
+    # Set environment variables for your Go application.
+    # These variables will be used by your Go code to connect to the PostgreSQL database.
+    # The DB_ADDR now points to the 'db' service and the 'mydatabase' database.
+    environment:
+      DB_ADDR: postgres://user:password@db:5432/mydatabase?sslmode=disable
+      DB_MAX_OPEN_CONNS: 30
+      DB_MAX_IDLE_CONNS: 30
+      DB_MAX_IDLE_TIME: 15m
+    # Specify that the 'backend' service depends on the 'db' service.
+    # Docker Compose will start 'db' before 'backend'. Note: This only ensures start order, not readiness.
+    depends_on:
+      - db
+    # Restart the container if it exits due to an error.
+    restart: on-failure
+
+  # Service for the PostgreSQL database.
+  db:
+    # Use the official PostgreSQL image from Docker Hub. '16-alpine' is a lightweight version.
+    image: postgres:16-alpine
+    # Set environment variables for the PostgreSQL container.
+    # These configure the database name, user, and password.
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    # Mount volumes to persist database data and to initialize the database.
+    volumes:
+      # This mounts the 'db_data' named volume to '/var/lib/postgresql/data' inside the container.
+      # This ensures your data is not lost when the container is stopped or removed.
+      - db_data:/var/lib/postgresql/data
+      # This mounts your local 'init.sql' file into the PostgreSQL initialization directory.
+      # Any .sql, .sh, or .sql.gz files in this directory are executed when the container starts
+      # for the first time (or if the data volume is empty).
+      - ./init.sql:/docker-entrypoint-initdb.d/databaseSchema.sql
+    # Expose the PostgreSQL port (optional, but useful if you want to connect directly from your host).
+    ports:
+      - "5432:5432"
+    # Always restart the database service if it stops.
+    restart: always
+
+# Define the named volumes used by your services.
+volumes:
+  db_data:
