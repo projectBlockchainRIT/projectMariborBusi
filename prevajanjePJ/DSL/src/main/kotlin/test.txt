@@ -3,12 +3,12 @@ city "BusMesto" {
     location((5,5));
   }
 
-  bus_stop "Postaja2" {
+  bus_stop "Postaja2" (
+    linije: ["Linija1", "Linija2"],
+    klopca: true,
+    nadstrešek: false
+  ) {
     location((10,10));
-  }
-
-  bus_stop "Postaja3" {
-    location((15,15));
   }
 
   bus_line "Linija1" {
