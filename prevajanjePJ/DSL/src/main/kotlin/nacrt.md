@@ -174,13 +174,13 @@ Avtobusne postaje morajo biti definirane tako da so vse postaje povezane z avtob
 
 #### `nearest_station`
 ```
-nearest_station(point)
+nearest(point)
 ```
 Funkcija, ki vrne najbližjo avtobusno postajo glede na dano točko. Uporabna za iskanje najbližje postaje v mestu.
 
 #### `povprašanje po postajah v radiusu`
 ```
-radius_stations(point, radius)
+radius(point, radius)
 ```
 Funkcija, ki vrne seznam avtobusnih postaj znotraj določenega radija od dane točke. Uporabno za iskanje postaj v bližini.
 

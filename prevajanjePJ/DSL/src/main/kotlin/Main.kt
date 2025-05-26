@@ -26,6 +26,9 @@ fun main() {
         println("Warning: Some bus stops are not connected to any bus line.")
     }
 
+    val queryHandler = StationQueryHandler(ast)
+    queryHandler.handleQuery()
+
     val geoJsonConverter = GeoJsonConverter()
     val geoJson = geoJsonConverter.convertToGeoJson(ast)
 

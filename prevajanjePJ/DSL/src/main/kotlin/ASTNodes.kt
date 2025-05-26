@@ -79,3 +79,4 @@ class VariableNode(val name: String) : ExpressionNode()
 class BinaryOpNode(val left: ExpressionNode, val operator: String, val right: ExpressionNode) : ExpressionNode()
 class FunctionCallNode(val name: String, val args: List<ExpressionNode>) : ExpressionNode()
 class PointNode(val x: ExpressionNode, val y: ExpressionNode) : ExpressionNode()
+class QueryNode(val query: String, val args: List<ExpressionNode>) : StatementNode
