@@ -3,15 +3,13 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
 
 	_ "github.com/lib/pq"
 )
 
-// New establishes a new database connection with the given parameters.
 func New(addr string, maxOpenConnections int, maxIdleConnections int, maxIdleTime string) (*sql.DB, error) {
-	// Open a database connection. This doesn't actually connect to the database yet,
-	// it just validates the connection string and driver.
 	db, err := sql.Open("postgres", addr)
 	if err != nil {
 		return nil, fmt.Errorf("error opening database connection: %w", err)
@@ -23,13 +21,29 @@ func New(addr string, maxOpenConnections int, maxIdleConnections int, maxIdleTim
 	db.SetMaxOpenConns(maxOpenConnections)
 	db.SetMaxIdleConns(maxIdleConnections)
 
-	// Parse the maxIdleTime string into a time.Duration.
 	duration, err := time.ParseDuration(maxIdleTime)
 	if err != nil {
-		db.Close() // Close the connection if duration parsing fails.
+		db.Close()
 		return nil, fmt.Errorf("error parsing max idle time duration: %w", err)
 	}
 	db.SetConnMaxIdleTime(time.Duration(duration))
+
+	log.Println("Attempting to connect to the database...")
+	const maxRetries = 20
+	const retryDelay = 5 * time.Second
+
+	for i := 0; i < maxRetries; i++ {
+		err = db.Ping()
+		if err == nil {
+			log.Println("Successfully connected to the database!")
+			return db, nil
+		}
+
+		log.Printf("Failed to ping database (attempt %d/%d): %v. Retrying in %s...", i+1, maxRetries, err, retryDelay)
+		time.Sleep(retryDelay)
+	}
+
+	fmt.Printf("%v\n", db.Ping())
 
 	return db, nil
 }

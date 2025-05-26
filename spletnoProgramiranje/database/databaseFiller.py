@@ -3,16 +3,14 @@ import psycopg2
 import re
 from datetime import datetime
 
-# Database connection parameters
 DB_PARAMS = {
-    'host': 'localhost',
+    'host': 'localhost', 
+    'port': 5432,         
     'database': 'm-busi',
-    'user': 'postgres',
-    'password': ''
+    'user': 'user',
+    'password': 'password'
 }
-
-def connect_to_db():
-    """Establish and return a database connection"""
+def connectToDb():
     try:
         conn = psycopg2.connect(**DB_PARAMS)
         return conn
@@ -20,39 +18,32 @@ def connect_to_db():
         print(f"Database connection error: {e}")
         exit(1)
 
-def fix_json_format(json_str):
-    """Fix the malformed JSON by adding the missing brackets and commas"""
-    # Add opening bracket if missing
-    if not json_str.strip().startswith('['):
-        json_str = '[' + json_str
+def fixJsonFormat(jsonStr):
+    if not jsonStr.strip().startswith('['):
+        jsonStr = '[' + jsonStr
     
-    # Add closing bracket if missing
-    if not json_str.strip().endswith(']'):
-        json_str = json_str + ']'
+    if not jsonStr.strip().endswith(']'):
+        jsonStr = jsonStr + ']'
     
-    # Fix missing commas between objects
-    json_str = re.sub(r'}\s*{', '},{', json_str)
+    jsonStr = re.sub(r'}\s*{', '},{', jsonStr)
     
-    return json_str
+    return jsonStr
 
-def load_json_data(file_path):
-    """Load and parse JSON data from file"""
+def loadJsonData(filePath):
     try:
-        with open(file_path, 'r', encoding='utf-8') as file:
+        with open(filePath, 'r', encoding='utf-8') as file:
             content = file.read()
-            # Fix potentially malformed JSON
-            content = fix_json_format(content)
+            content = fixJsonFormat(content)
             return json.loads(content)
     except (json.JSONDecodeError, FileNotFoundError) as e:
-        print(f"Error loading JSON from {file_path}: {e}")
+        print(f"Error loading JSON from {filePath}: {e}")
         return []
 
-def import_stops(conn, stops_data):
-    """Import stops data into the database"""
+def importStops(conn, stopData):
     cursor = conn.cursor()
     success_count = 0
     
-    for stop in stops_data:
+    for stop in stopData:
         try:
             cursor.execute(
                 """
@@ -76,10 +67,10 @@ def import_stops(conn, stops_data):
             conn.rollback()
             print(f"Error importing stop {stop.get('id', 'unknown')}: {e}")
     
-    print(f"Successfully imported {success_count} out of {len(stops_data)} stops")
+    print(f"Successfully imported {success_count} out of {len(stopData)} stops")
     # print(f"Imported {len(stops_data)} stops")
 
-def import_departures(conn, arrivals_data):
+def importDepartures(conn, arrivalData):
     """Import arrivals/departures data into the database"""
     cursor = conn.cursor()
     
@@ -88,7 +79,7 @@ def import_departures(conn, arrivals_data):
     directions_count = 0
     departures_count = 0
     
-    for stop_info in arrivals_data:
+    for stop_info in arrivalData:
         stop_id = stop_info.get('id')
         departures = stop_info.get('departures', [])
         
@@ -172,17 +163,12 @@ def import_departures(conn, arrivals_data):
     
     print(f"Imported {lines_count} lines, {directions_count} directions, {departures_count} departures")
 
-def import_route_data(conn, routes_data):
-    """
-    Import route data into the `routes` table:
-      - name      VARCHAR(10)  ← item['route']
-      - path      JSONB        ← item['path']
-      - line_id   INTEGER      ← lines.id matching route name
-    """
+def importRouteData(conn, routeData):
+
     cursor = conn.cursor()
     imported = 0
 
-    for item in routes_data:
+    for item in routeData:
         try:
             route_name = item['route']      
             path_list  = item.get('path', [])  
@@ -228,76 +214,70 @@ def import_route_data(conn, routes_data):
 
     print(f"Imported or updated {imported} routes")
 
+def lastAlterScript (conn):
+    try:
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "ALTER TABLE public.stops ADD COLUMN IF NOT EXISTS geom geography(Point, 4326);"
+        )
+
+        conn.commit()
+
+        cursor.execute(
+            """
+            UPDATE public.stops
+            SET geom = ST_SetSRID(ST_MakePoint(longitude::double precision, latitude::double precision), 4326)::geography
+            WHERE geom IS NULL;
+            """
+        )
+
+        conn.commit()
+
+        cursor.execute(
+            """
+            CREATE INDEX IF NOT EXISTS stops_geom_idx ON public.stops USING GIST (geom);
+            """
+        )
+
+        conn.commit()
+    except KeyError as e:
+            conn.rollback()
+            print(f"Error: {e}")
 
 def main():
-    # File paths - adjust these to your actual file locations
-    stops_file = 'bus_stops_maribor2.json'
-    arrivals_file = 'bus_arrival_times_stops_maribor.json'
-    routes_file = 'routes_maribor_2025-05-19.json'
+    stopsFile = 'sharedLibraries/bus_stops_maribor2.json'
+    arrivalsFile = 'sharedLibraries/bus_arrival_times_stops_maribor.json'
+    routesFile = 'sharedLibraries/routes_maribor.json'
     
-    print(f"Starting import at {datetime.now()}")
+    # print(f"Starting import at {datetime.now()}")
     
-    # Load data from JSON files
     print("Loading data from JSON files...")
-    stops_data = load_json_data(stops_file)
-    arrivals_data = load_json_data(arrivals_file)
-    routes_data = load_json_data(routes_file)
+    stopsData = loadJsonData(stopsFile)
+    arrivalsData = loadJsonData(arrivalsFile)
+    routesData = loadJsonData(routesFile)
     
-    # Connect to database
     print("Connecting to database...")
-    conn = connect_to_db()
+    conn = connectToDb()
 
     if conn:
-        print("connected")
+        print("Connected to database")
     else:
         print("lol ne")
     
-    '''
-    counter = 1
-    for stop in stops_data:
-        print(f"{counter}: {stop['id']}, {stop['number']}, {stop['name']}, {stop['latitude']}, {stop['longitude']}\n")
-        counter+=1
-    '''
-    
-
     
     try:
-        import_stops(conn, stops_data)
-        import_departures(conn, arrivals_data)
-        import_route_data(conn, routes_data)
-        # counter = 1
-        # for stop in routes_data:
-        #     print(f"{counter}: {stop}\n\n")
-        #     counter+=1
+        importStops(conn, stopsData)
+        importDepartures(conn, arrivalsData)
+        importRouteData(conn, routesData)
+        lastAlterScript(conn)
+        
     except Exception as e:
         print(f"Error during import: {e}")
     finally:
         conn.close()
         print("Database connection closed")
 
-    
-    '''
-
-    
-    try:
-        # Import all data sets
-        print("\nImporting stops data...")
-        import_stops(conn, stops_data)
-        
-        print("\nImporting departures data...")
-        import_departures(conn, arrivals_data)
-        
-        print("\nImporting route data...")
-        import_route_data(conn, routes_data)
-        
-        print(f"\nData import completed successfully at {datetime.now()}")
-        
-    except Exception as e:
-        print(f"Error during import: {e}")
-    finally:
-        conn.close()
-        print("Database connection closed")
-    '''
 
 if __name__ == "__main__":
     main()

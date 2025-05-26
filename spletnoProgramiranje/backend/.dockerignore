@@ -1,8 +1,0 @@
-bin/
-build-errors.log
-*.log
-.git
-.gitignore
-README.md
-Dockerfile
-.dockerignore
