@@ -7,11 +7,12 @@ class LexicalAnalyzer {
         "variable", "dashed", "variable", "variable", "variable", "variable", "dotted", "plus", "minus", "multiply", "divide", "variable", "variable", "variable", "variable", "variable",
         "variable", "distance", "variable", "variable", "variable", "variable", "variable", "variable", "variable", "midpoint", "variable", "if", "variable", "variable", "variable", "else",
         "variable", "variable", "variable", "variable", "import", "variable", "variable", "for", "variable", "variable", "variable", "variable", "variable", "variable", "location", "variable",
-        "to", "less", "greater", "assign", "equal", "variable", "not_equal")
+        "to", "less", "greater", "assign", "equal", "variable", "not_equal", "variable", "variable", "variable", "variable", "variable", "variable", "nearest", "variable", "variable", "variable",
+        "variable", "variable", "radius")
     private val terminalSymbols = setOf('"', ';', ',', '(', ')', '{', '}')
 
     private fun initializeTable(): Array<IntArray> {
-        val table = Array(256) { IntArray(120) { 121 } }
+        val table = Array(256) { IntArray(200) { 201 } }
 
         //int
         for (i in 48..57) {
@@ -210,6 +211,30 @@ class LexicalAnalyzer {
         table[116][0] = 106 // t
         table[111][106] = 107 // o
 
+        // nearest
+        table[110][0] = 114 // n
+        table[101][114] = 115 // e
+        table[97][115] = 116 // a
+        table[114][116] = 117 // r
+        table[101][117] = 118 // e
+        table[115][118] = 119 // s
+        table[116][119] = 120 // t
+
+        // radius
+        table[97][17] = 122 // a
+        table[100][122] = 123 // d
+        table[105][123] = 124 // i
+        table[117][124] = 125 // u
+        table[115][125] = 126 // s
+
+        //linije
+        table[105][21] = 127 // i
+        table[110][127] = 128 // n
+        table[105][128] = 129 // i
+        table[106][129] = 130 // j
+        table[101][130] = 131 // e
+
+
         return table
     }
 
@@ -243,7 +268,7 @@ class LexicalAnalyzer {
             if (char.isWhitespace()) {
                 processLexemeIfExists(tokens, lexeme, prevState)
 
-                if (state == 120) {
+                if (state == 200) {
                     lexeme.append(char)
                     state = table[char.code][0]
                     prevState = state
@@ -260,7 +285,7 @@ class LexicalAnalyzer {
 
             when {
                 // Error state
-                state == 121 -> {
+                state == 201 -> {
                     processLexemeIfExists(tokens, lexeme, prevState)
                     if (lexeme.isEmpty()) {
                         throw IllegalArgumentException("Invalid token: $char")
@@ -268,10 +293,10 @@ class LexicalAnalyzer {
                 }
 
                 // Final states
-                state >= 120 -> {
+                state >= 200 -> {
                     processLexemeIfExists(tokens, lexeme, prevState)
 
-                    if (state == 121) {
+                    if (state == 201) {
                         lexeme.append(char)
                         state = table[char.code][0]
                         prevState = state
