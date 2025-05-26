@@ -72,8 +72,26 @@ class SyntaxAnalyzer(private val tokens: List<String>) {
 
             "if" -> ifStmt()
             "for" -> forStmt()
+            "radius", "nearest" -> {
+                val queryCall = queryCall()
+                match("semi")
+                queryCall
+            }
             else -> throw Exception("Invalid statement starting with ${peek()?.type}")
         }
+    }
+
+    private fun queryCall(): QueryNode {
+        val funcName = match(peek()!!.type).type
+        match("lparen")
+
+        val args = mutableListOf<ExpressionNode>()
+        if (peek()?.type != "rparen") {
+            args.addAll(argList())
+        }
+
+        match("rparen")
+        return QueryNode(funcName, args)
     }
 
     // <include_stmt> ::= 'include' <string> ';'
