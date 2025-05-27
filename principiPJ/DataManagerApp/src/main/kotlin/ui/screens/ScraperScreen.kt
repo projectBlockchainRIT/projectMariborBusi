@@ -15,7 +15,8 @@ import androidx.compose.ui.unit.dp
 import ui.components.*
 
 @Composable
-fun ScraperScreen() { var selectedEntity by remember { mutableStateOf("Scraper") }
+fun ScraperScreen() {
+    var selectedEntity by remember { mutableStateOf("Scraper") }
     val entities = listOf("Scraper", "Json")
 
     Column(
