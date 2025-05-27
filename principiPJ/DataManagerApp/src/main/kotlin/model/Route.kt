@@ -7,6 +7,6 @@ import kotlinx.serialization.json.JsonElement
 data class Route(
     val id: Int? = null,
     var name: String,
-    val path: JsonElement,  //geoJSON array koordinat
-    val lineId: Int
+    var path: JsonElement,  //geoJSON array koordinat
+    var lineId: Int
 )

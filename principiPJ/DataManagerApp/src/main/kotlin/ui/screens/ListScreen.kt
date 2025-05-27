@@ -53,14 +53,19 @@ fun ListScreen() {
 
         Divider(modifier = Modifier.padding(vertical = 0.dp))
 
-        when (selectedEntity) {
-            "Stop" -> StopList()
-            "Line" -> LineList()
-            "User" -> UserList()
-            "Route" -> RouteList()
-            "Direction" -> DirectionList()
-            "Departure" -> DepartureList()
-            else -> Text("Izberi entiteto za dodajanje")
+        Column (
+            Modifier.padding(8.dp)
+        ) {
+            when (selectedEntity) {
+                "Stop" -> StopList()
+                "Line" -> LineList()
+                "User" -> UserList()
+                "Route" -> RouteList()
+                "Direction" -> DirectionList()
+                "Departure" -> DepartureList()
+                else -> Text("Izberi entiteto za dodajanje")
+            }
         }
+
     }
 }
