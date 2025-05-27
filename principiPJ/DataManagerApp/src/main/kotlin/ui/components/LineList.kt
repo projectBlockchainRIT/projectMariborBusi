@@ -64,7 +64,7 @@ fun LineList() {
                 onClick = {
                     sortOption = if (sortOption == "ID") "NAME" else "ID"
                 },
-                modifier = Modifier.width(120.dp)
+                modifier = Modifier.width(140.dp)
             ) {
                 Text("Sort: $sortOption")
             }

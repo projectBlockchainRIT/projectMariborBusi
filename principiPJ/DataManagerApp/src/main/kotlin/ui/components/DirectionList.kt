@@ -177,9 +177,11 @@ fun DirectionList() {
                                             editingDirectionId = null
                                             editableDirections.remove(direction.id)
                                         },
-                                        modifier = Modifier.align(Alignment.End)
+                                        modifier = Modifier
+                                            .padding(top = 8.dp)
+                                            .align(Alignment.End)
                                     ) {
-                                        Text("Shrani")
+                                        Text("Shrani spremembe")
                                     }
                                 }
                             }
