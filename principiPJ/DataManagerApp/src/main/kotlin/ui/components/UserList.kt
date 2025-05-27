@@ -65,7 +65,7 @@ fun UserList() {
                 onClick = {
                     sortOption = if (sortOption == "ID") "NAME" else "ID"
                 },
-                modifier = Modifier.width(120.dp)
+                modifier = Modifier.width(140.dp)
             ) {
                 Text("Sort: $sortOption")
             }
@@ -170,8 +170,8 @@ fun UserList() {
                                             expandedEditUserId = null
                                         },
                                         modifier = Modifier
-                                            .align(Alignment.End)
                                             .padding(top = 8.dp)
+                                            .align(Alignment.End)
                                     ) {
                                         Text("Shrani spremembe")
                                     }

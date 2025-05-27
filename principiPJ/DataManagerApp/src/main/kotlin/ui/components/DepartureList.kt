@@ -81,7 +81,7 @@ fun DepartureList() {
             OutlinedButton(onClick = {
                 sortOption = when (sortOption) {
                     "ID" -> "STOP_ID"
-                    "STOP_ID" -> "DIRECTION_ID"
+                    "STOP_ID" -> "DIR_ID"
                     else -> "ID"
                 }
             }, modifier = Modifier.width(140.dp)) {
@@ -113,8 +113,12 @@ fun DepartureList() {
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text("ID: ${dep.id}", style = MaterialTheme.typography.caption)
-
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("ID: ${dep.id}", style = MaterialTheme.typography.caption)
+                                    Text("Odhod: ${dep.departure}", style = MaterialTheme.typography.h6)
+                                    Text("Postaja ID: ${dep.stopId}", style = MaterialTheme.typography.body2)
+                                    Text("Smer ID: ${dep.directionId}", style = MaterialTheme.typography.body2)
+                                }
                                 Row {
                                     IconButton(onClick = {
                                         editingStates[dep.id!!] = !(editingStates[dep.id] ?: false)
@@ -157,14 +161,12 @@ fun DepartureList() {
                                         departures = departureDao.getAll()
                                         editingStates[dep.id!!] = false
                                     },
-                                    modifier = Modifier.padding(top = 8.dp)
+                                    modifier = Modifier
+                                        .padding(top = 8.dp)
+                                        .align(Alignment.End)
                                 ) {
-                                    Text("Shrani")
+                                    Text("Shrani spremembe")
                                 }
-                            } else {
-                                Text("Odhod: ${dep.departure}", style = MaterialTheme.typography.h6)
-                                Text("Postaja ID: ${dep.stopId}", style = MaterialTheme.typography.body2)
-                                Text("Smer ID: ${dep.directionId}", style = MaterialTheme.typography.body2)
                             }
                         }
                     }
