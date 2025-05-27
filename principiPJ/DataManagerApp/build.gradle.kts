@@ -38,6 +38,8 @@ dependencies {
     implementation("org.jetbrains.compose.runtime:runtime:1.5.0")
     implementation("org.jetbrains.compose.material:material:1.5.0")
     implementation("org.jetbrains.compose.ui:ui:1.5.0")
+    implementation("io.github.serpro69:kotlin-faker:1.13.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.7.3")
 }
 
 compose.desktop {
