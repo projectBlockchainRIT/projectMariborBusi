@@ -25,6 +25,50 @@ class PostgreDepartureDao : DepartureDao {
         }
     }
 
+    override fun getDeparturesForDirection(directionId: Int): List<Departure> {
+        val departures = mutableListOf<Departure>()
+        val query = "SELECT id, stop_id, direction_id, departure FROM departures WHERE direction_id = ?"
+
+        DatabaseConnector.getConnection().use { conn ->
+            conn!!.prepareStatement(query).use { stmt ->
+                stmt.setInt(1, directionId)
+                stmt.executeQuery().use { rs ->
+                    while (rs.next()) {
+                        departures.add(
+                            Departure(
+                                id = rs.getInt("id"),
+                                stopId = rs.getInt("stop_id"),
+                                directionId = rs.getInt("direction_id"),
+                                departure = rs.getString("departure")
+                            )
+                        )
+                    }
+                }
+            }
+        }
+        return departures
+    }
+
+    override fun deleteAllForDirection(directionId: Int): Boolean {
+        val query = "DELETE FROM departures WHERE direction_id = ?"
+        DatabaseConnector.getConnection().use { conn ->
+            conn!!.prepareStatement(query).use { stmt ->
+                stmt.setInt(1, directionId)
+                return stmt.executeUpdate() > 0
+            }
+        }
+    }
+
+    override fun deleteAllForStop(stopId: Int): Boolean {
+        val query = "DELETE FROM departures WHERE stop_id = ?"
+        DatabaseConnector.getConnection().use { conn ->
+            conn!!.prepareStatement(query).use { stmt ->
+                stmt.setInt(1, stopId)
+                return stmt.executeUpdate() > 0
+            }
+        }
+    }
+
     override fun getAll(): List<Departure> {
         val query = "SELECT * FROM departures"
         val departures = mutableListOf<Departure>()
