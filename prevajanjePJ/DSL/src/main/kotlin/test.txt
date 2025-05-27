@@ -6,7 +6,7 @@ city "BusMesto" {
   bus_stop "Postaja2" (
     linije: ["Linija1", "Linija2"],
     klopca: true,
-    nadstrešek: false
+    nadstresek: false
   ) {
     location((10,10));
   }

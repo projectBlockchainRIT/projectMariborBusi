@@ -30,9 +30,11 @@ class BuildingNode(
     val commands: MutableList<CommandNode> = mutableListOf()
 ) : ElementNode
 
-class BusStopNode(val name: String,
-                  val styles: List<StyleNode> = listOf(),
-                  val location: PointNode
+class BusStopNode(
+    val name: String,
+    val styles: List<StyleNode> = listOf(),
+    val metadata: Map<String, Any> = mapOf(),
+    val location: PointNode
 ) : ElementNode
 
 class BusLineNode(

@@ -203,7 +203,8 @@ class SyntaxAnalyzer(private val tokens: List<String>) {
         return buildingNode
     }
 
-    // <station> ::= 'bus_stop' <string> ('(' <style> (',' <style>)? ')')? '{' 'location' '(' <point> ')' ';' '}'
+    // In SyntaxAnalyzer.kt
+// <station> ::= 'bus_stop' <string> ('(' <metadata> ')')? '{' 'location' '(' <point> ')' ';' '}'
     private fun station(): BusStopNode {
         match("bus_stop")
         match("quote")
@@ -211,12 +212,31 @@ class SyntaxAnalyzer(private val tokens: List<String>) {
         match("quote")
 
         val styles = mutableListOf<StyleNode>()
+        val metadata = mutableMapOf<String, Any>()
+
         if (peek()?.type == "lparen") {
             match("lparen")
-            styles.add(style())
-            if (peek()?.type != "rparen") {
-                styles.add(style())
+
+            // Check if we have metadata (with colons) or styles
+            val savedIndex = currentTokenIndex
+            val possibleKey = peek()
+
+            if (possibleKey != null && possibleKey.type == "linije") {
+                consume()
+                if (peek()?.type == "colon") {
+                    // We have metadata, not styles
+                    currentTokenIndex = savedIndex
+                    parseMetadata(metadata)
+                } else {
+                    // We have styles (original logic)
+                    currentTokenIndex = savedIndex
+                    styles.add(style())
+                    if (peek()?.type != "rparen") {
+                        styles.add(style())
+                    }
+                }
             }
+
             match("rparen")
         }
 
@@ -228,7 +248,93 @@ class SyntaxAnalyzer(private val tokens: List<String>) {
         match("semi")
         match("rcurly")
 
-        return BusStopNode(name, styles, location)
+        return BusStopNode(name, styles, metadata, location)
+    }
+
+    // New helper method to parse metadata
+    private fun parseMetadata(metadata: MutableMap<String, Any>) {
+        do {
+            val currentType = peek()?.type ?: throw Exception("Unexpected end of input")
+            if (currentType !in listOf("linije", "klopca", "nadstresek")) {
+                throw Exception("Expected metadata key (linije, klopca, nadstresek) but found $currentType")
+            }
+            val key = match(currentType).value
+            match("colon")
+
+            // Parse the value based on what follows
+            val value = when (peek()?.type) {
+                "lbracket" -> parseArray()
+                "variable" -> {
+                    val token = consume()!!
+                    when (token.value) {
+                        "true" -> true
+                        "false" -> false
+                        else -> token.value
+                    }
+                }
+                "int", "double" -> {
+                    val token = consume()!!
+                    token.value.toDouble()
+                }
+                "quote" -> {
+                    match("quote")
+                    val strValue = consume()!!.value
+                    match("quote")
+                    strValue
+                }
+                else -> throw Exception("Unexpected token type for metadata value: ${peek()?.type}")
+            }
+
+            metadata[key] = value
+
+            // Continue if there's a comma
+            if (peek()?.type == "comma") {
+                consume()
+            } else {
+                break
+            }
+        } while (true)
+    }
+
+    // Parse an array of values
+    private fun parseArray(): List<Any> {
+        val array = mutableListOf<Any>()
+        match("lbracket")
+
+        if (peek()?.type != "rbracket") {
+            do {
+                when (peek()?.type) {
+                    "quote" -> {
+                        match("quote")
+                        val value = consume()!!.value
+                        match("quote")
+                        array.add(value)
+                    }
+                    "variable" -> {
+                        val token = consume()!!
+                        when (token.value) {
+                            "true" -> array.add(true)
+                            "false" -> array.add(false)
+                            else -> array.add(token.value)
+                        }
+                    }
+                    "int", "double" -> {
+                        val token = consume()!!
+                        array.add(token.value.toDouble())
+                    }
+                    else -> throw Exception("Unexpected token in array: ${peek()?.type}")
+                }
+
+                if (peek()?.type == "comma") {
+                    consume()
+                } else {
+                    break
+                }
+            } while (peek()?.type != "rbracket")
+        }
+
+        match("rbracket")
+        return array
     }
 
     // <busline> ::= 'busline' <string> ('(' <style> (',' <style>)? ')')? '{' <command>* '}'

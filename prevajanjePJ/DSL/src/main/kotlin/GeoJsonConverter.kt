@@ -162,13 +162,21 @@ class GeoJsonConverter {
     private fun processBusStop(busStop: BusStopNode, features: MutableList<Map<String, Any>>) {
         val coordinates = evaluatePoint(busStop.location)
 
+        // Create properties including metadata
+        val properties = mutableMapOf<String, Any>(
+            "name" to busStop.name,
+            "type" to "bus_stop"
+        )
+
+        // Add all metadata to properties
+        for ((key, value) in busStop.metadata) {
+            properties[key] = value
+        }
+
         features.add(
             mapOf(
                 "type" to "Feature",
-                "properties" to mapOf(
-                    "name" to busStop.name,
-                    "type" to "bus_stop"
-                ),
+                "properties" to properties,
                 "geometry" to mapOf(
                     "type" to "Point",
                     "coordinates" to coordinates
