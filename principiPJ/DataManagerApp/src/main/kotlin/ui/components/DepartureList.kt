@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import dao.postgres.PostgreDepartureDao
 import dao.postgres.PostgreDirectionDao
 import dao.postgres.PostgreStopDao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import model.Departure
 import model.Direction
 import model.Stop
@@ -24,12 +26,15 @@ import model.Stop
 @Composable
 fun DepartureList() {
     val departureDao = PostgreDepartureDao()
-    val directionDao = PostgreDirectionDao()
-    val stopDao = PostgreStopDao()
 
-    var departures by remember { mutableStateOf(departureDao.getAll()) }
-    val directions = remember { directionDao.getAll() }
-    val stops = remember { stopDao.getAll() }
+    var departures by remember { mutableStateOf<List<Departure>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        val deps = withContext(Dispatchers.IO) {
+            departureDao.getAll()
+        }
+        departures = deps
+    }
 
     var searchQuery by remember { mutableStateOf("") }
     var searchField by remember { mutableStateOf("STOP_ID") }
@@ -89,10 +94,17 @@ fun DepartureList() {
             }
         }
 
+        Spacer(modifier = Modifier.height(8.dp))
+
         LazyColumn {
             if (filteredAndSortedDepartures.isEmpty()) {
                 item {
-                    Text("Ni zadetkov.", modifier = Modifier.fillMaxWidth().padding(16.dp), color = Color.Gray)
+                    Text("Ni zadetkov.",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        style = MaterialTheme.typography.subtitle1,
+                        color = Color.Gray)
                 }
             } else {
                 items(filteredAndSortedDepartures) { dep ->
