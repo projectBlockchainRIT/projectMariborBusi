@@ -8,8 +8,9 @@ class LexicalAnalyzer {
         "variable", "distance", "variable", "variable", "variable", "variable", "variable", "variable", "variable", "midpoint", "variable", "if", "variable", "variable", "variable", "else",
         "variable", "variable", "variable", "variable", "import", "variable", "variable", "for", "variable", "variable", "variable", "variable", "variable", "variable", "location", "variable",
         "to", "less", "greater", "assign", "equal", "variable", "not_equal", "variable", "variable", "variable", "variable", "variable", "variable", "nearest", "variable", "variable", "variable",
-        "variable", "variable", "radius")
-    private val terminalSymbols = setOf('"', ';', ',', '(', ')', '{', '}')
+        "variable", "variable", "radius", "variable", "variable", "variable", "variable", "linije", "variable", "variable", "variable", "variable", "variable", "klopca", "variable", "variable",
+        "variable", "variable", "variable", "variable", "variable", "variable", "variable", "nadstresek", "colon", "lbracket", "rbracket")
+    private val terminalSymbols = setOf('"', ';', ',', '(', ')', '{', '}', ':', '[', ']')
 
     private fun initializeTable(): Array<IntArray> {
         val table = Array(256) { IntArray(200) { 201 } }
@@ -228,11 +229,36 @@ class LexicalAnalyzer {
         table[115][125] = 126 // s
 
         //linije
-        table[105][21] = 127 // i
-        table[110][127] = 128 // n
-        table[105][128] = 129 // i
+        table[105][23] = 129 // i
         table[106][129] = 130 // j
         table[101][130] = 131 // e
+
+        // klopca
+        table[107][0] = 132 // k
+        table[108][132] = 133 // l
+        table[111][133] = 134 // o
+        table[112][134] = 135 // p
+        table[99][135] = 136 // c
+        table[97][136] = 137 // a
+
+        //nadstresek
+        table[97][114] = 139 // a
+        table[100][139] = 140 // d
+        table[115][140] = 141 // s
+        table[116][141] = 142 // t
+        table[114][142] = 143 // r
+        table[101][143] = 144 // e
+        table[115][144] = 145 // s
+        table[101][145] = 146 // e
+        table[107][146] = 147 // k
+
+        // :
+        table[58][0] = 148 // :
+
+        // [
+        table[91][0] = 149 // [
+        // ]
+        table[93][0] = 150 // ]
 
 
         return table
