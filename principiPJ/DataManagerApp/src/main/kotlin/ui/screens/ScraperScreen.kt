@@ -16,8 +16,8 @@ import ui.components.*
 
 @Composable
 fun ScraperScreen() {
-    var selectedEntity by remember { mutableStateOf("Scraper") }
-    val entities = listOf("Scraper", "Json")
+    var selectedEntity by remember { mutableStateOf("Scrape JSON") }
+    val entities = listOf("Scrape JSON", "Scrape & direct import")
 
     Column(
         modifier = Modifier
@@ -55,8 +55,8 @@ fun ScraperScreen() {
         Divider(modifier = Modifier.padding(vertical = 0.dp))
 
         when (selectedEntity) {
-            "Scraper" -> RunScraperForm()
-            "Json" -> AddJsonForm()
+            "Scrape JSON" -> RunScraperForm()
+            "Scrape & direct import" -> ScrapeDirectImport()
             else -> Text("Izberi entiteto za dodajanje")
         }
     }

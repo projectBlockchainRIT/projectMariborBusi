@@ -106,6 +106,13 @@ suspend fun runStopsScraperToLocation(outputPath: String) {
     }
 }
 
+suspend fun runStopsScraperAsJson(): String {
+    val stopsGeo = MarpromStopScraper().scrapeAllStops()
+    val gson = GsonBuilder().setPrettyPrinting().create()
+    return gson.toJson(stopsGeo)
+}
+
+
 fun main() {
     val scraper = MarpromStopScraper()
     val busStops = scraper.scrapeAllStops()
