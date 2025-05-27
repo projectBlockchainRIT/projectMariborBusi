@@ -2,6 +2,8 @@ package db
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.sql.Connection
 import java.sql.DriverManager
@@ -9,6 +11,7 @@ import java.util.regex.Pattern
 import java.sql.PreparedStatement
 import java.sql.Time
 import java.time.LocalTime
+import scraper.*
 
 data class Stop(val id: Int, val number: String, val name: String, val latitude: Double, val longitude: Double)
 data class DepartureInfo(val line: String, val direction: String, val times: List<String>)
@@ -193,6 +196,38 @@ fun importJsonToDatabase(stopsFile: String, arrivalsFile: String, routesFile: St
 
     insertStops(conn, stops)
     insertDepartures(conn, arrivals)
+    insertRoutes(conn, routes)
+
+    conn.close()
+}
+
+suspend fun importDirectToDatabase() {
+    val conn = connectToDatabase()
+    conn.autoCommit = true
+
+    val stopsJson = runStopsScraperAsJson()
+
+    val departuresJson = runDeparturesScraperAsJson()
+
+    val routesJson = runRoutesScraperAsJson()
+
+    val gson = Gson()
+
+    val fixedStopsJson = fixJsonFormat(stopsJson)
+    val fixedDeparturesJson = fixJsonFormat(departuresJson)
+    val fixedRoutesJson = fixJsonFormat(routesJson)
+
+    val stopListType = object : TypeToken<List<Stop>>() {}.type
+    val departureListType = object : TypeToken<List<StopDepartures>>() {}.type
+    val routeListType = object : TypeToken<List<Route>>() {}.type // če imaš Route
+
+    val stops: List<Stop> = gson.fromJson(fixedStopsJson, stopListType)
+    val departures: List<StopDepartures> = gson.fromJson(fixedDeparturesJson, departureListType)
+    val routes: List<Route> = gson.fromJson(fixedRoutesJson, routeListType)
+    println("conn ok")
+
+    insertStops(conn, stops)
+    insertDepartures(conn, departures)
     insertRoutes(conn, routes)
 
     conn.close()
