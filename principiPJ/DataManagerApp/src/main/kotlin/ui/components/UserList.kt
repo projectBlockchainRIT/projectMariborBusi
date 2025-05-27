@@ -19,11 +19,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.ui.graphics.Color
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import model.Departure
+import model.User
 
 @Composable
 fun UserList() {
     val userDao = PostgreUserDao()
-    var users by remember { mutableStateOf(userDao.getAll()) }
+    var users by remember {mutableStateOf<List<User>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        val usrs = withContext(Dispatchers.IO) {
+            userDao.getAll()
+        }
+        users = usrs
+    }
 
     var searchQuery by remember { mutableStateOf("") }
     var sortOption by remember { mutableStateOf("ID") }
@@ -77,7 +88,7 @@ fun UserList() {
             if (filteredAndSortedUsers.isEmpty()) {
                 item {
                     Text(
-                        "Ni zadetkov za iskanje.",
+                        "Ni zadetkov.",
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),

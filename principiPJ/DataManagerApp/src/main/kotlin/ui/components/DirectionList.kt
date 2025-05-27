@@ -21,6 +21,8 @@ import dao.postgres.PostgreDirectionDao
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import dao.postgres.PostgreDepartureDao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import model.Departure
 import model.Direction
 import model.Line
@@ -29,7 +31,15 @@ import model.Line
 fun DirectionList() {
     val directionDao = PostgreDirectionDao()
     val departureDao = PostgreDepartureDao()
-    var directions by remember { mutableStateOf(directionDao.getAll()) }
+    var directions by remember { mutableStateOf<List<Direction>>(emptyList()) }
+
+
+    LaunchedEffect(Unit) {
+        val dirs = withContext(Dispatchers.IO) {
+            directionDao.getAll()
+        }
+        directions = dirs
+    }
 
     var searchQuery by remember { mutableStateOf("") }
     var sortOption by remember { mutableStateOf("ID") }

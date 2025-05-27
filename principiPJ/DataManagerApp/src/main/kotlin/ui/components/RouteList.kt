@@ -16,13 +16,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dao.postgres.PostgreLineDao
 import dao.postgres.PostgreRouteDao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import model.Departure
 import model.Route
 
 @Composable
 fun RouteList() {
     val routeDao = PostgreRouteDao()
-    var routes by remember { mutableStateOf(routeDao.getAll()) }
+    var routes by remember {mutableStateOf<List<Route>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        val rts = withContext(Dispatchers.IO) {
+            routeDao.getAll()
+        }
+        routes = rts
+    }
 
     var searchQuery by remember { mutableStateOf("") }
     var sortOption by remember { mutableStateOf("ID") }
@@ -73,6 +83,8 @@ fun RouteList() {
                 Text("Sort: $sortOption")
             }
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         LazyColumn {
             if (filteredAndSortedRoutes.isEmpty()) {

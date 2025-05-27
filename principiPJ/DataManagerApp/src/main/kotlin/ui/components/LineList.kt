@@ -17,12 +17,23 @@ import androidx.compose.ui.unit.dp
 import dao.postgres.PostgreDepartureDao
 import dao.postgres.PostgreLineDao
 import dao.postgres.PostgreRouteDao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import model.Departure
+import model.Line
 import model.Route
 
 @Composable
 fun LineList() {
     val lineDao = PostgreLineDao()
-    var lines by remember { mutableStateOf(lineDao.getAll()) }
+    var lines by remember { mutableStateOf<List<Line>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        val lns = withContext(Dispatchers.IO) {
+            lineDao.getAll()
+        }
+        lines = lns
+    }
 
     var searchQuery by remember { mutableStateOf("") }
     var sortOption by remember { mutableStateOf("ID") } // "ID" ali "NAME"
@@ -77,7 +88,7 @@ fun LineList() {
             if (filteredAndSortedLines.isEmpty()) {
                 item {
                     Text(
-                        "Ni zadetkov za iskanje.",
+                        "Ni zadetkov.",
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),

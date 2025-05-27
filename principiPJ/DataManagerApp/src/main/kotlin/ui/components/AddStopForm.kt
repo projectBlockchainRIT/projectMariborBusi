@@ -88,7 +88,6 @@ fun AddStopForm() {
                 if (errorMessage.isNotBlank()) {
                     Text(
                         text = errorMessage,
-                        color = if (errorMessage.contains("uspešno")) Color(0xFF2E7D32) else Color.Red,
                         style = MaterialTheme.typography.body2,
                         modifier = Modifier.fillMaxWidth()
                     )

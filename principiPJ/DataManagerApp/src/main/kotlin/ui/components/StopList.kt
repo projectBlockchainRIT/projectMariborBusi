@@ -17,14 +17,24 @@ import androidx.compose.ui.unit.dp
 import dao.postgres.PostgreDepartureDao
 import dao.postgres.PostgreRouteDao
 import dao.postgres.PostgreStopDao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import model.Route
 import model.Departure
+import model.Stop
 
 @Composable
 fun StopList() {
     val stopDao = PostgreStopDao()
     val departureDao = PostgreDepartureDao()
-    var stops by remember { mutableStateOf(stopDao.getAll()) }
+    var stops by remember { mutableStateOf<List<Stop>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        val stps = withContext(Dispatchers.IO) {
+            stopDao.getAll()
+        }
+        stops = stps
+    }
 
     // za vsako postajo hranimo razširjeno stanje in pripadajoče departure
     val expandedStops = remember { mutableStateMapOf<Int, List<Departure>>() }
@@ -80,7 +90,7 @@ fun StopList() {
             if (filteredAndSortedStops.isEmpty()) {
                 item {
                     Text(
-                        "Ni zadetkov za iskanje.",
+                        "Ni zadetkov.",
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),
