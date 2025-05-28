@@ -23,12 +23,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.loadImageBitmap
+import androidx.compose.ui.res.useResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import ui.components.*
 import ui.screens.*
+
 
 @Composable
 @Preview
@@ -111,7 +115,11 @@ fun App() {
 }
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication, title = "Database Manager App") {
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = "Database Manager App",
+        icon = BitmapPainter(useResource("redBus2.jpg", ::loadImageBitmap))
+    ) {
         App()
     }
 }
