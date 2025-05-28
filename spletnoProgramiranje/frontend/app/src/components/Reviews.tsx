@@ -1,4 +1,3 @@
-import React from 'react';
 import { Star, StarHalf } from 'lucide-react';
 
 const reviews = [
@@ -25,7 +24,7 @@ const reviews = [
   }
 ];
 
-const renderRating = (rating) => {
+const renderRating = (rating: number) => {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 !== 0;
   

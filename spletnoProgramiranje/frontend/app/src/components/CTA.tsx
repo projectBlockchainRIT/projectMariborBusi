@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowRight, Smartphone, Map, Bell } from 'lucide-react';
 
 const CTA = () => {
@@ -45,7 +44,7 @@ const CTA = () => {
                   <div className="h-2 w-2 rounded-full bg-green-500"></div>
                 </div>
                 <img 
-                  src="https://images.pexels.com/photos/5797899/pexels-photo-5797899.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                  src="https://videos.openai.com/vg-assets/assets%2Ftask_01jw8kr87pfyzs39v7qv01wnxj%2F1748340962_img_1.webp?st=2025-05-27T08%3A26%3A24Z&se=2025-06-02T09%3A26%3A24Z&sks=b&skt=2025-05-27T08%3A26%3A24Z&ske=2025-06-02T09%3A26%3A24Z&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skoid=3d249c53-07fa-4ba4-9b65-0bf8eb4ea46a&skv=2019-02-02&sv=2018-11-09&sr=b&sp=r&spr=https%2Chttp&sig=1r8vfrRp4gjyX7SPTww%2B6wEc%2F50L7c7UsP9d33RrV7I%3D&az=oaivgprodscus?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
                   alt="M-busi App Preview" 
                   className="w-full h-auto"
                 />

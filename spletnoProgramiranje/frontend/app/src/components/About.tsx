@@ -1,4 +1,3 @@
-import React from 'react';
 import { Map, Users, Clock, Shield } from 'lucide-react';
 
 const stats = [
@@ -60,7 +59,7 @@ const About = () => {
             <div className="relative bg-white p-6 rounded-2xl shadow-md">
               <div className="aspect-w-16 aspect-h-9 mb-6">
                 <img 
-                  src="https://images.pexels.com/photos/3874442/pexels-photo-3874442.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                  src="https://www.marprom.si/wp-content/uploads/Mestni-avtobusi_1024x680.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
                   alt="Marprom Bus Station" 
                   className="rounded-xl object-cover w-full h-64"
                 />
@@ -71,12 +70,12 @@ const About = () => {
               </p>
               <div className="flex space-x-4">
                 <img 
-                  src="https://images.pexels.com/photos/1178448/pexels-photo-1178448.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                  src="https://www.marprom.si/wp-content/uploads/POlni-vozni-redi_1_800x539.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
                   alt="Maribor City" 
                   className="w-1/2 h-32 rounded-lg object-cover"
                 />
                 <img 
-                  src="https://images.pexels.com/photos/2120614/pexels-photo-2120614.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                  src="https://www.marprom.si/wp-content/uploads/Avtobus_linija-6_1024x587.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
                   alt="Marprom Bus" 
                   className="w-1/2 h-32 rounded-lg object-cover"
                 />
