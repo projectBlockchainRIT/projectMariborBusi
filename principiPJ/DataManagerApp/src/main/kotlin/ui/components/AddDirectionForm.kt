@@ -32,25 +32,14 @@ fun AddDirectionForm() {
     var directionName by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
 
-    var isLoading by remember { mutableStateOf(true) }
-
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             val fetchedLines = lineDao.getAll()
             lines.clear()
             lines.addAll(fetchedLines)
-            isLoading = false
         }
     }
 
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = Color(0xFF990000))
-        }
-        return
-    }
-
-    // Scroll state za scrollable vsebino (inputi + dropdown)
     val scrollState = rememberScrollState()
 
     Surface(

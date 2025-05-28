@@ -34,7 +34,6 @@ fun AddDepartureForm() {
     var departureTime by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
 
-    var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
@@ -44,18 +43,8 @@ fun AddDepartureForm() {
             directions.addAll(fetchedDirections)
 
             stops.addAll(fetchedStops)
-
-            isLoading = false
         }
     }
-
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = Color(0xFF990000))
-        }
-        return
-    }
-
 
     val scrollState = rememberScrollState()
 
