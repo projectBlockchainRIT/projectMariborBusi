@@ -6,6 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dao.postgres.PostgreLineDao
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +36,12 @@ fun GenerateLinesForm() {
             value = count.toString(),
             onValueChange = { count = it.toIntOrNull() ?: 0 },
             label = { Text("Število linij") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color(0xFF990000),
+                focusedLabelColor = Color(0xFF990000),
+                cursorColor = Color(0xFF990000)
+            )
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -55,7 +61,11 @@ fun GenerateLinesForm() {
                     generatedLines = newLines
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color(0xFF990000),
+                contentColor = Color.White
+            )
         ) {
             Text("Generiraj in Shrani")
         }

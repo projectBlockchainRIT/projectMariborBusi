@@ -77,7 +77,11 @@ fun ScrapeDirectImport() {
                         }
                     },
                     enabled = !isScraping,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color(0xFF990000),
+                        contentColor = Color.White
+                    )
                 ) {
                     Text("Scrape + Uvozi v bazo")
                 }
