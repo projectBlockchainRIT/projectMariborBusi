@@ -67,7 +67,13 @@ fun UserList() {
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Išči po imenu") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFF990000),
+                    unfocusedBorderColor = Color.Gray,
+                    focusedLabelColor = Color(0xFF990000),
+                    cursorColor = Color(0xFF990000)
+                )
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -76,7 +82,10 @@ fun UserList() {
                 onClick = {
                     sortOption = if (sortOption == "ID") "NAME" else "ID"
                 },
-                modifier = Modifier.width(140.dp)
+                modifier = Modifier.width(140.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color(0xFF990000) // barva besedila in obrobe
+                )
             ) {
                 Text("Sort: $sortOption")
             }
@@ -154,19 +163,34 @@ fun UserList() {
                                         value = editedUsername,
                                         onValueChange = { editedUsername = it },
                                         label = { Text("Uporabniško ime") },
-                                        modifier = Modifier.fillMaxWidth()
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                                            focusedBorderColor = Color(0xFF990000),
+                                            focusedLabelColor = Color(0xFF990000),
+                                            cursorColor = Color(0xFF990000)
+                                        )
                                     )
                                     OutlinedTextField(
                                         value = editedEmail,
                                         onValueChange = { editedEmail = it },
                                         label = { Text("Email") },
-                                        modifier = Modifier.fillMaxWidth()
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                                            focusedBorderColor = Color(0xFF990000),
+                                            focusedLabelColor = Color(0xFF990000),
+                                            cursorColor = Color(0xFF990000)
+                                        )
                                     )
                                     OutlinedTextField(
                                         value = editedPassword,
                                         onValueChange = { editedPassword = it },
                                         label = { Text("Geslo") },
-                                        modifier = Modifier.fillMaxWidth()
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                                            focusedBorderColor = Color(0xFF990000),
+                                            focusedLabelColor = Color(0xFF990000),
+                                            cursorColor = Color(0xFF990000)
+                                        )
                                     )
 
                                     Button(
@@ -182,7 +206,11 @@ fun UserList() {
                                         },
                                         modifier = Modifier
                                             .padding(top = 8.dp)
-                                            .align(Alignment.End)
+                                            .align(Alignment.End),
+                                        colors = ButtonDefaults.buttonColors(
+                                            backgroundColor = Color(0xFF990000),
+                                            contentColor = Color.White
+                                        )
                                     ) {
                                         Text("Shrani spremembe")
                                     }

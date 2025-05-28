@@ -6,6 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dao.postgres.PostgreStopDao
 import kotlinx.coroutines.Dispatchers
@@ -44,13 +45,23 @@ fun GenerateStopsForm() {
                 value = latRange.first.toString(),
                 onValueChange = { latRange = (it.toDoubleOrNull() ?: 0.0) to latRange.second },
                 label = { Text("Min lat") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFF990000),
+                    focusedLabelColor = Color(0xFF990000),
+                    cursorColor = Color(0xFF990000)
+                )
             )
             OutlinedTextField(
                 value = latRange.second.toString(),
                 onValueChange = { latRange = latRange.first to (it.toDoubleOrNull() ?: 0.0) },
                 label = { Text("Max lat") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFF990000),
+                    focusedLabelColor = Color(0xFF990000),
+                    cursorColor = Color(0xFF990000)
+                )
             )
         }
 
@@ -60,13 +71,23 @@ fun GenerateStopsForm() {
                 value = lonRange.first.toString(),
                 onValueChange = { lonRange = (it.toDoubleOrNull() ?: 0.0) to lonRange.second },
                 label = { Text("Min lon") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFF990000),
+                    focusedLabelColor = Color(0xFF990000),
+                    cursorColor = Color(0xFF990000)
+                )
             )
             OutlinedTextField(
                 value = lonRange.second.toString(),
                 onValueChange = { lonRange = lonRange.first to (it.toDoubleOrNull() ?: 0.0) },
                 label = { Text("Max lon") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFF990000),
+                    focusedLabelColor = Color(0xFF990000),
+                    cursorColor = Color(0xFF990000)
+                )
             )
         }
 
@@ -75,7 +96,12 @@ fun GenerateStopsForm() {
             value = count.toString(),
             onValueChange = { count = it.toIntOrNull() ?: 0 },
             label = { Text("Število postaj") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color(0xFF990000),
+                focusedLabelColor = Color(0xFF990000),
+                cursorColor = Color(0xFF990000)
+            )
         )
 
         //number range
@@ -84,13 +110,23 @@ fun GenerateStopsForm() {
                 value = numberStart.toString(),
                 onValueChange = { numberStart = it.toIntOrNull() ?: 0 },
                 label = { Text("Min številka postaje") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFF990000),
+                    focusedLabelColor = Color(0xFF990000),
+                    cursorColor = Color(0xFF990000)
+                )
             )
             OutlinedTextField(
                 value = numberEnd.toString(),
                 onValueChange = { numberEnd = it.toIntOrNull() ?: 0 },
                 label = { Text("Max številka postaje") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFF990000),
+                    focusedLabelColor = Color(0xFF990000),
+                    cursorColor = Color(0xFF990000)
+                )
             )
         }
 
@@ -138,7 +174,11 @@ fun GenerateStopsForm() {
                     generatedStops = newStops
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color(0xFF990000),
+                contentColor = Color.White
+            )
         ) {
             Text("Generiraj in Shrani")
         }
