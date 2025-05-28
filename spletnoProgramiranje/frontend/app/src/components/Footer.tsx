@@ -14,15 +14,15 @@ const Footer = () => {
               The smart way to navigate Maribor's public transportation system with real-time tracking and intuitive route planning.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-mbusi-red-500 transition-colors">
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-mbusi-red-500 transition-colors">
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-mbusi-red-500 transition-colors">
-                <Twitter className="h-5 w-5" />
-              </a>
+              <a href="https://facebook.com/mbusi" className="text-gray-400 hover:text-mbusi-red-500 transition-colors" aria-label="Follow us on Facebook">
+                 <Facebook className="h-5 w-5" />
+               </a>
+              <a href="https://instagram.com/mbusi" className="text-gray-400 hover:text-mbusi-red-500 transition-colors" aria-label="Follow us on Instagram">
+                 <Instagram className="h-5 w-5" />
+               </a>
+              <a href="https://twitter.com/mbusi" className="text-gray-400 hover:text-mbusi-red-500 transition-colors" aria-label="Follow us on Twitter">
+                 <Twitter className="h-5 w-5" />
+               </a>
             </div>
           </div>
           
