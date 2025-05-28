@@ -38,8 +38,6 @@ fun AddRouteForm() {
     var expandedStopsDropdown by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
-    var isLoading by remember { mutableStateOf(true) }
-
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             val fetchedLines = lineDao.getAll()
@@ -48,16 +46,9 @@ fun AddRouteForm() {
             lines.addAll(fetchedLines)
             allStops.addAll(fetchedStops)
 
-            isLoading = false
         }
     }
 
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = Color(0xFF990000))
-        }
-        return
-    }
     val scrollState = rememberScrollState()
 
     Surface(
