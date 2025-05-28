@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowRight, Clock, MapPin, Bus } from 'lucide-react';
 
 const Hero = () => {
