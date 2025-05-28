@@ -5,7 +5,6 @@ import { Bus, Menu, X } from 'lucide-react';
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,10 +34,10 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/#features" className="text-gray-700 hover:text-mbusi-red-600 font-medium transition-colors">Features</Link>
-            <Link to="/#how-it-works" className="text-gray-700 hover:text-mbusi-red-600 font-medium transition-colors">How It Works</Link>
-            <Link to="/#reviews" className="text-gray-700 hover:text-mbusi-red-600 font-medium transition-colors">Reviews</Link>
-            <Link to="/#about" className="text-gray-700 hover:text-mbusi-red-600 font-medium transition-colors">About</Link>
+            <a href="#features" className="text-gray-700 hover:text-mbusi-red-600 font-medium transition-colors">Features</a>
+            <a href="#how-it-works" className="text-gray-700 hover:text-mbusi-red-600 font-medium transition-colors">How It Works</a>
+            <a href="#reviews" className="text-gray-700 hover:text-mbusi-red-600 font-medium transition-colors">Reviews</a>
+            <a href="#about" className="text-gray-700 hover:text-mbusi-red-600 font-medium transition-colors">About</a>
             <Link to="/login" className="text-mbusi-red-600 font-medium hover:text-mbusi-red-700 transition-colors">Login</Link>
             <Link 
               to="/register" 
@@ -62,34 +61,34 @@ const Header = () => {
       {isMenuOpen && (
         <div className="md:hidden bg-white shadow-lg py-4 px-4 animate-fade-in">
           <div className="flex flex-col space-y-4">
-            <Link 
-              to="/#features" 
+            <a 
+              href="#features" 
               className="text-gray-700 hover:text-mbusi-red-600 font-medium transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Features
-            </Link>
-            <Link 
-              to="/#how-it-works" 
+            </a>
+            <a 
+              href="#how-it-works" 
               className="text-gray-700 hover:text-mbusi-red-600 font-medium transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               How It Works
-            </Link>
-            <Link 
-              to="/#reviews" 
+            </a>
+            <a 
+              href="#reviews" 
               className="text-gray-700 hover:text-mbusi-red-600 font-medium transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Reviews
-            </Link>
-            <Link 
-              to="/#about" 
+            </a>
+            <a 
+              href="#about" 
               className="text-gray-700 hover:text-mbusi-red-600 font-medium transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               About
-            </Link>
+            </a>
             <Link 
               to="/login" 
               className="text-mbusi-red-600 font-medium hover:text-mbusi-red-700 transition-colors"
