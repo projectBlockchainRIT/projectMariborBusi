@@ -1,6 +1,8 @@
 package ui.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,21 +23,23 @@ fun AddUserForm() {
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
+    val scrollState = rememberScrollState()
+
+    Surface(
+        color = MaterialTheme.colors.surface,
+        modifier = Modifier.fillMaxSize()
     ) {
-        Surface(
-            color = MaterialTheme.colors.surface,
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-        ) {
+                .fillMaxSize()
+                .padding(24.dp)
+        )  {
+            // Scrollabilen del z obrazcem
             Column(
                 modifier = Modifier
+                    .weight(1f)
                     .fillMaxWidth()
-                    .padding(24.dp),
+                    .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -43,60 +47,82 @@ fun AddUserForm() {
                     value = username,
                     onValueChange = { username = it },
                     label = { Text("Uporabniško ime") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Color(0xFF990000),
+                        focusedLabelColor = Color(0xFF990000),
+                        cursorColor = Color(0xFF990000)
+                    )
                 )
 
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
                     label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Color(0xFF990000),
+                        focusedLabelColor = Color(0xFF990000),
+                        cursorColor = Color(0xFF990000)
+                    )
                 )
 
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
                     label = { Text("Geslo") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Color(0xFF990000),
+                        focusedLabelColor = Color(0xFF990000),
+                        cursorColor = Color(0xFF990000)
+                    )
                 )
 
-                Spacer(Modifier.weight(1f))
+            }
 
-                if (errorMessage.isNotBlank()) {
-                    Text(
-                        text = errorMessage,
-                        color = if (errorMessage.contains("uspešno")) Color(0xFF2E7D32) else Color.Red,
-                        style = MaterialTheme.typography.body2,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+            Spacer(modifier = Modifier.height(16.dp))
 
-                Button(
-                    onClick = {
-                        if (username.isBlank() || email.isBlank() || password.isBlank()) {
-                            errorMessage = "Vsa polja morajo biti izpolnjena."
-                        } else {
-                            val now = ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                            val user = User(
-                                username = username.trim(),
-                                email = email.trim(),
-                                password = password,
-                                createdAt = now,
-                                lastLogin = null
-                            )
-                            userDao.insert(user)
-                            errorMessage = "Uporabnik uspešno dodan."
-
-                            username = ""
-                            email = ""
-                            password = ""
-                        }
-                    },
+            if (errorMessage.isNotBlank()) {
+                Text(
+                    text = errorMessage,
+                    style = MaterialTheme.typography.body2,
                     modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Dodaj")
-                }
+                )
+            }
+
+            // Gumb fiksiran na dnu zaslona
+            Button(
+                onClick = {
+                    if (username.isBlank() || email.isBlank() || password.isBlank()) {
+                        errorMessage = "Vsa polja morajo biti izpolnjena."
+                    } else {
+                        val now = ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                        val user = User(
+                            username = username.trim(),
+                            email = email.trim(),
+                            password = password,
+                            createdAt = now,
+                            lastLogin = null
+                        )
+                        userDao.insert(user)
+                        errorMessage = "Uporabnik uspešno dodan."
+
+                        username = ""
+                        email = ""
+                        password = ""
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFF990000),
+                    contentColor = Color.White
+                )
+            ) {
+                Text("Dodaj")
             }
         }
     }
 }
+

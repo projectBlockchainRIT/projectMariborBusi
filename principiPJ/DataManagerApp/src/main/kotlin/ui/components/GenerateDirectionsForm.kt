@@ -6,6 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dao.postgres.PostgreDirectionDao
 import dao.postgres.PostgreLineDao
@@ -38,8 +39,15 @@ fun GenerateDirectionsForm() {
             value = count.toString(),
             onValueChange = { count = it.toIntOrNull() ?: 0 },
             label = { Text("Število smeri") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color(0xFF990000),
+                focusedLabelColor = Color(0xFF990000),
+                cursorColor = Color(0xFF990000)
+            )
         )
+
+        Spacer(modifier = Modifier.weight(1f))
 
         errorMessage?.let {
             Text(it, color = MaterialTheme.colors.error)
@@ -49,7 +57,6 @@ fun GenerateDirectionsForm() {
             Text("Generiranih smeri: ${generatedDirections.size}")
         }
 
-        Spacer(modifier = Modifier.weight(1f))
 
         Button(
             onClick = {
@@ -78,7 +85,11 @@ fun GenerateDirectionsForm() {
                     }
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color(0xFF990000),
+                contentColor = Color.White
+            )
         ) {
             Text("Generiraj in Shrani")
         }

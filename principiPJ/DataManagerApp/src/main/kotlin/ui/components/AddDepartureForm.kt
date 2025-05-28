@@ -2,6 +2,8 @@ package ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +15,7 @@ import dao.postgres.PostgreDirectionDao
 import dao.postgres.PostgreStopDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import model.Departure
 import model.Direction
 import model.Stop
@@ -23,154 +26,110 @@ fun AddDepartureForm() {
     val stopDao = PostgreStopDao()
     val departureDao = PostgreDepartureDao()
 
-    val directions = remember { mutableStateListOf<Direction>() }
-    val stops = remember { mutableStateListOf<Stop>() }
+    var directions = remember { mutableStateListOf<Direction>() }
+    var stops = remember { mutableStateListOf<Stop>() }
 
     var selectedDirectionId by remember { mutableStateOf<Int?>(null) }
-    var expandedDirectionDropdown by remember { mutableStateOf(false) }
-
     var selectedStopId by remember { mutableStateOf<Int?>(null) }
-    var expandedStopDropdown by remember { mutableStateOf(false) }
-
     var departureTime by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
 
+
     LaunchedEffect(Unit) {
-        runBlocking(Dispatchers.IO) {
-            directions.clear()
-            directions.addAll(directionDao.getAll())
-            stops.clear()
-            stops.addAll(stopDao.getAll())
+        withContext(Dispatchers.IO) {
+            val fetchedDirections = directionDao.getAll()
+            val fetchedStops = stopDao.getAll()
+
+            directions.addAll(fetchedDirections)
+
+            stops.addAll(fetchedStops)
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Surface(
-            color = MaterialTheme.colors.surface,
+    val scrollState = rememberScrollState()
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colors.surface
+    ) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-        ) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(24.dp)
+        ) {
+            // Scrollabilen del z inputi in dropdowni
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Input za čas odhoda
                 OutlinedTextField(
                     value = departureTime,
                     onValueChange = { departureTime = it },
                     label = { Text("Čas odhoda (HH:mm:ss)") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Color(0xFF990000),
+                        focusedLabelColor = Color(0xFF990000),
+                        cursorColor = Color(0xFF990000)
+                    )
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                DirectionDropdown(
+                    selectedId = selectedDirectionId,
+                    onSelect = { selectedDirectionId = it }
+                )
 
-                // Dropdown za izbiro smeri (Direction)
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = directions.find { it.id == selectedDirectionId }?.name ?: "Izberi smer",
-                        onValueChange = {},
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { expandedDirectionDropdown = true },
-                        enabled = false,
-                        label = { Text("Smer") }
-                    )
-                    DropdownMenu(
-                        expanded = expandedDirectionDropdown,
-                        onDismissRequest = { expandedDirectionDropdown = false }
-                    ) {
-                        if (directions.isEmpty()) {
-                            DropdownMenuItem(onClick = {}) {
-                                Text("Najprej dodaj smer")
-                            }
-                        } else {
-                            directions.forEach { direction ->
-                                DropdownMenuItem(onClick = {
-                                    selectedDirectionId = direction.id
-                                    expandedDirectionDropdown = false
-                                }) {
-                                    Text(direction.name)
-                                }
-                            }
-                        }
-                    }
-                }
+                StopDropdown(
+                    selectedId = selectedStopId,
+                    onSelect = { selectedStopId = it }
+                )
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                // Dropdown za izbiro postaje (Stop)
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = stops.find { it.id == selectedStopId }?.name ?: "Izberi postajo",
-                        onValueChange = {},
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { expandedStopDropdown = true },
-                        enabled = false,
-                        label = { Text("Postaja") }
-                    )
-                    DropdownMenu(
-                        expanded = expandedStopDropdown,
-                        onDismissRequest = { expandedStopDropdown = false }
-                    ) {
-                        if (stops.isEmpty()) {
-                            DropdownMenuItem(onClick = {}) {
-                                Text("Najprej dodaj postajo")
-                            }
-                        } else {
-                            stops.forEach { stop ->
-                                DropdownMenuItem(onClick = {
-                                    selectedStopId = stop.id
-                                    expandedStopDropdown = false
-                                }) {
-                                    Text(stop.name)
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (errorMessage.isNotBlank()) {
-                    Text(
-                        text = errorMessage,
-                        color = if (errorMessage.contains("uspešno")) Color(0xFF2E7D32) else Color.Red,
-                        style = MaterialTheme.typography.body2,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        if (departureTime.isBlank()) {
-                            errorMessage = "Vnesi čas odhoda."
-                        } else if (selectedDirectionId == null) {
-                            errorMessage = "Izberi smer."
-                        } else if (selectedStopId == null) {
-                            errorMessage = "Izberi postajo."
-                        } else {
-                            // Shrani Departure
-                            val departure = Departure(
-                                stopId = selectedStopId!!,
-                                directionId = selectedDirectionId!!,
-                                departure = departureTime.trim()
-                            )
-
-                            departureDao.insert(departure)
-
-                            errorMessage = "Departure uspešno dodan!"
-                            departureTime = ""
-                            selectedDirectionId = null
-                            selectedStopId = null
-                        }
-                    },
+            if (errorMessage.isNotBlank()) {
+                Text(
+                    text = errorMessage,
+                    style = MaterialTheme.typography.body2,
                     modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Dodaj")
-                }
+                )
+            }
+
+
+            Button(
+                onClick = {
+                    if (departureTime.isBlank()) {
+                        errorMessage = "Vnesi čas odhoda."
+                    } else if (selectedDirectionId == null) {
+                        errorMessage = "Izberi smer."
+                    } else if (selectedStopId == null) {
+                        errorMessage = "Izberi postajo."
+                    } else {
+                        val departure = Departure(
+                            stopId = selectedStopId!!,
+                            directionId = selectedDirectionId!!,
+                            departure = departureTime.trim()
+                        )
+                        departureDao.insert(departure)
+
+                        errorMessage = "Departure uspešno dodan!"
+                        departureTime = ""
+                        selectedDirectionId = null
+                        selectedStopId = null
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFF990000),
+                    contentColor = Color.White
+                )
+            ) {
+                Text("Dodaj")
             }
         }
     }
 }
+

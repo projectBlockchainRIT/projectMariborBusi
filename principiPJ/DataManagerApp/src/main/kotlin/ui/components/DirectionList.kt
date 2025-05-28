@@ -72,7 +72,13 @@ fun DirectionList() {
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Išči po imenu") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFF990000),
+                    unfocusedBorderColor = Color.Gray,
+                    focusedLabelColor = Color(0xFF990000),
+                    cursorColor = Color(0xFF990000)
+                )
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -85,7 +91,10 @@ fun DirectionList() {
                         else -> "ID"
                     }
                 },
-                modifier = Modifier.width(140.dp)
+                modifier = Modifier.width(140.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color(0xFF990000) // barva besedila in obrobe
+                )
             ) {
                 Text("Sort: $sortOption")
             }
@@ -164,7 +173,12 @@ fun DirectionList() {
                                         value = editedName,
                                         onValueChange = { editedName = it },
                                         label = { Text("Ime") },
-                                        modifier = Modifier.fillMaxWidth()
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                                            focusedBorderColor = Color(0xFF990000),
+                                            focusedLabelColor = Color(0xFF990000),
+                                            cursorColor = Color(0xFF990000)
+                                        )
                                     )
 
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -189,7 +203,11 @@ fun DirectionList() {
                                         },
                                         modifier = Modifier
                                             .padding(top = 8.dp)
-                                            .align(Alignment.End)
+                                            .align(Alignment.End),
+                                        colors = ButtonDefaults.buttonColors(
+                                            backgroundColor = Color(0xFF990000),
+                                            contentColor = Color.White
+                                        )
                                     ) {
                                         Text("Shrani spremembe")
                                     }
@@ -200,7 +218,7 @@ fun DirectionList() {
                                 Divider()
 
                                 Text(
-                                    "Najprej izbriši ${departures.size} povezanih odhodov:",
+                                    "Na to smer je vezanih ${departures.size} odhodov:",
                                     style = MaterialTheme.typography.subtitle2,
                                     modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                                 )
@@ -212,20 +230,13 @@ fun DirectionList() {
                                         expandedDirections.remove(direction.id)
                                         directions = directionDao.getAll()
                                     },
-                                    modifier = Modifier.padding(8.dp)
+                                    modifier = Modifier.padding(8.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = Color(0xFF990000),
+                                        contentColor = Color.White
+                                    )
                                 ) {
                                     Text("Izbriši vse odhode in smer")
-                                }
-
-                                departures.forEach { departure ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = 16.dp, vertical = 4.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text("• ${departure.departure} (directionId=${departure.directionId})")
-                                    }
                                 }
                             }
                         }

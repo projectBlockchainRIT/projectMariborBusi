@@ -21,6 +21,8 @@ fun NavItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    val selectedColor = Color(0xFF990000)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -35,7 +37,7 @@ fun NavItem(
         Icon(
             imageVector = icon,
             contentDescription = text,
-            tint = if (isSelected) MaterialTheme.colors.primary else MaterialTheme.colors.onSurface,
+            tint = if (isSelected) selectedColor else MaterialTheme.colors.onSurface,
             modifier = Modifier.size(24.dp)
         )
 
@@ -46,7 +48,7 @@ fun NavItem(
         Text(
             text = text,
             modifier = Modifier.fillMaxWidth(),
-            color = if (isSelected) MaterialTheme.colors.primary else MaterialTheme.colors.onSurface
+            color = if (isSelected) selectedColor else MaterialTheme.colors.onSurface
         )
     }
 }

@@ -56,9 +56,13 @@ fun RunScraperForm() {
                 onClick = {
                     directory = chooseDirectory("Mapa")
                 },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFF990000),
+                    contentColor = Color.White
+                )
             ) {
-                Text("Izberi", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                Text("Mapa", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
 
             Text(
@@ -108,7 +112,11 @@ fun RunScraperForm() {
                 }
             },
             enabled = !isScraping,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color(0xFF990000),
+                contentColor = Color.White
+            )
         ) {
             Text("Poženi scraperje")
         }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dao.postgres.PostgreDepartureDao
 import dao.postgres.PostgreDirectionDao
@@ -40,15 +41,27 @@ fun GenerateDeparturesForm() {
             value = count.toString(),
             onValueChange = { count = it.toIntOrNull() ?: 0 },
             label = { Text("Število odhodov") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color(0xFF990000),
+                focusedLabelColor = Color(0xFF990000),
+                cursorColor = Color(0xFF990000)
+            )
         )
 
         OutlinedTextField(
             value = timeRange,
             onValueChange = { timeRange = it },
             label = { Text("Časovni interval (npr. 06:00:00-09:00:00)") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color(0xFF990000),
+                focusedLabelColor = Color(0xFF990000),
+                cursorColor = Color(0xFF990000)
+            )
         )
+
+        Spacer(modifier = Modifier.weight(1f))
 
         errorMessage?.let {
             Text(it, color = MaterialTheme.colors.error)
@@ -57,8 +70,6 @@ fun GenerateDeparturesForm() {
         if (generatedDepartures.isNotEmpty()) {
             Text("Generiranih odhodov: ${generatedDepartures.size}")
         }
-
-        Spacer(modifier = Modifier.weight(1f))
 
         Button(
             onClick = {
@@ -93,7 +104,11 @@ fun GenerateDeparturesForm() {
                     }
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color(0xFF990000),
+                contentColor = Color.White
+            )
         ) {
             Text("Generiraj in Shrani")
         }

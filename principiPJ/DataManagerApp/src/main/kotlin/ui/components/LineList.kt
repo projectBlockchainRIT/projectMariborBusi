@@ -66,7 +66,13 @@ fun LineList() {
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Išči po imenu") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFF990000),
+                    unfocusedBorderColor = Color.Gray,
+                    focusedLabelColor = Color(0xFF990000),
+                    cursorColor = Color(0xFF990000)
+                )
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -75,7 +81,10 @@ fun LineList() {
                 onClick = {
                     sortOption = if (sortOption == "ID") "NAME" else "ID"
                 },
-                modifier = Modifier.width(140.dp)
+                modifier = Modifier.width(140.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color(0xFF990000) // barva besedila in obrobe
+                )
             ) {
                 Text("Sort: $sortOption")
             }
@@ -152,7 +161,12 @@ fun LineList() {
                                         value = editedLineCode,
                                         onValueChange = { editedLineCode = it },
                                         label = { Text("Koda linije") },
-                                        modifier = Modifier.fillMaxWidth()
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                                            focusedBorderColor = Color(0xFF990000),
+                                            focusedLabelColor = Color(0xFF990000),
+                                            cursorColor = Color(0xFF990000)
+                                        )
                                     )
 
                                     Button(
@@ -164,7 +178,11 @@ fun LineList() {
                                         },
                                         modifier = Modifier
                                             .align(Alignment.End)
-                                            .padding(top = 8.dp)
+                                            .padding(top = 8.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            backgroundColor = Color(0xFF990000),
+                                            contentColor = Color.White
+                                        )
                                     ) {
                                         Text("Shrani spremembe")
                                     }

@@ -25,7 +25,7 @@ import model.Route
 @Composable
 fun RouteList() {
     val routeDao = PostgreRouteDao()
-    var routes by remember {mutableStateOf<List<Route>>(emptyList()) }
+    var routes by remember { mutableStateOf<List<Route>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         val rts = withContext(Dispatchers.IO) {
@@ -65,7 +65,13 @@ fun RouteList() {
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Išči po imenu") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFF990000),
+                    unfocusedBorderColor = Color.Gray,
+                    focusedLabelColor = Color(0xFF990000),
+                    cursorColor = Color(0xFF990000)
+                )
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -78,7 +84,10 @@ fun RouteList() {
                         else -> "ID"
                     }
                 },
-                modifier = Modifier.width(140.dp)
+                modifier = Modifier.width(140.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color(0xFF990000) // barva besedila in obrobe
+                )
             ) {
                 Text("Sort: $sortOption")
             }
@@ -154,78 +163,91 @@ fun RouteList() {
                             }
 
                             if (isExpanded) {
-                                if (isExpanded) {
-                                    val lineDao = PostgreLineDao()
-                                    val allLineIds = remember { lineDao.getAll().mapNotNull { it.id } }
+                                val lineDao = PostgreLineDao()
+                                val allLineIds = remember { lineDao.getAll().mapNotNull { it.id } }
 
-                                    var editedName by remember(route.id) { mutableStateOf(editedRoute.name) }
-                                    var editedLineId by remember(route.id) { mutableStateOf(editedRoute.lineId) }
-                                    var editedPathString by remember(route.id) { mutableStateOf(editedRoute.path.toString()) }
+                                var editedName by remember(route.id) { mutableStateOf(editedRoute.name) }
+                                var editedLineId by remember(route.id) { mutableStateOf(editedRoute.lineId) }
+                                var editedPathString by remember(route.id) { mutableStateOf(editedRoute.path.toString()) }
 
-                                    Column(modifier = Modifier.padding(16.dp)) {
-                                        OutlinedTextField(
-                                            value = editedName,
-                                            onValueChange = { editedName = it },
-                                            label = { Text("Ime") },
-                                            modifier = Modifier.fillMaxWidth()
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    OutlinedTextField(
+                                        value = editedName,
+                                        onValueChange = { editedName = it },
+                                        label = { Text("Ime") },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                                            focusedBorderColor = Color(0xFF990000),
+                                            focusedLabelColor = Color(0xFF990000),
+                                            cursorColor = Color(0xFF990000)
                                         )
+                                    )
 
-                                        Spacer(modifier = Modifier.height(8.dp))
+                                    Spacer(modifier = Modifier.height(8.dp))
 
-                                        var editedLineId by remember { mutableStateOf(editedRoute.lineId) }
+                                    var editedLineId by remember { mutableStateOf(editedRoute.lineId) }
 
-                                        LineDropdown(
-                                            selectedLineId = editedLineId,
-                                            onLineSelected = { newLineId ->
-                                                editedLineId = newLineId
-                                                editedRoute.lineId = newLineId
-                                            }
-                                        )
-
-                                        Spacer(modifier = Modifier.height(8.dp))
-
-                                        OutlinedTextField(
-                                            value = editedPathString,
-                                            onValueChange = { editedPathString = it },
-                                            label = { Text("GeoJSON (kot string)") },
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(120.dp),
-                                            singleLine = false
-                                        )
-
-                                        Spacer(modifier = Modifier.height(8.dp))
-
-                                        Button(
-                                            onClick = {
-                                                try {
-                                                    var safeJson = editedPathString.trim()
-
-                                                    if (!safeJson.startsWith("[[")) {
-                                                        safeJson = "[$safeJson]"
-                                                    }
-
-                                                    val updatedRoute = route.copy(
-                                                        name = editedName,
-                                                        lineId = editedLineId,
-                                                        path = Json.parseToJsonElement(safeJson)
-                                                    )
-                                                    routeDao.update(updatedRoute)
-                                                    routes = routeDao.getAll()
-                                                    expandedRouteId = null
-                                                    editableRoutes.remove(route.id)
-                                                } catch (e: Exception) {
-                                                    println("Napaka pri parsiranju JSON-a: ${e.message}")
-                                                }
-                                            },
-                                            modifier = Modifier
-                                                .padding(top = 8.dp)
-                                                .align(Alignment.End)
-                                        ) {
-                                            Text("Shrani spremembe")
+                                    LineDropdown(
+                                        selectedLineId = editedLineId,
+                                        onLineSelected = { newLineId ->
+                                            editedLineId = newLineId
+                                            editedRoute.lineId = newLineId
                                         }
+                                    )
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    OutlinedTextField(
+                                        value = editedPathString,
+                                        onValueChange = { editedPathString = it },
+                                        label = { Text("GeoJSON (kot string)") },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(120.dp),
+                                        singleLine = false,
+                                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                                            focusedBorderColor = Color(0xFF990000),
+                                            focusedLabelColor = Color(0xFF990000),
+                                            cursorColor = Color(0xFF990000)
+                                        )
+                                    )
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Button(
+                                        onClick = {
+                                            try {
+                                                var safeJson = editedPathString.trim()
+
+                                                if (!safeJson.startsWith("[[")) {
+                                                    safeJson = "[$safeJson]"
+                                                }
+
+                                                val updatedRoute = route.copy(
+                                                    name = editedName,
+                                                    lineId = editedLineId,
+                                                    path = Json.parseToJsonElement(safeJson)
+                                                )
+                                                routeDao.update(updatedRoute)
+                                                routes = routeDao.getAll()
+                                                expandedRouteId = null
+                                                editableRoutes.remove(route.id)
+                                            } catch (e: Exception) {
+                                                println("Napaka pri parsiranju JSON-a: ${e.message}")
+                                            }
+                                        },
+                                        modifier = Modifier
+                                            .padding(top = 8.dp)
+                                            .align(Alignment.End),
+                                        colors = ButtonDefaults.buttonColors(
+                                            backgroundColor = Color(0xFF990000),
+                                            contentColor = Color.White
+                                        )
+                                    ) {
+                                        Text("Shrani spremembe")
                                     }
                                 }
+
                             }
                         }
                     }

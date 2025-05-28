@@ -1,5 +1,6 @@
 package ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -66,9 +67,15 @@ fun DepartureList() {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth().padding(8.dp)
         ) {
-            OutlinedButton(onClick = {
-                searchField = if (searchField == "STOP_ID") "DIRECTION_ID" else "STOP_ID"
-            }, modifier = Modifier.width(140.dp)) {
+            OutlinedButton(
+                onClick = {
+                    searchField = if (searchField == "STOP_ID") "DIRECTION_ID" else "STOP_ID"
+                },
+                modifier = Modifier.width(140.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color(0xFF990000) // barva besedila in obrobe
+                )
+            ) {
                 Text("Search: ${if (searchField == "STOP_ID") "STOP" else "DIR"}")
             }
 
@@ -78,7 +85,14 @@ fun DepartureList() {
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Išči po ${if (searchField == "STOP_ID") "postaji" else "smeri"}") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFF990000),
+                    unfocusedBorderColor = Color.Gray,
+                    focusedLabelColor = Color(0xFF990000),
+                    cursorColor = Color(0xFF990000)
+                )
+
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -89,7 +103,10 @@ fun DepartureList() {
                     "STOP_ID" -> "DIR_ID"
                     else -> "ID"
                 }
-            }, modifier = Modifier.width(140.dp)) {
+            }, modifier = Modifier.width(140.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color(0xFF990000)
+                )) {
                 Text("Sort: $sortOption")
             }
         }
@@ -99,12 +116,14 @@ fun DepartureList() {
         LazyColumn {
             if (filteredAndSortedDepartures.isEmpty()) {
                 item {
-                    Text("Ni zadetkov.",
+                    Text(
+                        "Ni zadetkov.",
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),
                         style = MaterialTheme.typography.subtitle1,
-                        color = Color.Gray)
+                        color = Color.Gray
+                    )
                 }
             } else {
                 items(filteredAndSortedDepartures) { dep ->
@@ -154,7 +173,12 @@ fun DepartureList() {
                                         editableDeparture = editableDeparture.copy(departure = it)
                                     },
                                     label = { Text("Odhod (HH:mm:ss)") },
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                                        focusedBorderColor = Color(0xFF990000),
+                                        focusedLabelColor = Color(0xFF990000),
+                                        cursorColor = Color(0xFF990000)
+                                    )
                                 )
 
                                 DirectionDropdown(
@@ -175,7 +199,11 @@ fun DepartureList() {
                                     },
                                     modifier = Modifier
                                         .padding(top = 8.dp)
-                                        .align(Alignment.End)
+                                        .align(Alignment.End),
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = Color(0xFF990000),
+                                        contentColor = Color.White
+                                    )
                                 ) {
                                     Text("Shrani spremembe")
                                 }
