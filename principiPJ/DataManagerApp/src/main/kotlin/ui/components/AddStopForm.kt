@@ -25,22 +25,22 @@ fun AddStopForm() {
     var longitude by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
+    val scrollState = rememberScrollState()
+
+    Surface(
+        color = MaterialTheme.colors.surface,
+        modifier = Modifier.fillMaxSize()
     ) {
-        Surface(
-            color = MaterialTheme.colors.surface,
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
+                .fillMaxSize()
+                .padding(24.dp)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(24.dp)
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -52,13 +52,23 @@ fun AddStopForm() {
                         value = id,
                         onValueChange = { id = it },
                         label = { Text("ID postaje") },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = Color(0xFF990000),
+                            focusedLabelColor = Color(0xFF990000),
+                            cursorColor = Color(0xFF990000)
+                        )
                     )
                     OutlinedTextField(
                         value = number,
                         onValueChange = { number = it },
                         label = { Text("Številka postaje") },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = Color(0xFF990000),
+                            focusedLabelColor = Color(0xFF990000),
+                            cursorColor = Color(0xFF990000)
+                        )
                     )
                 }
 
@@ -66,79 +76,101 @@ fun AddStopForm() {
                     value = name,
                     onValueChange = { name = it },
                     label = { Text("Ime postaje") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Color(0xFF990000),
+                        focusedLabelColor = Color(0xFF990000),
+                        cursorColor = Color(0xFF990000)
+                    )
                 )
 
                 OutlinedTextField(
                     value = latitude,
                     onValueChange = { latitude = it },
                     label = { Text("Zemljepisna širina (latitude)") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Color(0xFF990000),
+                        focusedLabelColor = Color(0xFF990000),
+                        cursorColor = Color(0xFF990000)
+                    )
                 )
 
                 OutlinedTextField(
                     value = longitude,
                     onValueChange = { longitude = it },
                     label = { Text("Zemljepisna dolžina (longitude)") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Color(0xFF990000),
+                        focusedLabelColor = Color(0xFF990000),
+                        cursorColor = Color(0xFF990000)
+                    )
                 )
 
-                Spacer(Modifier.weight(1f))
 
-                if (errorMessage.isNotBlank()) {
-                    Text(
-                        text = errorMessage,
-                        style = MaterialTheme.typography.body2,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+            }
 
-                Button(
-                    onClick = {
-                        if (id.isBlank() || number.isBlank() || name.isBlank() || latitude.isBlank() || longitude.isBlank()) {
-                            errorMessage = "Vsa polja morajo biti izpolnjena."
-                            return@Button
-                        }
+            Spacer(modifier = Modifier.height(16.dp))
 
-                        val stopId = id.toIntOrNull()
-                        if (stopId == null) {
-                            errorMessage = "ID mora biti številka."
-                        } else {
-                            val existing = stopDao.getById(stopId)
-                            if (existing != null) {
-                                errorMessage = "Postaja z ID $stopId že obstaja!"
-                            } else {
-                                val lat = latitude.toDoubleOrNull()
-                                val lon = longitude.toDoubleOrNull()
-                                if (lat == null || lon == null) {
-                                    errorMessage = "Latitude in longitude morata biti decimalni števili."
-                                    return@Button
-                                }
-
-                                val stop = Stop(
-                                    id = stopId,
-                                    number = number,
-                                    name = name,
-                                    latitude = lat,
-                                    longitude = lon
-                                )
-                                stopDao.insert(stop)
-                                errorMessage = "Postaja uspešno dodana."
-
-                                id = ""
-                                number = ""
-                                name = ""
-                                latitude = ""
-                                longitude = ""
-                            }
-                        }
-                    },
+            if (errorMessage.isNotBlank()) {
+                Text(
+                    text = errorMessage,
+                    style = MaterialTheme.typography.body2,
                     modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Dodaj")
-                }
+                )
+            }
+
+            Button(
+                onClick = {
+                    if (id.isBlank() || number.isBlank() || name.isBlank() || latitude.isBlank() || longitude.isBlank()) {
+                        errorMessage = "Vsa polja morajo biti izpolnjena."
+                        return@Button
+                    }
+
+                    val stopId = id.toIntOrNull()
+                    if (stopId == null) {
+                        errorMessage = "ID mora biti številka."
+                    } else {
+                        val existing = stopDao.getById(stopId)
+                        if (existing != null) {
+                            errorMessage = "Postaja z ID $stopId že obstaja!"
+                        } else {
+                            val lat = latitude.toDoubleOrNull()
+                            val lon = longitude.toDoubleOrNull()
+                            if (lat == null || lon == null) {
+                                errorMessage = "Latitude in longitude morata biti decimalni števili."
+                                return@Button
+                            }
+
+                            val stop = Stop(
+                                id = stopId,
+                                number = number,
+                                name = name,
+                                latitude = lat,
+                                longitude = lon
+                            )
+                            stopDao.insert(stop)
+
+                            errorMessage = "Postaja uspešno dodana."
+
+                            id = ""
+                            number = ""
+                            name = ""
+                            latitude = ""
+                            longitude = ""
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFF990000),
+                    contentColor = Color.White
+                )
+            ) {
+                Text("Dodaj")
             }
         }
     }
-
 }

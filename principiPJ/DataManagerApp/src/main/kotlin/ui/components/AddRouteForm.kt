@@ -2,6 +2,8 @@ package ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,7 +14,9 @@ import com.google.gson.JsonParser
 import dao.postgres.PostgreLineDao
 import dao.postgres.PostgreStopDao
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import model.Route
@@ -26,149 +30,116 @@ fun AddRouteForm() {
 
     var routeName by remember { mutableStateOf("") }
     var selectedLineId by remember { mutableStateOf<Int?>(null) }
-    var expandedLineDropdown by remember { mutableStateOf(false) }
     val lines = remember { mutableStateListOf<model.Line>() }
 
     val selectedStops = remember { mutableStateListOf<Stop>() }
-    var expandedStopsDropdown by remember { mutableStateOf(false) }
     val allStops = remember { mutableStateListOf<Stop>() }
 
+    var expandedStopsDropdown by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
-    // Fetch linije in postaje
     LaunchedEffect(Unit) {
-        runBlocking(Dispatchers.IO) {
-            lines.clear()
-            lines.addAll(lineDao.getAll())
-            allStops.clear()
-            allStops.addAll(stopDao.getAll())
+        withContext(Dispatchers.IO) {
+            val fetchedLines = lineDao.getAll()
+            val fetchedStops = stopDao.getAll()
+
+            lines.addAll(fetchedLines)
+            allStops.addAll(fetchedStops)
+
         }
     }
 
-    Box(
+    val scrollState = rememberScrollState()
+
+    Surface(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        color = MaterialTheme.colors.surface
     ) {
-        Surface(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(),
-            color = MaterialTheme.colors.surface
+                .fillMaxSize()
+                .padding(24.dp)
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
+                    .weight(1f)
+                    .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedTextField(
                     value = routeName,
                     onValueChange = { routeName = it },
                     label = { Text("Ime poti") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Color(0xFF990000),
+                        focusedLabelColor = Color(0xFF990000),
+                        cursorColor = Color(0xFF990000)
+                    )
                 )
 
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = lines.find { it.id == selectedLineId }?.lineCode ?: "Izberi linijo",
-                        onValueChange = {},
-                        modifier = Modifier.fillMaxWidth().clickable { expandedLineDropdown = true },
-                        enabled = false,
-                        label = { Text("Linija") }
-                    )
-                    DropdownMenu(
-                        expanded = expandedLineDropdown,
-                        onDismissRequest = { expandedLineDropdown = false }
-                    ) {
-                        if (lines.isEmpty()) {
-                            DropdownMenuItem(onClick = {}) {
-                                Text("Najprej dodaj linijo")
-                            }
-                        } else {
-                            lines.forEach { line ->
-                                DropdownMenuItem(onClick = {
-                                    selectedLineId = line.id
-                                    expandedLineDropdown = false
-                                }) {
-                                    Text(line.lineCode)
-                                }
-                            }
-                        }
+                LineDropdown(
+                    selectedLineId = selectedLineId,
+                    onLineSelected = { selectedLineId = it }
+                )
+
+                PathDropdown(
+                    selectedStops = selectedStops,
+                    onSelectionChanged = {
+                        selectedStops.clear()
+                        selectedStops.addAll(it)
                     }
-                }
+                )
+            }
 
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = if (selectedStops.isEmpty()) "Izberi postaje" else selectedStops.joinToString { it.name },
-                        onValueChange = {},
-                        modifier = Modifier.fillMaxWidth().clickable { expandedStopsDropdown = true },
-                        enabled = false,
-                        label = { Text("Postaje poti") }
-                    )
-                    DropdownMenu(
-                        expanded = expandedStopsDropdown,
-                        onDismissRequest = { expandedStopsDropdown = false }
-                    ) {
-                        allStops.forEach { stop ->
-                            DropdownMenuItem(onClick = {
-                                if (!selectedStops.contains(stop)) {
-                                    selectedStops.add(stop)
-                                } else {
-                                    selectedStops.remove(stop)
-                                }
-                            }) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Checkbox(checked = selectedStops.contains(stop), onCheckedChange = null)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(stop.name)
-                                }
-                            }
-                        }
-                    }
-                }
+            Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(Modifier.weight(1f))
-
-                if (errorMessage.isNotBlank()) {
-                    Text(
-                        text = errorMessage,
-                        color = if (errorMessage.contains("uspešno")) Color(0xFF2E7D32) else Color.Red,
-                        style = MaterialTheme.typography.body2,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        if (routeName.isBlank() || selectedLineId == null) {
-                            errorMessage = "Vsa polja morajo biti izpolnjena."
-                        } else if (selectedStops.size < 2) {
-                            errorMessage = "Dodaj vsaj dve postaji."
-                        } else {
-                            val geoJsonString = selectedStops.joinToString(separator = ",\n", prefix = "[\n", postfix = "\n]") {
-                                "[${it.latitude}, ${it.longitude}]"
-                            }
-                            val geoJsonPath: JsonElement = Json.parseToJsonElement(geoJsonString)
-                            val newRoute = Route(
-                                name = routeName,
-                                path = geoJsonPath,
-                                lineId = selectedLineId!!
-                            )
-                            // Shrani v bazo
-                            runBlocking(Dispatchers.IO) {
-                                dao.postgres.PostgreRouteDao().insert(newRoute)
-                            }
-                            errorMessage = "Pot uspešno dodana."
-                            routeName = ""
-                            selectedLineId = null
-                            selectedStops.clear()
-                        }
-                    },
+            if (errorMessage.isNotBlank()) {
+                Text(
+                    text = errorMessage,
+                    style = MaterialTheme.typography.body2,
                     modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Dodaj pot")
-                }
+                )
+            }
+
+            Button(
+                onClick = {
+                    if (routeName.isBlank() || selectedLineId == null) {
+                        errorMessage = "Vsa polja morajo biti izpolnjena."
+                    } else if (selectedStops.size < 2) {
+                        errorMessage = "Dodaj vsaj dve postaji."
+                    } else {
+                        val geoJsonString = selectedStops.joinToString(
+                            separator = ",\n",
+                            prefix = "[\n",
+                            postfix = "\n]"
+                        ) { "[${it.latitude}, ${it.longitude}]" }
+                        val geoJsonPath = Json.parseToJsonElement(geoJsonString)
+                        val newRoute = Route(
+                            name = routeName,
+                            path = geoJsonPath,
+                            lineId = selectedLineId!!
+                        )
+
+                        dao.postgres.PostgreRouteDao().insert(newRoute)
+
+                        errorMessage = "Pot uspešno dodana."
+                        routeName = ""
+                        selectedLineId = null
+                        selectedStops.clear()
+                    }
+
+                },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFF990000),
+                    contentColor = Color.White
+                )
+            ) {
+                Text("Dodaj pot")
             }
         }
     }
 }
+

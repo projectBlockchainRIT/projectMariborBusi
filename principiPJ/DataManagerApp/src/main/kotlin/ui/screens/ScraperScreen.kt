@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import ui.components.*
 
@@ -18,6 +19,7 @@ import ui.components.*
 fun ScraperScreen() {
     var selectedEntity by remember { mutableStateOf("Scrape JSON") }
     val entities = listOf("Scrape JSON", "Scrape & direct import")
+    val selectedColor = Color(0xFF990000)
 
     Column(
         modifier = Modifier
@@ -42,7 +44,7 @@ fun ScraperScreen() {
                     Text(
                         text = entity,
                         style = if (selectedEntity == entity) {
-                            MaterialTheme.typography.body1.copy(color = MaterialTheme.colors.primary)
+                            MaterialTheme.typography.body1.copy(color = selectedColor)
                         } else {
                             MaterialTheme.typography.body1
                         },
