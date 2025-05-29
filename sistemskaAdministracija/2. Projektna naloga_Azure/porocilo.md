@@ -432,12 +432,15 @@ Nato še je vodja skupine nastavil pravilna dovoljenja za ustvarjeno datoteko in
 Zdaj pa še prikaz SSH dostopa vsakega člana s svojimi SSH ključi.
 
 Adrian Cvetko:
+
 ![alt text](image-20.png)
 
 Timotej Maučec:
+
 ![alt text](image-18.png)
 
 Blaž Kolman:
+
 ![alt text](image-19.png)
 
 Iz slik je razvidno, da je vsak član skupine za prijavo uporabil svoj zaseben SSH ključ in ni rabil posebej vnašti gesla, ki je bilo definirano ob ustvarjanju virtualne naprave, za prijavo. 
@@ -507,6 +510,14 @@ Za tem smo se pomaknili v starševski direktorij spletne storitve:
 Tukaj se nahaja naša "dataLoader.sh" skripta, ki je bila opisana v prvi sekciji tega poročila. Enako kot prej, je potreben samp zagon te skripte in bo spletna storitev pripravljena:
 
 ![alt text](image-32.png)
+
+Za mogočanje javnega dostopa do aplikacije smo najprej odprli še port 8080, ker na tem portu deluje naša spletna storitev ter tudi port 80, ki odpira HTTP povezave:
+
+![alt text](image-35.png)
+
+Za tem pa smo še uporabili "Uncomplicated Firewall", kar je požarni zid že vgrajen v Ubuntu, da smo odprli vrata za SSH, za vrata 8080 in vrata 80. Vse ostali je zaprto. Na koncu pa smo požarni zid tudi omogočili:
+
+![alt text](image-36.png)
 
 ### Demonstracija dostopa do storitve iz javnega omrežja
 
