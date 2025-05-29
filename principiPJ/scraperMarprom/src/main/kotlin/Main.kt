@@ -32,16 +32,12 @@ class MarpromScraper {
         try {
             val doc = Jsoup.connect("$baseUrl/").get()
 
-            //postajalisce - iskanje po id=TableOfStops
             val stopRows = doc.select("table#TableOfStops > tbody > tr")
 
-            //podrobnost postajalisca
             for (row in stopRows) {
-                //onClick vsebuje ID med 'stop=' in '&'
                 val onclickAttr = row.attr("onclick")
                 val stopId = onclickAttr.substringAfter("stop=").substringBefore("&").trim()
 
-                //stevilka & ime postaje
                 val tds = row.select("td")
                 if (tds.size >= 2) {
                     val stopNumber = tds[1].select("b.paddingTd").first()?.text()?.trim() ?: ""
@@ -49,7 +45,6 @@ class MarpromScraper {
 
                     println("Scraping $stopName")
 
-                    //odhodne linije & casi
                     val stopDetails = scrapeStopDetails(stopId)
 
                     stops.add(BusStop(stopId, stopNumber, stopName, stopDetails))
@@ -71,29 +66,22 @@ class MarpromScraper {
             val todayDate = getTodayDateString()
             val doc = Jsoup.connect("$baseUrl/?stop=$stopId&datum=$todayDate").get()
 
-            //odhodi PO linijah
             val tables = doc.select("div.modal-body table.table-bordered")
 
-            //prvi dve tabeli NIMATA linij
             if (tables.size > 2) {
                 for (i in 2 until tables.size) {
                     val table = tables[i]
                     val titleElement = table.previousElementSibling()
 
-                    //ali je naslov "Naslednji odhodi za linijo"
                     if (titleElement != null && titleElement.text().contains("Naslednji odhodi za linijo")) {
-                        //stevilka LINIJE
                         val line = titleElement.select("span.modal-btn-route-position").text().trim()
 
-                        //casi odhodov iz linije
                         val rows = table.select("tbody tr:not(:has(td.tdBackColor))")
 
                         for (row in rows) {
-                            //levi del tabele(ime postaje) ma CLASS tdWidth, desni(casi odhoda) NIMA
                             val direction = row.select("td.tdWidth").text().trim()
                             val timesText = row.select("td:not(.tdWidth)").text().trim()
 
-                            //case razdeli na posamezne stringe xx:xx
                             val times = timesText.split("\\s+".toRegex())
                                 .filter { it.isNotBlank() && it.matches(Regex("""\d{2}:\d{2}""")) }
 

@@ -19,18 +19,14 @@ class MarpromStopScraper {
         val stops = mutableListOf<BusStopInfo>()
 
         try {
-            // pridobitev glavne strani
             val doc = Jsoup.connect("$baseUrl/").get()
 
-            // iskanje vseh vrstic za postaje v tabeli
             val stopRows = doc.select("table#TableOfStops > tbody > tr")
 
             for (row in stopRows) {
-                // extractanje ID-ja iz onClick metode
                 val onclickAttr = row.attr("onclick")
                 val stopId = onclickAttr.substringAfter("stop=").substringBefore("&").trim()
 
-                // extractanje število postaje in ime
                 val tds = row.select("td")
                 if (tds.size >= 2) {
                     val stopNumber = tds[1].select("b.paddingTd").first()?.text()?.trim() ?: ""
@@ -38,7 +34,6 @@ class MarpromStopScraper {
 
                     println("Scraping stop info for: $stopName")
 
-                    // klic funkcije za pridobitev koordinat
                     val coordinates = scrapeStopCoordinates(stopId)
 
                     stops.add(BusStopInfo(
@@ -61,18 +56,14 @@ class MarpromStopScraper {
 
     private fun scrapeStopCoordinates(stopId: String): Pair<Double?, Double?> {
         try {
-            // pridobitev podrobnosti o postaji
             val doc = Jsoup.connect("$baseUrl/?stop=$stopId").get()
 
-            // extractanje vseh taggov "script", ker so tam notri potencialno koordinate
             val scripts = doc.select("script")
 
             for (script in scripts) {
                 val scriptContent = script.html()
 
-                // iskanje inicializacije google mapsa
                 if (scriptContent.contains("new google.maps.Map") && scriptContent.contains("new google.maps.LatLng")) {
-                    // extractanje koordinat z regexom
                     val latlngPattern = Pattern.compile("new google\\.maps\\.LatLng\\((\\d+\\.\\d+), (\\d+\\.\\d+)\\)")
                     val matcher = latlngPattern.matcher(scriptContent)
 
@@ -104,7 +95,6 @@ fun main() {
     println("Scraping completed successfully.")
     println("Total stops: ${busStops.size}")
 
-    // Print stats about coordinates
     val stopsWithCoordinates = busStops.count { it.latitude != null && it.longitude != null }
     println("Stops with coordinates: $stopsWithCoordinates")
 }
