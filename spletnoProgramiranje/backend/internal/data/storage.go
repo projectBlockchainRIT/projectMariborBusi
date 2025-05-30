@@ -16,6 +16,9 @@ type Storage struct {
 		ReadList(context.Context) ([]Stop, error)
 		ReadStationMetadata(context.Context, int64) (*StopMetadata, error)
 		ReadStationsCloseBy(context.Context, *Location) ([]Stop, error)
+		ReadThreeStationsAtDestination(context.Context, *PathLocation) ([]Stop, error)
+		ReadStationLines(ctx context.Context, stops []Stop) ([]Line, error)
+		ReadThreeStationsAtLocation(ctx context.Context, payload *PathLocation, lines []Line) ([]Stop, error)
 	}
 	Routes interface {
 		ReadRoute(context.Context, int64) (*Route, error)
