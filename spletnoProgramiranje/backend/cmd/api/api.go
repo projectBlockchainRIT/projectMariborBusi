@@ -54,12 +54,16 @@ func (app *app) mount() http.Handler {
 			r.Get("/{lineId}", app.getRouteOfLineHandler)              // fetch the route of a specifc line based on the id
 			r.Get("/stations/{lineId}", app.getStationsOnRouteHandler) // fetch all stops that appear on this route
 			r.Get("/list", app.routesListHandler)                      // fetch all routes to display entire bus coverage on the map
-			r.Get("/simulate/{lineId}", app.getRealtimeLine)
+			r.Get("/simulate/{lineId}", app.getRealtimeLine)           // simulates an estimate of current bus locations through the city
 		})
 
 		r.Route("/authentication", func(r chi.Router) {
 			r.Post("/register", app.usersResgisterUser) // creating a new user
 			r.Post("/login", app.usersLoginUser)        // logging in an existing user
+		})
+
+		r.Route("/show", func(r chi.Router) {
+			r.Post("/shortest", app.getShortestPath) // finds the most optimal path to he desired location
 		})
 	})
 
