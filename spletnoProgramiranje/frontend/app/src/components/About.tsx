@@ -1,25 +1,26 @@
 import { Map, Users, Clock, Shield } from 'lucide-react';
+import CountUp from './animations/CountUp';
 
 const stats = [
   { 
     icon: <Map className="h-6 w-6 text-mbusi-red-600" />,
-    value: "42",
+    value: 42,
+    duration: 1,
     label: "Bus Routes", 
   },
   { 
     icon: <Users className="h-6 w-6 text-mbusi-red-600" />,
-    value: "25,000+",
+    value: 25000,
+    x: "+",
+    duration: 2,
     label: "Daily Riders", 
   },
   { 
     icon: <Clock className="h-6 w-6 text-mbusi-red-600" />,
-    value: "99.4%",
+    value: 99,
+    x: ".4%",
+    duration: 2,
     label: "On-time Performance", 
-  },
-  { 
-    icon: <Shield className="h-6 w-6 text-mbusi-red-600" />,
-    value: "24/7",
-    label: "Customer Support", 
   },
 ];
 
@@ -44,13 +45,32 @@ const About = () => {
                     {stat.icon}
                   </div>
                   <div className="text-2xl md:text-3xl font-bold text-mbusi-red-600">
-                    {stat.value}
+                    <CountUp
+                      from={0}
+                      to={stat.value}
+                      separator=","
+                      direction="up"
+                      duration={stat.duration}
+                      className="count-up-text"
+                    />
+                    {stat.x}
                   </div>
                   <div className="text-sm text-gray-500">
                     {stat.label}
                   </div>
                 </div>
               ))}
+              <div className="text-center">
+                <div className="flex justify-center mb-2">
+                  <Shield className="h-6 w-6 text-mbusi-red-600" />
+                </div>
+                <div className="text-2xl md:text-3xl font-bold text-mbusi-red-600">
+                  24/7
+                </div>
+                <div className="text-sm text-gray-500">
+                  Customer support
+                </div>
+              </div>
             </div>
           </div>
           
