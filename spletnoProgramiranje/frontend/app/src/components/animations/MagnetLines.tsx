@@ -5,7 +5,8 @@ import "./MagnetLines.css";
 interface MagnetLinesProps {
   rows?: number;
   columns?: number;
-  containerSize?: string;
+  containerWidth?: string;
+  containerHeight?: string;
   lineColor?: string;
   lineWidth?: string;
   lineHeight?: string;
@@ -17,7 +18,8 @@ interface MagnetLinesProps {
 const MagnetLines: React.FC<MagnetLinesProps> = ({
   rows = 9,
   columns = 9,
-  containerSize = "80vmin",
+  containerWidth = "80vmin",
+  containerHeight = "150vmin",
   lineColor = "#efefef",
   lineWidth = "1vmin",
   lineHeight = "6vmin",
@@ -92,8 +94,8 @@ const MagnetLines: React.FC<MagnetLinesProps> = ({
         display: "grid",
         gridTemplateColumns: `repeat(${columns}, 1fr)`,
         gridTemplateRows: `repeat(${rows}, 1fr)`,
-        width: containerSize,
-        height: containerSize,
+        width: containerWidth,
+        height: containerHeight,
         ...style,
       }}
     >
