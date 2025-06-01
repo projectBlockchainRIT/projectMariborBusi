@@ -18,6 +18,8 @@ func main() {
 		maxIdleTime:        env.GetString("DB_MAX_IDLE_TIME", "15m"),
 	}
 
+	// fmt.Printf(cfg.addr)
+
 	db, err := db.New(cfg.addr, cfg.maxOpenConnections, cfg.maxIdleConnections, cfg.maxIdleTime)
 
 	if err != nil {

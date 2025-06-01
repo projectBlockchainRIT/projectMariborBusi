@@ -90,6 +90,7 @@ func (app *app) routesListHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// FIX THIS BRUH
 func (app *app) getRealtimeLine(w http.ResponseWriter, r *http.Request) {
 	// Upgrade the HTTP connection to a WebSocket connection
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -133,5 +134,23 @@ func (app *app) getRealtimeLine(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+	}
+}
+
+func (app *app) getActiveRoutes(w http.ResponseWriter, r *http.Request) {
+	var activeRoutes int
+	ctx := r.Context()
+
+	activeRoutes, err := app.store.Routes.ReadActiveLines(ctx)
+
+	if err != nil {
+		//fmt.Print("tu notri lol")
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if err := utils.WriteJSONResponse(w, http.StatusOK, activeRoutes); err != nil {
+		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 }
