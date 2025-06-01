@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Bus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -13,6 +15,15 @@ const Register = () => {
   };
 
   return (
+    <>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between">
+          <Link to="/" className="flex items-center">
+            <Bus className="h-8 w-8 text-mbusi-red-600" />
+            <span className="ml-2 text-2xl font-bold text-mbusi-red-600">M-busi</span>
+          </Link>
+        </div>
+      </div>
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
@@ -150,6 +161,7 @@ const Register = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
