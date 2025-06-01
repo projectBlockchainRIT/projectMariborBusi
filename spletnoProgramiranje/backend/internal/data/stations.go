@@ -35,8 +35,21 @@ type Location struct {
 	Radius    int     `json:"radius"`
 }
 
+type PathLocation struct {
+	DestinationLatitude  float64 `json:"destination_latitude"`
+	DestinationLongitude float64 `json:"destination_longitude"`
+	LocationLatitude     float64 `json:"location_latitude"`
+	LocationLongitude    float64 `json:"location_longitude"`
+}
+
 type StopStorage struct {
 	db *sql.DB
+}
+
+type Line struct {
+	ID       int    `json:"id"`
+	LineCode string `json:"line_code"`
+	Name     string `json:"name"`
 }
 
 func (s *StopStorage) ReadStation(ctx context.Context, id int64) (*Stop, error) {
@@ -187,6 +200,128 @@ func (s *StopStorage) ReadStationsCloseBy(ctx context.Context, payload *Location
     `
 
 	rows, err := s.db.QueryContext(ctx, query, payload.Longitude, payload.Latitude, payload.Radius)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var stops []Stop
+	for rows.Next() {
+		var stop Stop
+		err := rows.Scan(&stop.ID, &stop.Number, &stop.Name, &stop.Latitude, &stop.Longitude)
+		if err != nil {
+			return nil, err
+		}
+		stops = append(stops, stop)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	if len(stops) == 0 {
+		return []Stop{}, nil
+	}
+
+	return stops, nil
+}
+
+func (s *StopStorage) ReadThreeStationsAtDestination(ctx context.Context, payload *PathLocation) ([]Stop, error) {
+	query := `
+        SELECT id, number, name, latitude, longitude
+		FROM stops
+		ORDER BY
+			geom <-> ST_SetSRID(ST_MakePoint($1, $2), 4326)
+		LIMIT 3;
+    `
+
+	rows, err := s.db.QueryContext(ctx, query, payload.DestinationLongitude, payload.DestinationLatitude)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var stops []Stop
+	for rows.Next() {
+		var stop Stop
+		err := rows.Scan(&stop.ID, &stop.Number, &stop.Name, &stop.Latitude, &stop.Longitude)
+		if err != nil {
+			return nil, err
+		}
+		stops = append(stops, stop)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	if len(stops) == 0 {
+		return []Stop{}, nil
+	}
+
+	return stops, nil
+}
+
+func (s *StopStorage) ReadStationLines(ctx context.Context, stops []Stop) ([]Line, error) {
+	var lines []Line
+
+	fmt.Print("sem tu notri")
+
+	for _, stop := range stops {
+
+		query := `
+			SELECT DISTINCT l.id, l.line_code, d.name
+			FROM lines l
+			LEFT JOIN directions d ON l.id = d.line_id
+			LEFT JOIN departures dep ON dep.direction_id = d.id
+			WHERE dep.stop_id = $1
+		`
+
+		rows, err := s.db.QueryContext(ctx, query, stop.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		defer rows.Close()
+
+		for rows.Next() {
+			var line Line
+			err := rows.Scan(&line.ID, &line.LineCode, &line.Name)
+			if err != nil {
+				return nil, err
+			}
+			lines = append(lines, line)
+		}
+
+		if err = rows.Err(); err != nil {
+			return nil, err
+		}
+	}
+
+	if len(lines) == 0 {
+		return []Line{}, nil
+	}
+
+	return lines, nil
+}
+
+func (s *StopStorage) ReadThreeStationsAtLocation(ctx context.Context, payload *PathLocation, lines []Line) ([]Stop, error) {
+
+	// for _, line := range lines {
+	//
+	// }
+
+	query := `
+        SELECT id, number, name, latitude, longitude
+		FROM stops
+		ORDER BY
+			geom <-> ST_SetSRID(ST_MakePoint($1, $2), 4326)
+		LIMIT 3;
+    `
+
+	rows, err := s.db.QueryContext(ctx, query, payload.DestinationLongitude, payload.DestinationLatitude)
 	if err != nil {
 		return nil, err
 	}

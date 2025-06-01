@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 )
 
 type app struct {
@@ -30,6 +31,12 @@ type dbConfig struct {
 
 func (app *app) mount() http.Handler {
 	r := chi.NewRouter()
+
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{"http://localhost:5173"},
+		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders: []string{"Accept", "Content-Type"},
+	}))
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
@@ -54,12 +61,17 @@ func (app *app) mount() http.Handler {
 			r.Get("/{lineId}", app.getRouteOfLineHandler)              // fetch the route of a specifc line based on the id
 			r.Get("/stations/{lineId}", app.getStationsOnRouteHandler) // fetch all stops that appear on this route
 			r.Get("/list", app.routesListHandler)                      // fetch all routes to display entire bus coverage on the map
-			r.Get("/simulate/{lineId}", app.getRealtimeLine)
+			r.Get("/simulate/{lineId}", app.getRealtimeLine)           // simulates an estimate of current bus locations through the city
+			r.Get("/active", app.getActiveRoutes)                      // fetch all of the currently active routes
 		})
 
 		r.Route("/authentication", func(r chi.Router) {
 			r.Post("/register", app.usersResgisterUser) // creating a new user
 			r.Post("/login", app.usersLoginUser)        // logging in an existing user
+		})
+
+		r.Route("/show", func(r chi.Router) {
+			r.Post("/shortest", app.getShortestPath) // finds the most optimal path to he desired location
 		})
 	})
 
