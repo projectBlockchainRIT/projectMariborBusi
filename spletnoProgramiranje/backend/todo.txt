@@ -46,7 +46,7 @@ danes za narediti:
     - pogledni si ovo, kej je chatgpt recommenda pa naredi step by step
     - te pa naredi neki seznam vseh linij, toti seznami majo lehko tudi vec seznamov notri
     - naredi, da se asinhrono toti seznam vedno posodabla. naredi mutexe al kej pac GO ma
-      in te pa anredi funkcijo, ki ob api callu dostopa do totega seznama, tudi z mutexi in vun vzame trenutno lokacijo
+      in te pa anredi funkcijo, ki ob api callu dostopa do totega seznam3a, tudi z mutexi in vun vzame trenutno lokacijo
 
 
 - api endpoints za blaza
@@ -54,7 +54,25 @@ danes za narediti:
 
 - ce bo cas, delej frontend za login pa to
 
-- api endpoint, ki pogledne keri avtobusi so aktivni right now
 
 
 
+
+
+todo danes:
+- dodatna dokumentacija s swagger (to nejbol vecer, spodnji dve funkciji sta ti pomembnejši)
+
+- narediti za nejhitrejsa pot do cilja od trenutne lokacije
+    - nejprej pridobis 3 nejbljizje postaje zeljene lokacije
+    - poglednes, keri directioni vozijo do teh postaj (vzemi direction)
+    - poglednes, kere 3 postaje s totimi routi so nejbljizje uporabnikovi lokaciji
+    - preveris case odhoda za tote specificne route na totih postajah
+    - te pa vse matche izpises
+    - lehko te potli tudi naredis na frontend, ka ti kaze ki se ti nahajas relativno od tote zeljene postaje
+
+    - potli naredi se, ka preveris ce je lokacija prevec vun iz maribora
+
+za frontend:
+    - registracija
+    - login
+    - to vse za map
