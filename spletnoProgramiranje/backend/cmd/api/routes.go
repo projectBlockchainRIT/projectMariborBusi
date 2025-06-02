@@ -19,6 +19,15 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+//	@Summary		Get route of line
+//	@Description	Get the route path for a specific bus line
+//	@Tags			routes
+//	@Accept			json
+//	@Produce		json
+//	@Param			lineId	path		int	true	"Line ID"
+//	@Success		200		{object}	data.Route
+//	@Failure		500		{object}	utils.ErrorResponse
+//	@Router			/routes/{lineId} [get]
 func (app *app) getRouteOfLineHandler(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "lineId")
 	lineId, err := strconv.ParseInt(idParam, 10, 64)
@@ -45,6 +54,15 @@ func (app *app) getRouteOfLineHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//	@Summary		Get stations on route
+//	@Description	Get all stops that appear on a specific route
+//	@Tags			routes
+//	@Accept			json
+//	@Produce		json
+//	@Param			lineId	path		int	true	"Line ID"
+//	@Success		200		{array}		data.Stop
+//	@Failure		500		{object}	utils.ErrorResponse
+//	@Router			/routes/stations/{lineId} [get]
 func (app *app) getStationsOnRouteHandler(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "lineId")
 	lineId, err := strconv.ParseInt(idParam, 10, 64)
@@ -71,6 +89,14 @@ func (app *app) getStationsOnRouteHandler(w http.ResponseWriter, r *http.Request
 
 }
 
+//	@Summary		Get routes list
+//	@Description	Get all bus routes to display coverage on map
+//	@Tags			routes
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{array}		data.Route
+//	@Failure		500	{object}	utils.ErrorResponse
+//	@Router			/routes/list [get]
 func (app *app) routesListHandler(w http.ResponseWriter, r *http.Request) {
 	var routes []data.Route
 	ctx := r.Context()
@@ -90,7 +116,15 @@ func (app *app) routesListHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// FIX THIS BRUH
+//	@Summary		Get realtime line location
+//	@Description	Get realtime bus locations through websocket connection
+//	@Tags			routes
+//	@Accept			json
+//	@Produce		json
+//	@Param			lineId	path		int		true	"Line ID"
+//	@Success		101		{string}	string	"Switching to WebSocket protocol"
+//	@Failure		400		{object}	utils.ErrorResponse
+//	@Router			/routes/simulate/{lineId} [get]
 func (app *app) getRealtimeLine(w http.ResponseWriter, r *http.Request) {
 	// Upgrade the HTTP connection to a WebSocket connection
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -137,6 +171,14 @@ func (app *app) getRealtimeLine(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//	@Summary		Get active routes
+//	@Description	Get all currently active bus routes
+//	@Tags			routes
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{integer}	int
+//	@Failure		500	{object}	utils.ErrorResponse
+//	@Router			/routes/active [get]
 func (app *app) getActiveRoutes(w http.ResponseWriter, r *http.Request) {
 	var activeRoutes int
 	ctx := r.Context()
