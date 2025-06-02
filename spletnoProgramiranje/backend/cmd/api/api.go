@@ -6,9 +6,12 @@ import (
 	"net/http"
 	"time"
 
+	"backend/docs"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	httpSwagger "github.com/swaggo/http-swagger/v2" // http-swagger middleware
 )
 
 type app struct {
@@ -20,6 +23,7 @@ type config struct {
 	address string
 	db      dbConfig
 	env     string
+	apiURL  string
 }
 
 type dbConfig struct {
@@ -50,6 +54,9 @@ func (app *app) mount() http.Handler {
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/health", app.WithJWTAuth(app.healthCheckHandler))
 
+		docsURL := fmt.Sprintf("%s/swagger/doc.json", app.serverConfig.address)
+		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
+
 		r.Route("/stations", func(r chi.Router) {
 			r.Get("/list", app.stationsListHandler)               // fetch a list of basic station data for displaying a list
 			r.Get("/location/{stationId}", app.getStationHandler) // fetch geolocation data of a station
@@ -79,6 +86,10 @@ func (app *app) mount() http.Handler {
 }
 
 func (app *app) run(mux http.Handler) error {
+	// Docs
+	docs.SwaggerInfo.Version = version
+	docs.SwaggerInfo.Host = app.serverConfig.apiURL
+	docs.SwaggerInfo.BasePath = "/v1"
 
 	server := &http.Server{
 		Addr:         app.serverConfig.address,
