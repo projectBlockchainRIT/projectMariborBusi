@@ -10,6 +10,7 @@ import CTA from './components/CTA';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Map from './components/map/Map';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 function App() {
   return (

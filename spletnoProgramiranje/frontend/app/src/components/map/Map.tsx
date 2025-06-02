@@ -44,7 +44,7 @@ const Map = () => {
             </button>
           </div>
 
-          <div className="flex-1 overflow-hidden">
+          <div className="h-screen w-screen sm:p-3 bg-gray-100">
             <MapView />
           </div>
         </main>
