@@ -8,6 +8,15 @@ import (
 	"net/http"
 )
 
+//	@Summary		Register a new user
+//	@Description	Register a new user with username, email and password
+//	@Tags			authentication
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		data.RegisterUserPayload	true	"User registration data"
+//	@Success		201		{object}	nil
+//	@Failure		500		{object}	utils.ErrorResponse
+//	@Router			/authentication/register [post]
 func (app *app) usersResgisterUser(w http.ResponseWriter, r *http.Request) {
 	/*
 		{
@@ -68,6 +77,16 @@ func (app *app) usersResgisterUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//	@Summary		Login user
+//	@Description	Login with email and password to get JWT token
+//	@Tags			authentication
+//	@Accept			json
+//	@Produce		json
+//	@Param			credentials	body		data.LoginUserPayload	true	"Login credentials"
+//	@Success		200			{object}	map[string]string
+//	@Failure		400			{object}	utils.ErrorResponse
+//	@Failure		500			{object}	utils.ErrorResponse
+//	@Router			/authentication/login [post]
 func (app *app) usersLoginUser(w http.ResponseWriter, r *http.Request) {
 	/*
 		{
