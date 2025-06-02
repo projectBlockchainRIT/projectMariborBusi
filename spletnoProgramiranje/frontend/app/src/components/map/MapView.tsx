@@ -16,16 +16,6 @@ interface TestLocation {
   description: string;
 }
 
-const TEST_LOCATIONS: TestLocation[] = [
-  { name: "Innsbruck", coords: [11.4041, 47.2692], zoom: 12, description: "Alpine valley city" },
-  { name: "San Francisco", coords: [-122.4194, 37.7749], zoom: 11, description: "Hills and bay" },
-  { name: "Denver", coords: [-104.9903, 39.7392], zoom: 10, description: "Rocky Mountains" },
-  { name: "Zermatt", coords: [7.7491, 46.0207], zoom: 13, description: "Near Matterhorn" },
-  { name: "Salt Lake City", coords: [-111.8910, 40.7608], zoom: 10, description: "Wasatch Range" },
-  { name: "Vancouver", coords: [-123.1207, 49.2827], zoom: 10, description: "Coast Mountains" },
-  { name: "Rio de Janeiro", coords: [-43.1729, -22.9068], zoom: 11, description: "Coastal mountains" },
-  { name: "Cape Town", coords: [18.4241, -33.9249], zoom: 11, description: "Table Mountain" }
-];
 
 const MAP_STYLES: MapStyle[] = [
   { name: 'Streets', styleId: 'mapbox://styles/mapbox/streets-v12', description: 'Default streets view' },
