@@ -11,6 +11,7 @@ import {
   MoonIcon,
   MapIcon
 } from '@heroicons/react/24/outline';
+import InteractiveMapControls from './InteractiveMapControls';
 
 interface NavItem {
   name: string;
@@ -104,17 +105,7 @@ export default function Sidebar({ isDarkMode, toggleDarkMode, isAuthenticated, i
 
       {/* Interactive Map Sidebar */}
       {isInteractiveMapOpen && (
-        <div className="w-64 bg-white dark:bg-gray-800 shadow-lg border-l border-gray-200 dark:border-gray-700">
-          <div className="p-4">
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-              Interactive Map Controls
-            </h2>
-            {/* Add your interactive map controls here */}
-            <div className="text-gray-500 dark:text-gray-400">
-              Interactive map controls will be implemented here
-            </div>
-          </div>
-        </div>
+        <InteractiveMapControls />
       )}
     </div>
   );
