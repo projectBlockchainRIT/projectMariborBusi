@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   TruckIcon,
@@ -11,7 +10,6 @@ import {
   MoonIcon,
   MapIcon
 } from '@heroicons/react/24/outline';
-import InteractiveMapControls from './InteractiveMapControls';
 
 interface NavItem {
   name: string;
@@ -38,7 +36,6 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isDarkMode, toggleDarkMode, isAuthenticated, isAdmin }: SidebarProps) {
-  const [isInteractiveMapOpen, setIsInteractiveMapOpen] = useState(false);
   const location = useLocation();
 
   const filteredNavItems = navItems.filter(item => {
@@ -48,65 +45,51 @@ export default function Sidebar({ isDarkMode, toggleDarkMode, isAuthenticated, i
   });
 
   return (
-    <div className="flex h-screen">
-      {/* Main Sidebar */}
-      <div className="w-16 bg-white dark:bg-gray-800 shadow-lg flex flex-col items-center py-4">
-        <div className="flex-1 flex flex-col items-center space-y-4">
-          {filteredNavItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={`p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg group relative ${
-                location.pathname === item.href ? 'bg-gray-100 dark:bg-gray-700' : ''
-              }`}
-              onClick={(e) => {
-                if (item.name === 'Interactive Map') {
-                  e.preventDefault();
-                  setIsInteractiveMapOpen(!isInteractiveMapOpen);
-                }
-              }}
-            >
-              <item.icon className="w-6 h-6" />
-              <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                {item.name}
-              </span>
-            </Link>
-          ))}
-        </div>
-
-        <div className="flex flex-col items-center space-y-4">
-          <button
-            onClick={toggleDarkMode}
-            className="p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg group relative"
-          >
-            {isDarkMode ? (
-              <SunIcon className="w-6 h-6" />
-            ) : (
-              <MoonIcon className="w-6 h-6" />
-            )}
-            <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-              {isDarkMode ? 'Light Mode' : 'Dark Mode'}
-            </span>
-          </button>
-
+    <div className="w-16 bg-white dark:bg-gray-800 shadow-lg flex flex-col items-center py-4">
+      <div className="flex-1 flex flex-col items-center space-y-4">
+        {filteredNavItems.map((item) => (
           <Link
-            to="/about"
+            key={item.name}
+            to={item.href}
             className={`p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg group relative ${
-              location.pathname === '/about' ? 'bg-gray-100 dark:bg-gray-700' : ''
+              location.pathname === item.href ? 'bg-gray-100 dark:bg-gray-700' : ''
             }`}
           >
-            <InformationCircleIcon className="w-6 h-6" />
+            <item.icon className="w-6 h-6" />
             <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-              About
+              {item.name}
             </span>
           </Link>
-        </div>
+        ))}
       </div>
 
-      {/* Interactive Map Sidebar */}
-      {isInteractiveMapOpen && (
-        <InteractiveMapControls />
-      )}
+      <div className="flex flex-col items-center space-y-4">
+        <button
+          onClick={toggleDarkMode}
+          className="p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg group relative"
+        >
+          {isDarkMode ? (
+            <SunIcon className="w-6 h-6" />
+          ) : (
+            <MoonIcon className="w-6 h-6" />
+          )}
+          <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+          </span>
+        </button>
+
+        <Link
+          to="/about"
+          className={`p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg group relative ${
+            location.pathname === '/about' ? 'bg-gray-100 dark:bg-gray-700' : ''
+          }`}
+        >
+          <InformationCircleIcon className="w-6 h-6" />
+          <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            About
+          </span>
+        </Link>
+      </div>
     </div>
   );
 } 
