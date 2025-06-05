@@ -1,26 +1,12 @@
-import { Route, Routes } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
-import RealTimeSim from './pages/RealTimeSim';
-import InteractiveMap from './pages/InteractiveMap';
-import BusDensity from './pages/BusDensity';
-import About from './pages/About';
+import DashboardLayout from './components/layout/DashboardLayout';
+import Map from './components/Map';
 
-const App = () => {
+function App() {
   return (
-    <div className="flex min-h-screen">
-      <Sidebar />
-
-      {/* Glavna vsebina */}
-      <div className="flex-1 p-8">
-        <Routes>
-          <Route path="/" element={<RealTimeSim />} />
-          <Route path="/map" element={<InteractiveMap />} />
-          <Route path="/density" element={<BusDensity />} />
-          <Route path="/about" element={<About />} />
-        </Routes>
-      </div>
-    </div>
+    <DashboardLayout>
+      <Map />
+    </DashboardLayout>
   );
-};
+}
 
 export default App;
