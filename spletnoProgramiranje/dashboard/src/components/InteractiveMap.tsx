@@ -1,9 +1,9 @@
 import MapboxMap from './MapboxMap';
 
-export default function Map() {
+export default function InteractiveMap() {
   return (
     <div className="w-full h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-      <MapboxMap />
+      <MapboxMap isInteractive={true} />
     </div>
   );
 } 

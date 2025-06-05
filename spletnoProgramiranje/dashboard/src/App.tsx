@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Map from './components/Map';
+import InteractiveMap from './components/InteractiveMap';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
@@ -16,7 +17,7 @@ function App() {
             <DashboardLayout>
               <Routes>
                 <Route path="/" element={<Map />} />
-                <Route path="/interactive-map" element={<div>Interactive Map</div>} />
+                <Route path="/interactive-map" element={<InteractiveMap />} />
                 <Route path="/graphs" element={<div>Graphs</div>} />
                 <Route path="/settings" element={<div>Settings</div>} />
                 <Route path="/admin" element={<div>Admin Panel</div>} />
