@@ -5,11 +5,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 // Set your Mapbox access token
 mapboxgl.accessToken = 'pk.eyJ1IjoiYml0LWJhbmRpdCIsImEiOiJjbWJldzQyM28wNXRmMmlzaDhleWkwNXllIn0.CcdSzZ3I4zYYe4XXeUEItQ';
 
-interface MapboxMapProps {
-  isInteractive?: boolean;
-}
-
-export default function MapboxMap({ isInteractive = false }: MapboxMapProps) {
+export default function RealTimeMapBox() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
 
