@@ -25,7 +25,7 @@ const navItems: NavItem[] = [
   { name: 'Graphs', icon: ChartBarIcon, href: '/graphs', requiresAuth: true },
   { name: 'Settings', icon: Cog6ToothIcon, href: '/settings', requiresAuth: true },
   { name: 'Admin Panel', icon: ShieldCheckIcon, href: '/admin', requiresAuth: true, requiresAdmin: true },
-  { name: 'Login', icon: UserIcon, href: '/login' },
+  { name: 'Login', icon: UserIcon, href: '/login', },
 ];
 
 interface SidebarProps {
@@ -38,9 +38,11 @@ interface SidebarProps {
 export default function Sidebar({ isDarkMode, toggleDarkMode, isAuthenticated, isAdmin }: SidebarProps) {
   const location = useLocation();
 
+
   const filteredNavItems = navItems.filter(item => {
     if (!isAuthenticated && item.requiresAuth) return false;
     if (!isAdmin && item.requiresAdmin) return false;
+    if (isAuthenticated && item.name === 'Login') return false;
     return true;
   });
 
