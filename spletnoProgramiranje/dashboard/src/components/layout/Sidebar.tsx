@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   TruckIcon,
   UserIcon,
@@ -37,6 +38,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isDarkMode, toggleDarkMode, isAuthenticated, isAdmin }: SidebarProps) {
   const [isInteractiveMapOpen, setIsInteractiveMapOpen] = useState(false);
+  const location = useLocation();
 
   const filteredNavItems = navItems.filter(item => {
     if (!isAuthenticated && item.requiresAuth) return false;
@@ -50,10 +52,12 @@ export default function Sidebar({ isDarkMode, toggleDarkMode, isAuthenticated, i
       <div className="w-16 bg-white dark:bg-gray-800 shadow-lg flex flex-col items-center py-4">
         <div className="flex-1 flex flex-col items-center space-y-4">
           {filteredNavItems.map((item) => (
-            <a
+            <Link
               key={item.name}
-              href={item.href}
-              className="p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg group relative"
+              to={item.href}
+              className={`p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg group relative ${
+                location.pathname === item.href ? 'bg-gray-100 dark:bg-gray-700' : ''
+              }`}
               onClick={(e) => {
                 if (item.name === 'Interactive Map') {
                   e.preventDefault();
@@ -65,7 +69,7 @@ export default function Sidebar({ isDarkMode, toggleDarkMode, isAuthenticated, i
               <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                 {item.name}
               </span>
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -84,15 +88,17 @@ export default function Sidebar({ isDarkMode, toggleDarkMode, isAuthenticated, i
             </span>
           </button>
 
-          <a
-            href="/about"
-            className="p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg group relative"
+          <Link
+            to="/about"
+            className={`p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg group relative ${
+              location.pathname === '/about' ? 'bg-gray-100 dark:bg-gray-700' : ''
+            }`}
           >
             <InformationCircleIcon className="w-6 h-6" />
             <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
               About
             </span>
-          </a>
+          </Link>
         </div>
       </div>
 
