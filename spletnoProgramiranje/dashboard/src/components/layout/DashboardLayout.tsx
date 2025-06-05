@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Sidebar from './Sidebar';
+import { useUser } from '../../context/UserContext';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -7,8 +8,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { isAuthenticated, isAdmin } = useUser();
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -30,4 +30,4 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </main>
     </div>
   );
-} 
+}

@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Logo from '../components/Logo';
+import { useUser } from '../context/UserContext';
 
 export default function Login() {
+  const { setIsAuthenticated } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -29,6 +31,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     }
 
     if (response.ok) {
+      setIsAuthenticated(true);
       navigate('/');
       console.log('Login successful:', data);
     } else {
