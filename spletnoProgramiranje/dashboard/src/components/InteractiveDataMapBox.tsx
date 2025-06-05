@@ -1,7 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { createRoot } from 'react-dom/client';
 import mapboxgl, { Map, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import type { Station } from '../types/station';
+import EventMarker from './EventMarker';
 
 // Set your Mapbox access token
 mapboxgl.accessToken = 'pk.eyJ1IjoiYml0LWJhbmRpdCIsImEiOiJjbWJldzQyM28wNXRmMmlzaDhleWkwNXllIn0.CcdSzZ3I4zYYe4XXeUEItQ';
@@ -177,14 +179,17 @@ export default function InteractiveDataMapBox({ onMapLoad, onStationClick }: Int
 
           console.log('Creating marker for station:', station);
 
+          // Create a container for the marker
           const el = document.createElement('div');
           el.className = 'station-marker';
-          el.style.width = '20px';
-          el.style.height = '20px';
-          el.style.backgroundColor = '#3B82F6';
-          el.style.borderRadius = '50%';
-          el.style.border = '2px solid white';
-          el.style.cursor = 'pointer';
+          
+          // Render the EventMarker component into the container
+          const markerElement = document.createElement('div');
+          el.appendChild(markerElement);
+          
+          // Create a React root and render the EventMarker
+          const root = createRoot(markerElement);
+          root.render(<EventMarker />);
 
           const marker = new mapboxgl.Marker(el)
             .setLngLat([station.longitude, station.latitude])
