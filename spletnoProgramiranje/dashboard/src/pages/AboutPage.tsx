@@ -7,6 +7,7 @@ import {
   ChartBarIcon,
   ShieldCheckIcon
 } from '@heroicons/react/24/outline';
+import { useTheme } from '../context/ThemeContext';
 
 const teamMembers = [
   {
@@ -53,29 +54,18 @@ const values = [
 ];
 
 export default function AboutPage() {
+  const { isDarkMode } = useTheme();
+  
   return (
-    <div className="bg-white dark:bg-slate-900">
+    <div className={`${isDarkMode ? 'bg-slate-900 text-white' : 'bg-white text-gray-900'}`}>
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#8B0000] to-[#4A0000]">
-        <div className="absolute inset-0 bg-black/30"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+      <section className="relative overflow-hidden bg-blue-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
           <div className="text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="mb-8"
-            >
-              <img 
-                src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2a/b5/2a/9c/caption.jpg?w=1200&h=-1&s=1" 
-                alt="Maribor bus" 
-                className="w-32 h-32 mx-auto rounded-full object-cover border-4 border-white/20"
-              />
-            </motion.div>
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+              transition={{ duration: 0.5 }}
               className="text-4xl md:text-6xl font-bold text-white mb-6"
             >
               About m-busi
@@ -83,30 +73,17 @@ export default function AboutPage() {
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="text-xl text-white/90 mb-8 max-w-3xl mx-auto"
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto"
             >
               Transforming public transportation in Maribor through innovation and technology
             </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="flex justify-center gap-4"
-            >
-              <div className="px-4 py-2 bg-white/10 rounded-full text-white text-sm">
-                Powered by Marprom
-              </div>
-              <div className="px-4 py-2 bg-white/10 rounded-full text-white text-sm">
-                Digital Twin Initiative
-              </div>
-            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Mission Section */}
-      <section className="py-20">
+      <section className={`py-20 ${isDarkMode ? 'bg-slate-900' : 'bg-white'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -114,15 +91,15 @@ export default function AboutPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+              <h2 className={`text-3xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Our Mission
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+              <p className={`text-lg mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 At m-busi, we're dedicated to revolutionizing public transportation in Maribor. 
                 Our mission is to make public transport more accessible, efficient, and user-friendly 
                 through innovative technology solutions.
               </p>
-              <p className="text-lg text-gray-600 dark:text-gray-300">
+              <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 We believe that reliable public transportation is essential for a sustainable and 
                 connected city. By providing real-time information and smart routing solutions, 
                 we're helping residents and visitors navigate Maribor with confidence and ease.
@@ -145,13 +122,13 @@ export default function AboutPage() {
       </section>
 
       {/* Values Section */}
-      <section className="py-20 bg-gray-50 dark:bg-slate-800">
+      <section className={`py-20 ${isDarkMode ? 'bg-slate-800' : 'bg-gray-50'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className={`text-3xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               Our Values
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
+            <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               The principles that guide our work
             </p>
           </div>
@@ -163,13 +140,13 @@ export default function AboutPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white dark:bg-slate-700 p-6 rounded-xl shadow-sm"
+                className={`p-6 rounded-xl shadow-sm ${isDarkMode ? 'bg-slate-700' : 'bg-white'}`}
               >
                 <value.icon className="w-12 h-12 text-blue-600 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                <h3 className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   {value.title}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   {value.description}
                 </p>
               </motion.div>
@@ -179,13 +156,13 @@ export default function AboutPage() {
       </section>
 
       {/* Team Section */}
-      <section className="py-20">
+      <section className={`py-20 ${isDarkMode ? 'bg-slate-900' : 'bg-white'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className={`text-3xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               Meet Our Team
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
+            <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               The people behind m-busi
             </p>
           </div>
@@ -197,7 +174,7 @@ export default function AboutPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white dark:bg-slate-700 rounded-xl overflow-hidden shadow-sm"
+                className={`rounded-xl overflow-hidden shadow-sm ${isDarkMode ? 'bg-slate-700' : 'bg-white'}`}
               >
                 <img
                   src={member.image}
@@ -205,13 +182,13 @@ export default function AboutPage() {
                   className="w-full h-64 object-cover"
                 />
                 <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">
+                  <h3 className={`text-xl font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     {member.name}
                   </h3>
-                  <p className="text-blue-600 dark:text-blue-400 mb-4">
+                  <p className={`mb-4 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
                     {member.role}
                   </p>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     {member.bio}
                   </p>
                 </div>
@@ -222,13 +199,13 @@ export default function AboutPage() {
       </section>
 
       {/* Contact Section */}
-      <section className="py-20 bg-gray-50 dark:bg-slate-800">
+      <section className={`py-20 ${isDarkMode ? 'bg-slate-800' : 'bg-gray-50'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className={`text-3xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               Get in Touch
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+            <p className={`text-lg mb-8 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               Have questions or suggestions? We'd love to hear from you.
             </p>
             <button className="px-8 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
@@ -239,4 +216,4 @@ export default function AboutPage() {
       </section>
     </div>
   );
-} 
+}

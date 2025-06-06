@@ -7,34 +7,52 @@ import Register from './pages/Register';
 import Graphs from './pages/Graphs';
 import AboutPage from './pages/AboutPage';
 import { UserProvider } from './context/UserContext';
+import { ThemeProvider } from './context/ThemeContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
-
-
   return (
-    <UserProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route
-            path="/*"
-            element={
-              <DashboardLayout>
-                <Routes>
-                  <Route path="/" element={<Map />} />
-                  <Route path="/interactive-map" element={<InteractiveMap />} />
-                  <Route path="/graphs" element={<Graphs />} />
-                  <Route path="/settings" element={<div>Settings</div>} />
-                  <Route path="/admin" element={<div>Admin Panel</div>} />
-                  <Route path="/about" element={<AboutPage />} />
-                </Routes>
-              </DashboardLayout>
-            }
-          />
-        </Routes>
-      </Router>
-    </UserProvider>
+    <ThemeProvider>
+      <UserProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/*"
+              element={
+                <DashboardLayout>
+                  <Routes>
+                    <Route path="/" element={<Map />} />
+                    <Route path="/interactive-map" element={
+                      <ProtectedRoute>
+                        <InteractiveMap />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/graphs" element={
+                      <ProtectedRoute>
+                        <Graphs />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/settings" element={
+                      <ProtectedRoute>
+                        <div>Settings</div>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/admin" element={
+                      <ProtectedRoute requireAdmin>
+                        <div>Admin Panel</div>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/about" element={<AboutPage />} />
+                  </Routes>
+                </DashboardLayout>
+              }
+            />
+          </Routes>
+        </Router>
+      </UserProvider>
+    </ThemeProvider>
   );
 }
 

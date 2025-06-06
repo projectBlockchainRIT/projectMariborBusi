@@ -1,25 +1,22 @@
-import { useState } from 'react';
 import Sidebar from './Sidebar';
 import { useUser } from '../../context/UserContext';
+import { useTheme } from '../../context/ThemeContext';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const { isAuthenticated, isAdmin } = useUser();
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
-  };
+  const { isDarkMode } = useTheme();
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+    <div className={`flex h-screen transition-colors duration-200 ${
+      isDarkMode 
+        ? 'bg-gray-900 text-white' 
+        : 'bg-gray-50 text-gray-900'
+    }`}>
       <Sidebar 
-        isDarkMode={isDarkMode} 
-        toggleDarkMode={toggleDarkMode}
         isAuthenticated={isAuthenticated}
         isAdmin={isAdmin}
       />
