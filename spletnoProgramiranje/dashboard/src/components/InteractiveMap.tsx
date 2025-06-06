@@ -1,16 +1,29 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import InteractiveDataMapBox from './InteractiveDataMapBox';
 import InteractiveMapControls from './layout/InteractiveMapControls';
-import type { Map } from 'mapbox-gl';
-import type { Station } from '../types/station';
+import type { Map as MapboxMap } from 'mapbox-gl';
+import mapboxgl from 'mapbox-gl';
+import type { Station, Route } from '../types/station';
+
+// Function to generate a random color
+const getRandomColor = () => {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};
 
 export default function InteractiveMap() {
-  const [mapInstance, setMapInstance] = useState<Map | null>(null);
+  const [mapInstance, setMapInstance] = useState<MapboxMap | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [stations, setStations] = useState<Station[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
+  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
+  const [routeColors] = useState<Map<number, string>>(new Map());
 
   // Fetch initial station list
   useEffect(() => {
@@ -77,11 +90,146 @@ export default function InteractiveMap() {
     };
   }, []);
 
-  const handleMapLoad = useCallback((map: Map) => {
+  const handleMapLoad = useCallback((map: MapboxMap) => {
     console.log('Map loaded in InteractiveMap');
     setMapInstance(map);
     setIsMapLoaded(true);
   }, []);
+
+  const handleRouteSelect = useCallback(async (routeId: number) => {
+  if (!mapInstance) return;
+
+  try {
+    setLoading(true);
+    
+    const response = await fetch(`http://localhost:8080/v1/routes/${routeId}`, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch route: ${response.status} ${response.statusText}`);
+    }
+
+    const rawData = await response.json();
+    console.log('Raw route data received:', rawData);
+    
+    const routeData = rawData.data || rawData;
+    console.log('Processed route data:', routeData);
+    setSelectedRoute(routeData);
+
+    if (mapInstance.getLayer('route-line')) {
+      mapInstance.removeLayer('route-line');
+    }
+    if (mapInstance.getSource('route')) {
+      mapInstance.removeSource('route');
+    }
+
+    if (!routeColors.has(routeId)) {
+      routeColors.set(routeId, getRandomColor());
+    }
+    const routeColor = routeColors.get(routeId);
+
+    let coordinates = null;
+    
+    if (routeData.path && Array.isArray(routeData.path) && routeData.path.length > 0) {
+      console.log('Found path property with data');
+      const firstPoint = routeData.path[0];
+      
+      // Slovenia is around latitude 46°N and longitude 15°E
+      // If our first coordinate has values like [46.xx, 15.xx], we need to swap them
+      // because Mapbox expects [longitude, latitude] format
+      if (Array.isArray(firstPoint) && firstPoint.length === 2) {
+        // Check if the first value looks like Slovenia's latitude (around 46°)
+        if (firstPoint[0] > 45 && firstPoint[0] < 47) {
+          console.log('Coordinates are in [lat, lng] format, swapping to [lng, lat]');
+          coordinates = routeData.path.map(point => [point[1], point[0]]);
+        } else {
+          coordinates = routeData.path;
+        }
+      } else if (typeof firstPoint === 'object') {
+        if ('lat' in firstPoint && 'lng' in firstPoint) {
+          coordinates = routeData.path.map(point => [point.lng, point.lat]);
+        } else if ('latitude' in firstPoint && 'longitude' in firstPoint) {
+          coordinates = routeData.path.map(point => [point.longitude, point.latitude]);
+        }
+      }
+    } else if (routeData.coordinates) {
+      coordinates = routeData.coordinates;
+      // Check if these also need swapping
+      if (coordinates.length > 0 && Array.isArray(coordinates[0]) && 
+          coordinates[0].length === 2 && coordinates[0][0] > 45 && coordinates[0][0] < 47) {
+        coordinates = coordinates.map(point => [point[1], point[0]]);
+      }
+    } else if (routeData.geometry && routeData.geometry.coordinates) {
+      coordinates = routeData.geometry.coordinates;
+    }
+
+    // If we found valid coordinates, add them to the map
+    if (coordinates && Array.isArray(coordinates) && coordinates.length > 1) {
+      console.log('Adding route with coordinates. First point:', coordinates[0]);
+      
+      const validCoordinates = coordinates.filter(coord => 
+        Array.isArray(coord) && coord.length === 2 && 
+        !isNaN(coord[0]) && !isNaN(coord[1])
+      );
+
+      if (validCoordinates.length < 2) {
+        throw new Error('Not enough valid coordinates to display route');
+      }
+
+      // Add the route to the map
+      mapInstance.addSource('route', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: validCoordinates
+          }
+        }
+      });
+
+      mapInstance.addLayer({
+        id: 'route-line',
+        type: 'line',
+        source: 'route',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': routeColor || '#FF0000',
+          'line-width': 4,
+          'line-opacity': 0.8
+        }
+      });
+
+      try {
+        const bounds = validCoordinates.reduce((bounds: mapboxgl.LngLatBounds, coord: number[]) => {
+          return bounds.extend(coord as mapboxgl.LngLatLike);
+        }, new mapboxgl.LngLatBounds(validCoordinates[0], validCoordinates[0]));
+
+        mapInstance.fitBounds(bounds, {
+          padding: 50,
+          duration: 2000
+        });
+      } catch (error) {
+        console.error('Error setting map bounds:', error);
+      }
+    } else {
+      throw new Error('No valid coordinates found in route data');
+    }
+  } catch (error) {
+    console.error('Error handling route selection:', error);
+    setError('Failed to load route path: ' + (error instanceof Error ? error.message : 'Unknown error'));
+  } finally {
+    setLoading(false);
+  }
+}, [mapInstance, routeColors]);
 
   const handleStationClick = useCallback(async (station: Station) => {
     if (!mapInstance) return;
@@ -169,10 +317,8 @@ export default function InteractiveMap() {
   return (
     <div className="flex h-full min-h-[600px]">
       <InteractiveMapControls
-        stations={stations}
-        onStationClick={handleStationClick}
-        loading={loading}
-        error={error}
+        onRouteSelect={handleRouteSelect}
+        onStationSelect={handleStationClick}
       />
       <div className="flex-1 h-full">
         <InteractiveDataMapBox
@@ -182,4 +328,4 @@ export default function InteractiveMap() {
       </div>
     </div>
   );
-} 
+}
