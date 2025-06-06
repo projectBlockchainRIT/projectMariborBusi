@@ -71,17 +71,16 @@ def importStops(conn, stopData):
     # print(f"Imported {len(stops_data)} stops")
 
 def importDepartures(conn, arrivalData):
-    """Import arrivals/departures data into the database"""
     cursor = conn.cursor()
 
     # Keep track of imported data counts
     lines_count = 0
     directions_count = 0
-    departures_runs_count = 0  # To count inserts into the 'departures' table
-    arrivals_count = 0  # To count inserts into the 'arrivals' table
+    departures_runs_count = 0  
+    arrivals_count = 0  
 
-    for date_str, stops_on_date in arrivalData[0].items(): # Assuming the outer structure is a dictionary with dates as keys
-        current_date = date.fromisoformat(date_str) # Convert date string to a date object
+    for date_str, stops_on_date in arrivalData[0].items():
+        current_date = date.fromisoformat(date_str)
 
         for stopInfo in stops_on_date:
             stopId = stopInfo.get('id')
@@ -99,7 +98,7 @@ def importDepartures(conn, arrivalData):
                     continue
 
                 try:
-                    # Insert or get line_id
+
                     cursor.execute(
                         """
                         INSERT INTO lines (line_code)
@@ -118,7 +117,6 @@ def importDepartures(conn, arrivalData):
                         lineId = cursor.fetchone()[0]
                     conn.commit()
 
-                    # Insert or get direction_id
                     cursor.execute(
                         """
                         INSERT INTO directions (line_id, name)
@@ -140,7 +138,7 @@ def importDepartures(conn, arrivalData):
                         directionId = cursor.fetchone()[0]
                     conn.commit()
 
-                    # Insert into 'departures' table (representing a departure run for a specific stop, direction, and date)
+                   
                     cursor.execute(
                         """
                         INSERT INTO departures (stop_id, direction_id, date)
@@ -162,8 +160,7 @@ def importDepartures(conn, arrivalData):
                         departuresId = cursor.fetchone()[0]
                     conn.commit()
 
-                    # Insert into 'arrivals' table (storing the array of times for the departures run)
-                    # Convert list of time strings to a PostgreSQL TIME[] array format
+
                     timeArray = "{" + ",".join([f"'{t}'" for t in times]) + "}"
 
                     cursor.execute(
@@ -179,7 +176,7 @@ def importDepartures(conn, arrivalData):
 
                 except Exception as e:
                     print(f"Error importing departure for stop {stopId}, line {lineCode} on {current_date}: {e}")
-                    conn.rollback() # Rollback in case of an error
+                    conn.rollback() 
 
     print(f"Imported {lines_count} new lines, {directions_count} new directions, {departures_runs_count} new departure runs, and {arrivals_count} new arrival time sets.")
 
@@ -198,7 +195,7 @@ def importRouteData(conn, routeData):
                 print(f"Skipping empty path for route {route_name}")
                 continue
 
-            # 1) Lookup or insert into `lines` to get line_id
+
             cursor.execute(
                 "SELECT id FROM lines WHERE line_code = %s",
                 (route_name,)
@@ -212,9 +209,9 @@ def importRouteData(conn, routeData):
                     (route_name,)
                 )
                 line_id = cursor.fetchone()[0]
-            conn.commit()  # commit the lines insert
+            conn.commit() 
 
-            # 2) Upsert into `routes`, using the new unique constraint
+
             cursor.execute(
                 """
                 INSERT INTO public.routes (name, path, line_id)
