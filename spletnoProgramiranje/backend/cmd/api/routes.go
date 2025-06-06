@@ -4,6 +4,8 @@ import (
 	"backend/cmd/utils"
 	"backend/internal/data"
 	"fmt"
+	"log"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -19,6 +21,15 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+// @Summary		Get route of line
+// @Description	Get the route path for a specific bus line
+// @Tags			routes
+// @Accept			json
+// @Produce		json
+// @Param			lineId	path		int	true	"Line ID"
+// @Success		200		{object}	data.Route
+// @Failure		500		{object}	utils.ErrorResponse
+// @Router			/routes/{lineId} [get]
 func (app *app) getRouteOfLineHandler(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "lineId")
 	lineId, err := strconv.ParseInt(idParam, 10, 64)
@@ -45,6 +56,15 @@ func (app *app) getRouteOfLineHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// @Summary		Get stations on route
+// @Description	Get all stops that appear on a specific route
+// @Tags			routes
+// @Accept			json
+// @Produce		json
+// @Param			lineId	path		int	true	"Line ID"
+// @Success		200		{array}		data.Stop
+// @Failure		500		{object}	utils.ErrorResponse
+// @Router			/routes/stations/{lineId} [get]
 func (app *app) getStationsOnRouteHandler(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "lineId")
 	lineId, err := strconv.ParseInt(idParam, 10, 64)
@@ -71,6 +91,14 @@ func (app *app) getStationsOnRouteHandler(w http.ResponseWriter, r *http.Request
 
 }
 
+// @Summary		Get routes list
+// @Description	Get all bus routes to display coverage on map
+// @Tags			routes
+// @Accept			json
+// @Produce		json
+// @Success		200	{array}		data.Route
+// @Failure		500	{object}	utils.ErrorResponse
+// @Router			/routes/list [get]
 func (app *app) routesListHandler(w http.ResponseWriter, r *http.Request) {
 	var routes []data.Route
 	ctx := r.Context()
@@ -90,7 +118,15 @@ func (app *app) routesListHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// FIX THIS BRUH
+// @Summary		Get realtime line location
+// @Description	Get realtime bus locations through websocket connection
+// @Tags			routes
+// @Accept			json
+// @Produce		json
+// @Param			lineId	path		int		true	"Line ID"
+// @Success		101		{string}	string	"Switching to WebSocket protocol"
+// @Failure		400		{object}	utils.ErrorResponse
+// @Router			/routes/simulate/{lineId} [get]
 func (app *app) getRealtimeLine(w http.ResponseWriter, r *http.Request) {
 	// Upgrade the HTTP connection to a WebSocket connection
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -137,6 +173,14 @@ func (app *app) getRealtimeLine(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// @Summary		Get active routes
+// @Description	Get all currently active bus routes
+// @Tags			routes
+// @Accept			json
+// @Produce		json
+// @Success		200	{integer}	int
+// @Failure		500	{object}	utils.ErrorResponse
+// @Router			/routes/active [get]
 func (app *app) getActiveRoutes(w http.ResponseWriter, r *http.Request) {
 	var activeRoutes int
 	ctx := r.Context()
@@ -153,4 +197,112 @@ func (app *app) getActiveRoutes(w http.ResponseWriter, r *http.Request) {
 		utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+}
+
+func (app *app) serveRealtimeLine(w http.ResponseWriter, r *http.Request) {
+	conn, err := wsUpgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println("websocket write error:", err)
+		conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "internal error"))
+		conn.Close()
+		return
+	}
+	defer conn.Close()
+
+	lineIDStr := chi.URLParam(r, "lineId")
+	lineID, err := strconv.Atoi(lineIDStr)
+	if err != nil {
+		log.Println("websocket write error:", err)
+		conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "internal error"))
+		conn.Close()
+		return
+	}
+
+	ctx := r.Context()
+	ticker := time.NewTicker(2 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			now := time.Now()
+			runs, err := app.store.Routes.FetchActiveRuns(ctx, lineID)
+			if err != nil {
+				log.Println("websocket write error:", err)
+				conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "internal error"))
+				conn.Close()
+				return
+			}
+
+			type BusPosition struct {
+				DepartureID int     `json:"departure_id"`
+				DirectionID int     `json:"direction_id"`
+				Lat         float64 `json:"lat"`
+				Lon         float64 `json:"lon"`
+			}
+			var payload []BusPosition
+			nowSec := now.Hour()*3600 + now.Minute()*60 + now.Second()
+
+			for _, run := range runs {
+				lat, lon := interpPosition(run, nowSec)
+				payload = append(payload, BusPosition{
+					DepartureID: run.DepartureID,
+					DirectionID: run.DirectionID,
+					Lat:         lat,
+					Lon:         lon,
+				})
+			}
+
+			if err := conn.WriteJSON(payload); err != nil {
+				log.Println("websocket write error:", err)
+				conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "internal error"))
+				conn.Close()
+				return
+			}
+
+		}
+	}
+}
+
+func interpPosition(run data.ActiveRun, nowSec int) (float64, float64) {
+	// clamp
+	if nowSec <= run.StartSec {
+		return run.Path[0][0], run.Path[0][1]
+	}
+	if nowSec >= run.EndSec {
+		last := run.Path[len(run.Path)-1]
+		return last[0], last[1]
+	}
+
+	tElapsed := nowSec - run.StartSec
+	totalDuration := run.EndSec - run.StartSec
+
+	fraction := float64(tElapsed) / float64(totalDuration)
+	if fraction < 0 {
+		fraction = 0
+	}
+	if fraction > 1 {
+		fraction = 1
+	}
+
+	numPoints := len(run.Path)
+	if numPoints == 0 {
+		return 0, 0
+	}
+	if numPoints == 1 {
+		return run.Path[0][0], run.Path[0][1]
+	}
+
+	idxFloat := fraction * float64(numPoints-1)
+	lowerIdx := int(math.Floor(idxFloat))
+	upperIdx := int(math.Ceil(idxFloat))
+
+	if lowerIdx == upperIdx {
+		return run.Path[lowerIdx][0], run.Path[lowerIdx][1]
+	}
+
+	alpha := idxFloat - float64(lowerIdx)
+	lat := run.Path[lowerIdx][0]*(1-alpha) + run.Path[upperIdx][0]*alpha
+	lon := run.Path[lowerIdx][1]*(1-alpha) + run.Path[upperIdx][1]*alpha
+	return lat, lon
 }

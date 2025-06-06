@@ -25,12 +25,6 @@ simulacija avtobusov na trenutni poti "/routes/simulate/lineId" (to z implementa
 
 
 
-naredi, ka ti posle mail invite za registracijo, ko bo čas
-
-
-danes za narediti:
-- dodatna dokumentacija s swagger (to nejbol vecer, spodnji dve funkciji sta ti pomembnejši)
-
 - narediti za nejhitrejsa pot do cilja od trenutne lokacije
     - nejprej pridobis 3 nejbljizje postaje zeljene lokacije
     - poglednes, keri directioni vozijo do teh postaj (vzemi direction)
@@ -41,26 +35,16 @@ danes za narediti:
 
     - potli naredi se, ka preveris ce je lokacija prevec vun iz maribora
 
-
-- dokoncati simulacijo avtobusov
-    - pogledni si ovo, kej je chatgpt recommenda pa naredi step by step
-    - te pa naredi neki seznam vseh linij, toti seznami majo lehko tudi vec seznamov notri
-    - naredi, da se asinhrono toti seznam vedno posodabla. naredi mutexe al kej pac GO ma
-      in te pa anredi funkcijo, ki ob api callu dostopa do totega seznam3a, tudi z mutexi in vun vzame trenutno lokacijo
 
 
 - api endpoints za blaza
     - idk samo inserti pa selecti pa to
 
-- ce bo cas, delej frontend za login pa to
 
 
 
 
 
-
-todo danes:
-- dodatna dokumentacija s swagger (to nejbol vecer, spodnji dve funkciji sta ti pomembnejši)
 
 - narediti za nejhitrejsa pot do cilja od trenutne lokacije
     - nejprej pridobis 3 nejbljizje postaje zeljene lokacije
@@ -72,7 +56,26 @@ todo danes:
 
     - potli naredi se, ka preveris ce je lokacija prevec vun iz maribora
 
-za frontend:
-    - registracija
-    - login
-    - to vse za map
+
+
+
+swag init -g ./api/main.go -d cmd,internal && swag fmt
+
+- intervali prihodnih časov
+
+//SANITAZE THE DATA IN THE GET AND POST REQUESTS !!!! ZA SQL INJECTION
+
+delays:
+we can easily obtain delays for that station based on the station selection
+we can easily obtain the... say 8 most recent delays based on the line selection
+we can easily obtain all of the user's delays
+we can easily obtain only the most recent of the overall delays
+we can easily obtain the number of lines with their delays
+we can easily obtain the average number of minutes of delays for a specific line
+we can easily obtain the overall average of delays for all lines
+
+occupancy:
+we can easily obtain the occupancy of a line throughout the day for a specific date
+we can easily obtain the occupancy of a line for a specific date for a specific hour
+we can easily obtain the average occupancy of all lines for a specific hour
+we can easily obtain the average daily occupancy of all lines for a specific date
