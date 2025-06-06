@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 
 type DensityLevel = 'empty' | 'low' | 'medium' | 'high';
 
@@ -33,9 +34,18 @@ const densityColors: Record<DensityLevel, string> = {
   high: 'bg-red-600 dark:bg-red-800',
 };
 
+const densityDescriptions: Record<DensityLevel, string> = {
+  empty: 'No buses in operation',
+  low: '1-3 buses in operation',
+  medium: '4-6 buses in operation',
+  high: '7+ buses in operation',
+};
+
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export default function BusDensityHeatmap() {
+  const [hoveredCell, setHoveredCell] = useState<{ day: string; hour: string; level: DensityLevel } | null>(null);
+
   return (
     <div className="p-8 bg-white dark:bg-slate-800/50 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-slate-700/50">
       <div className="flex items-center justify-between mb-8">
@@ -82,18 +92,33 @@ export default function BusDensityHeatmap() {
                 {days.map((day) => (
                   <motion.div
                     key={`${row.hour}-${day}`}
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ 
+                      scale: 1.05,
+                      transition: { duration: 0.2 }
+                    }}
                     className={`${densityColors[row[day.toLowerCase() as keyof Omit<DensityData, 'hour'>]]} 
-                      flex items-center justify-center cursor-pointer transition-all duration-200
-                      py-4`}
+                      flex items-center justify-center py-4 relative group cursor-pointer`}
+                    onMouseEnter={() => setHoveredCell({ 
+                      day, 
+                      hour: row.hour,
+                      level: row[day.toLowerCase() as keyof Omit<DensityData, 'hour'>]
+                    })}
+                    onMouseLeave={() => setHoveredCell(null)}
                   >
-                    <span className={`text-sm font-medium ${
-                      ['medium', 'high'].includes(row[day.toLowerCase() as keyof Omit<DensityData, 'hour'>])
-                        ? 'text-white dark:text-white' 
-                        : 'text-gray-900 dark:text-gray-100'
-                    }`}>
-                      {row[day.toLowerCase() as keyof Omit<DensityData, 'hour'>]}
-                    </span>
+                    {hoveredCell?.day === day && hoveredCell?.hour === row.hour && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="absolute inset-0 flex items-center justify-center bg-black/10 dark:bg-white/10"
+                      >
+                        <div className="text-xs font-medium text-gray-900 dark:text-white text-center px-1">
+                          {day}<br/>{row.hour}<br/>
+                          <span className="text-[10px] opacity-90">
+                            {densityDescriptions[hoveredCell.level]}
+                          </span>
+                        </div>
+                      </motion.div>
+                    )}
                   </motion.div>
                 ))}
               </motion.div>
@@ -125,7 +150,7 @@ export default function BusDensityHeatmap() {
           ))}
         </div>
         <div className="text-sm text-gray-600 dark:text-gray-400">
-          <span className="font-medium">Note:</span> Density levels indicate the number of buses in operation
+          <span className="font-medium">Note:</span> Density levels indicate the number of buses in operation per line
         </div>
       </div>
     </div>

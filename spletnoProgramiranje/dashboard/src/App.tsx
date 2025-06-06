@@ -5,6 +5,7 @@ import InteractiveMap from './components/InteractiveMap';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Graphs from './pages/Graphs';
+import AboutPage from './pages/AboutPage';
 import { UserProvider } from './context/UserContext';
 
 function App() {
@@ -26,7 +27,7 @@ function App() {
                   <Route path="/graphs" element={<Graphs />} />
                   <Route path="/settings" element={<div>Settings</div>} />
                   <Route path="/admin" element={<div>Admin Panel</div>} />
-                  <Route path="/about" element={<div>About Us</div>} />
+                  <Route path="/about" element={<AboutPage />} />
                 </Routes>
               </DashboardLayout>
             }
