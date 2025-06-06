@@ -16,3 +16,4 @@ echo "Running Python database filler script..."
 python3 database/databaseFiller.py
 
 echo "Database initialization complete."
+

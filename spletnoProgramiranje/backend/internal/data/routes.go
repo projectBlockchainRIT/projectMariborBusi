@@ -5,16 +5,41 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"time"
+
+	"github.com/lib/pq"
 )
 
 type Route struct {
-	ID   int         `json:"id"`
-	Name string      `json:"name"`
-	Path [][]float64 `json:"path"`
+	ID     int         `json:"id"`
+	Name   string      `json:"name"`
+	Path   [][]float64 `json:"path"`
+	LineID int         `json:"line_id"`
 }
 
 type RoutesStorage struct {
 	db *sql.DB
+}
+
+type Coord struct {
+	Lat float64 `json:"lat"`
+	Lon float64 `json:"lon"`
+}
+
+type ActiveRun struct {
+	DepartureID int
+	DirectionID int
+	ArrTimes    []time.Time
+	Path        [][]float64
+	StartSec    int
+	EndSec      int
+}
+
+type BusPosition struct {
+	DepartureID int     `json:"departure_id"`
+	DirectionID int     `json:"direction_id"`
+	Lat         float64 `json:"lat"`
+	Lon         float64 `json:"lon"`
 }
 
 func (s *RoutesStorage) ReadRoute(ctx context.Context, id int64) (*Route, error) {
@@ -82,7 +107,7 @@ func (s *RoutesStorage) ReadRouteStations(ctx context.Context, id int64) ([]Stop
 
 func (s *RoutesStorage) ReadRoutesList(ctx context.Context) ([]Route, error) {
 	query := `
-        SELECT id, name, path
+        SELECT id, name, path, line_id
         FROM routes
     `
 
@@ -98,7 +123,7 @@ func (s *RoutesStorage) ReadRoutesList(ctx context.Context) ([]Route, error) {
 	for rows.Next() {
 		var route Route
 		var pathData []byte
-		err := rows.Scan(&route.ID, &route.Name, &pathData)
+		err := rows.Scan(&route.ID, &route.Name, &pathData, &route.LineID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan stop: %w", err)
 		}
@@ -195,4 +220,91 @@ func (s *RoutesStorage) ReadActiveLines(ctx context.Context) (int, error) {
 
 	*/
 
+}
+
+func (s *RoutesStorage) FetchActiveRuns(ctx context.Context, lineID int) ([]ActiveRun, error) {
+	now := time.Now()
+	today := now.Format("2006-01-02")
+	currentTime := now.Format("15:04:05")
+
+	const sqlQuery = `
+						SELECT
+						d.id AS departure_id,
+						d.direction_id AS direction_id,
+						a.departure_time AS arr_times,
+						r.path AS route_path,
+						a.departure_time[1]::text AS start_time_str,
+						a.departure_time[array_length(a.departure_time,1)]::text AS end_time_str
+						FROM public.departures d
+						JOIN public.arrivals a
+						ON a.departures_id = d.id
+						JOIN public.directions dir
+						ON dir.id = d.direction_id
+						JOIN public.lines l
+						ON l.id = dir.line_id
+						JOIN public.routes r
+						ON r.line_id = l.id
+						WHERE
+						l.id = $1
+						AND d.date = $2
+						AND a.departure_time[1] <= $3::time
+						AND a.departure_time[array_length(a.departure_time,1)] >= $3::time;
+						`
+
+	rows, err := s.db.Query(sqlQuery, lineID, today, currentTime)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var runs []ActiveRun
+	for rows.Next() {
+		var (
+			runID       int
+			dirID       int
+			arrTimesRaw []string
+			pathRaw     []byte
+			startStr    string
+			endStr      string
+		)
+
+		if err := rows.Scan(&runID, &dirID, pq.Array(&arrTimesRaw), &pathRaw, &startStr, &endStr); err != nil {
+			return nil, err
+		}
+
+		var arrTimes []time.Time
+		for _, ts := range arrTimesRaw {
+			t, err := time.ParseInLocation("15:04:05", ts, time.Local)
+			if err != nil {
+				return nil, fmt.Errorf("cannot parse arrival time %q: %w", ts, err)
+			}
+			full := time.Date(now.Year(), now.Month(), now.Day(),
+				t.Hour(), t.Minute(), t.Second(), 0, time.Local)
+			arrTimes = append(arrTimes, full)
+		}
+
+		var path [][]float64
+		if err := json.Unmarshal(pathRaw, &path); err != nil {
+			fmt.Print(pathRaw)
+			return nil, fmt.Errorf("cannot unmarshal path for run %d: %w", runID, err)
+		}
+
+		startT, _ := time.ParseInLocation("15:04:05", startStr, time.Local)
+		endT, _ := time.ParseInLocation("15:04:05", endStr, time.Local)
+		sSec := startT.Hour()*3600 + startT.Minute()*60 + startT.Second()
+		eSec := endT.Hour()*3600 + endT.Minute()*60 + endT.Second()
+
+		runs = append(runs, ActiveRun{
+			DepartureID: runID,
+			DirectionID: dirID,
+			ArrTimes:    arrTimes,
+			Path:        path,
+			StartSec:    sSec,
+			EndSec:      eSec,
+		})
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return runs, nil
 }

@@ -79,7 +79,7 @@ ALTER TABLE public.directions OWNER TO postgres;
 CREATE TABLE public.departures (
 	id serial NOT NULL,
 	stop_id integer NOT NULL,
-	direction_id integer NOT NULL,
+	direction_id integer NOT NULL,2
 	departure time NOT NULL,
 	CONSTRAINT departures_pk PRIMARY KEY (id)
 );

@@ -25,6 +25,7 @@ type Storage struct {
 		ReadRouteStations(context.Context, int64) ([]Stop, error)
 		ReadRoutesList(ctx context.Context) ([]Route, error)
 		ReadActiveLines(ctx context.Context) (int, error)
+		FetchActiveRuns(ctx context.Context, lineID int) ([]ActiveRun, error)
 	}
 }
 

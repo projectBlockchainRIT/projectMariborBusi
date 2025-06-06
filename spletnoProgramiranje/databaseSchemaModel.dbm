@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+CAUTION: Do not modify this file unless you know what you are doing.
+ Unexpected results may occur if the code is changed deliberately.
+-->
+<dbmodel pgmodeler-ver="1.2.0" use-changelog="false" max-obj-count="129"
+	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
+	 last-position="-83,0" last-zoom="0.95" scene-rect="-88,0,1927.52,1176.12"
+	 default-schema="public" default-owner="postgres"
+	 layers="Default layer"
+	 active-layers="0"
+	 layer-name-colors="#000000"
+	 layer-rect-colors="#b4b4b4"
+	 show-layer-names="false" show-layer-rects="false">
+<role name="user"
+ superuser="true"
+ createdb="true"
+ replication="true"
+ createrole="true"
+ inherit="true"
+ login="true"
+ bypassrls="true"
+ password="********"
+ sql-disabled="true">
+</role>
+
+<database name="m-busi" encoding="UTF8" lc-collate="en_US.utf8" lc-ctype="en_US.utf8" is-template="false" allow-conns="true">
+	<role name="&quot;user&quot;"/>
+	<tablespace name="pg_default"/>
+</database>
+
+<schema name="public" layers="0" fill-color="#e1e1e1" name-color="#000000" sql-disabled="true">
+</schema>
+
+<schema name="topology" layers="0" rect-visible="true" fill-color="#ba7cf2" name-color="#000000">
+	<role name="&quot;user&quot;"/>
+	<comment> <![CDATA[PostGIS Topology schema]]> </comment>
+</schema>
+
+<schema name="tiger" layers="0" rect-visible="true" fill-color="#2a4420" name-color="#000000">
+	<role name="&quot;user&quot;"/>
+</schema>
+
+<schema name="tiger_data" layers="0" rect-visible="true" fill-color="#0bcd6d" name-color="#000000">
+	<role name="&quot;user&quot;"/>
+</schema>
+
+<extension name="postgis" cur-version="3.5.2">
+	<schema name="public"/>
+	<comment> <![CDATA[PostGIS geometry and geography spatial types and functions]]> </comment>
+	<object name="spheroid" type="usertype"/>
+	<object name="spheroid[]" type="usertype"/>
+	<object name="geometry" type="usertype"/>
+	<object name="geometry[]" type="usertype"/>
+	<object name="box3d" type="usertype"/>
+	<object name="box3d[]" type="usertype"/>
+	<object name="box2d" type="usertype"/>
+	<object name="box2d[]" type="usertype"/>
+	<object name="box2df" type="usertype"/>
+	<object name="box2df[]" type="usertype"/>
+	<object name="gidx" type="usertype"/>
+	<object name="gidx[]" type="usertype"/>
+	<object name="geometry_dump" type="usertype"/>
+	<object name="geometry_dump[]" type="usertype"/>
+	<object name="spatial_ref_sys" type="usertype"/>
+	<object name="spatial_ref_sys[]" type="usertype"/>
+	<object name="valid_detail" type="usertype"/>
+	<object name="valid_detail[]" type="usertype"/>
+	<object name="geography" type="usertype"/>
+	<object name="geography[]" type="usertype"/>
+	<object name="geography_columns" type="usertype"/>
+	<object name="geography_columns[]" type="usertype"/>
+	<object name="geometry_columns" type="usertype"/>
+	<object name="geometry_columns[]" type="usertype"/>
+</extension>
+
+<extension name="postgis_topology" cur-version="3.5.2">
+	<schema name="topology"/>
+	<comment> <![CDATA[PostGIS topology spatial types and functions]]> </comment>
+	<object name="topology" type="usertype"/>
+	<object name="topology[]" type="usertype"/>
+	<object name="layer" type="usertype"/>
+	<object name="layer[]" type="usertype"/>
+	<object name="topogeometry" type="usertype"/>
+	<object name="topogeometry[]" type="usertype"/>
+	<object name="topoelement" type="usertype"/>
+	<object name="topoelement[]" type="usertype"/>
+	<object name="topoelementarray" type="usertype"/>
+	<object name="topoelementarray[]" type="usertype"/>
+	<object name="getfaceedges_returntype" type="usertype"/>
+	<object name="getfaceedges_returntype[]" type="usertype"/>
+	<object name="validatetopology_returntype" type="usertype"/>
+	<object name="validatetopology_returntype[]" type="usertype"/>
+</extension>
+
+<extension name="fuzzystrmatch" cur-version="1.2">
+	<schema name="public"/>
+	<comment> <![CDATA[determine similarities and distance between strings]]> </comment>
+</extension>
+
+<extension name="postgis_tiger_geocoder" cur-version="3.5.2">
+	<schema name="tiger"/>
+	<comment> <![CDATA[PostGIS tiger geocoder and reverse geocoder]]> </comment>
+	<object name="norm_addy" type="usertype"/>
+	<object name="norm_addy[]" type="usertype"/>
+	<object name="geocode_settings" type="usertype"/>
+	<object name="geocode_settings[]" type="usertype"/>
+	<object name="geocode_settings_default" type="usertype"/>
+	<object name="geocode_settings_default[]" type="usertype"/>
+	<object name="direction_lookup" type="usertype"/>
+	<object name="direction_lookup[]" type="usertype"/>
+	<object name="secondary_unit_lookup" type="usertype"/>
+	<object name="secondary_unit_lookup[]" type="usertype"/>
+	<object name="state_lookup" type="usertype"/>
+	<object name="state_lookup[]" type="usertype"/>
+	<object name="street_type_lookup" type="usertype"/>
+	<object name="street_type_lookup[]" type="usertype"/>
+	<object name="place_lookup" type="usertype"/>
+	<object name="place_lookup[]" type="usertype"/>
+	<object name="county_lookup" type="usertype"/>
+	<object name="county_lookup[]" type="usertype"/>
+	<object name="countysub_lookup" type="usertype"/>
+	<object name="countysub_lookup[]" type="usertype"/>
+	<object name="zip_lookup_all" type="usertype"/>
+	<object name="zip_lookup_all[]" type="usertype"/>
+	<object name="zip_lookup_base" type="usertype"/>
+	<object name="zip_lookup_base[]" type="usertype"/>
+	<object name="zip_lookup" type="usertype"/>
+	<object name="zip_lookup[]" type="usertype"/>
+	<object name="county" type="usertype"/>
+	<object name="county[]" type="usertype"/>
+	<object name="state" type="usertype"/>
+	<object name="state[]" type="usertype"/>
+	<object name="place" type="usertype"/>
+	<object name="place[]" type="usertype"/>
+	<object name="zip_state" type="usertype"/>
+	<object name="zip_state[]" type="usertype"/>
+	<object name="zip_state_loc" type="usertype"/>
+	<object name="zip_state_loc[]" type="usertype"/>
+	<object name="cousub" type="usertype"/>
+	<object name="cousub[]" type="usertype"/>
+	<object name="edges" type="usertype"/>
+	<object name="edges[]" type="usertype"/>
+	<object name="addrfeat" type="usertype"/>
+	<object name="addrfeat[]" type="usertype"/>
+	<object name="faces" type="usertype"/>
+	<object name="faces[]" type="usertype"/>
+	<object name="featnames" type="usertype"/>
+	<object name="featnames[]" type="usertype"/>
+	<object name="addr" type="usertype"/>
+	<object name="addr[]" type="usertype"/>
+	<object name="zcta5" type="usertype"/>
+	<object name="zcta5[]" type="usertype"/>
+	<object name="tabblock20" type="usertype"/>
+	<object name="tabblock20[]" type="usertype"/>
+	<object name="loader_platform" type="usertype"/>
+	<object name="loader_platform[]" type="usertype"/>
+	<object name="loader_variables" type="usertype"/>
+	<object name="loader_variables[]" type="usertype"/>
+	<object name="loader_lookuptables" type="usertype"/>
+	<object name="loader_lookuptables[]" type="usertype"/>
+	<object name="tract" type="usertype"/>
+	<object name="tract[]" type="usertype"/>
+	<object name="tabblock" type="usertype"/>
+	<object name="tabblock[]" type="usertype"/>
+	<object name="bg" type="usertype"/>
+	<object name="bg[]" type="usertype"/>
+	<object name="pagc_gaz" type="usertype"/>
+	<object name="pagc_gaz[]" type="usertype"/>
+	<object name="pagc_lex" type="usertype"/>
+	<object name="pagc_lex[]" type="usertype"/>
+	<object name="pagc_rules" type="usertype"/>
+	<object name="pagc_rules[]" type="usertype"/>
+</extension>
+
+<sequence name="users_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+	<schema name="public"/>
+	<role name="&quot;user&quot;"/>
+</sequence>
+
+<table name="users" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+	<schema name="public"/>
+	<role name="&quot;user&quot;"/>
+	<position x="-40" y="60"/>
+	<column name="id" not-null="true" sequence="public.users_id_seq">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="username" not-null="true">
+		<type name="character varying" length="50"/>
+	</column>
+	<column name="email" not-null="true">
+		<type name="character varying" length="100"/>
+	</column>
+	<column name="password" not-null="true">
+		<type name="character varying" length="100"/>
+	</column>
+	<column name="created_at" default-value="CURRENT_TIMESTAMP">
+		<type name="timestamp with time zone" length="0" precision="0" with-timezone="true"/>
+	</column>
+	<column name="last_login">
+		<type name="timestamp with time zone" length="0" with-timezone="true"/>
+	</column>
+	<constraint name="users_pk" type="pk-constr" table="public.users">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="username_uq" type="uq-constr" table="public.users">
+		<columns names="username" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="email_uq" type="uq-constr" table="public.users">
+		<columns names="email" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="stops" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
+	<schema name="public"/>
+	<role name="&quot;user&quot;"/>
+	<position x="360" y="60"/>
+	<column name="id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="number" not-null="true">
+		<type name="character varying" length="10"/>
+	</column>
+	<column name="name" not-null="true">
+		<type name="character varying" length="100"/>
+	</column>
+	<column name="latitude" not-null="true">
+		<type name="numeric" length="9" precision="6"/>
+	</column>
+	<column name="longitude" not-null="true">
+		<type name="numeric" length="9" precision="6"/>
+	</column>
+	<constraint name="stops_pk" type="pk-constr" table="public.stops">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="lines_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+	<schema name="public"/>
+	<role name="&quot;user&quot;"/>
+</sequence>
+
+<table name="lines" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+	<schema name="public"/>
+	<role name="&quot;user&quot;"/>
+	<position x="680" y="760"/>
+	<column name="id" not-null="true" sequence="public.lines_id_seq">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="line_code" not-null="true">
+		<type name="character varying" length="10"/>
+	</column>
+	<constraint name="lines_pk" type="pk-constr" table="public.lines">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="code_uq" type="uq-constr" table="public.lines">
+		<columns names="line_code" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="directions_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+	<schema name="public"/>
+	<role name="&quot;user&quot;"/>
+</sequence>
+
+<table name="directions" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="&quot;user&quot;"/>
+	<position x="1200" y="360"/>
+	<column name="id" not-null="true" sequence="public.directions_id_seq">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="line_id">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="name" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<constraint name="directions_pk" type="pk-constr" table="public.directions">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="unique_pair" type="uq-constr" table="public.directions">
+		<columns names="line_id,name" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="departures_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+	<schema name="public"/>
+	<role name="&quot;user&quot;"/>
+</sequence>
+
+<table name="departures" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+	<schema name="public"/>
+	<role name="&quot;user&quot;"/>
+	<position x="920" y="40"/>
+	<column name="id" not-null="true" sequence="public.departures_id_seq">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="stop_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="direction_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="date" not-null="true">
+		<type name="date" length="0"/>
+	</column>
+	<constraint name="departures_pk" type="pk-constr" table="public.departures">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="departures_date_unique" type="uq-constr" table="public.departures">
+		<columns names="date" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="routes_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+	<schema name="public"/>
+	<role name="&quot;user&quot;"/>
+</sequence>
+
+<table name="routes" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+	<schema name="public"/>
+	<role name="&quot;user&quot;"/>
+	<position x="40" y="720"/>
+	<column name="id" not-null="true" sequence="public.routes_id_seq">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="name" not-null="true">
+		<type name="character varying" length="10"/>
+	</column>
+	<column name="path" not-null="true">
+		<type name="jsonb" length="0"/>
+	</column>
+	<column name="line_id">
+		<type name="integer" length="0"/>
+	</column>
+	<constraint name="routes_pk" type="pk-constr" table="public.routes">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="uq_routes_name_line" type="uq-constr" table="public.routes">
+		<columns names="name,line_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="arrivals" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="620" y="380"/>
+	<column name="date" not-null="true">
+		<type name="date" length="0"/>
+	</column>
+	<column name="departure_time">
+		<type name="time" length="0" dimension="1"/>
+	</column>
+	<constraint name="arrivals_pk" type="pk-constr" table="public.arrivals">
+		<columns names="date" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="delays" layers="0" collapse-mode="2" max-obj-count="7" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="60" y="380"/>
+	<column name="id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="date" not-null="true">
+		<type name="date" length="0"/>
+	</column>
+	<column name="delay_min" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="stop_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="line_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="user_id">
+		<type name="integer" length="0"/>
+	</column>
+	<constraint name="delays_pk" type="pk-constr" table="public.delays">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="occupancy" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="1280" y="700"/>
+	<column name="id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="line_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="date" not-null="true">
+		<type name="date" length="0"/>
+	</column>
+	<column name="time" not-null="true">
+		<type name="time" length="0"/>
+	</column>
+	<column name="occupancy_level" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<constraint name="occupancy_pk" type="pk-constr" table="public.occupancy">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<constraint name="line_id" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="SET NULL" ref-table="public.lines" table="public.directions">
+	<columns names="line_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="stop_id" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="SET NULL" ref-table="public.stops" table="public.departures">
+	<columns names="stop_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="direction_id" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="SET NULL" ref-table="public.directions" table="public.departures">
+	<columns names="direction_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="line_id" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="SET NULL" ref-table="public.lines" table="public.routes">
+	<columns names="line_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="date_departure" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.departures" table="public.arrivals">
+	<columns names="date" ref-type="src-columns"/>
+	<columns names="date" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="user_id" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.users" table="public.delays">
+	<columns names="user_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="stop_id" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.stops" table="public.delays">
+	<columns names="stop_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="line_id" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.lines" table="public.delays">
+	<columns names="line_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="line_id" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="RESTRICT" ref-table="public.lines" table="public.occupancy">
+	<columns names="line_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<relationship name="rel_directions_lines" type="relfk" layers="0"
+	 custom-color="#bcfe24"
+	 src-table="public.directions"
+	 dst-table="public.lines" reference-fk="line_id"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_departures_stops" type="relfk" layers="0"
+	 custom-color="#70a8f8"
+	 src-table="public.departures"
+	 dst-table="public.stops" reference-fk="stop_id"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="rel_departures_directions" type="relfk" layers="0"
+	 custom-color="#a8b409"
+	 src-table="public.departures"
+	 dst-table="public.directions" reference-fk="direction_id"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="rel_routes_lines" type="relfk" layers="0"
+	 custom-color="#0858dc"
+	 src-table="public.routes"
+	 dst-table="public.lines" reference-fk="line_id"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_arrivals_departures" type="relfk" layers="0"
+	 src-table="public.arrivals"
+	 dst-table="public.departures" reference-fk="date_departure"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="rel_delays_users" type="relfk" layers="0"
+	 src-table="public.delays"
+	 dst-table="public.users" reference-fk="user_id"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_delays_stops" type="relfk" layers="0"
+	 src-table="public.delays"
+	 dst-table="public.stops" reference-fk="stop_id"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="rel_delays_lines" type="relfk" layers="0"
+	 src-table="public.delays"
+	 dst-table="public.lines" reference-fk="line_id"
+	 src-required="false" dst-required="true">
+	<label ref-type="name-label">
+		<position x="9.39072" y="9.86456"/>
+	</label>
+</relationship>
+
+<relationship name="rel_occupancy_lines" type="relfk" layers="0"
+	 src-table="public.occupancy"
+	 dst-table="public.lines" reference-fk="line_id"
+	 src-required="false" dst-required="true"/>
+
+<permission>
+	<object name="topology" type="schema"/>
+	<roles names="&quot;user&quot;"/>
+	<privileges create="true" usage="true"/>
+</permission>
+<permission>
+	<object name="topology" type="schema"/>
+	<privileges usage="true"/>
+</permission>
+</dbmodel>
