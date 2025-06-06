@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   TruckIcon,
   UserIcon,
@@ -8,8 +8,11 @@ import {
   ShieldCheckIcon,
   SunIcon,
   MoonIcon,
-  MapIcon
+  MapIcon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
+import { useUser } from '../../context/UserContext';
+import { useTheme } from '../../context/ThemeContext';
 
 interface NavItem {
   name: string;
@@ -29,15 +32,30 @@ const navItems: NavItem[] = [
 ];
 
 interface SidebarProps {
-  isDarkMode: boolean;
-  toggleDarkMode: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
 }
 
-export default function Sidebar({ isDarkMode, toggleDarkMode, isAuthenticated, isAdmin }: SidebarProps) {
+export default function Sidebar({ isAuthenticated, isAdmin }: SidebarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { setIsAuthenticated, setIsAdmin } = useUser();
+  const { isDarkMode, toggleDarkMode } = useTheme();
 
+  const handleLogout = () => {
+    // Clear authentication state
+    setIsAuthenticated(false);
+    setIsAdmin(false);
+    // Clear localStorage
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('isAdmin');
+    // Redirect to login page
+    navigate('/login');
+  };
+
+  const handleThemeToggle = () => {
+    toggleDarkMode();
+  };
 
   const filteredNavItems = navItems.filter(item => {
     if (!isAuthenticated && item.requiresAuth) return false;
@@ -46,19 +64,38 @@ export default function Sidebar({ isDarkMode, toggleDarkMode, isAuthenticated, i
     return true;
   });
 
+  // Base classes for light/dark mode
+  const sidebarClasses = `w-16 shadow-lg flex flex-col items-center py-4 transition-colors duration-200 ${
+    isDarkMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-700'
+  }`;
+
+  const getNavLinkClasses = (isActive: boolean) => {
+    const baseClasses = 'p-2 rounded-lg group relative transition-colors duration-200';
+    if (isActive) {
+      return `${baseClasses} ${
+        isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
+      }`;
+    }
+    return `${baseClasses} ${
+      isDarkMode
+        ? 'hover:bg-gray-700 text-gray-200'
+        : 'hover:bg-gray-100 text-gray-700'
+    }`;
+  };
+
+  const tooltipClasses = `absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap`;
+
   return (
-    <div className="w-16 bg-white dark:bg-gray-800 shadow-lg flex flex-col items-center py-4">
+    <div className={sidebarClasses}>
       <div className="flex-1 flex flex-col items-center space-y-4">
         {filteredNavItems.map((item) => (
           <Link
             key={item.name}
             to={item.href}
-            className={`p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg group relative ${
-              location.pathname === item.href ? 'bg-gray-100 dark:bg-gray-700' : ''
-            }`}
+            className={getNavLinkClasses(location.pathname === item.href)}
           >
             <item.icon className="w-6 h-6" />
-            <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            <span className={tooltipClasses}>
               {item.name}
             </span>
           </Link>
@@ -67,30 +104,40 @@ export default function Sidebar({ isDarkMode, toggleDarkMode, isAuthenticated, i
 
       <div className="flex flex-col items-center space-y-4">
         <button
-          onClick={toggleDarkMode}
-          className="p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg group relative"
+          onClick={handleThemeToggle}
+          className={getNavLinkClasses(false)}
         >
           {isDarkMode ? (
             <SunIcon className="w-6 h-6" />
           ) : (
             <MoonIcon className="w-6 h-6" />
           )}
-          <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          <span className={tooltipClasses}>
             {isDarkMode ? 'Light Mode' : 'Dark Mode'}
           </span>
         </button>
 
         <Link
           to="/about"
-          className={`p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg group relative ${
-            location.pathname === '/about' ? 'bg-gray-100 dark:bg-gray-700' : ''
-          }`}
+          className={getNavLinkClasses(location.pathname === '/about')}
         >
           <InformationCircleIcon className="w-6 h-6" />
-          <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          <span className={tooltipClasses}>
             About
           </span>
         </Link>
+
+        {isAuthenticated && (
+          <button
+            onClick={handleLogout}
+            className={getNavLinkClasses(false)}
+          >
+            <ArrowRightOnRectangleIcon className="w-6 h-6" />
+            <span className={tooltipClasses}>
+              Logout
+            </span>
+          </button>
+        )}
       </div>
     </div>
   );

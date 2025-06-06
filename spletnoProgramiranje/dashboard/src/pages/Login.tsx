@@ -1,47 +1,55 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Logo from '../components/Logo';
 import { useUser } from '../context/UserContext';
 
 export default function Login() {
-  const { setIsAuthenticated } = useUser();
+  const { setIsAuthenticated, setIsAdmin } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // Get the redirect path from location state or default to home
+  const from = (location.state as any)?.from?.pathname || '/';
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  try {
-    const response = await fetch('http://localhost:8080/v1/authentication/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:8080/v1/authentication/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    let data;
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-      data = await response.json();
-    } else {
-      data = await response.text();
+      let data;
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        data = await response.text();
+      }
+
+      if (response.ok) {
+        setIsAuthenticated(true);
+        // Set admin status based on response if available
+        if (data.isAdmin) {
+          setIsAdmin(true);
+        }
+        // Navigate to the attempted page or home
+        navigate(from, { replace: true });
+        console.log('Login successful:', data);
+      } else {
+        // Handle error
+        console.error('Login failed:', data);
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
     }
-
-    if (response.ok) {
-      setIsAuthenticated(true);
-      navigate('/');
-      console.log('Login successful:', data);
-    } else {
-      // Handle error
-      console.error('Login failed:', data);
-    }
-  } catch (error) {
-    console.error('Error during login:', error);
-  }
-};
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-gray-900 dark:to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
