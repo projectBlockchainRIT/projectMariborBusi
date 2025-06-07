@@ -79,3 +79,8 @@ we can easily obtain the occupancy of a line throughout the day for a specific d
 we can easily obtain the occupancy of a line for a specific date for a specific hour
 we can easily obtain the average occupancy of all lines for a specific hour
 we can easily obtain the average daily occupancy of all lines for a specific date
+
+
+- update user fetch function
+- po moznosti se dodej time v delays table
+- allow for time 

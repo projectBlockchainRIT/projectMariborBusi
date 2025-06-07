@@ -81,6 +81,23 @@ func (app *app) mount() http.Handler {
 			r.Post("/login", app.usersLoginUser)        // logging in an existing user
 		})
 
+		r.Route("/delays", func(r chi.Router) {
+			r.Get("/station/{stationId}", app.getDelaysForStation)     // fetch all delays for specific station
+			r.Get("/recent/line/{lineId}", app.getRecentDelaysForLine) // fetch recent delays for specific line
+			r.Get("/user/{userId}", app.getDelaysFromUser)             // fetch delays submitted by a user
+			r.Get("/recent", app.getRecentOverallDelays)               // fetch the overall most recent delays
+			r.Get("/lines/number", app.getNumDelaysForLine)            // fetch the number of delays for each line
+			r.Get("/average/{lineId}", app.getAvgDelayForLine)         // fetch the average delay time for a specific line
+			r.Get("/average", app.getAvgDelay)                         // fetch the average delay time overall
+		})
+
+		r.Route("/occupancy", func(r chi.Router) {
+			r.Get("/line/{lineId}/date/{date}", app.getLineOccupancyThroughDay)          // fetch the occupancy of a line throughout a day
+			r.Get("/line/{lineId}/date/{date}/hour/{hour}", app.getLineOccupancyForHour) // fetch the occupancy of a line on a specific date for a specific hour
+			r.Get("/average/{hour}", app.getAvgLineOccupancyForHour)                     // fetch the occupancy of a line on a specific date for a specific hour
+			r.Get("/average/{date}", app.getAvgLineOccupancyForDate)                     // fetch the occupancy of a line on a specific date for a specific hour
+		})
+
 		r.Route("/show", func(r chi.Router) {
 			r.Post("/shortest", app.getShortestPath) // finds the most optimal path to he desired location
 		})
