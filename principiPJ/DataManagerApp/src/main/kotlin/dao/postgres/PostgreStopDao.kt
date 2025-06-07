@@ -4,6 +4,7 @@ import dao.StopDao
 import model.Stop
 import db.DatabaseConnector
 import model.Departure
+import java.time.format.DateTimeFormatter
 
 class PostgreStopDao : StopDao {
 
@@ -29,7 +30,7 @@ class PostgreStopDao : StopDao {
 
     override fun getDeparturesForStop(stopId: Int): List<Departure> {
         val departures = mutableListOf<Departure>()
-        val query = "SELECT id, stop_id, direction_id, departure FROM departures WHERE stop_id = ?"
+        val query = "SELECT id, stop_id, direction_id, date FROM departures WHERE stop_id = ?"
 
         DatabaseConnector.getConnection().use { conn ->
             conn!!.prepareStatement(query).use { stmt ->
@@ -41,7 +42,7 @@ class PostgreStopDao : StopDao {
                                 id = rs.getInt("id"),
                                 stopId = rs.getInt("stop_id"),
                                 directionId = rs.getInt("direction_id"),
-                                departure = rs.getString("departure") // pričakovan format: "HH:mm:ss"
+                                date = rs.getDate("date").toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
                             )
                         )
                     }
@@ -75,10 +76,7 @@ class PostgreStopDao : StopDao {
     }
 
     override fun insert(entity: Stop): Boolean {
-        val query = """
-            INSERT INTO stops (id, number, name, latitude, longitude)
-            VALUES (?, ?, ?, ?, ?)
-        """
+        val query = "INSERT INTO stops (id, number, name, latitude, longitude) VALUES (?, ?, ?, ?, ?)"
         DatabaseConnector.getConnection().use { conn ->
             conn!!.prepareStatement(query).use { stmt ->
                 stmt.setInt(1, entity.id)
@@ -92,17 +90,14 @@ class PostgreStopDao : StopDao {
     }
 
     override fun update(entity: Stop): Boolean {
-        val query = """
-            UPDATE stops SET number = ?, name = ?, latitude = ?, longitude = ?
-            WHERE id = ?
-        """
+        val query = "UPDATE stops SET number = ?, name = ?, latitude = ?, longitude = ? WHERE id = ?"
         DatabaseConnector.getConnection().use { conn ->
             conn!!.prepareStatement(query).use { stmt ->
                 stmt.setString(1, entity.number)
                 stmt.setString(2, entity.name)
                 stmt.setDouble(3, entity.latitude)
                 stmt.setDouble(4, entity.longitude)
-                stmt.setInt(5, entity.id!!)
+                stmt.setInt(5, entity.id)
                 return stmt.executeUpdate() > 0
             }
         }
