@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.0" use-changelog="false" max-obj-count="129"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="-83,0" last-zoom="0.95" scene-rect="-88,0,1927.52,1176.12"
+	 last-position="-84,0" last-zoom="0.95" scene-rect="-88,0,1927.52,1176.12"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -289,7 +289,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<role name="&quot;user&quot;"/>
 </sequence>
 
-<table name="departures" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
+<table name="departures" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
 	<schema name="public"/>
 	<role name="&quot;user&quot;"/>
 	<position x="920" y="40"/>
@@ -302,14 +302,8 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="direction_id" not-null="true">
 		<type name="integer" length="0"/>
 	</column>
-	<column name="date" not-null="true">
-		<type name="date" length="0"/>
-	</column>
 	<constraint name="departures_pk" type="pk-constr" table="public.departures">
 		<columns names="id" ref-type="src-columns"/>
-	</constraint>
-	<constraint name="departures_date_unique" type="uq-constr" table="public.departures">
-		<columns names="date" ref-type="src-columns"/>
 	</constraint>
 </table>
 
@@ -342,18 +336,24 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="arrivals" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+<table name="arrivals" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="620" y="380"/>
-	<column name="date" not-null="true">
-		<type name="date" length="0"/>
+	<column name="id" not-null="true">
+		<type name="serial" length="0"/>
 	</column>
 	<column name="departure_time">
 		<type name="time" length="0" dimension="1"/>
 	</column>
+	<column name="departures_id" not-null="true">
+		<type name="integer" length="0"/>
+	</column>
+	<column name="date" not-null="true">
+		<type name="date" length="0"/>
+	</column>
 	<constraint name="arrivals_pk" type="pk-constr" table="public.arrivals">
-		<columns names="date" ref-type="src-columns"/>
+		<columns names="id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
@@ -432,10 +432,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<columns names="id" ref-type="dst-columns"/>
 </constraint>
 
-<constraint name="date_departure" type="fk-constr" comparison-type="MATCH SIMPLE"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.departures" table="public.arrivals">
-	<columns names="date" ref-type="src-columns"/>
-	<columns names="date" ref-type="dst-columns"/>
+<constraint name="departure_id" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.departures" table="public.arrivals">
+	<columns names="departures_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
 </constraint>
 
 <constraint name="user_id" type="fk-constr" comparison-type="MATCH SIMPLE"
@@ -488,7 +488,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <relationship name="rel_arrivals_departures" type="relfk" layers="0"
 	 src-table="public.arrivals"
-	 dst-table="public.departures" reference-fk="date_departure"
+	 dst-table="public.departures" reference-fk="departure_id"
 	 src-required="false" dst-required="true"/>
 
 <relationship name="rel_delays_users" type="relfk" layers="0"
