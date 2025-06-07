@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dao.postgres.PostgreDepartureDao
 import dao.postgres.PostgreRouteDao
@@ -69,13 +70,17 @@ fun StopList() {
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Išči po imenu") },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = Color(0xFF990000),
                     unfocusedBorderColor = Color.Gray,
                     focusedLabelColor = Color(0xFF990000),
                     cursorColor = Color(0xFF990000)
-                )
+                ),
+                singleLine = true,
+                maxLines = 1
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -84,9 +89,10 @@ fun StopList() {
                 onClick = {
                     sortOption = if (sortOption == "ID") "NAME" else "ID"
                 },
-                modifier = Modifier.width(140.dp),
+                modifier = Modifier
+                    .width(140.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color(0xFF990000) // barva besedila in obrobe
+                    contentColor = Color(0xFF990000)
                 )
             ) {
                 Text("Sort: $sortOption")
@@ -135,11 +141,23 @@ fun StopList() {
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("ID: ${stop.id}", style = MaterialTheme.typography.caption)
-                                    Text(stop.name, style = MaterialTheme.typography.h6)
+                                    Text(
+                                        "ID: ${stop.id}",
+                                        style = MaterialTheme.typography.caption,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        stop.name,
+                                        style = MaterialTheme.typography.h6,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
                                     Text(
                                         "Lat: ${stop.latitude}, Lon: ${stop.longitude}",
-                                        style = MaterialTheme.typography.body2
+                                        style = MaterialTheme.typography.body2,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                 }
 
@@ -246,7 +264,9 @@ fun StopList() {
                                 Text(
                                     "Na to postajo je vezanih ${departures.size} odhodov:",
                                     style = MaterialTheme.typography.subtitle2,
-                                    modifier = Modifier.padding(start = 16.dp, top = 8.dp)
+                                    modifier = Modifier.padding(start = 16.dp, top = 8.dp),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
 
                                 //gumb "Izbriši vse"

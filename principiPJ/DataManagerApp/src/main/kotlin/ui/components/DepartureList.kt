@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dao.postgres.PostgreArrivalDao
 import dao.postgres.PostgreDepartureDao
@@ -86,27 +87,35 @@ fun DepartureList() {
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Išči po ${if (searchField == "STOP_ID") "postaji" else "smeri"}") },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = Color(0xFF990000),
                     unfocusedBorderColor = Color.Gray,
                     focusedLabelColor = Color(0xFF990000),
                     cursorColor = Color(0xFF990000)
-                )
+                ),
+                singleLine = true,
+                maxLines = 1
             )
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            OutlinedButton(onClick = {
-                sortOption = when (sortOption) {
-                    "ID" -> "STOP_ID"
-                    "STOP_ID" -> "DIR_ID"
-                    else -> "ID"
-                }
-            }, modifier = Modifier.width(140.dp),
+            OutlinedButton(
+                onClick = {
+                    sortOption = when (sortOption) {
+                        "ID" -> "STOP_ID"
+                        "STOP_ID" -> "DIR_ID"
+                        else -> "ID"
+                    }
+                },
+                modifier = Modifier
+                    .width(140.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = Color(0xFF990000)
-                )) {
+                )
+            ) {
                 Text("Sort: $sortOption")
             }
         }
@@ -146,13 +155,37 @@ fun DepartureList() {
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("ID: ${dep.id}", style = MaterialTheme.typography.caption)
-                                    Text("Datum: ${dep.date.format(DateTimeFormatter.ISO_LOCAL_DATE)}", style = MaterialTheme.typography.h6)
-                                    Text("Postaja ID: ${dep.stopId}", style = MaterialTheme.typography.body2)
-                                    Text("Smer ID: ${dep.directionId}", style = MaterialTheme.typography.body2)
+                                    Text(
+                                        "ID: ${dep.id}",
+                                        style = MaterialTheme.typography.caption,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        "Datum: ${dep.date.format(DateTimeFormatter.ISO_LOCAL_DATE)}",
+                                        style = MaterialTheme.typography.h6,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        "Postaja ID: ${dep.stopId}",
+                                        style = MaterialTheme.typography.body2,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        "Smer ID: ${dep.directionId}",
+                                        style = MaterialTheme.typography.body2,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
                                     arrival?.let { arr ->
-                                        Text("Časi odhodov: ${arr.departureTimes.joinToString(", ") { it.format(DateTimeFormatter.ISO_LOCAL_TIME) }}", 
-                                            style = MaterialTheme.typography.body2)
+                                        Text(
+                                            "Časi odhodov: ${arr.departureTimes.joinToString(", ") { it.format(DateTimeFormatter.ISO_LOCAL_TIME) }}",
+                                            style = MaterialTheme.typography.body2,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
                                     }
                                 }
                                 Row {

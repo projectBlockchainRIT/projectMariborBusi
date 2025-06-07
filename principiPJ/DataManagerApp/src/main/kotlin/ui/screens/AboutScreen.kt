@@ -26,7 +26,9 @@ fun AboutScreen() {
         Text(
             text = "Aplikacija za upravljanje s podatkovno bazo s funkcijami " +
                     "izpisovanja, urejanja in dodajanja podatkov.",
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
             textAlign = TextAlign.Center
         )
 
