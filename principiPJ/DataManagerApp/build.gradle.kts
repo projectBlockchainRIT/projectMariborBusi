@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
     id("org.jetbrains.kotlin.plugin.compose")
+    kotlin("plugin.serialization") version "2.1.10"
 }
 
 group = "com.projectBlockchainRIT"
@@ -31,6 +32,14 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:2.3.4")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.4")
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("org.postgresql:postgresql:42.7.3")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.0")
+    implementation("org.jetbrains.compose.runtime:runtime:1.5.0")
+    implementation("org.jetbrains.compose.material:material:1.5.0")
+    implementation("org.jetbrains.compose.ui:ui:1.5.0")
+    implementation("io.github.serpro69:kotlin-faker:1.13.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.7.3")
 }
 
 compose.desktop {

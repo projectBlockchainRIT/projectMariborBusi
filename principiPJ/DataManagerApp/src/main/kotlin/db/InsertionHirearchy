@@ -1,0 +1,8 @@
+
+top-down, higher ups are priority, less work
+
+USER === LINE === STOP (insert no restriction/work)
+
+ROUTE (REQ line) === DIRECTION (REQ line)
+
+DEPARTURE (REQ stop, REQ  direction)
