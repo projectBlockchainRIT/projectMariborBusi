@@ -75,14 +75,12 @@ fun DepartureList() {
         }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
         ) {
             OutlinedTextField(
                 value = searchQuery,

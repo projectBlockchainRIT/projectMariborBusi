@@ -52,126 +52,133 @@ fun AddDepartureForm() {
 
     val scrollState = rememberScrollState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+    Surface(
+        color = MaterialTheme.colors.surface,
+        modifier = Modifier.fillMaxSize()
     ) {
-        Text(
-            "Dodaj nov odhod",
-            style = MaterialTheme.typography.h5,
-            color = Color(0xFF990000)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = selectedDate,
-            onValueChange = { selectedDate = it },
-            label = { Text("Datum (YYYY-MM-DD)") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color(0xFF990000),
-                focusedLabelColor = Color(0xFF990000),
-                cursorColor = Color(0xFF990000)
-            )
-        )
-
-        OutlinedTextField(
-            value = departureTimes,
-            onValueChange = { departureTimes = it },
-            label = { Text("Časi odhodov (HH:mm:ss, HH:mm:ss, ...)") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color(0xFF990000),
-                focusedLabelColor = Color(0xFF990000),
-                cursorColor = Color(0xFF990000)
-            )
-        )
-
-        DirectionDropdown(
-            selectedId = selectedDirectionId,
-            onSelect = { selectedDirectionId = it }
-        )
-
-        StopDropdown(
-            selectedId = selectedStopId,
-            onSelect = { selectedStopId = it }
-        )
-
-        if (errorMessage.isNotEmpty()) {
-            Text(
-                errorMessage,
-                color = MaterialTheme.colors.error,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
-
-        Button(
-            onClick = {
-                try {
-                    val times = departureTimes.split(",")
-                        .map { it.trim() }
-                        .map { LocalTime.parse(it) }
-
-                    if (times.isEmpty()) {
-                        errorMessage = "Vnesi vsaj en čas odhoda."
-                        return@Button
-                    }
-
-                    if (selectedDirectionId == null) {
-                        errorMessage = "Izberi smer."
-                        return@Button
-                    }
-
-                    if (selectedStopId == null) {
-                        errorMessage = "Izberi postajo."
-                        return@Button
-                    }
-
-                    val departure = Departure(
-                        stopId = selectedStopId!!,
-                        directionId = selectedDirectionId!!,
-                        date = selectedDate
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedTextField(
+                    value = selectedDate,
+                    onValueChange = { selectedDate = it },
+                    label = { Text("Datum (YYYY-MM-DD)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Color(0xFF990000),
+                        focusedLabelColor = Color(0xFF990000),
+                        cursorColor = Color(0xFF990000)
                     )
+                )
 
-                    runBlocking {
-                        withContext(Dispatchers.IO) {
-                            if (departureDao.insert(departure)) {
-                                val insertedDeparture = departureDao.getAll()
-                                    .find { it.stopId == departure.stopId && 
-                                           it.directionId == departure.directionId && 
-                                           it.date == departure.date }
-                                
-                                insertedDeparture?.id?.let { id ->
-                                    val arrival = Arrival(
-                                        departureTimes = times.map { it.format(DateTimeFormatter.ISO_LOCAL_TIME) },
-                                        departuresId = id
-                                    )
-                                    arrivalDao.insert(arrival)
+                OutlinedTextField(
+                    value = departureTimes,
+                    onValueChange = { departureTimes = it },
+                    label = { Text("Časi odhodov (HH:mm:ss, HH:mm:ss, ...)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Color(0xFF990000),
+                        focusedLabelColor = Color(0xFF990000),
+                        cursorColor = Color(0xFF990000)
+                    )
+                )
+
+                DirectionDropdown(
+                    selectedId = selectedDirectionId,
+                    onSelect = { selectedDirectionId = it }
+                )
+
+                StopDropdown(
+                    selectedId = selectedStopId,
+                    onSelect = { selectedStopId = it }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (errorMessage.isNotEmpty()) {
+                Text(
+                    text = errorMessage,
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            Button(
+                onClick = {
+                    try {
+                        val times = departureTimes.split(",")
+                            .map { it.trim() }
+                            .map { LocalTime.parse(it) }
+
+                        if (times.isEmpty()) {
+                            errorMessage = "Vnesi vsaj en čas odhoda."
+                            return@Button
+                        }
+
+                        if (selectedDirectionId == null) {
+                            errorMessage = "Izberi smer."
+                            return@Button
+                        }
+
+                        if (selectedStopId == null) {
+                            errorMessage = "Izberi postajo."
+                            return@Button
+                        }
+
+                        val departure = Departure(
+                            stopId = selectedStopId!!,
+                            directionId = selectedDirectionId!!,
+                            date = selectedDate
+                        )
+
+                        runBlocking {
+                            withContext(Dispatchers.IO) {
+                                if (departureDao.insert(departure)) {
+                                    val insertedDeparture = departureDao.getAll()
+                                        .find {
+                                            it.stopId == departure.stopId &&
+                                                    it.directionId == departure.directionId &&
+                                                    it.date == departure.date
+                                        }
+
+                                    insertedDeparture?.id?.let { id ->
+                                        val arrival = Arrival(
+                                            departureTimes = times.map { it.format(DateTimeFormatter.ISO_LOCAL_TIME) },
+                                            departuresId = id
+                                        )
+                                        arrivalDao.insert(arrival)
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    errorMessage = "Odhod uspešno dodan!"
-                    selectedDate = java.time.LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-                    departureTimes = ""
-                    selectedDirectionId = null
-                    selectedStopId = null
-                } catch (e: Exception) {
-                    errorMessage = "Napaka: ${e.message}"
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color(0xFF990000),
-                contentColor = Color.White
-            )
-        ) {
-            Text("Dodaj")
+                        errorMessage = "Odhod uspešno dodan!"
+                        selectedDate = java.time.LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                        departureTimes = ""
+                        selectedDirectionId = null
+                        selectedStopId = null
+                    } catch (e: Exception) {
+                        errorMessage = "Napaka: ${e.message}"
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFF990000),
+                    contentColor = Color.White
+                )
+            ) {
+                Text("Dodaj")
+            }
+
         }
     }
 }
