@@ -4,6 +4,8 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,6 +40,7 @@ import ui.screens.*
 @Preview
 fun App() {
     var selectedScreen by remember { mutableStateOf("busStops") }
+    val verticalScrollState = rememberScrollState()
 
     MaterialTheme {
         Row (
@@ -46,9 +49,11 @@ fun App() {
             Column(
                 modifier = Modifier
                     .weight(1f)
+                    .fillMaxHeight()
                     .padding(8.dp)
                     .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
                     .clip(RoundedCornerShape(8.dp))
+                    .verticalScroll(verticalScrollState)
             ) {
                 NavItem(
                     text = "Add",
@@ -117,8 +122,8 @@ fun App() {
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "Database Manager App",
-        icon = BitmapPainter(useResource("redBus2.jpg", ::loadImageBitmap))
+        title = "M-Busi Controller",
+        icon = BitmapPainter(useResource("bus.png", ::loadImageBitmap))
     ) {
         App()
     }

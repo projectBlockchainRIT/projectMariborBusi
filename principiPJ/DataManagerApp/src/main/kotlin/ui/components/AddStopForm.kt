@@ -41,7 +41,7 @@ fun AddStopForm() {
                     .weight(1f)
                     .fillMaxWidth()
                     .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(

@@ -14,27 +14,44 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import dao.postgres.PostgreArrivalDao
 import dao.postgres.PostgreDepartureDao
 import dao.postgres.PostgreDirectionDao
 import dao.postgres.PostgreStopDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import model.Arrival
 import model.Departure
 import model.Direction
 import model.Stop
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun DepartureList() {
     val departureDao = PostgreDepartureDao()
+    val arrivalDao = PostgreArrivalDao()
 
     var departures by remember { mutableStateOf<List<Departure>>(emptyList()) }
+    var arrivals by remember { mutableStateOf<Map<Int, Arrival>>(emptyMap()) }
 
     LaunchedEffect(Unit) {
         val deps = withContext(Dispatchers.IO) {
             departureDao.getAll()
         }
         departures = deps
+
+        val arrs = withContext(Dispatchers.IO) {
+            deps.mapNotNull { dep ->
+                dep.id?.let { id ->
+                    arrivalDao.getArrivalsForDeparture(id)?.let { arr ->
+                        id to arr
+                    }
+                }
+            }.toMap()
+        }
+        arrivals = arrs
     }
 
     var searchQuery by remember { mutableStateOf("") }
@@ -42,71 +59,63 @@ fun DepartureList() {
     var sortOption by remember { mutableStateOf("ID") }
     val editingStates = remember { mutableStateMapOf<Int, Boolean>() }
 
-    val filteredAndSortedDepartures by remember(departures, searchQuery, searchField, sortOption) {
-        derivedStateOf {
-            departures
-                .filter {
-                    when (searchField) {
-                        "STOP_ID" -> it.stopId.toString().contains(searchQuery)
-                        "DIRECTION_ID" -> it.directionId.toString().contains(searchQuery)
-                        else -> true
-                    }
-                }
-                .sortedWith(
-                    when (sortOption) {
-                        "STOP_ID" -> compareBy { it.stopId }
-                        "DIRECTION_ID" -> compareBy { it.directionId }
-                        else -> compareBy { it.id ?: Int.MAX_VALUE }
-                    }
-                )
+    val filteredAndSortedDepartures = departures
+        .filter { dep ->
+            when (searchField) {
+                "STOP_ID" -> dep.stopId.toString().contains(searchQuery, ignoreCase = true)
+                "DIR_ID" -> dep.directionId.toString().contains(searchQuery, ignoreCase = true)
+                else -> true
+            }
         }
-    }
+        .sortedWith { a, b ->
+            when (sortOption) {
+                "STOP_ID" -> a.stopId.compareTo(b.stopId)
+                "DIR_ID" -> a.directionId.compareTo(b.directionId)
+                else -> (a.id ?: 0).compareTo(b.id ?: 0)
+            }
+        }
 
-    Column {
+    Column(
+    ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
         ) {
-            OutlinedButton(
-                onClick = {
-                    searchField = if (searchField == "STOP_ID") "DIRECTION_ID" else "STOP_ID"
-                },
-                modifier = Modifier.width(140.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color(0xFF990000) // barva besedila in obrobe
-                )
-            ) {
-                Text("Search: ${if (searchField == "STOP_ID") "STOP" else "DIR"}")
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Išči po ${if (searchField == "STOP_ID") "postaji" else "smeri"}") },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = Color(0xFF990000),
                     unfocusedBorderColor = Color.Gray,
                     focusedLabelColor = Color(0xFF990000),
                     cursorColor = Color(0xFF990000)
-                )
-
+                ),
+                singleLine = true,
+                maxLines = 1
             )
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            OutlinedButton(onClick = {
-                sortOption = when (sortOption) {
-                    "ID" -> "STOP_ID"
-                    "STOP_ID" -> "DIR_ID"
-                    else -> "ID"
-                }
-            }, modifier = Modifier.width(140.dp),
+            OutlinedButton(
+                onClick = {
+                    sortOption = when (sortOption) {
+                        "ID" -> "STOP_ID"
+                        "STOP_ID" -> "DIR_ID"
+                        else -> "ID"
+                    }
+                },
+                modifier = Modifier
+                    .width(140.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = Color(0xFF990000)
-                )) {
+                )
+            ) {
                 Text("Sort: $sortOption")
             }
         }
@@ -129,6 +138,7 @@ fun DepartureList() {
                 items(filteredAndSortedDepartures) { dep ->
                     val isEditing = editingStates[dep.id] == true
                     var editableDeparture by remember(dep.id) { mutableStateOf(dep) }
+                    val arrival = dep.id?.let { arrivals[it] }
 
                     Card(
                         modifier = Modifier
@@ -145,10 +155,38 @@ fun DepartureList() {
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("ID: ${dep.id}", style = MaterialTheme.typography.caption)
-                                    Text("Odhod: ${dep.departure}", style = MaterialTheme.typography.h6)
-                                    Text("Postaja ID: ${dep.stopId}", style = MaterialTheme.typography.body2)
-                                    Text("Smer ID: ${dep.directionId}", style = MaterialTheme.typography.body2)
+                                    Text(
+                                        "ID: ${dep.id}",
+                                        style = MaterialTheme.typography.caption,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        "Datum: ${dep.date.format(DateTimeFormatter.ISO_LOCAL_DATE)}",
+                                        style = MaterialTheme.typography.h6,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        "Postaja ID: ${dep.stopId}",
+                                        style = MaterialTheme.typography.body2,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        "Smer ID: ${dep.directionId}",
+                                        style = MaterialTheme.typography.body2,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    arrival?.let { arr ->
+                                        Text(
+                                            "Časi odhodov: ${arr.departureTimes.joinToString(", ") { it.format(DateTimeFormatter.ISO_LOCAL_TIME) }}",
+                                            style = MaterialTheme.typography.body2,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
                                 }
                                 Row {
                                     IconButton(onClick = {
@@ -167,20 +205,6 @@ fun DepartureList() {
                             }
 
                             if (isEditing) {
-                                OutlinedTextField(
-                                    value = editableDeparture.departure,
-                                    onValueChange = {
-                                        editableDeparture = editableDeparture.copy(departure = it)
-                                    },
-                                    label = { Text("Odhod (HH:mm:ss)") },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                                        focusedBorderColor = Color(0xFF990000),
-                                        focusedLabelColor = Color(0xFF990000),
-                                        cursorColor = Color(0xFF990000)
-                                    )
-                                )
-
                                 DirectionDropdown(
                                     selectedId = editableDeparture.directionId,
                                     onSelect = { editableDeparture = editableDeparture.copy(directionId = it) }

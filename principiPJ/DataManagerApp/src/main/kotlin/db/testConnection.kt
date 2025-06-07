@@ -62,12 +62,6 @@ fun main() {
             name = "smer"
         )
 
-        val departure = Departure (
-            stopId = 1,
-            directionId = 1,
-            departure = "13:30:10"
-        )
-
         val geoJsonPath = """
         [
             [46.5606, 15.6459],
