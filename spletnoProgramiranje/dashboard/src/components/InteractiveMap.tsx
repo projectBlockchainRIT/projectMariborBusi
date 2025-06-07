@@ -35,7 +35,7 @@ export default function InteractiveMap() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch('http://localhost:8080/v1/stations/list', {
+        const response = await fetch('http://40.68.198.73:8080/v1/stations/list', {
           signal,
           headers: {
             'Accept': 'application/json',
@@ -102,7 +102,7 @@ export default function InteractiveMap() {
   try {
     setLoading(true);
     
-    const response = await fetch(`http://localhost:8080/v1/routes/${routeId}`, {
+    const response = await fetch(`http://40.68.198.73:8080/v1/routes/${routeId}`, {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -236,7 +236,7 @@ export default function InteractiveMap() {
 
     try {
       // Try to fetch station location
-      const response = await fetch(`http://localhost:8080/v1/stations/location/${station.id}`, {
+      const response = await fetch(`http://40.68.198.73:8080/v1/stations/location/${station.id}`, {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
