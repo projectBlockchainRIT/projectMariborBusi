@@ -1,4 +1,185 @@
 basePath: /v1
+definitions:
+  data.APIDelay:
+    properties:
+      delay_time:
+        type: number
+      description:
+        type: string
+      id:
+        type: integer
+      line_id:
+        type: integer
+      report_time:
+        type: string
+      station_id:
+        type: integer
+    type: object
+  data.APIDelayEntry:
+    properties:
+      delay_time:
+        type: number
+      description:
+        type: string
+      id:
+        type: integer
+      line_id:
+        type: integer
+      report_time:
+        type: string
+    type: object
+  data.APILineAverageDelay:
+    properties:
+      average_delay:
+        type: number
+      line_id:
+        type: integer
+      max_delay:
+        type: number
+      min_delay:
+        type: number
+      total_incidents:
+        type: integer
+    type: object
+  data.APILineDelayCount:
+    properties:
+      count:
+        type: integer
+      delay_time:
+        type: number
+      line_id:
+        type: integer
+    type: object
+  data.APIMostRecentDelay:
+    properties:
+      delay_time:
+        type: number
+      description:
+        type: string
+      id:
+        type: integer
+      line_id:
+        type: integer
+      report_time:
+        type: string
+    type: object
+  data.APIUserDelay:
+    properties:
+      delay_time:
+        type: number
+      description:
+        type: string
+      id:
+        type: integer
+      line_id:
+        type: integer
+      report_time:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  data.AvgDailyOccupancy:
+    properties:
+      avgDailyOccupancy:
+        type: number
+      date:
+        type: string
+    type: object
+  data.AvgOccupancyByHour:
+    properties:
+      avgOccupancy:
+        type: number
+      hourOfDay:
+        type: integer
+    type: object
+  data.DepartureGroup:
+    properties:
+      direction:
+        type: string
+      line:
+        type: string
+      times:
+        items:
+          type: string
+        type: array
+    type: object
+  data.Location:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+      radius:
+        type: integer
+    type: object
+  data.LoginUserPayload:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  data.OccupancyRecord:
+    properties:
+      occupancyLevel:
+        type: integer
+      time:
+        type: string
+    type: object
+  data.RegisterUserPayload:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  data.Route:
+    properties:
+      id:
+        type: integer
+      line_id:
+        type: integer
+      name:
+        type: string
+      path:
+        items:
+          items:
+            type: number
+          type: array
+        type: array
+    type: object
+  data.Stop:
+    properties:
+      id:
+        type: integer
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      number:
+        type: string
+    type: object
+  data.StopMetadata:
+    properties:
+      departures:
+        items:
+          $ref: '#/definitions/data.DepartureGroup'
+        type: array
+      id:
+        type: integer
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      number:
+        type: string
+    type: object
 info:
   contact:
     email: support@swagger.io
@@ -11,5 +192,618 @@ info:
   termsOfService: http://swagger.io/terms/
   title: M-Busi
   version: "1.0"
-paths: {}
+paths:
+  /authentication/login:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Authenticates a user with their email and password, returning a JWT token for access.
+        The endpoint validates the provided credentials against stored user data,
+        ensuring the password matches the hashed version in the database.
+        Upon successful authentication, returns a JWT token that should be included
+        in subsequent API requests in the Authorization header.
+        The token includes user identification and expiration information.
+      parameters:
+      - description: User login credentials (email and password)
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/data.LoginUserPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT token for authenticated access
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Authenticate user and get access token
+      tags:
+      - authentication
+  /authentication/register:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Creates a new user account in the system with the provided credentials.
+        The endpoint expects a JSON payload containing username, email, and password.
+        The password is securely hashed before storage, and the email must be unique
+        in the system. Upon successful registration, the user can proceed to login.
+        This endpoint performs validation of input data and checks for existing emails.
+      parameters:
+      - description: User registration details including username, email, and password
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/data.RegisterUserPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User successfully registered
+      summary: Register a new user account
+      tags:
+      - authentication
+  /delays/average:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Provides comprehensive statistics about average delays across the entire bus network.
+        The response includes system-wide mean delay time, variation by time of day,
+        seasonal patterns, and comparative analysis across different service areas.
+        This data is essential for overall system performance assessment and planning.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: System-wide average delay in minutes
+          schema:
+            type: number
+      summary: Get system-wide average delay statistics
+      tags:
+      - delays
+  /delays/average/{lineId}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Calculates and returns the average delay duration for a particular bus line.
+        The response includes mean delay time, standard deviation, peak delay periods,
+        and historical trends. This information helps understand service reliability
+        and identify patterns in service disruptions for specific routes.
+      parameters:
+      - description: Unique identifier of the bus line
+        in: path
+        name: lineId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Detailed delay statistics for the specified line
+          schema:
+            $ref: '#/definitions/data.APILineAverageDelay'
+      summary: Get average delay duration for a specific line
+      tags:
+      - delays
+  /delays/lines/number:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Returns statistical data about delay frequencies for each bus line.
+        The response includes the total number of delays per line, frequency patterns,
+        common delay causes, and trend analysis where available.
+        This data is valuable for identifying problematic routes and planning improvements.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Delay frequency statistics by line
+          schema:
+            items:
+              $ref: '#/definitions/data.APILineDelayCount'
+            type: array
+      summary: Get delay frequency statistics by bus line
+      tags:
+      - delays
+  /delays/recent:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Provides a list of the most recent delay incidents across all bus lines and stations.
+        The response includes comprehensive details about each delay, including location,
+        duration, affected services, passenger impact, and current status.
+        This endpoint is crucial for real-time system monitoring and service updates.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of recent system-wide delays with full details
+          schema:
+            items:
+              $ref: '#/definitions/data.APIMostRecentDelay'
+            type: array
+      summary: Get most recent delays across the entire system
+      tags:
+      - delays
+  /delays/recent/line/{lineId}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Returns the most recent delay incidents for a particular bus line.
+        The data includes detailed timing information, delay durations, locations,
+        passenger impact, and any available resolution information.
+        This endpoint is useful for monitoring current service status and recent performance.
+      parameters:
+      - description: Unique identifier of the bus line
+        in: path
+        name: lineId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Recent delays with comprehensive details
+          schema:
+            items:
+              $ref: '#/definitions/data.APIDelayEntry'
+            type: array
+      summary: Get recent delays for a specific bus line
+      tags:
+      - delays
+  /delays/station/{stationId}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Retrieves a comprehensive list of all recorded delays at a particular bus station.
+        The response includes detailed information about each delay incident, including
+        timestamp, duration, cause (if available), affected bus lines, and impact level.
+        This data helps analyze station-specific performance and identify problematic locations.
+      parameters:
+      - description: Unique identifier of the bus station
+        in: path
+        name: stationId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of delays with detailed information
+          schema:
+            items:
+              $ref: '#/definitions/data.APIDelay'
+            type: array
+      summary: Get all delays for a specific station
+      tags:
+      - delays
+  /delays/user/{userId}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Retrieves all delay reports submitted by a particular user.
+        The response includes full details of each reported delay, including
+        timestamp, location, affected services, and any additional notes provided.
+        This endpoint helps track user contributions and verify reporting patterns.
+      parameters:
+      - description: Unique identifier of the user
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of user-reported delays with details
+          schema:
+            items:
+              $ref: '#/definitions/data.APIUserDelay'
+            type: array
+      summary: Get all delays reported by a specific user
+      tags:
+      - delays
+  /estimate/simulate/{lineId}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Provides simulated real-time updates of bus positions for a specific line via WebSocket.
+        The simulation includes realistic bus movements along the route, considering schedules,
+        typical speeds, and stop times. Updates are sent every 2 seconds with precise coordinates
+        and movement patterns. This endpoint is useful for testing and demonstration purposes.
+      parameters:
+      - description: Unique identifier of the bus line to simulate
+        in: path
+        name: lineId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "101":
+          description: Switching protocols to WebSocket
+          schema:
+            type: string
+      summary: Simulate real-time bus positions for a specific line
+      tags:
+      - routes
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Returns the current health status of the API service, including environment information
+        and version details. This endpoint is useful for monitoring service availability,
+        performing health checks, and verifying deployment configurations.
+        The response includes the service status, environment name, and version number.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Health status information including environment and version
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Check API health status
+      tags:
+      - system
+  /occupancy/average/{date}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Provides detailed daily occupancy analytics across the entire bus network for a specific date.
+        The response includes comprehensive metrics such as daily passenger totals, peak hours identification,
+        line-by-line comparisons, unusual patterns detection, and historical trend analysis.
+        This data is crucial for daily operations management, service optimization,
+        and understanding system-wide usage patterns on specific dates (e.g., events, holidays).
+        The information helps in both operational planning and user travel planning.
+      parameters:
+      - description: Target date in YYYY-MM-DD format
+        in: path
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comprehensive daily occupancy statistics with detailed analysis
+          schema:
+            $ref: '#/definitions/data.AvgDailyOccupancy'
+      summary: Get average daily occupancy across all lines for a specific date
+      tags:
+      - occupancy
+  /occupancy/average/{hour}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Calculates and returns comprehensive average occupancy statistics across all bus lines for a specific hour.
+        This aggregated data includes system-wide occupancy patterns, comparative analysis between different lines,
+        identification of busiest routes, and historical trends for the specified hour.
+        The endpoint is valuable for system-wide capacity planning, identifying peak travel patterns,
+        and helping users understand general system busyness during specific hours.
+        Results can be used for optimizing service frequency and capacity allocation.
+      parameters:
+      - description: Hour of the day (0-23)
+        in: path
+        name: hour
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: System-wide average occupancy statistics with detailed breakdowns
+          schema:
+            $ref: '#/definitions/data.AvgOccupancyByHour'
+      summary: Get average occupancy across all lines for a specific hour
+      tags:
+      - occupancy
+  /occupancy/line/{lineId}/date/{date}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Retrieves comprehensive occupancy data for a specific bus line throughout an entire day.
+        The data includes hourly breakdowns of passenger counts, occupancy percentages,
+        peak and off-peak patterns, and historical comparisons where available.
+        This endpoint is particularly useful for analyzing daily ridership patterns,
+        planning capacity adjustments, and helping users choose less crowded travel times.
+        The response includes timestamps, occupancy levels, and trend indicators.
+      parameters:
+      - description: Unique identifier of the bus line
+        in: path
+        name: lineId
+        required: true
+        type: integer
+      - description: Target date in YYYY-MM-DD format
+        in: path
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Detailed hourly occupancy data for the specified day
+          schema:
+            items:
+              $ref: '#/definitions/data.OccupancyRecord'
+            type: array
+      summary: Get detailed bus line occupancy throughout a specific day
+      tags:
+      - occupancy
+  /occupancy/line/{lineId}/date/{date}/hour/{hour}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Provides granular occupancy data for a specific bus line during a particular hour of a day.
+        The response includes detailed metrics such as current passenger count, capacity percentage,
+        historical comparison for the same hour, typical occupancy patterns, and real-time updates if available.
+        This endpoint is essential for real-time crowd management and helping users plan their immediate travel.
+        The data can be used to make informed decisions about immediate travel plans and avoid overcrowded buses.
+      parameters:
+      - description: Unique identifier of the bus line
+        in: path
+        name: lineId
+        required: true
+        type: integer
+      - description: Target date in YYYY-MM-DD format
+        in: path
+        name: date
+        required: true
+        type: string
+      - description: Hour of the day (0-23)
+        in: path
+        name: hour
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Detailed occupancy data for the specified hour
+          schema:
+            items:
+              $ref: '#/definitions/data.OccupancyRecord'
+            type: array
+      summary: Get detailed bus line occupancy for a specific hour
+      tags:
+      - occupancy
+  /routes/{lineId}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Retrieves comprehensive route data for a specific bus line, including the complete path,
+        all waypoints, direction information, and geographical coordinates for the entire route.
+        The response includes detailed path segments, turn-by-turn information, and route variants if available.
+        This endpoint is essential for mapping applications and route visualization features.
+      parameters:
+      - description: Unique identifier of the bus line
+        in: path
+        name: lineId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Complete route information including path coordinates
+          schema:
+            $ref: '#/definitions/data.Route'
+      summary: Get detailed route information for a specific bus line
+      tags:
+      - routes
+  /routes/active:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Returns the number of bus routes that are currently in service or active.
+        This includes routes with buses currently running, scheduled for the current time period,
+        or marked as active in the system. The count helps understand current service coverage
+        and system activity levels.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Number of active routes
+          schema:
+            type: integer
+      summary: Get the count of currently active bus routes
+      tags:
+      - routes
+  /routes/list:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Provides a comprehensive list of all bus routes in the system, including active and inactive routes.
+        Each route entry contains basic information such as route number, name, terminal stations,
+        service frequency, operating hours, and current status.
+        This endpoint is useful for displaying the complete network coverage and available services.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of all routes with basic information
+          schema:
+            items:
+              $ref: '#/definitions/data.Route'
+            type: array
+      summary: Get a list of all available bus routes
+      tags:
+      - routes
+  /routes/realtime:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Establishes a WebSocket connection to receive real-time updates about bus locations.
+        The connection sends periodic updates (every 5 seconds) with current bus positions,
+        including coordinates, heading, speed, and next stop information.
+        This endpoint is crucial for real-time tracking features in client applications.
+      produces:
+      - application/json
+      responses:
+        "101":
+          description: Switching protocols to WebSocket
+          schema:
+            type: string
+      summary: Get real-time bus location updates via WebSocket
+      tags:
+      - routes
+  /routes/stations/{lineId}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Returns a detailed list of all stations that are part of a specific bus line's route.
+        The response includes station ordering, distances between stations, estimated travel times,
+        platform information, and any special notes about each stop on the route.
+        This data is crucial for journey planning and providing users with complete route information.
+      parameters:
+      - description: Unique identifier of the bus line
+        in: path
+        name: lineId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ordered list of stations with detailed information
+          schema:
+            items:
+              $ref: '#/definitions/data.Stop'
+            type: array
+      summary: Get all stations along a specific bus route
+      tags:
+      - routes
+  /stations:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Returns a detailed list of all available bus stations in the system. Each station entry includes
+        its unique identifier, geographical coordinates (latitude and longitude), full name, description,
+        current status, and any associated metadata such as nearby landmarks or accessibility features.
+        This endpoint is useful for applications needing to display all available stations or create a station map.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of stations with their complete details
+          schema:
+            items:
+              $ref: '#/definitions/data.Stop'
+            type: array
+      summary: Retrieve a comprehensive list of all bus stations
+      tags:
+      - stations
+  /stations/{stationId}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Fetches comprehensive information about a single bus station identified by its unique ID.
+        The response includes detailed station attributes such as exact location coordinates,
+        full station name, operational status, platform information, accessibility features,
+        available facilities, and real-time status updates if available.
+        This endpoint is essential for displaying detailed station information to users.
+      parameters:
+      - description: Unique identifier of the bus station
+        in: path
+        name: stationId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Complete station details including location and status
+          schema:
+            $ref: '#/definitions/data.Stop'
+      summary: Retrieve detailed information for a specific bus station
+      tags:
+      - stations
+  /stations/{stationId}/metadata:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Retrieves advanced metadata and supplementary information for a specific station.
+        This includes detailed information such as historical occupancy patterns,
+        peak hours, typical waiting times, available amenities (shelters, benches, lighting),
+        accessibility features (wheelchair access, tactile paving), nearby points of interest,
+        and any special notes about the station's operation or temporary changes.
+        This data is particularly useful for journey planning and accessibility requirements.
+      parameters:
+      - description: Unique identifier of the station to fetch metadata for
+        in: path
+        name: stationId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comprehensive metadata including historical data and features
+          schema:
+            $ref: '#/definitions/data.StopMetadata'
+      summary: Fetch extended metadata for a specific station
+      tags:
+      - stations
+  /stations/nearby:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Searches for and returns a list of bus stations within a specified radius of given coordinates.
+        The search uses precise geolocation calculations to find stations, considering the actual
+        walking distance where possible. Results are sorted by proximity to the provided location.
+        Each station in the response includes distance from the search point, walking time estimates,
+        and complete station details including real-time availability and accessibility information.
+        This endpoint is crucial for mobile apps and location-based services.
+      parameters:
+      - description: JSON object containing latitude, longitude, and search radius
+          in meters
+        in: body
+        name: location
+        required: true
+        schema:
+          $ref: '#/definitions/data.Location'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Array of nearby stations sorted by distance, with complete
+            details
+          schema:
+            items:
+              $ref: '#/definitions/data.Stop'
+            type: array
+      summary: Locate nearby bus stations based on geographical coordinates
+      tags:
+      - stations
 swagger: "2.0"

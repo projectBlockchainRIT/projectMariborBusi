@@ -21,6 +21,17 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+//	@Summary		Get detailed route information for a specific bus line
+//	@Description	Retrieves comprehensive route data for a specific bus line, including the complete path,
+//	@Description	all waypoints, direction information, and geographical coordinates for the entire route.
+//	@Description	The response includes detailed path segments, turn-by-turn information, and route variants if available.
+//	@Description	This endpoint is essential for mapping applications and route visualization features.
+//	@Tags			routes
+//	@Accept			json
+//	@Produce		json
+//	@Param			lineId	path		int			true	"Unique identifier of the bus line"
+//	@Success		200		{object}	data.Route	"Complete route information including path coordinates"
+//	@Router			/routes/{lineId} [get]
 func (app *app) getRouteOfLineHandler(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "lineId")
 	lineId, err := strconv.ParseInt(idParam, 10, 64)
@@ -47,6 +58,17 @@ func (app *app) getRouteOfLineHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//	@Summary		Get all stations along a specific bus route
+//	@Description	Returns a detailed list of all stations that are part of a specific bus line's route.
+//	@Description	The response includes station ordering, distances between stations, estimated travel times,
+//	@Description	platform information, and any special notes about each stop on the route.
+//	@Description	This data is crucial for journey planning and providing users with complete route information.
+//	@Tags			routes
+//	@Accept			json
+//	@Produce		json
+//	@Param			lineId	path	int			true	"Unique identifier of the bus line"
+//	@Success		200		{array}	data.Stop	"Ordered list of stations with detailed information"
+//	@Router			/routes/stations/{lineId} [get]
 func (app *app) getStationsOnRouteHandler(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "lineId")
 	lineId, err := strconv.ParseInt(idParam, 10, 64)
@@ -73,6 +95,16 @@ func (app *app) getStationsOnRouteHandler(w http.ResponseWriter, r *http.Request
 
 }
 
+//	@Summary		Get a list of all available bus routes
+//	@Description	Provides a comprehensive list of all bus routes in the system, including active and inactive routes.
+//	@Description	Each route entry contains basic information such as route number, name, terminal stations,
+//	@Description	service frequency, operating hours, and current status.
+//	@Description	This endpoint is useful for displaying the complete network coverage and available services.
+//	@Tags			routes
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{array}	data.Route	"List of all routes with basic information"
+//	@Router			/routes/list [get]
 func (app *app) routesListHandler(w http.ResponseWriter, r *http.Request) {
 	var routes []data.Route
 	ctx := r.Context()
@@ -92,6 +124,16 @@ func (app *app) routesListHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//	@Summary		Get real-time bus location updates via WebSocket
+//	@Description	Establishes a WebSocket connection to receive real-time updates about bus locations.
+//	@Description	The connection sends periodic updates (every 5 seconds) with current bus positions,
+//	@Description	including coordinates, heading, speed, and next stop information.
+//	@Description	This endpoint is crucial for real-time tracking features in client applications.
+//	@Tags			routes
+//	@Accept			json
+//	@Produce		json
+//	@Success		101	{string}	string	"Switching protocols to WebSocket"
+//	@Router			/routes/realtime [get]
 func (app *app) getRealtimeLine(w http.ResponseWriter, r *http.Request) {
 	// Upgrade the HTTP connection to a WebSocket connection
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -138,6 +180,16 @@ func (app *app) getRealtimeLine(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//	@Summary		Get the count of currently active bus routes
+//	@Description	Returns the number of bus routes that are currently in service or active.
+//	@Description	This includes routes with buses currently running, scheduled for the current time period,
+//	@Description	or marked as active in the system. The count helps understand current service coverage
+//	@Description	and system activity levels.
+//	@Tags			routes
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{integer}	int	"Number of active routes"
+//	@Router			/routes/active [get]
 func (app *app) getActiveRoutes(w http.ResponseWriter, r *http.Request) {
 	var activeRoutes int
 	ctx := r.Context()
@@ -156,6 +208,17 @@ func (app *app) getActiveRoutes(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//	@Summary		Simulate real-time bus positions for a specific line
+//	@Description	Provides simulated real-time updates of bus positions for a specific line via WebSocket.
+//	@Description	The simulation includes realistic bus movements along the route, considering schedules,
+//	@Description	typical speeds, and stop times. Updates are sent every 2 seconds with precise coordinates
+//	@Description	and movement patterns. This endpoint is useful for testing and demonstration purposes.
+//	@Tags			routes
+//	@Accept			json
+//	@Produce		json
+//	@Param			lineId	path		int		true	"Unique identifier of the bus line to simulate"
+//	@Success		101		{string}	string	"Switching protocols to WebSocket"
+//	@Router			/estimate/simulate/{lineId} [get]
 func (app *app) serveRealtimeLine(w http.ResponseWriter, r *http.Request) {
 	conn, err := wsUpgrader.Upgrade(w, r, nil)
 	if err != nil {
