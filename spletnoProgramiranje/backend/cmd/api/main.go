@@ -9,6 +9,20 @@ import (
 
 const version = "0.0.1"
 
+//	@title			M-Busi
+//	@version		1.0
+//	@description	Bus simulation app
+//	@termsOfService	http://swagger.io/terms/
+
+//	@contact.name	API Support
+//	@contact.url	http://www.swagger.io/support
+//	@contact.email	support@swagger.io
+
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+
+//	@BasePath	/v1
+
 func main() {
 
 	cfg := dbConfig{
@@ -36,6 +50,7 @@ func main() {
 			address: env.GetString("ADDR", ":8080"),
 			db:      cfg,
 			env:     env.GetString("ENV", "development"),
+			apiURL:  env.GetString("EXTERNAL_URL", "localhost:3000"),
 		},
 		store: store,
 	}

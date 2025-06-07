@@ -6,10 +6,13 @@ import (
 	"net/http"
 	"time"
 
+	"backend/docs"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/gorilla/websocket"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type app struct {
@@ -21,6 +24,7 @@ type config struct {
 	address string
 	db      dbConfig
 	env     string
+	apiURL  string
 }
 
 type dbConfig struct {
@@ -42,9 +46,12 @@ func (app *app) mount() http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{"http://localhost:5173"},
-		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
-		AllowedHeaders: []string{"Accept", "Content-Type"},
+		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowedHeaders:   []string{"Accept", "Content-Type"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
 	}))
 
 	r.Use(middleware.Logger)
@@ -61,6 +68,11 @@ func (app *app) mount() http.Handler {
 	// easy addition of new handlers and routes in the future without breaking the current funcionality
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/health", app.WithJWTAuth(app.healthCheckHandler))
+
+		docsURL := fmt.Sprintf("%s/swagger/doc.json", app.serverConfig.address)
+		r.Get("/swagger/*", httpSwagger.Handler(
+			httpSwagger.URL(docsURL),
+		))
 
 		r.Route("/stations", func(r chi.Router) {
 			r.Get("/list", app.stationsListHandler)               // fetch a list of basic station data for displaying a list
@@ -107,6 +119,8 @@ func (app *app) mount() http.Handler {
 }
 
 func (app *app) run(mux http.Handler) error {
+
+	docs.SwaggerInfo.Host = app.serverConfig.apiURL
 
 	server := &http.Server{
 		Addr:         app.serverConfig.address,

@@ -25,8 +25,6 @@ func (app *app) getShortestPath(w http.ResponseWriter, r *http.Request) {
 
 	stopsAtDestination, err := app.store.Stations.ReadThreeStationsAtDestination(ctx, &payload)
 
-	//utils.WriteJSONResponse(w, http.StatusOK, stopsAtDestination)
-
 	linesAtDestination, err := app.store.Stations.ReadStationLines(ctx, stopsAtDestination)
 
 	stopsAtLocation, err := app.store.Stations.ReadThreeStationsAtLocation(ctx, &payload, linesAtDestination)

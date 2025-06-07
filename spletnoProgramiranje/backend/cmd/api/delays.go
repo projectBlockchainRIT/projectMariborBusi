@@ -8,8 +8,6 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-const dateLayout = "2006-01-02"
-
 func (app *app) getDelaysForStation(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "stationId")
 
