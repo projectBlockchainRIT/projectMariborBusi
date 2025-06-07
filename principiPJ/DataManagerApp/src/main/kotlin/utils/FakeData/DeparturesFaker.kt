@@ -1,7 +1,9 @@
 package utils.FakeData
 
 import model.Departure
+import java.time.LocalDate
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import kotlin.random.Random
 
 fun generateFakeDeparture(stopId: Int, directionId: Int, from: String, to: String): Departure {
@@ -14,12 +16,13 @@ fun generateFakeDeparture(stopId: Int, directionId: Int, from: String, to: Strin
     val randomSecond = Random.nextInt(fromSeconds, toSeconds)
     val generatedTime = LocalTime.ofSecondOfDay(randomSecond.toLong())
 
-    val formattedTime = "%02d:%02d:%02d".format(generatedTime.hour, generatedTime.minute, generatedTime.second)
+    val formattedTime = generatedTime.format(DateTimeFormatter.ISO_LOCAL_TIME)
+    val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
 
     return Departure(
         stopId = stopId,
         directionId = directionId,
-        departure = formattedTime
+        date = today
     )
 }
 
