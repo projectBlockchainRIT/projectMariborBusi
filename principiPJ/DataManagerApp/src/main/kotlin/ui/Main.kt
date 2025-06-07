@@ -122,7 +122,7 @@ fun App() {
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "BusBase Controller",
+        title = "M-Busi Controller",
         icon = BitmapPainter(useResource("bus.png", ::loadImageBitmap))
     ) {
         App()
