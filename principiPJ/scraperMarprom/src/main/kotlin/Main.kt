@@ -105,26 +105,17 @@ class MarpromScraper {
         val stops = mutableListOf<BusStopInfoNext>()
         try {
             val doc = Jsoup.connect("$baseUrl/").get()
-
             val stopRows = doc.select("table#TableOfStops > tbody > tr")
 
-            //podrobnost postajalisca
             for (row in stopRows) {
-                //onClick vsebuje ID med 'stop=' in '&'
                 val onclickAttr = row.attr("onclick")
                 val stopId = onclickAttr.substringAfter("stop=").substringBefore("&").trim()
-
                 val tds = row.select("td")
 
                 if (tds.size >= 2) {
                     val stopNumber = tds[1].select("b.paddingTd").first()?.text()?.trim() ?: ""
                     val stopName = tds[1].select("b:not(.paddingTd)").first()?.text()?.trim() ?: ""
-
-                    println("Scraping $stopName")
-
-                    val stopDetails = scrapeStopDetails(stopId)
-
-                    stops.add(BusStop(stopId, stopNumber, stopName, stopDetails))
+                    stops.add(BusStopInfoNext(stopId, stopNumber, stopName))
                 }
             }
         } catch (e: IOException) {
@@ -147,27 +138,22 @@ class MarpromScraper {
             val dateString = getDateString(date)
             val doc = Jsoup.connect("$baseUrl/?stop=$stopId&datum=$dateString").get()
 
-            //odhodi PO linijah
             val tables = doc.select("div.modal-body table.table-bordered")
 
-            //prvi dve tabeli NIMATA linij
             if (tables.size > 2) {
                 for (i in 2 until tables.size) {
                     val table = tables[i]
                     val titleElement = table.previousElementSibling()
 
-                    //ali je naslov "Naslednji odhodi za linijo"
                     if (titleElement != null && titleElement.text().contains("Naslednji odhodi za linijo")) {
-                        //stevilka LINIJE
                         val line = titleElement.select("span.modal-btn-route-position").text().trim()
-
                         val rows = table.select("tbody tr:not(:has(td.tdBackColor))")
 
                         for (row in rows) {
-                            //levi del tabele(ime postaje) ma CLASS tdWidth, desni(casi odhoda) NIMA
                             val direction = row.select("td.tdWidth").text().trim()
                             val timesText = row.select("td:not(.tdWidth)").text().trim()
 
+                            // Filter for valid time formats and sort them
                             val times = timesText.split("\\s+".toRegex())
                                 .filter { it.isNotBlank() && isValidTimeFormat(it) }
                                 .sortedWith(compareBy { LocalTime.parse(it) })
@@ -211,8 +197,8 @@ fun main() {
 
     // --- Configuration for scraping date range ---
     val today = LocalDate.now()
-    val numberOfPastDays = 2 // Scrape 3 days BEFORE today (e.g., if today is June 6, scrape June 3, 4, 5)
-    val numberOfFutureDays = 3 // Scrape 7 days FROM today (e.g., if today is June 6, scrape June 6, 7, 8, 9, 10, 11, 12)
+    val numberOfPastDays = 1 // Scrape 3 days BEFORE today (e.g., if today is June 6, scrape June 3, 4, 5)
+    val numberOfFutureDays = 2 // Scrape 7 days FROM today (e.g., if today is June 6, scrape June 6, 7, 8, 9, 10, 11, 12)
     // Total days scraped will be numberOfPastDays + numberOfFutureDays
 
     println("Starting to scrape data for dates from ${today.minusDays(numberOfPastDays.toLong())} to ${today.plusDays(numberOfFutureDays.toLong() - 1)}")
