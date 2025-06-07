@@ -36,7 +36,7 @@ fun LineList() {
     }
 
     var searchQuery by remember { mutableStateOf("") }
-    var sortOption by remember { mutableStateOf("ID") } // "ID" ali "NAME"
+    var sortOption by remember { mutableStateOf("ID") } //ID ali NAME
 
     var expandedLineEditId by remember { mutableStateOf<Int?>(null) }
 
@@ -83,7 +83,7 @@ fun LineList() {
                 },
                 modifier = Modifier.width(140.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color(0xFF990000) // barva besedila in obrobe
+                    contentColor = Color(0xFF990000) //barva besedila in obrobe
                 )
             ) {
                 Text("Sort: $sortOption")
@@ -167,6 +167,7 @@ fun LineList() {
                                             focusedLabelColor = Color(0xFF990000),
                                             cursorColor = Color(0xFF990000)
                                         )
+
                                     )
 
                                     Button(
@@ -196,3 +197,4 @@ fun LineList() {
         }
     }
 }
+

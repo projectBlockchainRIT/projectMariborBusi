@@ -39,18 +39,10 @@ fun GenerateDeparturesForm() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(24.dp)
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            "Generiraj odhode",
-            style = MaterialTheme.typography.h5,
-            color = Color(0xFF990000)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         OutlinedTextField(
             value = selectedDate,
             onValueChange = { selectedDate = it },
@@ -136,7 +128,7 @@ fun GenerateDeparturesForm() {
                                     insertedDeparture?.let { dep ->
                                         newDepartures.add(dep)
                                         
-                                        // Generate random time between from and to
+                                        //generiraj cas med from to
                                         val randomTime = LocalTime.ofSecondOfDay(
                                             (fromTime.toSecondOfDay()..toTime.toSecondOfDay()).random().toLong()
                                         )
@@ -167,7 +159,7 @@ fun GenerateDeparturesForm() {
                 contentColor = Color.White
             )
         ) {
-            Text("Generiraj")
+            Text("Generiraj in shrani")
         }
     }
 }

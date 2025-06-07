@@ -16,7 +16,7 @@ import java.time.LocalTime
 import scraper.*
 import java.util.*
 
-// ======== Podatkovne strukture ========
+// ======== podatkovne strukture ========
 
 data class Stop(
     val id: Int,
@@ -47,7 +47,7 @@ data class Route(
     val path: List<List<Double>>
 )
 
-// ======== Funkcije za branje JSON in popravek formata ========
+// ======== funkcije za branje JSON in popravek formata ========
 
 fun fixJsonFormat(jsonStr: String): String {
     var fixed = jsonStr.trim()
@@ -95,7 +95,7 @@ fun loadJsonArrivals(path: String): Map<String, List<StopDepartures>> {
 fun loadJsonStops(path: String): List<Stop> = loadJsonWithFix(path)
 fun loadJsonRoutes(path: String): List<Route> = loadJsonWithFix(path)
 
-// ======== Povezava z bazo ========
+// ======== povezava z bazo ========
 
 fun connectToDatabase(): Connection {
     val url = "jdbc:postgresql://localhost:5432/bus_base"
@@ -104,7 +104,7 @@ fun connectToDatabase(): Connection {
     return DriverManager.getConnection(url, user, password)
 }
 
-// ======== Vstavljanje postaj (stops) ========
+// ======== vstavljanje postaj (stops) ========
 
 fun insertStops(conn: Connection, stops: List<Stop>) {
     val sql = """
@@ -132,7 +132,7 @@ fun insertStops(conn: Connection, stops: List<Stop>) {
     println("Inserted ${stops.size} stops.")
 }
 
-// ======== Vstavljanje odhodov (departures) z datumom in TEXT[] ali TIME[] ========
+// ======== vstavljanje odhodov (departures) z datumom in TEXT[] ali TIME[] ========
 
 fun insertDepartures(
     conn: Connection,
@@ -293,7 +293,7 @@ fun insertDepartures(
     )
 }
 
-// ======== Vstavljanje poti (routes) ========
+// ======== vstavljanje poti (routes) ========
 
 fun insertRoutes(conn: Connection, routes: List<Route>) {
     for (route in routes) {

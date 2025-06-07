@@ -55,7 +55,8 @@ fun AddDirectionForm() {
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .verticalScroll(scrollState)
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedTextField(
                     value = directionName,
@@ -68,8 +69,6 @@ fun AddDirectionForm() {
                         cursorColor = Color(0xFF990000)
                     )
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
 
                 LineDropdown(
                     selectedLineId = selectedLineId,

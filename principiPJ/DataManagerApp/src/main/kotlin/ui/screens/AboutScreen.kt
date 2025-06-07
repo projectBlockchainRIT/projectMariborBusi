@@ -34,6 +34,6 @@ fun AboutScreen() {
             Modifier.height(16.dp)
         )
 
-        Text("App version: 1.0.0")
+        Text("App version: Beta release 1.0.0")
     }
 }

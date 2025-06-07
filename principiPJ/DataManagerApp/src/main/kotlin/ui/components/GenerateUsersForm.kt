@@ -30,7 +30,7 @@ fun GenerateUsersForm() {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .padding(16.dp)
+            .padding(24.dp)
     ) {
         OutlinedTextField(
             value = count.toString(),

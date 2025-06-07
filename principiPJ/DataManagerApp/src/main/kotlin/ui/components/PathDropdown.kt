@@ -29,7 +29,7 @@ fun PathDropdown(
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
 
-    // Avtomatsko odpiranje dropdowna ob fokusu
+    //avtomatsko odpiranje dropdowna ob fokusu
     LaunchedEffect(isFocused) {
         if (isFocused) isDropdownOpen = true
     }
