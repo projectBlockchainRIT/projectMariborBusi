@@ -61,6 +61,8 @@ simulacija avtobusov na trenutni poti "/routes/simulate/lineId" (to z implementa
 
 swag init -g ./api/main.go -d cmd,internal && swag fmt
 
+swag init -g ./main.go -d cmd/api,internal/data && swag fmt
+
 - intervali prihodnih časov
 
 //SANITAZE THE DATA IN THE GET AND POST REQUESTS !!!! ZA SQL INJECTION
