@@ -41,10 +41,6 @@ export default function DelaysController({
   const [routesLoading, setRoutesLoading] = useState(true);
   const [stationsLoading, setStationsLoading] = useState(false);
   const { isDarkMode } = useTheme();
-  const [filters, setFilters] = useState<{ [key: string]: boolean }>({
-    route: false,
-    time: false
-  });
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     const today = new Date();
@@ -79,15 +75,6 @@ export default function DelaysController({
   const handleTimeRangeChange = (range: string) => {
     setActiveTimeRange(range);
     onTimeRangeChange(selectedDate, isDateFilterEnabled, isLineFilterEnabled);
-  };
-
-  const handleFilterToggle = (filter: string) => {
-    const newFilters = {
-      ...filters,
-      [filter]: !filters[filter]
-    };
-    setFilters(newFilters);
-    onFilterChange(newFilters);
   };
 
   const handleRouteClick = async (route: Route) => {
@@ -195,6 +182,63 @@ export default function DelaysController({
           </div>
         </div>
 
+        {/* Date Filter */}
+        <div className={`p-4 border-b ${borderClasses}`}>
+          <div className="flex items-center justify-between mb-2">
+            <label className={`text-sm font-medium ${textClasses}`}>
+              Filter by date
+            </label>
+            <button
+              onClick={handleDateFilterToggle}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                isDateFilterEnabled
+                  ? isDarkMode
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-blue-500 text-white'
+                  : isDarkMode
+                    ? 'bg-gray-700 text-gray-300'
+                    : 'bg-gray-200 text-gray-700'
+              }`}
+            >
+              {isDateFilterEnabled ? 'Enabled' : 'Disabled'}
+            </button>
+          </div>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={handleDateChange}
+            className={`w-full px-3 py-2 rounded-md border ${
+              isDarkMode
+                ? 'bg-gray-700 border-gray-600 text-white'
+                : 'bg-white border-gray-300 text-gray-900'
+            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            disabled={!isDateFilterEnabled}
+          />
+        </div>
+
+        {/* Line Filter */}
+        <div className={`p-4 border-b ${borderClasses}`}>
+          <div className="flex items-center justify-between">
+            <label className={`text-sm font-medium ${textClasses}`}>
+              Filter by selected line
+            </label>
+            <button
+              onClick={handleLineFilterToggle}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                isLineFilterEnabled
+                  ? isDarkMode
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-blue-500 text-white'
+                  : isDarkMode
+                    ? 'bg-gray-700 text-gray-300'
+                    : 'bg-gray-200 text-gray-700'
+              }`}
+            >
+              {isLineFilterEnabled ? 'Enabled' : 'Disabled'}
+            </button>
+          </div>
+        </div>
+
         {/* Route Search */}
         <div className={`p-4 border-b ${borderClasses}`}>
           <input
@@ -254,14 +298,22 @@ export default function DelaysController({
                             <button
                               key={station.id}
                               onClick={() => handleStationClick(station)}
-                              className={`w-full text-left p-2 rounded-lg hover:bg-opacity-50 transition-colors ${
-                                isDarkMode 
-                                  ? 'hover:bg-gray-700' 
-                                  : 'hover:bg-gray-100'
+                              className={`w-full text-left p-2 rounded-lg transition-colors ${
+                                selectedStation?.id === station.id
+                                  ? isDarkMode
+                                    ? 'bg-blue-900 border border-blue-700'
+                                    : 'bg-blue-100 border border-blue-200'
+                                  : isDarkMode 
+                                    ? 'hover:bg-gray-700' 
+                                    : 'hover:bg-gray-100'
                               }`}
                             >
                               <div className="flex items-center gap-2">
-                                <MapPinIcon className="h-3 w-3" />
+                                <MapPinIcon className={`h-3 w-3 ${
+                                  selectedStation?.id === station.id
+                                    ? 'text-blue-500'
+                                    : ''
+                                }`} />
                                 <div className="flex-1">
                                   <div className="text-sm font-medium">{station.name}</div>
                                   <div className="text-xs opacity-75">#{station.number}</div>
@@ -276,118 +328,6 @@ export default function DelaysController({
                   )}
                 </div>
               ))}
-            </div>
-          )}
-        </div>
-
-        {/* Time Range Section */}
-        <div className={`p-4 border-b ${borderClasses}`}>
-          <h2 className="text-lg font-semibold mb-4">Time Range</h2>
-          <div className="space-y-4">
-            <div>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={handleDateChange}
-                className={`w-full p-2 rounded border ${
-                  isDarkMode 
-                    ? 'bg-gray-700 border-gray-600 text-white' 
-                    : 'bg-white border-gray-300 text-gray-900'
-                }`}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <ClockIcon className="h-5 w-5 text-blue-500 mr-2" />
-                <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Filter by date</span>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={isDateFilterEnabled}
-                  onChange={handleDateFilterToggle}
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <TruckIcon className="h-5 w-5 text-green-500 mr-2" />
-                <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Filter by selected line</span>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={isLineFilterEnabled}
-                  onChange={handleLineFilterToggle}
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        {/* Filter Controls */}
-        <div className={`p-4 ${borderClasses}`}>
-          <button
-            onClick={() => handleFilterToggle('route')}
-            className={getButtonClasses(showFilters && filters.route)}
-          >
-            <div className="flex items-center">
-              <AdjustmentsHorizontalIcon className="w-4 h-4 mr-2" />
-              Route Filter
-            </div>
-            <InformationCircleIcon className="w-4 h-4" />
-          </button>
-
-          <button
-            onClick={() => handleFilterToggle('time')}
-            className={getButtonClasses(showFilters && filters.time)}
-          >
-            <div className="flex items-center">
-              <AdjustmentsHorizontalIcon className="w-4 h-4 mr-2" />
-              Time Filter
-            </div>
-            <InformationCircleIcon className="w-4 h-4" />
-          </button>
-
-          {showFilters && (
-            <div className={`mt-4 p-4 rounded-md transition-colors duration-200 ${
-              isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
-            }`}>
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${textClasses}`}>
-                  Route Filter
-                </label>
-                <select
-                  className={selectClasses}
-                  onChange={(e) => handleFilterToggle('route')}
-                >
-                  <option value="">All Routes</option>
-                  <option value="1">Route 1</option>
-                  <option value="2">Route 2</option>
-                  <option value="3">Route 3</option>
-                </select>
-              </div>
-
-              <div className="mt-4">
-                <label className={`block text-sm font-medium mb-2 ${textClasses}`}>
-                  Time Filter
-                </label>
-                <select
-                  className={selectClasses}
-                  onChange={(e) => handleFilterToggle('time')}
-                >
-                  <option value="">All Times</option>
-                  <option value="morning">Morning (6-12)</option>
-                  <option value="afternoon">Afternoon (12-18)</option>
-                  <option value="evening">Evening (18-24)</option>
-                </select>
-              </div>
             </div>
           )}
         </div>
