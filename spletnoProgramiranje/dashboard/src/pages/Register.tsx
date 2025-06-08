@@ -1,38 +1,41 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 import Logo from '../components/Logo';
-import { body } from 'framer-motion/client';
 
 export default function Register() {
   const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+
     try {
       const response = await fetch('http://40.68.198.73:8080/v1/authentication/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, username }),
+        body: JSON.stringify({ email, password }),
       });
-      console.log(JSON.stringify({ email, password, username }),
-)
-      const data = await response.json();
+
       if (response.ok) {
-        navigate('/login');
-        console.log('Registration successful:', data);
+        // Navigate to login page after successful registration
+        navigate('/login', { state: { message: 'Registration successful! Please log in.' } });
       } else {
-        // Handle error
-        console.error('Registration failed:', data);
+        const data = await response.json();
+        alert(data.message || 'Registration failed');
       }
     } catch (error) {
       console.error('Error during registration:', error);
+      alert('Registration failed. Please try again.');
     }
   };
 
@@ -42,8 +45,18 @@ export default function Register() {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl"
+        className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl relative"
       >
+        {/* Back button */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => navigate('/')}
+          className="absolute -left-4 -top-4 bg-white dark:bg-gray-700 p-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+        >
+          <ArrowLeft className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+        </motion.button>
+
         <div className="flex flex-col items-center">
           <Logo />
           <motion.h2
@@ -65,21 +78,6 @@ export default function Register() {
         >
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="username" className="sr-only">
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-            <div>
               <label htmlFor="email-address" className="sr-only">
                 Email address
               </label>
@@ -89,7 +87,7 @@ export default function Register() {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 import Logo from '../components/Logo';
 import { useUser } from '../context/UserContext';
 
@@ -11,8 +12,8 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get the redirect path from location state or default to home
-  const from = (location.state as any)?.from?.pathname || '/';
+  // Get the redirect path from location state or default to dashboard
+  const from = (location.state as any)?.from?.pathname || '/dashboard';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +40,7 @@ export default function Login() {
         if (data.isAdmin) {
           setIsAdmin(true);
         }
-        // Navigate to the attempted page or home
+        // Navigate to the attempted page or dashboard
         navigate(from, { replace: true });
         console.log('Login successful:', data);
       } else {
@@ -57,8 +58,18 @@ export default function Login() {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl"
+        className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl relative"
       >
+        {/* Back button */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => navigate('/')}
+          className="absolute -left-4 -top-4 bg-white dark:bg-gray-700 p-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+        >
+          <ArrowLeft className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+        </motion.button>
+
         <div className="flex flex-col items-center">
           <Logo />
           <motion.h2

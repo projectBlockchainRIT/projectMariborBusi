@@ -8,6 +8,7 @@ import AboutPage from './pages/AboutPage';
 import OccupancyPage from './pages/OccupancyPage';
 import DelaysPage from './pages/DelaysPage';
 import LandingPage from './pages/LandingPage';
+import SettingsPage from './pages/SettingsPage';
 import { UserProvider } from './context/UserContext';
 import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -18,14 +19,19 @@ function App() {
       <UserProvider>
         <Router>
           <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/about" element={<AboutPage />} />
+
+            {/* Protected routes */}
             <Route
-              path="/*"
+              path="/dashboard/*"
               element={
                 <DashboardLayout>
                   <Routes>
-                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/" element={<InteractiveMap />} />
                     <Route path="/interactive-map" element={
                       <ProtectedRoute>
                         <InteractiveMap />
@@ -48,7 +54,7 @@ function App() {
                     } />
                     <Route path="/settings" element={
                       <ProtectedRoute>
-                        <div>Settings</div>
+                        <SettingsPage />
                       </ProtectedRoute>
                     } />
                     <Route path="/admin" element={
@@ -56,7 +62,6 @@ function App() {
                         <div>Admin Panel</div>
                       </ProtectedRoute>
                     } />
-                    <Route path="/about" element={<AboutPage />} />
                   </Routes>
                 </DashboardLayout>
               }
@@ -67,5 +72,6 @@ function App() {
     </ThemeProvider>
   );
 }
+
 export default App;
 

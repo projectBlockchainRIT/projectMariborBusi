@@ -25,7 +25,6 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Intro', icon: HomeIcon, href: '/' },
   { name: 'Interactive Map', icon: MapIcon, href: '/interactive-map', requiresAuth: true },
   { name: 'Occupancy', icon: UserGroupIcon, href: '/occupancy', requiresAuth: true },
   { name: 'Delays', icon: ExclamationTriangleIcon, href: '/delays', requiresAuth: true },
@@ -53,8 +52,8 @@ export default function Sidebar({ isAuthenticated, isAdmin }: SidebarProps) {
     // Clear localStorage
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('isAdmin');
-    // Redirect to login page
-    navigate('/login');
+    // Redirect to landing page
+    navigate('/');
   };
 
   const handleThemeToggle = () => {

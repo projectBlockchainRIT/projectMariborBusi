@@ -5,6 +5,7 @@ interface UserContextType {
   setIsAuthenticated: (value: boolean) => void;
   isAdmin: boolean;
   setIsAdmin: (value: boolean) => void;
+  logout: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -29,8 +30,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('isAdmin', isAdmin.toString());
   }, [isAdmin]);
 
+  const logout = () => {
+    setIsAuthenticated(false);
+    setIsAdmin(false);
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('isAdmin');
+  };
+
   return (
-    <UserContext.Provider value={{ isAuthenticated, setIsAuthenticated, isAdmin, setIsAdmin }}>
+    <UserContext.Provider value={{ isAuthenticated, setIsAuthenticated, isAdmin, setIsAdmin, logout }}>
       {children}
     </UserContext.Provider>
   );
