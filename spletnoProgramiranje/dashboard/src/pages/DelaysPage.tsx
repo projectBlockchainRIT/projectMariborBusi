@@ -15,14 +15,17 @@ export default function DelaysPage() {
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [selectedTimeRange, setSelectedTimeRange] = useState<string>('all');
   const [isDateFilterEnabled, setIsDateFilterEnabled] = useState<boolean>(false);
+  const [isLineFilterEnabled, setIsLineFilterEnabled] = useState<boolean>(false);
 
   const handleMapLoad = (map: mapboxgl.Map) => {
     mapRef.current = map;
   };
 
-  const handleTimeRangeChange = (date: string, isDateFilterEnabled: boolean) => {
+  const handleTimeRangeChange = (date: string, isDateFilterEnabled: boolean, isLineFilterEnabled: boolean) => {
+    console.log('DEBUG - Time range changed:', { date, isDateFilterEnabled, isLineFilterEnabled });
     setSelectedDate(date);
     setIsDateFilterEnabled(isDateFilterEnabled);
+    setIsLineFilterEnabled(isLineFilterEnabled);
     // If there's a selected station, update its popup with new delay data
     if (selectedStation) {
       handleStationClick(selectedStation);
@@ -30,6 +33,12 @@ export default function DelaysPage() {
   };
 
   const handleStationClick = async (station: Station) => {
+    console.log('DEBUG - Station Click:', {
+      station: station,
+      selectedRoute: selectedRoute,
+      isLineFilterEnabled: isLineFilterEnabled
+    });
+
     if (mapRef.current) {
       try {
         const response = await fetch(`http://40.68.198.73:8080/v1/delays/station/${station.id}`);
@@ -37,7 +46,11 @@ export default function DelaysPage() {
           throw new Error(`Failed to fetch delays: ${response.status} ${response.statusText}`);
         }
         const responseData = await response.json();
-        console.log('Received delays data:', responseData);
+        console.log('DEBUG - Received delays data:', {
+          rawData: responseData,
+          data: responseData.data,
+          firstDelay: responseData.data?.[0]
+        });
         
         // Extract the data array from the response
         const data = responseData.data;
@@ -53,36 +66,46 @@ export default function DelaysPage() {
         let popupContent = '';
         
         if (Array.isArray(data) && data.length > 0) {
-          // Only filter by date if date filter is enabled
-          const filteredData = isDateFilterEnabled 
-            ? data.filter(delay => {
-                // Convert delay date to DD-MM-YYYY format
-                const delayDate = new Date(delay.Date);
-                const delayDateStr = `${delayDate.getDate().toString().padStart(2, '0')}-${(delayDate.getMonth() + 1).toString().padStart(2, '0')}-${delayDate.getFullYear()}`;
-                
-                // Convert selected date from YYYY-MM-DD to DD-MM-YYYY
-                const [year, month, day] = selectedDate.split('-');
-                const formattedSelectedDate = `${day}-${month}-${year}`;
-                
-                // Selected date is already in DD-MM-YYYY format
-                console.log('DEBUG - Date Comparison:', {
-                  originalDelayDate: delay.Date,
-                  parsedDelayDate: delayDate,
-                  formattedDelayDate: delayDateStr,
-                  selectedDate: selectedDate,
-                  formattedSelectedDate: formattedSelectedDate,
-                  areEqual: delayDateStr === formattedSelectedDate,
-                  delayObject: delay
-                });
-                
-                return delayDateStr === formattedSelectedDate;
-              })
-            : data;
+          // Filter delays by date and line if filters are enabled
+          const filteredData = data.filter(delay => {
+            // Date filtering
+            if (isDateFilterEnabled) {
+              const delayDate = new Date(delay.Date);
+              const delayDateStr = `${delayDate.getDate().toString().padStart(2, '0')}-${(delayDate.getMonth() + 1).toString().padStart(2, '0')}-${delayDate.getFullYear()}`;
+              const [year, month, day] = selectedDate.split('-');
+              const formattedSelectedDate = `${day}-${month}-${year}`;
+              
+              if (delayDateStr !== formattedSelectedDate) {
+                return false;
+              }
+            }
 
-          if (isDateFilterEnabled && filteredData.length === 0) {
+            // Line filtering
+            if (isLineFilterEnabled && selectedRoute) {
+              console.log('DEBUG - Comparing values:', {
+                delayLineCode: delay.LineCode,
+                selectedRouteName: selectedRoute.name,
+                areEqual: delay.LineCode === selectedRoute.name
+              });
+              return delay.LineCode === selectedRoute.name;
+            }
+
+            return true;
+          });
+
+          if ((isDateFilterEnabled || isLineFilterEnabled) && filteredData.length === 0) {
+            let message = 'No delays';
+            if (isDateFilterEnabled) {
+              message += ` for ${selectedDate}`;
+            }
+            if (isLineFilterEnabled && selectedRoute) {
+              message += ` on line ${selectedRoute.name}`;
+            }
+            message += ' on this station';
+
             popupContent = `
               <div class="p-2 text-black">
-                <p class="text-sm">No delays for ${selectedDate} on this station</p>
+                <p class="text-sm">${message}</p>
               </div>
             `;
           } else {
