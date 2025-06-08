@@ -1,11 +1,13 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import DashboardLayout from './components/layout/DashboardLayout';
-import Map from './components/Map';
 import InteractiveMap from './components/InteractiveMap';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Graphs from './pages/Graphs';
 import AboutPage from './pages/AboutPage';
+import OccupancyPage from './pages/OccupancyPage';
+import DelaysPage from './pages/DelaysPage';
+import LandingPage from './pages/LandingPage';
 import { UserProvider } from './context/UserContext';
 import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -23,10 +25,20 @@ function App() {
               element={
                 <DashboardLayout>
                   <Routes>
-                    <Route path="/" element={<Map />} />
+                    <Route path="/" element={<LandingPage />} />
                     <Route path="/interactive-map" element={
                       <ProtectedRoute>
                         <InteractiveMap />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/occupancy" element={
+                      <ProtectedRoute>
+                        <OccupancyPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/delays" element={
+                      <ProtectedRoute>
+                        <DelaysPage />
                       </ProtectedRoute>
                     } />
                     <Route path="/graphs" element={
@@ -55,5 +67,5 @@ function App() {
     </ThemeProvider>
   );
 }
-
 export default App;
+

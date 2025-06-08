@@ -36,7 +36,6 @@ export default function InteractiveMap() {
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
   const routeColorsRef = useRef(new Map<number, string>());
-  const [activeView, setActiveView] = useState('info');
   
   // WebSocket and bus tracking
   const webSocketRef = useRef<WebSocket | null>(null);
@@ -719,65 +718,11 @@ export default function InteractiveMap() {
     };
   }, [mapInstance, cleanupPreviousRoute, cleanupBusTracking]);
 
-  const handleViewChange = useCallback((view: string) => {
-    console.log('View changed to:', view);
-    setActiveView(view);
-    
-    if (!mapInstance) return;
-
-    // Clear existing routes and layers when switching views
-    if (view !== 'delays') {
-      // Remove all route layers and sources
-      const layers = mapInstance.getStyle().layers || [];
-      const sources = mapInstance.getStyle().sources || {};
-      
-      // Remove all route-related layers
-      layers.forEach(layer => {
-        if (layer.id.startsWith('route-') && layer.id.endsWith('-line')) {
-          if (mapInstance.getLayer(layer.id)) {
-            mapInstance.removeLayer(layer.id);
-          }
-        }
-      });
-
-      // Remove all route-related sources
-      Object.keys(sources).forEach(sourceId => {
-        if (sourceId.startsWith('route-') && sourceId.endsWith('-source')) {
-          if (mapInstance.getSource(sourceId)) {
-            mapInstance.removeSource(sourceId);
-          }
-        }
-      });
-
-      console.log('Cleared all route layers and sources from map');
-    }
-    
-    if (view === 'delays' && mapInstance) {
-      // Fetch routes and draw them on the map
-      fetch('http://40.68.198.73:8080/v1/routes/list')
-        .then(response => response.json())
-        .then(data => {
-          const routes = Array.isArray(data) ? data : (data.data || []);
-          console.log('Fetched routes for delays view:', routes);
-          drawRoutesOnMap(mapInstance, routes, {
-            setStatus: (msg) => console.log('Route drawing status:', msg),
-            clearPrevious: true
-          });
-        })
-        .catch(error => {
-          console.error('Error fetching routes for delays view:', error);
-          setError('Failed to load routes for delays view');
-        });
-    }
-  }, [mapInstance]);
-
   return (
     <div className="flex h-full min-h-[600px]">
       <InteractiveMapControls
         onRouteSelect={handleRouteSelect}
         onStationSelect={handleStationClick}
-        onViewChange={handleViewChange}
-        onViewChange={handleViewChange}
       />
       <div className="flex-1 h-full relative">
         <InteractiveDataMapBox

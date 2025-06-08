@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { MapPin, Clock, X, ChevronDown, ChevronUp, Bus, BarChart2, AlertTriangle } from 'lucide-react';
+import { MapPin, X, ChevronDown, ChevronUp, Bus } from 'lucide-react';
 import type { Route, Station } from '../../types';
 import { fetchRoutes, fetchStationsForRoute } from '../../utils/api';
 import { useTheme } from '../../context/ThemeContext';
@@ -7,7 +7,6 @@ import { useTheme } from '../../context/ThemeContext';
 interface InteractiveMapControlsProps {
   onRouteSelect: (routeId: number) => void;
   onStationSelect: (station: Station) => void;
-  onViewChange: (view: string) => void;
 }
 
 interface RoutesResponse {
@@ -16,10 +15,15 @@ interface RoutesResponse {
   [key: string]: any;
 }
 
+interface StationsResponse {
+  data?: Station[];
+  stations?: Station[];
+  [key: string]: any;
+}
+
 export default function InteractiveMapControls({ 
   onRouteSelect, 
-  onStationSelect,
-  onViewChange 
+  onStationSelect
 }: InteractiveMapControlsProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [routes, setRoutes] = useState<Route[]>([]);
@@ -29,62 +33,32 @@ export default function InteractiveMapControls({
   const [stationsLoading, setStationsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedRouteId, setExpandedRouteId] = useState<number | null>(null);
-  const [activeView, setActiveView] = useState('info');
   const { isDarkMode } = useTheme();
 
   // Load routes on component mount
   useEffect(() => {
     const loadRoutes = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        setError(null);
-        console.log('Fetching routes...');
         const response = await fetchRoutes();
         console.log('Received routes data:', response);
         
-        // More detailed validation of the response
-        if (!response) {
-          throw new Error('No data received from API');
+        // Handle both array responses and nested data structures
+        let routesData: Route[];
+        if (Array.isArray(response)) {
+          routesData = response;
+        } else if (response && typeof response === 'object') {
+          const typedResponse = response as RoutesResponse;
+          routesData = typedResponse.data || typedResponse.routes || [];
+        } else {
+          routesData = [];
         }
         
-        if (Array.isArray(response)) {
-          console.log(`Received ${response.length} routes`);
-          // Check if routes have the expected structure
-          if (response.length > 0) {
-            console.log('First route sample:', response[0]);
-          }
-          setRoutes(response);
-        } else if (typeof response === 'object') {
-          // Handle case where API might return {data: [...]} structure
-          // Type assertion to help TypeScript understand the structure
-          const routesData = response as RoutesResponse;
-          
-          // Try to extract the routes array from various possible properties
-          let dataArray: any[] | undefined;
-          
-          if (routesData.data && Array.isArray(routesData.data)) {
-            dataArray = routesData.data;
-          } else if (routesData.routes && Array.isArray(routesData.routes)) {
-            dataArray = routesData.routes;
-          } else {
-            dataArray = Object.values(routesData).find(Array.isArray);
-          }
-          
-          if (dataArray && Array.isArray(dataArray)) {
-            console.log(`Extracted ${dataArray.length} routes from object response`);
-            setRoutes(dataArray as Route[]);
-          } else {
-            console.error('Could not extract routes array from response:', routesData);
-            setRoutes([]);
-          }
-        } else {
-          console.error('Unexpected data format:', typeof response);
-          setRoutes([]);
-        }
+        console.log('Processed routes data:', routesData);
+        setRoutes(routesData);
       } catch (err) {
-        console.error('Error in loadRoutes:', err);
         setError('Failed to load routes');
-        setRoutes([]);
+        console.error('Error loading routes:', err);
       } finally {
         setLoading(false);
       }
@@ -93,7 +67,7 @@ export default function InteractiveMapControls({
     loadRoutes();
   }, []);
 
-  // Load stations for selected route
+  // Load stations when a route is selected
   useEffect(() => {
     if (!expandedRouteId) {
       setStations([]);
@@ -101,29 +75,28 @@ export default function InteractiveMapControls({
     }
 
     const loadStations = async () => {
+      setStationsLoading(true);
       try {
-        setStationsLoading(true);
-        setError(null);
-        
         console.log('Loading stations for route ID:', expandedRouteId);
-        const stationsData = await fetchStationsForRoute(expandedRouteId);
-        console.log('Received stations data:', stationsData);
+        const response = await fetchStationsForRoute(expandedRouteId);
+        console.log('Received stations data:', response);
         
-        if (Array.isArray(stationsData)) {
-          console.log(`Setting ${stationsData.length} stations`);
-          setStations(stationsData);
-        } else if (stationsData && typeof stationsData === 'object') {
-          const stationsArray = (stationsData as any).data || [];
-          console.log(`Setting ${stationsArray.length} stations from data property`);
-          setStations(Array.isArray(stationsArray) ? stationsArray : []);
+        // Handle both array responses and nested data structures
+        let stationsData: Station[];
+        if (Array.isArray(response)) {
+          stationsData = response;
+        } else if (response && typeof response === 'object') {
+          const typedResponse = response as StationsResponse;
+          stationsData = typedResponse.data || typedResponse.stations || [];
         } else {
-          console.log('No stations data found');
-          setStations([]);
+          stationsData = [];
         }
+        
+        console.log('Processed stations data:', stationsData);
+        setStations(stationsData);
       } catch (err) {
-        console.error('Error loading stations:', err);
         setError('Failed to load stations');
-        setStations([]);
+        console.error('Error loading stations:', err);
       } finally {
         setStationsLoading(false);
       }
@@ -133,7 +106,6 @@ export default function InteractiveMapControls({
   }, [expandedRouteId]);
 
   const filteredRoutes = useMemo(() => {
-    console.log('Current routes state:', routes);
     if (!Array.isArray(routes)) {
       console.error('Routes is not an array:', routes);
       return [];
@@ -144,16 +116,13 @@ export default function InteractiveMapControls({
       return [];
     }
     
-    // Make sure we have at least one route to check properties
     const firstRoute = routes[0];
     if (!firstRoute) {
       return [];
     }
     
-    // Check if routes have name property
     if (typeof firstRoute.name !== 'string') {
       console.error('Route objects missing name property:', firstRoute);
-      // Try to find alternative property that might contain the name
       const nameKey = Object.keys(firstRoute).find(key => 
         typeof firstRoute[key as keyof typeof firstRoute] === 'string' && 
         (firstRoute[key as keyof typeof firstRoute] as string).length > 0
@@ -179,12 +148,10 @@ export default function InteractiveMapControls({
     console.log('Route clicked:', route.id);
     
     if (expandedRouteId === route.id) {
-      // If already expanded, collapse it
       setExpandedRouteId(null);
       setSelectedRoute(null);
       setStations([]);
     } else {
-      // If not expanded, expand it and trigger route selection
       setExpandedRouteId(route.id);
       setSelectedRoute(route);
       onRouteSelect(route.id);
@@ -194,11 +161,6 @@ export default function InteractiveMapControls({
   const handleStationClick = (station: Station) => {
     console.log('Station clicked:', station);
     onStationSelect(station);
-  };
-
-  const handleViewChange = (view: string) => {
-    setActiveView(view);
-    onViewChange(view);
   };
 
   return (
@@ -218,157 +180,103 @@ export default function InteractiveMapControls({
               {routes.length} routes available
             </div>
           )}
-          
-          {/* View Selector */}
-          <div className="mt-4 space-y-2">
-            <button
-              onClick={() => handleViewChange('info')}
-              className={`w-full flex items-center px-3 py-2 rounded-lg transition-colors ${
-                activeView === 'info'
-                  ? isDarkMode 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-blue-500 text-white'
-                  : isDarkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-              }`}
-            >
-              <MapPin className="h-4 w-4 mr-2" />
-              Info
-            </button>
-            <button
-              onClick={() => handleViewChange('occupancy')}
-              className={`w-full flex items-center px-3 py-2 rounded-lg transition-colors ${
-                activeView === 'occupancy'
-                  ? isDarkMode 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-blue-500 text-white'
-                  : isDarkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-              }`}
-            >
-              <BarChart2 className="h-4 w-4 mr-2" />
-              Occupancy
-            </button>
-            <button
-              onClick={() => handleViewChange('delays')}
-              className={`w-full flex items-center px-3 py-2 rounded-lg transition-colors ${
-                activeView === 'delays'
-                  ? isDarkMode 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-blue-500 text-white'
-                  : isDarkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-              }`}
-            >
-              <AlertTriangle className="h-4 w-4 mr-2" />
-              Delays
-            </button>
-          </div>
         </div>
 
-        {/* Only show search and routes when in info view */}
-        {activeView === 'info' && (
-          <>
-            <div className={`p-4 border-b ${
-              isDarkMode ? 'border-gray-700' : 'border-gray-200'
-            }`}>
-              <input
-                type="text"
-                placeholder="Search routes..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  isDarkMode 
-                    ? 'bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400' 
-                    : 'bg-gray-100 border-gray-200 text-gray-800 placeholder-gray-500'
-                }`}
-              />
-            </div>
+        <div className={`p-4 border-b ${
+          isDarkMode ? 'border-gray-700' : 'border-gray-200'
+        }`}>
+          <input
+            type="text"
+            placeholder="Search routes..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={`w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              isDarkMode 
+                ? 'bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400' 
+                : 'bg-gray-100 border-gray-200 text-gray-800 placeholder-gray-500'
+            }`}
+          />
+        </div>
 
-            <div className="flex-1 overflow-y-auto p-4">
-              {loading ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    Loading routes...
-                  </div>
-                </div>
-              ) : error ? (
-                <div className="text-red-400 p-4 text-center">
-                  {error}
-                </div>
-              ) : routes.length === 0 ? (
-                <div className="text-center text-gray-500 dark:text-gray-400 p-4">
-                  No routes available
-                </div>
-              ) : filteredRoutes.length === 0 ? (
-                <div className="text-center text-gray-500 dark:text-gray-400 p-4">
-                  No routes match your search
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {filteredRoutes.map((route) => (
-                    <div key={route.id || Math.random().toString()} className="mb-2">
-                      <button
-                        onClick={() => handleRouteClick(route)}
-                        className={`w-full p-3 text-left rounded-lg transition-colors border flex items-center justify-between ${
-                          expandedRouteId === route.id
-                            ? isDarkMode 
-                              ? 'bg-blue-900 border-blue-700' 
-                              : 'bg-blue-100 border-blue-200'
-                            : isDarkMode
-                              ? 'bg-gray-700 hover:bg-gray-600 border-gray-600'
-                              : 'bg-gray-100 hover:bg-gray-200 border-gray-200'
-                        }`}
-                      >
-                        <div className="font-medium flex items-center gap-2">
-                          <Bus className="h-4 w-4" />
-                          {route.name}
-                        </div>
-                        {expandedRouteId === route.id ? (
-                          <ChevronUp className="h-5 w-5" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5" />
-                        )}
-                      </button>
-                      
-                      {expandedRouteId === route.id && (
-                        <div className={`mt-2 ml-4 space-y-2 ${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                        }`}>
-                          {stationsLoading ? (
-                            <div className="text-sm">Loading stations...</div>
-                          ) : stations.length > 0 ? (
-                            stations.map((station) => (
-                              <button
-                                key={station.id}
-                                onClick={() => handleStationClick(station)}
-                                className={`w-full text-left p-2 rounded-lg hover:bg-opacity-50 transition-colors ${
-                                  isDarkMode 
-                                    ? 'hover:bg-gray-700' 
-                                    : 'hover:bg-gray-100'
-                                }`}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <MapPin className="h-3 w-3" />
-                                  <span className="text-sm">{station.name}</span>
-                                </div>
-                              </button>
-                            ))
-                          ) : (
-                            <div className="text-sm">No stations available</div>
-                          )}
-                        </div>
+        <div className="flex-1 overflow-y-auto p-4">
+          {loading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Loading routes...
+              </div>
+            </div>
+          ) : error ? (
+            <div className="text-red-400 p-4 text-center">
+              {error}
+            </div>
+          ) : routes.length === 0 ? (
+            <div className="text-center text-gray-500 dark:text-gray-400 p-4">
+              No routes available
+            </div>
+          ) : filteredRoutes.length === 0 ? (
+            <div className="text-center text-gray-500 dark:text-gray-400 p-4">
+              No routes match your search
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {filteredRoutes.map((route) => (
+                <div key={route.id || Math.random().toString()} className="mb-2">
+                  <button
+                    onClick={() => handleRouteClick(route)}
+                    className={`w-full p-3 text-left rounded-lg transition-colors border flex items-center justify-between ${
+                      expandedRouteId === route.id
+                        ? isDarkMode 
+                          ? 'bg-blue-900 border-blue-700' 
+                          : 'bg-blue-100 border-blue-200'
+                        : isDarkMode
+                          ? 'bg-gray-700 hover:bg-gray-600 border-gray-600'
+                          : 'bg-gray-100 hover:bg-gray-200 border-gray-200'
+                    }`}
+                  >
+                    <div className="font-medium flex items-center gap-2">
+                      <Bus className="h-4 w-4" />
+                      {route.name}
+                    </div>
+                    {expandedRouteId === route.id ? (
+                      <ChevronUp className="h-5 w-5" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5" />
+                    )}
+                  </button>
+                  
+                  {expandedRouteId === route.id && (
+                    <div className={`mt-2 ml-4 space-y-2 ${
+                      isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                    }`}>
+                      {stationsLoading ? (
+                        <div className="text-sm">Loading stations...</div>
+                      ) : stations.length > 0 ? (
+                        stations.map((station) => (
+                          <button
+                            key={station.id}
+                            onClick={() => handleStationClick(station)}
+                            className={`w-full text-left p-2 rounded-lg hover:bg-opacity-50 transition-colors ${
+                              isDarkMode 
+                                ? 'hover:bg-gray-700' 
+                                : 'hover:bg-gray-100'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-3 w-3" />
+                              <span className="text-sm">{station.name}</span>
+                            </div>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="text-sm">No stations available</div>
                       )}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
+              ))}
             </div>
-          </>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  TruckIcon,
+  HomeIcon,
   UserIcon,
   InformationCircleIcon,
   ChartBarIcon,
@@ -9,7 +9,9 @@ import {
   SunIcon,
   MoonIcon,
   MapIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  ExclamationTriangleIcon,
+  UserGroupIcon
 } from '@heroicons/react/24/outline';
 import { useUser } from '../../context/UserContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -23,8 +25,10 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Realtime Map', icon: TruckIcon, href: '/' },
+  { name: 'Intro', icon: HomeIcon, href: '/' },
   { name: 'Interactive Map', icon: MapIcon, href: '/interactive-map', requiresAuth: true },
+  { name: 'Occupancy', icon: UserGroupIcon, href: '/occupancy', requiresAuth: true },
+  { name: 'Delays', icon: ExclamationTriangleIcon, href: '/delays', requiresAuth: true },
   { name: 'Graphs', icon: ChartBarIcon, href: '/graphs', requiresAuth: true },
   { name: 'Settings', icon: Cog6ToothIcon, href: '/settings', requiresAuth: true },
   { name: 'Admin Panel', icon: ShieldCheckIcon, href: '/admin', requiresAuth: true, requiresAdmin: true },
