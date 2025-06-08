@@ -25,12 +25,12 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Interactive Map', icon: MapIcon, href: '/interactive-map', requiresAuth: true },
-  { name: 'Occupancy', icon: UserGroupIcon, href: '/occupancy', requiresAuth: true },
-  { name: 'Delays', icon: ExclamationTriangleIcon, href: '/delays', requiresAuth: true },
-  { name: 'Graphs', icon: ChartBarIcon, href: '/graphs', requiresAuth: true },
-  { name: 'Settings', icon: Cog6ToothIcon, href: '/settings', requiresAuth: true },
-  { name: 'Admin Panel', icon: ShieldCheckIcon, href: '/admin', requiresAuth: true, requiresAdmin: true },
+  { name: 'Interactive Map', icon: MapIcon, href: '/dashboard/interactive-map', requiresAuth: true },
+  { name: 'Occupancy', icon: UserGroupIcon, href: '/dashboard/occupancy', requiresAuth: true },
+  { name: 'Delays', icon: ExclamationTriangleIcon, href: '/dashboard/delays', requiresAuth: true },
+  { name: 'Graphs', icon: ChartBarIcon, href: '/dashboard/graphs', requiresAuth: true },
+  { name: 'Settings', icon: Cog6ToothIcon, href: '/dashboard/settings', requiresAuth: true },
+  { name: 'Admin Panel', icon: ShieldCheckIcon, href: '/dashboard/admin', requiresAuth: true, requiresAdmin: true },
   { name: 'Login', icon: UserIcon, href: '/login', },
 ];
 

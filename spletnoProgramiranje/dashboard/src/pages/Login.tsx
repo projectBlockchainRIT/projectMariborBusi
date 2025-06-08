@@ -13,7 +13,7 @@ export default function Login() {
   const location = useLocation();
 
   // Get the redirect path from location state or default to dashboard
-  const from = (location.state as any)?.from?.pathname || '/dashboard';
+  const from = (location.state as any)?.from?.pathname || '/dashboard/interactive-map';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
