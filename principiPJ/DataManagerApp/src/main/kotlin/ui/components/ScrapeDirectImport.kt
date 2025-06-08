@@ -14,7 +14,6 @@ import db.importDirectToDatabase
 import java.awt.FileDialog
 import java.awt.Frame
 import java.io.File
-import db.importJsonToDatabase
 import kotlinx.coroutines.launch
 
 @Composable

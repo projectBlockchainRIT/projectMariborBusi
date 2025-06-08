@@ -26,7 +26,9 @@ fun AboutScreen() {
         Text(
             text = "Aplikacija za upravljanje s podatkovno bazo s funkcijami " +
                     "izpisovanja, urejanja in dodajanja podatkov.",
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
             textAlign = TextAlign.Center
         )
 
@@ -34,6 +36,6 @@ fun AboutScreen() {
             Modifier.height(16.dp)
         )
 
-        Text("App version: 1.0.0")
+        Text("App version: Beta release 1.0.0")
     }
 }

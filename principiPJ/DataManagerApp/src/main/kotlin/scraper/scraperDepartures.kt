@@ -6,6 +6,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.io.File
 import com.google.gson.GsonBuilder
+import java.time.LocalTime
+import java.time.format.DateTimeParseException
 
 data class BusStop(
     val id: String,
@@ -17,129 +19,154 @@ data class BusStop(
 data class Departure(
     val line: String,
     val direction: String,
-    val times: List<String>
+    val times: List<String>,
+    val date: String
+)
+
+data class BusStopInfoNext(
+    val id: String,
+    val number: String,
+    val name: String
 )
 
 class MarpromScraper {
     private val baseUrl = "https://vozniredi.marprom.si"
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-    private fun getTodayDateString(): String {
-        return LocalDate.now().format(dateFormatter)
+    private fun getDateString(date: LocalDate): String = date.format(dateFormatter)
+
+    fun scrapeAllStopsForDateRange(today: LocalDate, numberOfPastDays: Int, numberOfFutureDays: Int): Map<String, List<BusStop>> {
+        val schedules = mutableMapOf<String, List<BusStop>>()
+        val stopsInfo = getAllStopsInfo()
+
+        if (stopsInfo.isEmpty()) {
+            System.err.println("No bus stop information found. Cannot proceed with scraping.")
+            return emptyMap()
+        }
+
+        val startDate = today.minusDays(numberOfPastDays.toLong())
+        val endDate = today.plusDays((numberOfFutureDays - 1).toLong())
+
+        var currentDate = startDate
+        while (!currentDate.isAfter(endDate)) {
+            val dateString = getDateString(currentDate)
+            println("Scraping data for date: $dateString")
+
+            val stopsForDate = stopsInfo.map { stopInfo ->
+                val departures = scrapeStopDetailsForDate(stopInfo.id, currentDate)
+                BusStop(stopInfo.id, stopInfo.number, stopInfo.name, departures)
+            }
+
+            schedules[dateString] = stopsForDate
+            currentDate = currentDate.plusDays(1)
+        }
+
+        return schedules
     }
 
-    fun scrapeAllStops(): List<BusStop> {
-        val stops = mutableListOf<BusStop>()
-
+    private fun getAllStopsInfo(): List<BusStopInfoNext> {
+        val stops = mutableListOf<BusStopInfoNext>()
         try {
             val doc = Jsoup.connect("$baseUrl/").userAgent("Mozilla/5.0").get()
+            val rows = doc.select("table#TableOfStops > tbody > tr")
 
-            //postajalisce - iskanje po id=TableOfStops
-            val stopRows = doc.select("table#TableOfStops > tbody > tr")
-            println("Najdenih vrstic: ${stopRows.size}")
-            //podrobnost postajalisca
-            for (row in stopRows) {
-                //onClick vsebuje ID med 'stop=' in '&'
+            for (row in rows) {
                 val onclickAttr = row.attr("onclick")
                 val stopId = onclickAttr.substringAfter("stop=").substringBefore("&").trim()
-
-                //stevilka & ime postaje
                 val tds = row.select("td")
                 if (tds.size >= 2) {
                     val stopNumber = tds[1].select("b.paddingTd").first()?.text()?.trim() ?: ""
                     val stopName = tds[1].select("b:not(.paddingTd)").first()?.text()?.trim() ?: ""
-
-                    println("Scraping $stopName")
-
-                    //odhodne linije & casi
-                    val stopDetails = scrapeStopDetails(stopId)
-
-                    stops.add(BusStop(stopId, stopNumber, stopName, stopDetails))
+                    stops.add(BusStopInfoNext(stopId, stopNumber, stopName))
                 }
             }
-        } catch (e: IOException) {
-            println("Napaka pri pridobivanju podatkov: ${e.message}")
         } catch (e: Exception) {
-            println("Neka random napaka: ${e.message}")
+            System.err.println("Failed to fetch bus stops: ${e.message}")
         }
-
         return stops
     }
 
-    private fun scrapeStopDetails(stopId: String): List<Departure> {
+    private fun scrapeStopDetailsForDate(stopId: String, date: LocalDate): List<Departure> {
         val departures = mutableListOf<Departure>()
-
         try {
-            val todayDate = getTodayDateString()
-            val doc = Jsoup.connect("$baseUrl/?stop=$stopId&datum=$todayDate").userAgent("Mozilla/5.0").get()
-
-            //odhodi PO linijah
+            val dateStr = getDateString(date)
+            val doc = Jsoup.connect("$baseUrl/?stop=$stopId&datum=$dateStr").userAgent("Mozilla/5.0").get()
             val tables = doc.select("div.modal-body table.table-bordered")
 
-            //prvi dve tabeli NIMATA linij
             if (tables.size > 2) {
                 for (i in 2 until tables.size) {
                     val table = tables[i]
-                    val titleElement = table.previousElementSibling()
+                    val title = table.previousElementSibling()
 
-                    //ali je naslov "Naslednji odhodi za linijo"
-                    if (titleElement != null && titleElement.text().contains("Naslednji odhodi za linijo")) {
-                        //stevilka LINIJE
-                        val line = titleElement.select("span.modal-btn-route-position").text().trim()
-
-                        //casi odhodov iz linije
+                    if (title != null && title.text().contains("Naslednji odhodi za linijo")) {
+                        val line = title.select("span.modal-btn-route-position").text().trim()
                         val rows = table.select("tbody tr:not(:has(td.tdBackColor))")
 
                         for (row in rows) {
-                            //levi del tabele(ime postaje) ma CLASS tdWidth, desni(casi odhoda) NIMA
                             val direction = row.select("td.tdWidth").text().trim()
                             val timesText = row.select("td:not(.tdWidth)").text().trim()
 
-                            //case razdeli na posamezne stringe xx:xx
                             val times = timesText.split("\\s+".toRegex())
-                                .filter { it.isNotBlank() && it.matches(Regex("""\d{2}:\d{2}""")) }
+                                .filter { it.isNotBlank() && isValidTimeFormat(it) }
+                                .sortedWith(compareBy { LocalTime.parse(it) })
 
                             if (times.isNotEmpty()) {
-                                departures.add(Departure(line, direction, times))
+                                departures.add(Departure(line, direction, times, dateStr))
                             }
                         }
                     }
                 }
             }
         } catch (e: IOException) {
-            println("Napaka pri pridobivanju podrobnosti postaje $stopId: ${e.message}")
+            System.err.println("Error fetching stop $stopId for $date: ${e.message}")
         }
-
         return departures
+    }
+
+    private fun isValidTimeFormat(time: String): Boolean = try {
+        LocalTime.parse(time, DateTimeFormatter.ofPattern("HH:mm"))
+        true
+    } catch (e: DateTimeParseException) {
+        false
     }
 }
 
-suspend fun runDeparturesScraperToLocation(outputPath: String) {
-    val stopsDepartures = MarpromScraper().scrapeAllStops()
+suspend fun runDeparturesScraperToLocation(outputPath: String, daysBack: Int = 0, daysForward: Int = 1) {
+    val scraper = MarpromScraper()
+    val today = LocalDate.now()
+    val result = scraper.scrapeAllStopsForDateRange(today, daysBack, daysForward)
+
     val gson = GsonBuilder().setPrettyPrinting().create()
-    val jsonOutput = gson.toJson(stopsDepartures)
+    val jsonOutput = gson.toJson(result)
 
     try {
         File(outputPath).writeText(jsonOutput)
-        println("Scraping completed. Saved to $outputPath. Total routes: ${stopsDepartures.size}")
+        println("Scraping completed. Saved to $outputPath. Total dates: ${result.size}")
     } catch (e: IOException) {
         println("Error writing file: ${e.message}")
     }
 }
 
-suspend fun runDeparturesScraperAsJson(): String {
-    val stopsDepartures = MarpromScraper().scrapeAllStops()
+suspend fun runDeparturesScraperAsJson(daysBack: Int = 0, daysForward: Int = 1): String {
+    val scraper = MarpromScraper()
+    val today = LocalDate.now()
+    val result = scraper.scrapeAllStopsForDateRange(today, daysBack, daysForward)
+
     val gson = GsonBuilder().setPrettyPrinting().create()
-    return gson.toJson(stopsDepartures)
+    return gson.toJson(result)
 }
 
 fun main() {
     val scraper = MarpromScraper()
-    val allStops = scraper.scrapeAllStops()
+    val today = LocalDate.now()
+    val result = scraper.scrapeAllStopsForDateRange(today, 2, 3)
 
     val gson = GsonBuilder().setPrettyPrinting().create()
-    val json = gson.toJson(allStops)
+    val output = gson.toJson(result)
 
-    val outputFile = File("../../sharedLibraries/NEW_bus_stops_departures.json")
-    outputFile.writeText(json)
+    val outputFile = File("../../sharedLibraries/bus_schedules_daily_snapshot.json")
+    outputFile.parentFile.mkdirs()
+    outputFile.writeText(output)
+
+    println("Saved to ${outputFile.absolutePath}")
 }

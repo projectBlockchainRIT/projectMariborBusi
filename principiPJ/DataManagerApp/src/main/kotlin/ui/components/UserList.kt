@@ -23,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import model.Departure
 import model.User
+import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 fun UserList() {
@@ -67,13 +68,17 @@ fun UserList() {
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Išči po imenu") },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = Color(0xFF990000),
                     unfocusedBorderColor = Color.Gray,
                     focusedLabelColor = Color(0xFF990000),
                     cursorColor = Color(0xFF990000)
-                )
+                ),
+                singleLine = true,
+                maxLines = 1
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -82,9 +87,10 @@ fun UserList() {
                 onClick = {
                     sortOption = if (sortOption == "ID") "NAME" else "ID"
                 },
-                modifier = Modifier.width(140.dp),
+                modifier = Modifier
+                    .width(140.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color(0xFF990000) // barva besedila in obrobe
+                    contentColor = Color(0xFF990000)
                 )
             ) {
                 Text("Sort: $sortOption")
@@ -131,9 +137,24 @@ fun UserList() {
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("ID: ${user.id ?: "-"}", style = MaterialTheme.typography.caption)
-                                    Text("Ime: ${user.username}", style = MaterialTheme.typography.h6)
-                                    Text("Ustvarjen: ${user.createdAt}", style = MaterialTheme.typography.body2)
+                                    Text(
+                                        "ID: ${user.id ?: "-"}",
+                                        style = MaterialTheme.typography.caption,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        "Ime: ${user.username}",
+                                        style = MaterialTheme.typography.h6,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        "Ustvarjen: ${user.createdAt}",
+                                        style = MaterialTheme.typography.body2,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
                                 }
 
                                 Row {
