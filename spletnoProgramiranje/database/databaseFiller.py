@@ -445,10 +445,10 @@ def main():
     
     try:
         importStops(conn, stopsData)
-        importDepartures(conn, arrivalsData)
-        importRouteData(conn, routesData)
-        lastAlterScript(conn)
-        dummyDataGenerator(conn)
+        # importDepartures(conn, arrivalsData)
+        # importRouteData(conn, routesData)
+        # lastAlterScript(conn)
+        # dummyDataGenerator(conn)
         
     except Exception as e:
         print(f"Error during import: {e}")
