@@ -1,19 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl, { Map, NavigationControl, GeolocateControl, FullscreenControl, ScaleControl } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import type { Station } from '../types';
 import { useTheme } from '../context/ThemeContext';
 
-// Set your Mapbox access token
 mapboxgl.accessToken = 'pk.eyJ1IjoiYml0LWJhbmRpdCIsImEiOiJjbWJldzQyM28wNXRmMmlzaDhleWkwNXllIn0.CcdSzZ3I4zYYe4XXeUEItQ';
 
-interface MapStyle {
-  name: string;
-  styleId: string;
-  description: string;
-}
-
-const MAP_STYLES: MapStyle[] = [
+const MAP_STYLES = [
   { name: 'Streets', styleId: 'mapbox://styles/mapbox/streets-v12', description: 'Default streets view' },
   { name: 'Light', styleId: 'mapbox://styles/mapbox/light-v11', description: 'Clean light theme' },
   { name: 'Dark', styleId: 'mapbox://styles/mapbox/dark-v11', description: 'Dark theme' },
@@ -24,12 +16,11 @@ const MAP_STYLES: MapStyle[] = [
   { name: 'Navigation Night', styleId: 'mapbox://styles/mapbox/navigation-night-v1', description: 'Dark navigation theme' }
 ];
 
-interface DelaysMapBoxProps {
+interface OccupancyMapBoxProps {
   onMapLoad: (map: mapboxgl.Map) => void;
-  onStationClick: (station: Station) => void;
 }
 
-export default function DelaysMapBox({ onMapLoad, onStationClick }: DelaysMapBoxProps) {
+export default function OccupancyMapBox({ onMapLoad }: OccupancyMapBoxProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
 
@@ -46,7 +37,6 @@ export default function DelaysMapBox({ onMapLoad, onStationClick }: DelaysMapBox
     if (map.current || !mapContainer.current) return;
 
     try {
-      console.log('Initializing map...');
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: MAP_STYLES[0].styleId,
@@ -58,19 +48,15 @@ export default function DelaysMapBox({ onMapLoad, onStationClick }: DelaysMapBox
         antialias: true
       });
 
-      // Add controls
       map.current.addControl(new NavigationControl(), 'top-right');
       map.current.addControl(new GeolocateControl({
-        positionOptions: {
-          enableHighAccuracy: true
-        },
+        positionOptions: { enableHighAccuracy: true },
         trackUserLocation: true,
         showUserHeading: true
       }), 'top-right');
       map.current.addControl(new FullscreenControl(), 'top-right');
       map.current.addControl(new ScaleControl(), 'bottom-left');
 
-      // Event listeners
       map.current.on('move', () => {
         if (map.current) {
           setLng(parseFloat(map.current.getCenter().lng.toFixed(4)));
@@ -95,9 +81,7 @@ export default function DelaysMapBox({ onMapLoad, onStationClick }: DelaysMapBox
         }
       });
 
-      // Call onMapLoad callback when map is loaded
       map.current.on('load', () => {
-        console.log('Map loaded successfully');
         if (map.current && onMapLoad) {
           onMapLoad(map.current);
         }
@@ -126,7 +110,6 @@ export default function DelaysMapBox({ onMapLoad, onStationClick }: DelaysMapBox
         className="absolute inset-0 w-full h-full" 
         style={{ minHeight: '600px', backgroundColor: '#f3f4f6' }}
       />
-      
       <div className="absolute top-4 left-[10px] z-10">
         <select
           value={currentStyle}

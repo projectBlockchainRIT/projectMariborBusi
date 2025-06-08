@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { TruckIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
+import { useTheme } from '../context/ThemeContext';
 
 interface ActiveBusesProgressProps {
   className?: string;
@@ -17,6 +18,7 @@ export default function ActiveBusesProgress({
   const [minCount, setMinCount] = useState<number>(0);
   const [maxCount, setMaxCount] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,26 +61,22 @@ export default function ActiveBusesProgress({
   };
 
   return (
-    <div 
-      className={`bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 ${className}`}
+    <div
+      className={`rounded-xl shadow-sm p-4 border ${isDarkMode ? 'bg-gray-800 text-gray-200 border-gray-700' : 'bg-white text-gray-900 border-gray-200'} ${className}`}
       role="region"
       aria-label="Active Buses Progress"
     >
       {/* Header with icon and active count */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <TruckIcon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Active Buses
-          </h3>
+          <TruckIcon className={`w-5 h-5 ${isDarkMode ? 'text-gray-200' : 'text-gray-600'}`} />
+          <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>Active Buses</h3>
         </div>
-        <div className="text-2xl font-bold text-gray-900 dark:text-white">
-          {error ? '--' : activeCount}
-        </div>
+        <div className={`text-2xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>{error ? '--' : activeCount}</div>
       </div>
 
       {/* Progress bar container */}
-      <div className="relative h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-2">
+      <div className={`relative h-4 rounded-full overflow-hidden mb-2 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
         <motion.div
           className={`absolute top-0 left-0 h-full bg-gradient-to-r ${getColorClass(percentage)}`}
           initial={{ width: 0 }}
@@ -92,7 +90,7 @@ export default function ActiveBusesProgress({
       </div>
 
       {/* Stats row */}
-      <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+      <div className={`flex justify-between text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
         <div className="flex items-center space-x-1">
           <span className="font-medium">Min:</span>
           <span>{error ? '--' : minCount}</span>
@@ -104,15 +102,13 @@ export default function ActiveBusesProgress({
       </div>
 
       {/* Percentage indicator */}
-      <div className="text-right text-sm text-gray-500 dark:text-gray-400 mt-1">
+      <div className={`text-right text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
         {error ? '--' : `${percentage.toFixed(1)}% of daily maximum`}
       </div>
 
       {/* Error message */}
       {error && (
-        <div className="mt-2 text-sm text-red-500 dark:text-red-400">
-          {error}
-        </div>
+        <div className={`mt-2 text-sm ${isDarkMode ? 'text-red-400' : 'text-red-500'}`}>{error}</div>
       )}
     </div>
   );

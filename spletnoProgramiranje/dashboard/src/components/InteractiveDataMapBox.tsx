@@ -4,6 +4,7 @@ import mapboxgl, { Map, NavigationControl, GeolocateControl, FullscreenControl, 
 import 'mapbox-gl/dist/mapbox-gl.css';
 import type { Station } from '../types/station';
 import EventMarker from './EventMarker';
+import { useTheme } from '../context/ThemeContext';
 
 // Set your Mapbox access token
 mapboxgl.accessToken = 'pk.eyJ1IjoiYml0LWJhbmRpdCIsImEiOiJjbWJldzQyM28wNXRmMmlzaDhleWkwNXllIn0.CcdSzZ3I4zYYe4XXeUEItQ';
@@ -45,6 +46,8 @@ export default function InteractiveDataMapBox({ onMapLoad, onStationClick }: Int
   const [terrainEnabled, setTerrainEnabled] = useState<boolean>(false);
   const [elevation, setElevation] = useState<number | null>(null);
   const [isOpen, setIsOpen] = useState<boolean>(true);
+
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
@@ -223,128 +226,24 @@ export default function InteractiveDataMapBox({ onMapLoad, onStationClick }: Int
         className="absolute inset-0 w-full h-full" 
         style={{ minHeight: '600px', backgroundColor: '#f3f4f6' }}
       />
-      
-      <div className="absolute top-4 left-[10px] z-10 flex flex-col gap-2">
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              if (map.current) {
-                const newPitch = is3DMode ? 0 : 60;
-                const newBearing = is3DMode ? 0 : 20;
-                
-                map.current.flyTo({
-                  pitch: newPitch,
-                  bearing: newBearing,
-                  duration: 2000,
-                  essential: true
-                });
-                
-                setIs3DMode(!is3DMode);
-              }
-            }}
-            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-              is3DMode 
-                ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                : 'bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700'
-            }`}
-          >
-            {is3DMode ? '3D ON' : '3D OFF'}
-          </button>
-          
-          <button
-            onClick={() => {
-              if (map.current) {
-                if (!terrainEnabled) {
-                  map.current.addSource('mapbox-dem', {
-                    'type': 'raster-dem',
-                    'url': 'mapbox://mapbox.terrain-rgb',
-                    'tileSize': 512,
-                    'maxzoom': 14
-                  } as any);
-                  
-                  map.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
-                } else {
-                  map.current.setTerrain(null);
-                  if (map.current.getSource('mapbox-dem')) {
-                    map.current.removeSource('mapbox-dem');
-                  }
-                }
-                setTerrainEnabled(!terrainEnabled);
-              }
-            }}
-            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-              terrainEnabled 
-                ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                : 'bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700'
-            }`}
-          >
-            {terrainEnabled ? 'Terrain ON' : 'Terrain OFF'}
-          </button>
-        </div>
-
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              if (map.current) {
-                map.current.flyTo({
-                  center: [lng, lat],
-                  zoom: 15,
-                  pitch: 75,
-                  bearing: 0,
-                  duration: 3000,
-                  essential: true
-                });
-              }
-            }}
-            className="bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-2 text-sm font-medium rounded-lg transition-colors"
-          >
-            Bird's Eye
-          </button>
-          
-          <button
-            onClick={() => {
-              if (map.current) {
-                map.current.flyTo({
-                  center: [15.6467, 46.5547],
-                  zoom: 10,
-                  pitch: 0,
-                  bearing: 0,
-                  duration: 2000,
-                  essential: true
-                });
-                setIs3DMode(false);
-              }
-            }}
-            className="bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-2 text-sm font-medium rounded-lg transition-colors"
-          >
-            Reset View
-          </button>
-        </div>
-
-        <div className="relative">
-          <select
-            value={currentStyle}
-            onChange={(e) => {
-              const style = MAP_STYLES.find(s => s.name === e.target.value);
-              if (style && map.current) {
-                map.current.setStyle(style.styleId);
-                setCurrentStyle(style.name);
-              }
-            }}
-            className="w-full px-3 py-2 bg-gray-800 text-gray-200 border border-gray-700 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            {MAP_STYLES.map((style) => (
-              <option key={style.name} value={style.name} title={style.description}>
-                {style.name}
-              </option>
-            ))}
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-            </svg>
-          </div>
-        </div>
+      <div className="absolute top-4 left-[10px] z-10">
+        <select
+          value={currentStyle}
+          onChange={(e) => {
+            const style = MAP_STYLES.find(s => s.name === e.target.value);
+            if (style && map.current) {
+              map.current.setStyle(style.styleId);
+              setCurrentStyle(style.name);
+            }
+          }}
+          className={`w-full px-3 py-2 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${isDarkMode ? 'bg-gray-800 text-gray-200 border-gray-700' : 'bg-white text-gray-900 border-gray-200'}`}
+        >
+          {MAP_STYLES.map((style) => (
+            <option key={style.name} value={style.name} title={style.description}>
+              {style.name}
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   );
