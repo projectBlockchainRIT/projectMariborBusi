@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import subprocess
 import os
 import hmac
@@ -7,7 +6,7 @@ from flask import Flask, request, abort
 
 app = Flask(__name__)
 
-DEPLOY_SCRIPT_PATH = "/home/youruser/app/deploy.sh"
+DEPLOY_SCRIPT_PATH = "dataLoader.sh"
 WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET")
 
 @app.route('/webhook', methods=['POST'])
