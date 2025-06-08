@@ -45,7 +45,7 @@ Thumbs.db
 .idea/
 .vscode/
 
-*.txt
+secrets.txt
 
 # Application-specific
 coverage.out
