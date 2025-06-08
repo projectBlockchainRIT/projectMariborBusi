@@ -357,78 +357,122 @@ useEffect(() => {
       </div>
 
       {/* Graph */}
-      <div className="relative h-[400px] w-full">
-        {/* Y-axis labels */}
-        <div className="absolute left-0 top-0 bottom-0 w-12 flex flex-col justify-between text-xs text-gray-600 dark:text-gray-400">
-          {[100, 75, 50, 25, 0].map((value) => (
-            <div key={value} className="text-right pr-2">
-              {value}%
-            </div>
-          ))}
-        </div>
+<div className="relative h-[400px] w-full">
+  {/* Y-axis labels */}
+  <div className="absolute left-0 top-0 bottom-0 w-12 flex flex-col justify-between text-xs text-gray-600 dark:text-gray-400">
+    {[100, 75, 50, 25, 0].map((value) => (
+      <div key={value} className="text-right pr-2">
+        {value}%
+      </div>
+    ))}
+  </div>
 
-        {/* Graph area */}
-        <div className="absolute left-12 right-0 top-0 bottom-0">
-          {/* Grid lines */}
-          <div className="absolute inset-0 flex flex-col justify-between">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className={`w-full ${i === 4 ? 'border-t border-gray-200 dark:border-gray-700' : 'border-t border-gray-100 dark:border-gray-800'}`}
-              />
-            ))}
-          </div>
+  {/* Graph area */}
+  <div className="absolute left-12 right-0 top-0 bottom-0">
+    {/* Grid lines */}
+    <div className="absolute inset-0 flex flex-col justify-between">
+      {[0, 1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          className={`w-full ${i === 4 ? 'border-t border-gray-200 dark:border-gray-700' : 'border-t border-gray-100 dark:border-gray-800'}`}
+        />
+      ))}
+    </div>
 
-          {loading ? (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-gray-500 dark:text-gray-400">Loading data...</div>
-            </div>
-          ) : selectedLineData.length === 0 ? (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-gray-500 dark:text-gray-400">No data available for {selectedRouteName} on {formatDateForDisplay(currentDate)}</div>
-            </div>
-          ) : (
-            /* Data points and lines */
-            <div className="relative h-full px-4 pl-8 pr-12">
-              {/* Draw the columns */}
-              {selectedLineData.map((point, index) => {
-                const y = 100 - (point.density / maxDensity) * 100;
-                const barWidth = 100 / dataHours.length; // Equal width for each bar
-                const barLeft = index * barWidth; // Position each bar next to the previous one
-                
-                return (
-                  <motion.div
-                    key={point.hour}
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: `${Math.max(1, 100 - y)}%`, opacity: 1 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="absolute bottom-0 bg-blue-500/70 hover:bg-blue-500 transition-colors"
-                    style={{
-                      left: `${barLeft}%`,
-                      width: `${barWidth}%`,
-                      minWidth: '24px',
-                      maxWidth: '48px',
-                    }}
-                  >
-                    <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-                      {point.density}%
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
+    {loading ? (
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="text-gray-500 dark:text-gray-400">Loading data...</div>
+      </div>
+    ) : selectedLineData.length === 0 ? (
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="text-gray-500 dark:text-gray-400">No data available for {selectedRouteName} on {formatDateForDisplay(currentDate)}</div>
+      </div>
+    ) : (
+      /* Linear graph implementation */
+      <div className="relative h-full px-4">
+        <svg className="w-full h-full" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice">
+          {/* Define the gradient */}
+          <defs>
+            <linearGradient id="blue-gradient" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.7" />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.1" />
+            </linearGradient>
+          </defs>
+
+          {/* Add shaded area under line */}
+          {selectedLineData.length > 1 && (
+            <path
+              d={`M 0 ${500 - (selectedLineData[0].density / maxDensity) * 500} ${selectedLineData.slice(1).map((point, i) => {
+                const x = ((i + 1) / (selectedLineData.length - 1)) * 1000;
+                const y = 500 - (point.density / maxDensity) * 500;
+                return `L ${x} ${y}`;
+              }).join(' ')} L 1000 500 L 0 500 Z`}
+              fill="url(#blue-gradient)"
+              opacity="0.2"
+            />
           )}
 
-          {/* X-axis labels */}
-          <div className="absolute bottom-0 left-8 right-8 flex justify-between text-xs text-gray-600 dark:text-gray-400">
-            {dataHours.map((hour) => (
-              <div key={hour} className="text-center w-12">
-                {hour}
-              </div>
-            ))}
-          </div>
-        </div>
+          {/* Add the line */}
+          {selectedLineData.length > 1 && (
+            <path
+              d={`M 0 ${500 - (selectedLineData[0].density / maxDensity) * 500} ${selectedLineData.slice(1).map((point, i) => {
+                const x = ((i + 1) / (selectedLineData.length - 1)) * 1000;
+                const y = 500 - (point.density / maxDensity) * 500;
+                return `L ${x} ${y}`;
+              }).join(' ')}`}
+              stroke="#3b82f6"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              className="stroke-blue-500"
+            />
+          )}
+
+          {/* Add data points */}
+          {selectedLineData.map((point, index) => {
+            const x = selectedLineData.length > 1 
+              ? (index / (selectedLineData.length - 1)) * 1000
+              : 500;
+            const y = 500 - (point.density / maxDensity) * 500;
+            
+            return (
+              <g key={point.hour}>
+                {/* Data point circle */}
+                <circle
+                  cx={x}
+                  cy={y}
+                  r="8"
+                  className="fill-blue-500"
+                />
+                
+                {/* Value label */}
+                <text
+                  x={x}
+                  y={Math.max(20, y - 30)}
+                  textAnchor="middle"
+                  className="fill-gray-700 dark:fill-gray-300"
+                  style={{ fontSize: '24px' }}
+                >
+                  {point.density}%
+                </text>
+              </g>
+            );
+          })}
+        </svg>
       </div>
+    )}
+
+    {/* X-axis labels */}
+    <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-gray-600 dark:text-gray-400 px-4 pt-2">
+      {dataHours.map((hour) => (
+        <div key={hour} className="text-center">
+          {hour}
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
 
       {/* Legend */}
       <div className="mt-6 text-sm text-gray-600 dark:text-gray-400 flex justify-between items-center">

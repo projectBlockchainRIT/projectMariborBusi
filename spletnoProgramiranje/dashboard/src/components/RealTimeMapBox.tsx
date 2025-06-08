@@ -49,7 +49,7 @@ export default function RealTimeMapBox() {
     try {
       setStatus(`Loading route: ${route.name || route.id}`);
       
-      const response = await fetch(`http://40.68.198.73:8080/v1/routes/${route.id}`, {
+      const response = await fetch(`http://localhost:8080/v1/routes/${route.id}`, {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'

@@ -717,11 +717,17 @@ export default function InteractiveMap() {
     };
   }, [mapInstance, cleanupPreviousRoute, cleanupBusTracking]);
 
+  const handleViewChange = useCallback((view: string) => {
+    console.log(`View changed to: ${view}`);
+    // Implement additional view change logic here if needed
+  }, []);
+
   return (
     <div className="flex h-full min-h-[600px]">
       <InteractiveMapControls
         onRouteSelect={handleRouteSelect}
         onStationSelect={handleStationClick}
+        onViewChange={handleViewChange}
       />
       <div className="flex-1 h-full relative">
         <InteractiveDataMapBox
