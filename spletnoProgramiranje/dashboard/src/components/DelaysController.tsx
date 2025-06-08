@@ -18,7 +18,7 @@ import { createRoot } from 'react-dom/client';
 import mapboxgl from 'mapbox-gl';
 
 interface DelaysControllerProps {
-  onTimeRangeChange: (range: string) => void;
+  onTimeRangeChange: (range: string, filter: boolean) => void;
   onFilterChange: (filters: { [key: string]: boolean }) => void;
   onRouteSelect: (route: Route) => void;
   onStationSelect: (station: Station) => void;
@@ -46,7 +46,11 @@ export default function DelaysController({
     time: false
   });
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
+  const [isDateFilterEnabled, setIsDateFilterEnabled] = useState(false);
 
   // Fetch routes on component mount
   useEffect(() => {
@@ -73,7 +77,7 @@ export default function DelaysController({
 
   const handleTimeRangeChange = (range: string) => {
     setActiveTimeRange(range);
-    onTimeRangeChange(range);
+    onTimeRangeChange(range, isDateFilterEnabled);
   };
 
   const handleFilterToggle = (filter: string) => {
@@ -159,9 +163,14 @@ export default function DelaysController({
   } focus:outline-none focus:ring-2 focus:ring-blue-500`;
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newDate = e.target.value;
-    setSelectedDate(newDate);
-    onTimeRangeChange(newDate);
+    setSelectedDate(e.target.value);
+    onTimeRangeChange(e.target.value, isDateFilterEnabled);
+  };
+
+  const handleDateFilterToggle = () => {
+    const newState = !isDateFilterEnabled;
+    setIsDateFilterEnabled(newState);
+    onTimeRangeChange(selectedDate, newState);
   };
 
   // Generate array of last 30 days
@@ -279,47 +288,34 @@ export default function DelaysController({
           )}
         </div>
 
-        {/* Time Range Controls */}
-        <div className={`p-4 border-b ${borderClasses}`}>
-          <h3 className={`text-sm font-medium mb-3 ${textClasses}`}>
-            Time Range
-          </h3>
-          <div className="flex flex-col space-y-2">
-            <button
-              onClick={() => handleTimeRangeChange('realtime')}
-              className={getButtonClasses(activeTimeRange === 'realtime')}
-            >
-              <ClockIcon className="w-4 h-4 mr-2" />
-              Real-time
-            </button>
-            <button
-              onClick={() => handleTimeRangeChange('historical')}
-              className={getButtonClasses(activeTimeRange === 'historical')}
-            >
-              <ClockIcon className="w-4 h-4 mr-2" />
-              Historical
-            </button>
-          </div>
-        </div>
-
         {/* Time Range Section */}
         <div className={`p-4 border-b ${borderClasses}`}>
           <h2 className="text-lg font-semibold mb-4">Time Range</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Select Date</label>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={handleDateChange}
-                max={new Date().toISOString().split('T')[0]}
-                min={new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-                className={`w-full p-2 rounded-lg border ${
-                  isDarkMode 
-                    ? 'bg-gray-700 border-gray-600 text-white' 
-                    : 'bg-white border-gray-300 text-gray-900'
-                }`}
-              />
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Time Range</h3>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  min={getLast30Days()[getLast30Days().length - 1]}
+                  max={getLast30Days()[0]}
+                  className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                />
+                <div className="flex items-center">
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isDateFilterEnabled}
+                      onChange={handleDateFilterToggle}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <span className="ml-2 text-sm text-gray-700">Filter by date</span>
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
         </div>

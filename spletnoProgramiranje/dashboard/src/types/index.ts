@@ -1,7 +1,9 @@
 export interface Route {
-  id: number;
+  id: string;
   name: string;
-  path: number[][];
+  lineCode: string;
+  coordinates: [number, number][];
+  stations: Station[];
 }
 
 export interface Station {
