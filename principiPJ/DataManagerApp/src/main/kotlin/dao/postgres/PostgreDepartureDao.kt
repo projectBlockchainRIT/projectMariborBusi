@@ -3,10 +3,13 @@ package dao.postgres
 import dao.DepartureDao
 import model.Departure
 import db.DatabaseConnector
-import java.sql.Time
-import java.time.LocalTime
+import java.sql.Date
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class PostgreDepartureDao : DepartureDao {
+    private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
+
     override fun getById(id: Int): Departure? {
         val query = "SELECT * FROM departures WHERE id = ?"
         DatabaseConnector.getConnection().use { conn ->
@@ -18,7 +21,7 @@ class PostgreDepartureDao : DepartureDao {
                         id = rs.getInt("id"),
                         stopId = rs.getInt("stop_id"),
                         directionId = rs.getInt("direction_id"),
-                        departure = rs.getString("departure")
+                        date = rs.getDate("date").toLocalDate().format(dateFormatter)
                     )
                 } else null
             }
@@ -27,7 +30,7 @@ class PostgreDepartureDao : DepartureDao {
 
     override fun getDeparturesForDirection(directionId: Int): List<Departure> {
         val departures = mutableListOf<Departure>()
-        val query = "SELECT id, stop_id, direction_id, departure FROM departures WHERE direction_id = ?"
+        val query = "SELECT id, stop_id, direction_id, date FROM departures WHERE direction_id = ?"
 
         DatabaseConnector.getConnection().use { conn ->
             conn!!.prepareStatement(query).use { stmt ->
@@ -39,7 +42,7 @@ class PostgreDepartureDao : DepartureDao {
                                 id = rs.getInt("id"),
                                 stopId = rs.getInt("stop_id"),
                                 directionId = rs.getInt("direction_id"),
-                                departure = rs.getString("departure")
+                                date = rs.getDate("date").toLocalDate().format(dateFormatter)
                             )
                         )
                     }
@@ -82,7 +85,7 @@ class PostgreDepartureDao : DepartureDao {
                             id = rs.getInt("id"),
                             stopId = rs.getInt("stop_id"),
                             directionId = rs.getInt("direction_id"),
-                            departure = rs.getString("departure")
+                            date = rs.getDate("date").toLocalDate().format(dateFormatter)
                         )
                     )
                 }
@@ -92,24 +95,24 @@ class PostgreDepartureDao : DepartureDao {
     }
 
     override fun insert(entity: Departure): Boolean {
-        val query = "INSERT INTO departures (stop_id, direction_id, departure) VALUES (?, ?, ?)"
+        val query = "INSERT INTO departures (stop_id, direction_id, date) VALUES (?, ?, ?)"
         DatabaseConnector.getConnection().use { conn ->
             conn!!.prepareStatement(query).use { stmt ->
                 stmt.setInt(1, entity.stopId)
                 stmt.setInt(2, entity.directionId)
-                stmt.setTime(3, Time.valueOf(LocalTime.parse(entity.departure)))
+                stmt.setDate(3, Date.valueOf(LocalDate.parse(entity.date, dateFormatter)))
                 return stmt.executeUpdate() > 0
             }
         }
     }
 
     override fun update(entity: Departure): Boolean {
-        val query = "UPDATE departures SET stop_id = ?, direction_id = ?, departure = ? WHERE id = ?"
+        val query = "UPDATE departures SET stop_id = ?, direction_id = ?, date = ? WHERE id = ?"
         DatabaseConnector.getConnection().use { conn ->
             conn!!.prepareStatement(query).use { stmt ->
                 stmt.setInt(1, entity.stopId)
                 stmt.setInt(2, entity.directionId)
-                stmt.setString(3, entity.departure)
+                stmt.setDate(3, Date.valueOf(LocalDate.parse(entity.date, dateFormatter)))
                 stmt.setInt(4, entity.id!!)
                 return stmt.executeUpdate() > 0
             }

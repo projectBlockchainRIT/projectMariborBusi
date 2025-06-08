@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dao.postgres.PostgreLineDao
 import dao.postgres.PostgreRouteDao
@@ -65,13 +66,17 @@ fun RouteList() {
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Išči po imenu") },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = Color(0xFF990000),
                     unfocusedBorderColor = Color.Gray,
                     focusedLabelColor = Color(0xFF990000),
                     cursorColor = Color(0xFF990000)
-                )
+                ),
+                singleLine = true,
+                maxLines = 1
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -84,9 +89,10 @@ fun RouteList() {
                         else -> "ID"
                     }
                 },
-                modifier = Modifier.width(140.dp),
+                modifier = Modifier
+                    .width(140.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color(0xFF990000) // barva besedila in obrobe
+                    contentColor = Color(0xFF990000)
                 )
             ) {
                 Text("Sort: $sortOption")
@@ -133,12 +139,29 @@ fun RouteList() {
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("ID: ${route.id ?: "-"}", style = MaterialTheme.typography.caption)
-                                    Text("Ime: ${route.name}", style = MaterialTheme.typography.h6)
-                                    Text("Linija ID: ${route.lineId}", style = MaterialTheme.typography.body2)
+                                    Text(
+                                        "ID: ${route.id ?: "-"}",
+                                        style = MaterialTheme.typography.caption,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        "Ime: ${route.name}",
+                                        style = MaterialTheme.typography.h6,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        "Linija ID: ${route.lineId}",
+                                        style = MaterialTheme.typography.body2,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
                                     Text(
                                         "GeoJSON: ${route.path.toString().take(60)}...",
-                                        style = MaterialTheme.typography.body2
+                                        style = MaterialTheme.typography.body2,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                 }
 

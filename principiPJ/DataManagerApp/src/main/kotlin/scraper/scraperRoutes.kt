@@ -87,7 +87,7 @@ suspend fun runRoutesScraperToLocation(outputPath: String) {
     }
 }
 
-suspend fun runRoutesScraperAsJson(date: String = "2025-5-28"): String {
+suspend fun runRoutesScraperAsJson(date: String = "2025-6-6"): String {
     val stopsRoutes = MarpromRouteScraper(date).scrapeAllRoutes()
     val gson = GsonBuilder().setPrettyPrinting().create()
     return gson.toJson(stopsRoutes)

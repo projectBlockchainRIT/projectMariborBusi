@@ -137,7 +137,7 @@ fun AddRouteForm() {
                     contentColor = Color.White
                 )
             ) {
-                Text("Dodaj pot")
+                Text("Dodaj")
             }
         }
     }

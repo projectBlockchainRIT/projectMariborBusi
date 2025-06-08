@@ -34,13 +34,13 @@ fun AddUserForm() {
                 .fillMaxSize()
                 .padding(24.dp)
         )  {
-            // Scrollabilen del z obrazcem
+            // scrollabilen del z obrazcem
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
                     .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 OutlinedTextField(
@@ -91,7 +91,7 @@ fun AddUserForm() {
                 )
             }
 
-            // Gumb fiksiran na dnu zaslona
+            // gumb fiksiran na dnu zaslona
             Button(
                 onClick = {
                     if (username.isBlank() || email.isBlank() || password.isBlank()) {

@@ -41,7 +41,14 @@ Thumbs.db
 .env
 .env.*
 
+# Editor/IDE
+.idea/
+.vscode/
+
+secrets.txt
+=======
 # Application-specific
 coverage.out
 dist/
 tmp/
+

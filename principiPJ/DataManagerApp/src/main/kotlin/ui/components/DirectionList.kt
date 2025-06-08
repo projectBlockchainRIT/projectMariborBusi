@@ -26,6 +26,7 @@ import kotlinx.coroutines.withContext
 import model.Departure
 import model.Direction
 import model.Line
+import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 fun DirectionList() {
@@ -72,13 +73,17 @@ fun DirectionList() {
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 label = { Text("Išči po imenu") },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = Color(0xFF990000),
                     unfocusedBorderColor = Color.Gray,
                     focusedLabelColor = Color(0xFF990000),
                     cursorColor = Color(0xFF990000)
-                )
+                ),
+                singleLine = true,
+                maxLines = 1
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -91,9 +96,10 @@ fun DirectionList() {
                         else -> "ID"
                     }
                 },
-                modifier = Modifier.width(140.dp),
+                modifier = Modifier
+                    .width(140.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color(0xFF990000) // barva besedila in obrobe
+                    contentColor = Color(0xFF990000)
                 )
             ) {
                 Text("Sort: $sortOption")
@@ -137,9 +143,24 @@ fun DirectionList() {
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("ID: ${direction.id}", style = MaterialTheme.typography.caption)
-                                    Text("Ime: ${direction.name}", style = MaterialTheme.typography.h6)
-                                    Text("Linija ID: ${direction.lineId}", style = MaterialTheme.typography.body2)
+                                    Text(
+                                        "ID: ${direction.id}",
+                                        style = MaterialTheme.typography.caption,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        "Ime: ${direction.name}",
+                                        style = MaterialTheme.typography.h6,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        "Linija ID: ${direction.lineId}",
+                                        style = MaterialTheme.typography.body2,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
                                 }
 
                                 Row {
@@ -220,7 +241,9 @@ fun DirectionList() {
                                 Text(
                                     "Na to smer je vezanih ${departures.size} odhodov:",
                                     style = MaterialTheme.typography.subtitle2,
-                                    modifier = Modifier.padding(start = 16.dp, top = 8.dp)
+                                    modifier = Modifier.padding(start = 16.dp, top = 8.dp),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
 
                                 Button(
