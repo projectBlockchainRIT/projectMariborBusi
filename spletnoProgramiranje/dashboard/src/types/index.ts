@@ -21,4 +21,6 @@ export interface Delay {
   line_id: number;
   report_time: string;
   station_id: number;
-} 
+}
+
+export type TimeRangeChangeHandler = (date: string, isDateFilterEnabled: boolean, isLineFilterEnabled: boolean) => void; 

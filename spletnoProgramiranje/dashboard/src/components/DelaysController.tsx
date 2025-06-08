@@ -18,7 +18,7 @@ import { createRoot } from 'react-dom/client';
 import mapboxgl from 'mapbox-gl';
 
 interface DelaysControllerProps {
-  onTimeRangeChange: (range: string, filter: boolean) => void;
+  onTimeRangeChange: (date: string, isDateFilterEnabled: boolean, isLineFilterEnabled: boolean) => void;
   onFilterChange: (filters: { [key: string]: boolean }) => void;
   onRouteSelect: (route: Route) => void;
   onStationSelect: (station: Station) => void;
@@ -36,7 +36,7 @@ export default function DelaysController({
   const [showFilters, setShowFilters] = useState(false);
   const [routes, setRoutes] = useState<Route[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
-  const [expandedRouteId, setExpandedRouteId] = useState<number | null>(null);
+  const [expandedRouteId, setExpandedRouteId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [routesLoading, setRoutesLoading] = useState(true);
   const [stationsLoading, setStationsLoading] = useState(false);
@@ -51,6 +51,7 @@ export default function DelaysController({
     return today.toISOString().split('T')[0];
   });
   const [isDateFilterEnabled, setIsDateFilterEnabled] = useState(false);
+  const [isLineFilterEnabled, setIsLineFilterEnabled] = useState(false);
 
   // Fetch routes on component mount
   useEffect(() => {
@@ -77,7 +78,7 @@ export default function DelaysController({
 
   const handleTimeRangeChange = (range: string) => {
     setActiveTimeRange(range);
-    onTimeRangeChange(range, isDateFilterEnabled);
+    onTimeRangeChange(selectedDate, isDateFilterEnabled, isLineFilterEnabled);
   };
 
   const handleFilterToggle = (filter: string) => {
@@ -120,6 +121,7 @@ export default function DelaysController({
     if (selectedStation?.id === station.id) {
       return;
     }
+    setSelectedStation(station);
     onStationSelect(station);
   };
 
@@ -163,26 +165,21 @@ export default function DelaysController({
   } focus:outline-none focus:ring-2 focus:ring-blue-500`;
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedDate(e.target.value);
-    onTimeRangeChange(e.target.value, isDateFilterEnabled);
+    const newDate = e.target.value;
+    setSelectedDate(newDate);
+    onTimeRangeChange(newDate, isDateFilterEnabled, isLineFilterEnabled);
   };
 
   const handleDateFilterToggle = () => {
     const newState = !isDateFilterEnabled;
     setIsDateFilterEnabled(newState);
-    onTimeRangeChange(selectedDate, newState);
+    onTimeRangeChange(selectedDate, newState, isLineFilterEnabled);
   };
 
-  // Generate array of last 30 days
-  const getLast30Days = () => {
-    const dates = [];
-    const today = new Date();
-    for (let i = 0; i < 30; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-      dates.push(date.toISOString().split('T')[0]);
-    }
-    return dates;
+  const handleLineFilterToggle = () => {
+    const newState = !isLineFilterEnabled;
+    setIsLineFilterEnabled(newState);
+    onTimeRangeChange(selectedDate, isDateFilterEnabled, newState);
   };
 
   return (
@@ -226,13 +223,9 @@ export default function DelaysController({
                   <button
                     onClick={() => handleRouteClick(route)}
                     className={`w-full p-3 text-left rounded-lg transition-colors border flex items-center justify-between ${
-                      expandedRouteId === route.id
-                        ? isDarkMode 
-                          ? 'bg-blue-900 border-blue-700' 
-                          : 'bg-blue-100 border-blue-200'
-                        : isDarkMode
-                          ? 'bg-gray-700 hover:bg-gray-600 border-gray-600'
-                          : 'bg-gray-100 hover:bg-gray-200 border-gray-200'
+                      isDarkMode
+                        ? 'bg-gray-700 hover:bg-gray-600 border-gray-600'
+                        : 'bg-gray-100 hover:bg-gray-200 border-gray-200'
                     }`}
                   >
                     <div className="font-medium flex items-center gap-2">
@@ -240,12 +233,11 @@ export default function DelaysController({
                       {route.name}
                     </div>
                     {expandedRouteId === route.id ? (
-                      <ChevronUpIcon className="h-5 w-5" />
+                      <ChevronUpIcon className="h-4 w-4" />
                     ) : (
-                      <ChevronDownIcon className="h-5 w-5" />
+                      <ChevronDownIcon className="h-4 w-4" />
                     )}
                   </button>
-                  
                   {expandedRouteId === route.id && (
                     <div className={`mt-2 ml-4 space-y-2 ${
                       isDarkMode ? 'text-gray-300' : 'text-gray-600'
@@ -293,29 +285,48 @@ export default function DelaysController({
           <h2 className="text-lg font-semibold mb-4">Time Range</h2>
           <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Time Range</h3>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={handleDateChange}
-                  min={getLast30Days()[getLast30Days().length - 1]}
-                  max={getLast30Days()[0]}
-                  className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                />
-                <div className="flex items-center">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isDateFilterEnabled}
-                      onChange={handleDateFilterToggle}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    <span className="ml-2 text-sm text-gray-700">Filter by date</span>
-                  </label>
-                </div>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={handleDateChange}
+                className={`w-full p-2 rounded border ${
+                  isDarkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white' 
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <ClockIcon className="h-5 w-5 text-blue-500 mr-2" />
+                <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Filter by date</span>
               </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={isDateFilterEnabled}
+                  onChange={handleDateFilterToggle}
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <TruckIcon className="h-5 w-5 text-green-500 mr-2" />
+                <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Filter by selected line</span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={isLineFilterEnabled}
+                  onChange={handleLineFilterToggle}
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+              </label>
             </div>
           </div>
         </div>
