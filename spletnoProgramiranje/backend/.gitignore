@@ -46,7 +46,7 @@ Thumbs.db
 .vscode/
 
 secrets.txt
-=======
+
 # Application-specific
 coverage.out
 dist/
