@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send webhook to server
-        uses: JasonEtco/webhook-action@v1.1.0
+        uses: jasonetco/webhook-action@v1
         with:
           url: ${{ secrets.WEBHOOK_URL }}
           payload: |

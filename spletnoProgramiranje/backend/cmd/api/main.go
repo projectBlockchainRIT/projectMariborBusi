@@ -42,6 +42,7 @@ func main() {
 
 	defer db.Close()
 	log.Printf("established database connection")
+	log.Print("Testiram za webhook")
 
 	store := data.NewStorage(db)
 
