@@ -4,6 +4,7 @@ import (
 	"backend/internal/data"
 	"backend/internal/db"
 	"backend/internal/env"
+	"fmt"
 	"log"
 )
 
@@ -26,13 +27,13 @@ const version = "0.0.1"
 func main() {
 
 	cfg := dbConfig{
-		addr:               env.GetString("DB_ADDR", "postgresql://user:password@localhost:5432/m-busi?sslmode=disable"),
+		addr:               env.GetString("DB_ADDR", "postgresql://user:password@database:5432/m-busi?sslmode=disable"),
 		maxOpenConnections: env.GetInt("DB_MAX_OPEN_CONNS", 30),
 		maxIdleConnections: env.GetInt("DB_MAX_IDLE_CONNS", 30),
 		maxIdleTime:        env.GetString("DB_MAX_IDLE_TIME", "15m"),
 	}
 
-	// fmt.Printf(cfg.addr)
+	fmt.Print(cfg.addr)
 
 	db, err := db.New(cfg.addr, cfg.maxOpenConnections, cfg.maxIdleConnections, cfg.maxIdleTime)
 
@@ -48,7 +49,7 @@ func main() {
 
 	app := &app{
 		serverConfig: config{
-			address: env.GetString("ADDR", ":3000"),
+			address: env.GetString("ADDR", ":8080"),
 			db:      cfg,
 			env:     env.GetString("ENV", "development"),
 			apiURL:  env.GetString("EXTERNAL_URL", "localhost:3000"),
