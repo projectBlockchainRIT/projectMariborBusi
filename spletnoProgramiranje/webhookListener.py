@@ -6,7 +6,7 @@ from flask import Flask, request, abort
 
 app = Flask(__name__)
 
-DEPLOY_SCRIPT_PATH = "dataLoader.sh"
+DEPLOY_SCRIPT_PATH = "/home/BitBanditi/projectMariborBusi/spletnoProgramiranje/dataLoader.sh"
 WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET")
 
 @app.route('/webhook', methods=['POST'])
