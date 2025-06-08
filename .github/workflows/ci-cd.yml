@@ -33,18 +33,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send webhook to server
-        uses: jasonetco/webhook-action@v1
-        with:
-          url: ${{ secrets.WEBHOOK_URL }}
-          payload: |
-            {
+        run: |
+          curl -X POST ${{ secrets.WEBHOOK_URL }} \
+            -H "Content-Type: application/json" \
+            -H "X-GitHub-Event: deployment" \
+            -H "X-Hub-Signature: ${{ secrets.WEBHOOK_SECRET }}" \
+            -d '{
               "event": "new_backend_image",
               "repository": "${{ github.repository }}",
               "tag": "latest",
               "commit_sha": "${{ github.sha }}"
-            }
-          headers: >
-            {
-              "X-GitHub-Event": "deployment",
-              "X-Hub-Signature": "${{ secrets.WEBHOOK_SECRET }}"
-            }
+            }'
