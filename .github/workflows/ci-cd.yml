@@ -3,9 +3,9 @@ name: CI/CD Pipeline for Backend
 on:
   push:
     branches:
-      - SC-50-Izdelava-posredniške-storitve 
+      - SC-50-Izdelava-posredniške-storitve
     paths:
-      - 'spletnoProgramiranje/backend/**'
+      - "spletnoProgramiranje/backend/**"
 
 jobs:
   build_and_push_backend_image:
@@ -25,6 +25,26 @@ jobs:
         with:
           context: ./spletnoProgramiranje/backend
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/backend:latest 
+          tags: ${{ secrets.DOCKER_USERNAME }}/backend:latest
 
-
+  notify_server:
+    needs: build_and_push_backend_image
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send webhook to server
+        uses: JasonEtco/webhook-action@v1.1.0
+        with:
+          url: ${{ secrets.WEBHOOK_URL }}
+          payload: |
+            {
+              "event": "new_backend_image",
+              "repository": "${{ github.repository }}",
+              "tag": "latest",
+              "commit_sha": "${{ github.sha }}"
+            }
+          headers: >
+            {
+              "X-GitHub-Event": "deployment",
+              "X-Hub-Signature": "${{ secrets.WEBHOOK_SECRET }}"
+            }
