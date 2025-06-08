@@ -3,11 +3,8 @@ volumes:
     name: "database-v"
 services:
   database:
-    image: database:1.0.0
+    image: a30drian/database:1.0.0 
     container_name: postgres-db
-    build:
-      context: ./database
-      dockerfile: Dockerfile
     environment:
       POSTGRES_DB: m-busi
       POSTGRES_USER: user
@@ -23,16 +20,13 @@ services:
       timeout: 5s
       retries: 5
 
-  backend: 
-    build:
-      context: ./backend 
-      dockerfile: Dockerfile
+  backend:
+    image: a30drian/backend:latest
     ports:
-      - "8080:8080" 
+      - "8080:8080"
     environment:
       DATABASE_URL: "postgresql://user:password@database:5432/m-busi?sslmode=disable"
     depends_on:
       database:
-        condition: service_healthy 
-    restart: on-failure 
-
+        condition: service_healthy
+    restart: on-failure
