@@ -221,9 +221,9 @@ fun insertDepartures(
 
                     // 3) vstavi v tabelo departures (stop_id, direction_id, date)
                     val insertDepRunsSQL = """
-                        INSERT INTO departures (stop_id, direction_id, date)
-                        VALUES (?, ?, ?)
-                        ON CONFLICT (stop_id, direction_id, date) DO NOTHING
+                        INSERT INTO departures (stop_id, direction_id, date, line_id)
+                        VALUES (?, ?, ?, ?)
+                        ON CONFLICT (stop_id, direction_id, date, line_id) DO NOTHING
                         RETURNING id
                     """.trimIndent()
 
@@ -231,6 +231,7 @@ fun insertDepartures(
                         stmt.setInt(1, stopId)
                         stmt.setInt(2, directionId)
                         stmt.setDate(3, currentDate)
+                        stmt.setInt(4, lineId)
                         val rs = stmt.executeQuery()
                         if (rs.next()) {
                             departureRunsCount++
