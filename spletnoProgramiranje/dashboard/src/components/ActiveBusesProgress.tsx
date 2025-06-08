@@ -21,16 +21,16 @@ export default function ActiveBusesProgress({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://40.68.198.73:8080/v1/routes/active');
+        const response = await fetch('http://localhost:8080/v1/routes/active');
         if (!response.ok) {
           throw new Error('Failed to fetch active buses data');
         }
-        const data: number = await response.json();
+        const data: ActiveBusesData = await response.json();
         
-        setActiveCount(data);
+        setActiveCount(data.data);
         // Update min and max counts
-        setMinCount(prevMin => Math.min(prevMin || data, data));
-        setMaxCount(prevMax => Math.max(prevMax || data, data));
+        setMinCount(prevMin => Math.min(prevMin || data.data, data.data));
+        setMaxCount(prevMax => Math.max(prevMax || data.data, data.data));
         setError(null);
       } catch (err) {
         setError('Failed to fetch active buses data');

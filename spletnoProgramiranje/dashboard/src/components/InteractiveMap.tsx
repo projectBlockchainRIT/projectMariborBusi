@@ -777,6 +777,7 @@ export default function InteractiveMap() {
         onRouteSelect={handleRouteSelect}
         onStationSelect={handleStationClick}
         onViewChange={handleViewChange}
+        onViewChange={handleViewChange}
       />
       <div className="flex-1 h-full relative">
         <InteractiveDataMapBox
