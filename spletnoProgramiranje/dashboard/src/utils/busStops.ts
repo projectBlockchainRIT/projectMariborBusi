@@ -19,7 +19,7 @@ export interface FetchBusStopsOptions {
 }
 
 // API configuration
-const API_BASE_URL = 'http://localhost:8080/v1';
+const API_BASE_URL = 'http://40.68.198.73:8080/v1';
 
 // Error types
 export class BusStopsError extends Error {

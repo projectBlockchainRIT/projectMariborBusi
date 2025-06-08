@@ -7,22 +7,28 @@ import {
   UserGroupIcon,
   ClockIcon,
   AdjustmentsHorizontalIcon,
-  InformationCircleIcon
+  InformationCircleIcon,
+  ChartBarIcon,
+  ExclamationTriangleIcon,
+  MapPinIcon
 } from '@heroicons/react/24/outline';
 
 interface ControlPanelProps {
   onLayerChange: (layer: string) => void;
   onTimeRangeChange: (range: string) => void;
   onFilterChange: (filters: any) => void;
+  onViewChange: (view: string) => void;
 }
 
 export default function InteractiveMapControls({
   onLayerChange,
   onTimeRangeChange,
-  onFilterChange
+  onFilterChange,
+  onViewChange
 }: ControlPanelProps) {
   const [activeLayer, setActiveLayer] = useState('buses');
   const [activeTimeRange, setActiveTimeRange] = useState('realtime');
+  const [activeView, setActiveView] = useState('info');
   const [showFilters, setShowFilters] = useState(false);
   const { isDarkMode } = useTheme();
 
@@ -34,6 +40,11 @@ export default function InteractiveMapControls({
   const handleTimeRangeChange = (range: string) => {
     setActiveTimeRange(range);
     onTimeRangeChange(range);
+  };
+
+  const handleViewChange = (view: string) => {
+    setActiveView(view);
+    onViewChange(view);
   };
 
   const handleFilterToggle = () => {
@@ -81,111 +92,147 @@ export default function InteractiveMapControls({
   return (
     <div className={containerClasses}>
       <div className={panelClasses}>
-        {/* Layer Controls */}
+        {/* View Selector */}
         <div className={`p-4 border-b ${borderClasses}`}>
           <h3 className={`text-sm font-medium mb-3 ${textClasses}`}>
-            Map Layers
+            View Mode
           </h3>
-          <div className="flex space-x-2">
+          <div className="flex flex-col space-y-2">
             <button
-              onClick={() => handleLayerChange('buses')}
-              className={getButtonClasses(activeLayer === 'buses')}
+              onClick={() => handleViewChange('info')}
+              className={getButtonClasses(activeView === 'info')}
             >
-              <TruckIcon className="w-4 h-4 mr-2" />
-              Buses
+              <MapPinIcon className="w-4 h-4 mr-2" />
+              Info
             </button>
             <button
-              onClick={() => handleLayerChange('passengers')}
-              className={getButtonClasses(activeLayer === 'passengers')}
+              onClick={() => handleViewChange('occupancy')}
+              className={getButtonClasses(activeView === 'occupancy')}
             >
-              <UserGroupIcon className="w-4 h-4 mr-2" />
-              Passengers
+              <ChartBarIcon className="w-4 h-4 mr-2" />
+              Occupancy
+            </button>
+            <button
+              onClick={() => handleViewChange('delays')}
+              className={getButtonClasses(activeView === 'delays')}
+            >
+              <ExclamationTriangleIcon className="w-4 h-4 mr-2" />
+              Delays
             </button>
           </div>
         </div>
 
-        {/* Time Range Controls */}
-        <div className={`p-4 border-b ${borderClasses}`}>
-          <h3 className={`text-sm font-medium mb-3 ${textClasses}`}>
-            Time Range
-          </h3>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => handleTimeRangeChange('realtime')}
-              className={getButtonClasses(activeTimeRange === 'realtime')}
-            >
-              <ClockIcon className="w-4 h-4 mr-2" />
-              Real-time
-            </button>
-            <button
-              onClick={() => handleTimeRangeChange('historical')}
-              className={getButtonClasses(activeTimeRange === 'historical')}
-            >
-              <ClockIcon className="w-4 h-4 mr-2" />
-              Historical
-            </button>
-          </div>
-        </div>
-
-        {/* Filter Controls */}
-        <div className={`p-4 ${borderClasses}`}>
-          <button
-            onClick={handleFilterToggle}
-            className={getButtonClasses(showFilters)}
-          >
-            <div className="flex items-center">
-              <AdjustmentsHorizontalIcon className="w-4 h-4 mr-2" />
-              Filters
-            </div>
-            <InformationCircleIcon className="w-4 h-4" />
-          </button>
-
-          <AnimatePresence>
-            {showFilters && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className={`mt-4 p-4 rounded-md transition-colors duration-200 ${
-                  isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
-                }`}
+        {/* Layer Controls - Only show when view is not 'info' */}
+        {activeView !== 'info' && (
+          <div className={`p-4 border-b ${borderClasses}`}>
+            <h3 className={`text-sm font-medium mb-3 ${textClasses}`}>
+              Map Layers
+            </h3>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handleLayerChange('buses')}
+                className={getButtonClasses(activeLayer === 'buses')}
               >
-                <div className="space-y-4">
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${textClasses}`}>
-                      Route Filter
-                    </label>
-                    <select
-                      className={selectClasses}
-                      onChange={(e) => onFilterChange({ route: e.target.value })}
-                    >
-                      <option value="">All Routes</option>
-                      <option value="1">Route 1</option>
-                      <option value="2">Route 2</option>
-                      <option value="3">Route 3</option>
-                    </select>
-                  </div>
+                <TruckIcon className="w-4 h-4 mr-2" />
+                Buses
+              </button>
+              <button
+                onClick={() => handleLayerChange('passengers')}
+                className={getButtonClasses(activeLayer === 'passengers')}
+              >
+                <UserGroupIcon className="w-4 h-4 mr-2" />
+                Passengers
+              </button>
+            </div>
+          </div>
+        )}
 
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${textClasses}`}>
-                      Time Filter
-                    </label>
-                    <select
-                      className={selectClasses}
-                      onChange={(e) => onFilterChange({ time: e.target.value })}
-                    >
-                      <option value="">All Times</option>
-                      <option value="morning">Morning (6-12)</option>
-                      <option value="afternoon">Afternoon (12-18)</option>
-                      <option value="evening">Evening (18-24)</option>
-                    </select>
+        {/* Time Range Controls - Only show when view is not 'info' */}
+        {activeView !== 'info' && (
+          <div className={`p-4 border-b ${borderClasses}`}>
+            <h3 className={`text-sm font-medium mb-3 ${textClasses}`}>
+              Time Range
+            </h3>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handleTimeRangeChange('realtime')}
+                className={getButtonClasses(activeTimeRange === 'realtime')}
+              >
+                <ClockIcon className="w-4 h-4 mr-2" />
+                Real-time
+              </button>
+              <button
+                onClick={() => handleTimeRangeChange('historical')}
+                className={getButtonClasses(activeTimeRange === 'historical')}
+              >
+                <ClockIcon className="w-4 h-4 mr-2" />
+                Historical
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Filter Controls - Only show when view is not 'info' */}
+        {activeView !== 'info' && (
+          <div className={`p-4 ${borderClasses}`}>
+            <button
+              onClick={handleFilterToggle}
+              className={getButtonClasses(showFilters)}
+            >
+              <div className="flex items-center">
+                <AdjustmentsHorizontalIcon className="w-4 h-4 mr-2" />
+                Filters
+              </div>
+              <InformationCircleIcon className="w-4 h-4" />
+            </button>
+
+            <AnimatePresence>
+              {showFilters && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className={`mt-4 p-4 rounded-md transition-colors duration-200 ${
+                    isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
+                  }`}
+                >
+                  <div className="space-y-4">
+                    <div>
+                      <label className={`block text-sm font-medium mb-2 ${textClasses}`}>
+                        Route Filter
+                      </label>
+                      <select
+                        className={selectClasses}
+                        onChange={(e) => onFilterChange({ route: e.target.value })}
+                      >
+                        <option value="">All Routes</option>
+                        <option value="1">Route 1</option>
+                        <option value="2">Route 2</option>
+                        <option value="3">Route 3</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className={`block text-sm font-medium mb-2 ${textClasses}`}>
+                        Time Filter
+                      </label>
+                      <select
+                        className={selectClasses}
+                        onChange={(e) => onFilterChange({ time: e.target.value })}
+                      >
+                        <option value="">All Times</option>
+                        <option value="morning">Morning (6-12)</option>
+                        <option value="afternoon">Afternoon (12-18)</option>
+                        <option value="evening">Evening (18-24)</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
     </div>
   );

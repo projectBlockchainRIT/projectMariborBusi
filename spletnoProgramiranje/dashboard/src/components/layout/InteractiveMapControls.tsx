@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { MapPin, Clock, X, ChevronDown, ChevronUp, Bus } from 'lucide-react';
+import { MapPin, Clock, X, ChevronDown, ChevronUp, Bus, BarChart2, AlertTriangle } from 'lucide-react';
 import type { Route, Station } from '../../types';
 import { fetchRoutes, fetchStationsForRoute } from '../../utils/api';
 import { useTheme } from '../../context/ThemeContext';
@@ -7,6 +7,7 @@ import { useTheme } from '../../context/ThemeContext';
 interface InteractiveMapControlsProps {
   onRouteSelect: (routeId: number) => void;
   onStationSelect: (station: Station) => void;
+  onViewChange: (view: string) => void;
 }
 
 interface RoutesResponse {
@@ -15,7 +16,11 @@ interface RoutesResponse {
   [key: string]: any;
 }
 
-export default function InteractiveMapControls({ onRouteSelect, onStationSelect }: InteractiveMapControlsProps) {
+export default function InteractiveMapControls({ 
+  onRouteSelect, 
+  onStationSelect,
+  onViewChange 
+}: InteractiveMapControlsProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [routes, setRoutes] = useState<Route[]>([]);
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
@@ -24,6 +29,7 @@ export default function InteractiveMapControls({ onRouteSelect, onStationSelect 
   const [stationsLoading, setStationsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedRouteId, setExpandedRouteId] = useState<number | null>(null);
+  const [activeView, setActiveView] = useState('info');
   const { isDarkMode } = useTheme();
 
   // Load routes on component mount
@@ -190,6 +196,11 @@ export default function InteractiveMapControls({ onRouteSelect, onStationSelect 
     onStationSelect(station);
   };
 
+  const handleViewChange = (view: string) => {
+    setActiveView(view);
+    onViewChange(view);
+  };
+
   return (
     <div className={`h-full w-80 shadow-lg ${
       isDarkMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-700'
@@ -207,113 +218,157 @@ export default function InteractiveMapControls({ onRouteSelect, onStationSelect 
               {routes.length} routes available
             </div>
           )}
+          
+          {/* View Selector */}
+          <div className="mt-4 space-y-2">
+            <button
+              onClick={() => handleViewChange('info')}
+              className={`w-full flex items-center px-3 py-2 rounded-lg transition-colors ${
+                activeView === 'info'
+                  ? isDarkMode 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-blue-500 text-white'
+                  : isDarkMode
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+              }`}
+            >
+              <MapPin className="h-4 w-4 mr-2" />
+              Info
+            </button>
+            <button
+              onClick={() => handleViewChange('occupancy')}
+              className={`w-full flex items-center px-3 py-2 rounded-lg transition-colors ${
+                activeView === 'occupancy'
+                  ? isDarkMode 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-blue-500 text-white'
+                  : isDarkMode
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+              }`}
+            >
+              <BarChart2 className="h-4 w-4 mr-2" />
+              Occupancy
+            </button>
+            <button
+              onClick={() => handleViewChange('delays')}
+              className={`w-full flex items-center px-3 py-2 rounded-lg transition-colors ${
+                activeView === 'delays'
+                  ? isDarkMode 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-blue-500 text-white'
+                  : isDarkMode
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+              }`}
+            >
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              Delays
+            </button>
+          </div>
         </div>
 
-        <div className={`p-4 border-b ${
-          isDarkMode ? 'border-gray-700' : 'border-gray-200'
-        }`}>
-          <input
-            type="text"
-            placeholder="Search routes..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={`w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-              isDarkMode 
-                ? 'bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400' 
-                : 'bg-gray-100 border-gray-200 text-gray-800 placeholder-gray-500'
-            }`}
-          />
-        </div>
+        {/* Only show search and routes when in info view */}
+        {activeView === 'info' && (
+          <>
+            <div className={`p-4 border-b ${
+              isDarkMode ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <input
+                type="text"
+                placeholder="Search routes..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={`w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  isDarkMode 
+                    ? 'bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400' 
+                    : 'bg-gray-100 border-gray-200 text-gray-800 placeholder-gray-500'
+                }`}
+              />
+            </div>
 
-        <div className="flex-1 overflow-y-auto p-4">
-          {loading ? (
-            <div className="flex items-center justify-center h-full">
-              <div className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                Loading routes...
-              </div>
-            </div>
-          ) : error ? (
-            <div className="text-red-400 p-4 text-center">
-              {error}
-            </div>
-          ) : routes.length === 0 ? (
-            <div className="text-center text-gray-500 dark:text-gray-400 p-4">
-              No routes available
-            </div>
-          ) : filteredRoutes.length === 0 ? (
-            <div className="text-center text-gray-500 dark:text-gray-400 p-4">
-              No routes match your search
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {filteredRoutes.map((route) => (
-                <div key={route.id || Math.random().toString()} className="mb-2">
-                  <button
-                    onClick={() => handleRouteClick(route)}
-                    className={`w-full p-3 text-left rounded-lg transition-colors border flex items-center justify-between ${
-                      expandedRouteId === route.id
-                        ? isDarkMode 
-                          ? 'bg-blue-900 border-blue-700' 
-                          : 'bg-blue-100 border-blue-200'
-                        : isDarkMode
-                          ? 'bg-gray-700 hover:bg-gray-600 border-gray-600'
-                          : 'bg-gray-100 hover:bg-gray-200 border-gray-200'
-                    }`}
-                  >
-                    <div className="font-medium flex items-center gap-2">
-                      <Bus className="h-4 w-4" />
-                      {route.name}
-                    </div>
-                    {expandedRouteId === route.id ? (
-                      <ChevronUp className="h-5 w-5" />
-                    ) : (
-                      <ChevronDown className="h-5 w-5" />
-                    )}
-                  </button>
-                  
-                  {expandedRouteId === route.id && (
-                    <div className="mt-1 ml-2 border-l-2 pl-2 space-y-1">
-                      {stationsLoading ? (
-                        <div className="p-2 text-sm text-gray-500 flex items-center gap-2">
-                          <Clock className="h-4 w-4 animate-spin" />
-                          Loading stations...
+            <div className="flex-1 overflow-y-auto p-4">
+              {loading ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Loading routes...
+                  </div>
+                </div>
+              ) : error ? (
+                <div className="text-red-400 p-4 text-center">
+                  {error}
+                </div>
+              ) : routes.length === 0 ? (
+                <div className="text-center text-gray-500 dark:text-gray-400 p-4">
+                  No routes available
+                </div>
+              ) : filteredRoutes.length === 0 ? (
+                <div className="text-center text-gray-500 dark:text-gray-400 p-4">
+                  No routes match your search
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredRoutes.map((route) => (
+                    <div key={route.id || Math.random().toString()} className="mb-2">
+                      <button
+                        onClick={() => handleRouteClick(route)}
+                        className={`w-full p-3 text-left rounded-lg transition-colors border flex items-center justify-between ${
+                          expandedRouteId === route.id
+                            ? isDarkMode 
+                              ? 'bg-blue-900 border-blue-700' 
+                              : 'bg-blue-100 border-blue-200'
+                            : isDarkMode
+                              ? 'bg-gray-700 hover:bg-gray-600 border-gray-600'
+                              : 'bg-gray-100 hover:bg-gray-200 border-gray-200'
+                        }`}
+                      >
+                        <div className="font-medium flex items-center gap-2">
+                          <Bus className="h-4 w-4" />
+                          {route.name}
                         </div>
-                      ) : stations.length === 0 ? (
-                        <div className="p-2 text-sm text-gray-500">
-                          No stations available for this route
+                        {expandedRouteId === route.id ? (
+                          <ChevronUp className="h-5 w-5" />
+                        ) : (
+                          <ChevronDown className="h-5 w-5" />
+                        )}
+                      </button>
+                      
+                      {expandedRouteId === route.id && (
+                        <div className={`mt-2 ml-4 space-y-2 ${
+                          isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                        }`}>
+                          {stationsLoading ? (
+                            <div className="text-sm">Loading stations...</div>
+                          ) : stations.length > 0 ? (
+                            stations.map((station) => (
+                              <button
+                                key={station.id}
+                                onClick={() => handleStationClick(station)}
+                                className={`w-full text-left p-2 rounded-lg hover:bg-opacity-50 transition-colors ${
+                                  isDarkMode 
+                                    ? 'hover:bg-gray-700' 
+                                    : 'hover:bg-gray-100'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <MapPin className="h-3 w-3" />
+                                  <span className="text-sm">{station.name}</span>
+                                </div>
+                              </button>
+                            ))
+                          ) : (
+                            <div className="text-sm">No stations available</div>
+                          )}
                         </div>
-                      ) : (
-                        stations.map((station, index) => (
-                          <button
-                            key={station.id || Math.random().toString()}
-                            onClick={() => handleStationClick(station)}
-                            className={`w-full p-2 text-left rounded-lg transition-colors flex items-center space-x-2 ${
-                              isDarkMode
-                                ? 'hover:bg-gray-600 text-gray-200'
-                                : 'hover:bg-gray-200 text-gray-700'
-                            }`}
-                          >
-                            <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-blue-500 text-white text-xs">
-                              {index + 1}
-                            </div>
-                            <div>
-                              <div className="font-medium">{station.name}</div>
-                              {station.number && (
-                                <div className={`text-sm ${
-                                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                                }`}>Station #{station.number}</div>
-                              )}
-                            </div>
-                          </button>
-                        ))
                       )}
                     </div>
-                  )}
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
     </div>
   );
