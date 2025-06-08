@@ -515,7 +515,7 @@ export default function OccupancyController({ onRouteSelect, mapInstance }: Occu
 
         {/* Floating Occupancy Legend Window (always visible, legend only) */}
         <div
-          className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 rounded-lg shadow-lg px-6 py-4 flex flex-col items-center min-w-[260px] border ${isDarkMode ? 'bg-gray-800 text-gray-200 border-gray-700' : 'bg-white text-gray-900 border-gray-200'}`}
+          className={`fixed top-4 right-4 z-50 rounded-lg shadow-lg px-6 py-4 flex flex-col items-center min-w-[260px] border ${isDarkMode ? 'bg-gray-800 text-gray-200 border-gray-700' : 'bg-white text-gray-900 border-gray-200'}`}
           style={{ pointerEvents: 'auto' }}
         >
           <div className="font-semibold mb-2 text-base">Route Occupancy Legend</div>
