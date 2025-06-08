@@ -12,6 +12,7 @@ type OccupancyStorage struct {
 
 type OccupancyRecord struct {
 	Time           string
+	Date           string
 	OccupancyLevel int
 }
 
@@ -59,6 +60,7 @@ func (s *OccupancyStorage) GetOccupancyForLineByDateAndHour(ctx context.Context,
 	query := `
 	SELECT
 	  o.time,
+	  o.date,
 	  o.occupancy_level
 	FROM occupancy AS o
 	WHERE o.line_id = $1
@@ -76,7 +78,7 @@ func (s *OccupancyStorage) GetOccupancyForLineByDateAndHour(ctx context.Context,
 	var results []OccupancyRecord
 	for rows.Next() {
 		var r OccupancyRecord
-		err := rows.Scan(&r.Time, &r.OccupancyLevel)
+		err := rows.Scan(&r.Time, &r.Date, &r.OccupancyLevel)
 		if err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}

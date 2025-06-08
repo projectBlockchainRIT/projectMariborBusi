@@ -20,7 +20,7 @@ WITH
         SELECT unnest(ARRAY[6, 19, 20, 21, 23, 52, 112]) AS line_id
     ),
     observation_dates AS (
-        SELECT generate_series('2025-05-01'::date, '2025-05-31'::date, '1 day'::interval) AS obs_date
+        SELECT generate_series('2025-05-01'::date, '2025-06-31'::date, '1 day'::interval) AS obs_date
     ),
     observation_times AS (
         SELECT unnest(ARRAY[
@@ -85,7 +85,8 @@ VALUES
 
 INSERT INTO public.delays (date, delay_min, stop_id, line_id, user_id)
 SELECT
-    ('2025-05-01'::date + (floor(random() * 31)::integer)) AS date,
+    date_trunc('month', CURRENT_DATE)::date + (floor(random() * 
+        (EXTRACT(DAY FROM date_trunc('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day') - 1))::integer)) AS date,
     CASE
         WHEN random() < 0.6 THEN (1 + floor(random() * 10))::integer
         WHEN random() < 0.9 THEN (5 + floor(random() * 10))::integer
