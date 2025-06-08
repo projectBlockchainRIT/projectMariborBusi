@@ -17,7 +17,7 @@ const LandingPage = () => {
 
   const handleWatchDemo = () => {
     // Open demo video in a modal or navigate to a demo page
-    window.open('https://www.youtube.com/watch?v=your-demo-video-id', '_blank');
+    window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
   };
 
   return (
