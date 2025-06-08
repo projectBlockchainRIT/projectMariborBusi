@@ -5,11 +5,6 @@ import (
 	"net/http"
 )
 
-// ErrorResponse represents the error response structure
-type ErrorResponse struct {
-	Error string `json:"error"`
-}
-
 func WriteJSON(w http.ResponseWriter, status int, data any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -29,7 +24,11 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
 
 // function for consistent error handling
 func WriteJSONError(w http.ResponseWriter, status int, message string) error {
-	return WriteJSON(w, status, &ErrorResponse{Error: message})
+	type envelope struct {
+		Error string `json:"error"`
+	}
+
+	return WriteJSON(w, status, &envelope{Error: message})
 }
 
 func WriteJSONResponse(w http.ResponseWriter, status int, data any) error {
