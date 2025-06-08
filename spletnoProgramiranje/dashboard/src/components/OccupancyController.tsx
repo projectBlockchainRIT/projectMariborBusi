@@ -233,6 +233,15 @@ export default function OccupancyController({ onRouteSelect, mapInstance }: Occu
   ];
   const animatedHour = isPlaying && currentHourIdx !== null ? PRESET_HOURS[currentHourIdx] : null;
 
+  // Always render the selected route on the map when both are available
+  useEffect(() => {
+    if (!mapInstance || !selectedRouteId) return;
+    const route = routes.find(r => r.id === selectedRouteId);
+    if (route) {
+      drawRouteOnMap(mapInstance, route, { setStatus: (msg: string) => console.log(msg) });
+    }
+  }, [mapInstance, selectedRouteId]);
+
   return (
     <div className={`h-full w-80 shadow-lg transition-colors duration-200 ${isDarkMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-700'}`}>
       <div className="h-full flex flex-col">
@@ -243,17 +252,23 @@ export default function OccupancyController({ onRouteSelect, mapInstance }: Occu
         </div>
 
         <div className={`p-4 border-b transition-colors duration-200 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={showDateSpan}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setShowDateSpan(e.target.checked)}
-                color="primary"
-              />
-            }
-            label="Select Date Span"
-            className={isDarkMode ? 'text-gray-200' : 'text-gray-700'}
-          />
+          <div className="flex items-center justify-between mb-2">
+            <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Select Date Span</label>
+            <button
+              onClick={() => setShowDateSpan((prev) => !prev)}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors duration-150
+                ${showDateSpan
+                  ? isDarkMode
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                  : isDarkMode
+                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+            >
+              {showDateSpan ? 'Enabled' : 'Disabled'}
+            </button>
+          </div>
 
           {showDateSpan && (
             <LocalizationProvider dateAdapter={AdapterDateFns}>

@@ -185,35 +185,34 @@ export default function DelaysController({
         {/* Date Filter */}
         <div className={`p-4 border-b ${borderClasses}`}>
           <div className="flex items-center justify-between mb-2">
-            <label className={`text-sm font-medium ${textClasses}`}>
-              Filter by date
-            </label>
+            <label className={`text-sm font-medium ${textClasses}`}>Filter by date</label>
             <button
               onClick={handleDateFilterToggle}
               className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                 isDateFilterEnabled
                   ? isDarkMode
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-blue-500 text-white'
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-blue-500 text-white hover:bg-blue-600'
                   : isDarkMode
-                    ? 'bg-gray-700 text-gray-300'
-                    : 'bg-gray-200 text-gray-700'
+                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
               {isDateFilterEnabled ? 'Enabled' : 'Disabled'}
             </button>
           </div>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={handleDateChange}
-            className={`w-full px-3 py-2 rounded-md border ${
-              isDarkMode
-                ? 'bg-gray-700 border-gray-600 text-white'
-                : 'bg-white border-gray-300 text-gray-900'
-            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-            disabled={!isDateFilterEnabled}
-          />
+          {isDateFilterEnabled && (
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={handleDateChange}
+              className={`w-full px-3 py-2 rounded-md border ${
+                isDarkMode
+                  ? 'bg-gray-700 border-gray-600 text-white'
+                  : 'bg-white border-gray-300 text-gray-900'
+              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            />
+          )}
         </div>
 
         {/* Line Filter */}
