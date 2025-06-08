@@ -146,31 +146,29 @@ func (s *RoutesStorage) ReadRoutesList(ctx context.Context) ([]Route, error) {
 // a trip is a sequence of departures for a specific line, direction and route
 func (s *RoutesStorage) ReadActiveLines(ctx context.Context) (int, error) {
 	query := `WITH ScheduledTrips AS (
-				SELECT
-					d.id AS departure_id,
-					d.stop_id,
-					s.name AS stop_name,
-					d.direction_id,
-					dir.name AS direction_name,
-					l.line_code,
-					d.departure AS segment_start_time,
-					LEAD(d.departure) OVER (PARTITION BY d.direction_id, d.stop_id ORDER BY d.departure) AS segment_end_time,
-					l.id as line_table_id,
-					dir.id as direction_table_id
-				FROM
-					public.departures d
-				JOIN
-					public.stops s ON d.stop_id = s.id
-				JOIN
-					public.directions dir ON d.direction_id = dir.id
-				JOIN
-					public.lines l ON dir.line_id = l.id
+			SELECT
+				d.id                                  AS departure_id,
+				d.stop_id,
+				s.name                                AS stop_name,
+				d.direction_id,
+				dir.name                              AS direction_name,
+				l.line_code,
+				t.times                               AS segment_start_time,                     
+				LEAD(t.times) OVER (PARTITION BY d.direction_id, d.stop_id ORDER BY t.times) 
+													AS segment_end_time,                       
+				l.id                                  AS line_table_id,
+				dir.id                                AS direction_table_id
+			FROM public.departures d
+			JOIN public.stops       s   ON d.stop_id      = s.id
+			JOIN public.directions  dir ON d.direction_id = dir.id
+			JOIN public.lines       l   ON dir.line_id    = l.id
+			JOIN public.arrivals    arr ON arr.departures_id = d.id                         
+			CROSS JOIN LATERAL unnest(arr.departure_time) WITH ORDINALITY AS t(times, ord) 
 			),
-			TripSegments AS (
+    TripSegments AS (
 				SELECT
 					st.line_table_id,
 					st.direction_table_id,
-					st.stop_id AS current_stop_id,
 					st.segment_start_time,
 					LEAD(st.segment_start_time) OVER (PARTITION BY st.line_table_id, st.direction_table_id ORDER BY st.segment_start_time) AS segment_end_time
 				FROM
@@ -199,23 +197,45 @@ func (s *RoutesStorage) ReadActiveLines(ctx context.Context) (int, error) {
 	return activeTrips, nil
 
 	/*
-			WITH ActiveLines AS (
-		    SELECT DISTINCT
-		        d.direction_id,
-		        dir.line_id,
-		        d.departure
-		    FROM
-		        public.departures d
-		    JOIN
-		        public.directions dir ON d.direction_id = dir.id
-		    WHERE
-		        (NOW()::time + INTERVAL '1 hour') >= d.departure - INTERVAL '3 minutes'
-		        AND (NOW()::time + INTERVAL '1 hour') <= d.departure + INTERVAL '3 minutes'
+		WITH ScheduledTrips AS (
+			SELECT
+				d.id AS departure_id,
+				d.stop_id,
+				s.name AS stop_name,
+				d.direction_id,
+				dir.name AS direction_name,
+				l.line_code,
+				d.departure AS segment_start_time,
+				LEAD(d.departure) OVER (PARTITION BY d.direction_id, d.stop_id ORDER BY d.departure) AS segment_end_time,
+				l.id as line_table_id,
+				dir.id as direction_table_id
+			FROM
+				public.departures d
+			JOIN
+				public.stops s ON d.stop_id = s.id
+			JOIN
+				public.directions dir ON d.direction_id = dir.id
+			JOIN
+				public.lines l ON dir.line_id = l.id
+		),
+		TripSegments AS (
+			SELECT
+				st.line_table_id,
+				st.direction_table_id,
+				st.stop_id AS current_stop_id,
+				st.segment_start_time,
+				LEAD(st.segment_start_time) OVER (PARTITION BY st.line_table_id, st.direction_table_id ORDER BY st.segment_start_time) AS segment_end_time
+			FROM
+				ScheduledTrips st
 		)
 		SELECT
-		    COUNT(DISTINCT line_id) AS active_lines
+			COUNT(DISTINCT ts.line_table_id || '-' || ts.direction_table_id || '-' || ts.segment_start_time) AS active_scheduled_trips
 		FROM
-		    ActiveLines;
+			TripSegments ts
+		WHERE
+			(NOW()::time + INTERVAL '1 hour') >= ts.segment_start_time
+			AND (NOW()::time + INTERVAL '1 hour') < ts.segment_end_time
+			AND ts.segment_end_time IS NOT NULL;
 
 
 	*/

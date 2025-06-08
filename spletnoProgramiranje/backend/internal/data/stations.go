@@ -111,17 +111,33 @@ func (s *StopStorage) ReadList(ctx context.Context) ([]Stop, error) {
 func (s *StopStorage) ReadStationMetadata(ctx context.Context, id int64) (*StopMetadata, error) {
 	query := `
         SELECT 
-            s.id, s.number, s.name, s.latitude, s.longitude,
-            d.departure,
-            dir.name AS direction_name,
-            l.line_code AS line_code
-        FROM stops s
-        LEFT JOIN departures d ON s.id = d.stop_id
-        LEFT JOIN directions dir ON d.direction_id = dir.id
-        LEFT JOIN lines l ON dir.line_id = l.id
-        WHERE s.id = $1
-        ORDER BY l.line_code, dir.name, d.departure
-    `
+			s.id,
+			s.number,
+			s.name,
+			s.latitude,
+			s.longitude,
+			t.departure_time      AS departure,     
+			dir.name              AS direction_name,
+			l.line_code           AS line_code
+			FROM stops s
+			LEFT JOIN departures d
+			ON s.id = d.stop_id
+			LEFT JOIN arrivals a
+			ON a.departures_id = d.id             
+			-- unnest the TIME[] into one row per departure
+			LEFT JOIN LATERAL unnest(a.departure_time) 
+				AS t(departure_time) 
+			ON TRUE
+			LEFT JOIN directions dir
+			ON d.direction_id = dir.id
+			LEFT JOIN lines l
+			ON dir.line_id = l.id
+			WHERE s.id = $1
+			ORDER BY
+			l.line_code,
+			dir.name,
+			t.departure_time; 
+				`
 
 	rows, err := s.db.QueryContext(ctx, query, id)
 	if err != nil {
