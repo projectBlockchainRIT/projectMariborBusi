@@ -10,7 +10,7 @@ interface FetchedBusStop {
 }
 
 interface BusStopSidebarProps {
-  isOpen: boolean;
+  isOpen: boolean; 
   onClose: () => void;
   onBusStopClick: (busStop: FetchedBusStop) => void;
 }
@@ -21,29 +21,56 @@ const BusStopSidebar = ({ isOpen, onClose, onBusStopClick }: BusStopSidebarProps
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let isMounted = true; 
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     const fetchBusStops = async () => {
+      setLoading(true);
+      setError(null);   
+
       try {
-        const response = await fetch('http://localhost:3000/v1/stations/list'); 
+        const response = await fetch('http://localhost:3000/v1/stations/list', {
+          signal, 
+        });
+
+        if (!isMounted) return;
+
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
+          throw new Error(`HTTP error! Status: ${response.status} - ${errorData.message || response.statusText}`);
         }
+
         const result = await response.json();
+
+        if (!isMounted) return;
         setBusStops(result.data);
-      } catch (e) {
+      } catch (e: unknown) {
+        if (!isMounted) return;
+
         if (e instanceof Error) {
-          setError(e.message);
+          if (e.name === 'AbortError') {
+            console.log('Fetch aborted by cleanup');
+          } else {
+            setError(`Failed to fetch bus stops: ${e.message}`);
+          }
         } else {
-          setError("An unknown error occurred");
+          setError("An unknown error occurred during fetch.");
         }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false); 
+        }
       }
     };
 
-    if (isOpen) { 
-      fetchBusStops();
-    }
-  }, [isOpen]);
+    fetchBusStops();
+
+    return () => {
+      isMounted = false; 
+      controller.abort(); 
+    };
+  }, []); 
 
   return (
     <>
@@ -74,41 +101,30 @@ const BusStopSidebar = ({ isOpen, onClose, onBusStopClick }: BusStopSidebarProps
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            {loading && <p className="p-4 text-gray-600">Loading bus stops...</p>}
-            {error && <p className="p-4 text-red-500">Error: {error}</p>}
-            {!loading && !error && busStops.length === 0 && (
-              <p className="p-4 text-gray-600">No bus stops found.</p>
-            )}
-
-            {!loading && !error && (
+            {loading ? (
+              <p className="p-4 text-gray-600">Loading bus stops...</p>
+            ) : error ? (
+              <p className="p-4 text-red-500">Error: {error}</p>
+            ) : busStops.length === 0 ? (
+              <p className="p-4 text-gray-600">No bus stops found. Try again later.</p>
+            ) : (
               busStops.map((stop) => (
                 <div
                   key={stop.id}
                   className="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
-                  onClick={() => onBusStopClick(stop)} // Make the div clickable
+                  onClick={() => onBusStopClick(stop)} 
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-3">
                       <MapPin className="h-5 w-5 text-mbusi-red-600 mt-1" />
                       <div>
                         <h3 className="font-medium text-gray-900">{stop.name}</h3>
-                        {/* You can add real-time arrival info here if your API provides it later */}
                         <div className="flex items-center mt-1">
                           <Clock className="h-4 w-4 text-gray-400 mr-1" />
                           <span className="text-sm text-gray-500">Stop number: {stop.number}</span>
                         </div>
                       </div>
                     </div>
-                    {/* Removed status as it's not in the new data, add if your API provides it */}
-                    {/* <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        stop.status === 'on-time'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}
-                    >
-                      {stop.status === 'on-time' ? 'On Time' : 'Delayed'}
-                    </span> */}
                   </div>
                 </div>
               ))

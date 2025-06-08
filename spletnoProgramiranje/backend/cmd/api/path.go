@@ -7,15 +7,6 @@ import (
 	"net/http"
 )
 
-//	@Summary		Get shortest path
-//	@Description	Find the most optimal path to desired location
-//	@Tags			path
-//	@Accept			json
-//	@Produce		json
-//	@Param			location	body		data.PathLocation	true	"Source and destination locations"
-//	@Success		200			{array}		data.Line
-//	@Failure		500			{object}	utils.ErrorResponse
-//	@Router			/show/shortest [post]
 func (app *app) getShortestPath(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		utils.WriteJSONError(w, http.StatusInternalServerError, "No user data in request body")
@@ -33,8 +24,6 @@ func (app *app) getShortestPath(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	stopsAtDestination, err := app.store.Stations.ReadThreeStationsAtDestination(ctx, &payload)
-
-	//utils.WriteJSONResponse(w, http.StatusOK, stopsAtDestination)
 
 	linesAtDestination, err := app.store.Stations.ReadStationLines(ctx, stopsAtDestination)
 
