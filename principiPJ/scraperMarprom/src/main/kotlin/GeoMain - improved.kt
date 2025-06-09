@@ -4,7 +4,7 @@ import java.io.File
 import com.google.gson.GsonBuilder
 import java.util.regex.Pattern
 
-data class BusStopInfo(
+data class BusStopInfoNext(
     val id: String,
     val number: String,
     val name: String,
@@ -15,8 +15,8 @@ data class BusStopInfo(
 class MarpromStopScraper {
     private val baseUrl = "https://vozniredi.marprom.si"
 
-    fun scrapeAllStops(): List<BusStopInfo> {
-        val stops = mutableListOf<BusStopInfo>()
+    fun scrapeAllStops(): List<BusStopInfoNext> {
+        val stops = mutableListOf<BusStopInfoNext>()
 
         try {
             val doc = Jsoup.connect("$baseUrl/").get()
@@ -36,7 +36,7 @@ class MarpromStopScraper {
 
                     val coordinates = scrapeStopCoordinates(stopId)
 
-                    stops.add(BusStopInfo(
+                    stops.add(BusStopInfoNext(
                         id = stopId,
                         number = stopNumber,
                         name = stopName,

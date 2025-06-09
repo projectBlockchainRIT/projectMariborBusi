@@ -67,6 +67,23 @@ def importStops(conn, stopData):
             conn.rollback()
             print(f"Error importing stop {stop.get('id', 'unknown')}: {e}")
     
+    # try:
+    #     cursor.execute(
+    #         """
+    #         ALTER TABLE public.departures ADD COLUMN line_id INTEGER;
+    #         ALTER TABLE public.departures ADD CONSTRAINT fk_departures_line FOREIGN KEY (line_id)
+    #         REFERENCES public.lines(id) ON DELETE SET NULL;
+    #         """
+    #     )
+    #     conn.commit()
+# 
+    # except KeyError as e:
+    #     conn.rollback()
+    #     print(f"Missing key in stop data: {e}, stop: {stop}")
+    # except Exception as e:
+    #     conn.rollback()
+    #     print(f"Error importing stop {stop.get('id', 'unknown')}: {e}")
+    
     print(f"Successfully imported {success_count} out of {len(stopData)} stops")
     # print(f"Imported {len(stops_data)} stops")
 
@@ -141,12 +158,13 @@ def importDepartures(conn, arrivalData):
                    
                     cursor.execute(
                         """
-                        INSERT INTO departures (stop_id, direction_id, date)
-                        VALUES (%s, %s, %s)
-                        ON CONFLICT (stop_id, direction_id, date) DO NOTHING
+                        INSERT INTO departures (stop_id, direction_id, date, line_id)
+                        VALUES (%s, %s, %s, %s)
+                        ON CONFLICT (stop_id, direction_id, date)
+                          DO UPDATE SET line_id = EXCLUDED.line_id
                         RETURNING id
                         """,
-                        (stopId, directionId, current_date)
+                        (stopId, directionId, current_date, lineId)
                     )
                     result = cursor.fetchone()
                     if result:
@@ -289,7 +307,7 @@ def dummyDataGenerator (conn):
             WITH
                 all_lines AS (
                     SELECT unnest(ARRAY[
-                        1, 2, 3, 5, 6, 9, 10, 12, 14, 15, 17, 19, 20, 21, 23, 29, 52, 112, 273
+                        1, 2, 3, 5, 6, 8, 9, 11, 12, 14, 15, 16, 21, 37, 676, 681, 689, 778, 939
                     ]) AS line_id
                 ),
                 popular_lines AS (
@@ -388,10 +406,10 @@ def dummyDataGenerator (conn):
                     ELSE (10 + floor(random() * 16))::integer
                 END AS delay_min,
                 ts.stop_id,
-                (ARRAY[1,2,3,5,6,9,10,12,14,15,17,19,20,21,23,29,52,112,273])[1 + floor(random() * 19)]::integer AS line_id,
+                (ARRAY[1,2,3,5,6,8,9,11,12,14,15,16,21,37,676,681,689,778,939])[1 + floor(random() * 19)]::integer AS line_id,
                 (1 + floor(random() * 200))::integer AS user_id
             FROM 
-                (SELECT stop_id FROM temp_all_stops ORDER BY random() LIMIT 1000) AS ts;
+                (SELECT stop_id FROM temp_all_stops ORDER BY random() LIMIT 1800) AS ts;
 
             DROP TABLE IF EXISTS temp_all_stops;
             """

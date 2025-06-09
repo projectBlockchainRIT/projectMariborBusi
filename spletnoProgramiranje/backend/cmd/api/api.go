@@ -89,8 +89,10 @@ func (app *app) mount() http.Handler {
 		})
 
 		r.Route("/authentication", func(r chi.Router) {
-			r.Post("/register", app.usersResgisterUser) // creating a new user
-			r.Post("/login", app.usersLoginUser)        // logging in an existing user
+			r.Post("/register", app.usersResgisterUser)               // creating a new user
+			r.Post("/login", app.usersLoginUser)                      // logging in an existing user
+			r.Put("/update", app.WithJWTAuth(app.usersUpdateProfile)) // update the user profile
+			r.Get("/users/{id}", app.getUserByID)
 		})
 
 		r.Route("/delays", func(r chi.Router) {
@@ -101,6 +103,7 @@ func (app *app) mount() http.Handler {
 			r.Get("/lines/number", app.getNumDelaysForLine)            // fetch the number of delays for each line
 			r.Get("/average/{lineId}", app.getAvgDelayForLine)         // fetch the average delay time for a specific line
 			r.Get("/average", app.getAvgDelay)                         // fetch the average delay time overall
+			r.Post("/report", app.submitDelayReport)
 		})
 
 		r.Route("/occupancy", func(r chi.Router) {

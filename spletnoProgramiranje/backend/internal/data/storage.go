@@ -10,6 +10,8 @@ type Storage struct {
 		Create(context.Context, *User) error
 		GetByEmail(context.Context, string) (*User, error)
 		GetById(context.Context, int) (*User, error)
+		UpdateById(context.Context, int, *UpdateUserPayload) error
+		GetByIDForClient(context.Context, int) (*UserForClient, error)
 	}
 	Stations interface {
 		ReadStation(context.Context, int64) (*Stop, error)
@@ -36,6 +38,7 @@ type Storage struct {
 		GetDelayCountsByLine(context.Context) ([]LineDelayCount, error)
 		GetAverageDelayForLine(context.Context, int64) (*LineAverageDelay, error)
 		GetOverallAverageDelay(context.Context) (float64, error)
+		InsertDelay(context.Context, DelayReportInputUnMarshaled) error
 	}
 
 	Occupancy interface {

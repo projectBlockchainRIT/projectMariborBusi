@@ -21,17 +21,17 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-//	@Summary		Get detailed route information for a specific bus line
-//	@Description	Retrieves comprehensive route data for a specific bus line, including the complete path,
-//	@Description	all waypoints, direction information, and geographical coordinates for the entire route.
-//	@Description	The response includes detailed path segments, turn-by-turn information, and route variants if available.
-//	@Description	This endpoint is essential for mapping applications and route visualization features.
-//	@Tags			routes
-//	@Accept			json
-//	@Produce		json
-//	@Param			lineId	path		int			true	"Unique identifier of the bus line"
-//	@Success		200		{object}	data.Route	"Complete route information including path coordinates"
-//	@Router			/routes/{lineId} [get]
+// @Summary		Get detailed route information for a specific bus line
+// @Description	Retrieves comprehensive route data for a specific bus line, including the complete path,
+// @Description	all waypoints, direction information, and geographical coordinates for the entire route.
+// @Description	The response includes detailed path segments, turn-by-turn information, and route variants if available.
+// @Description	This endpoint is essential for mapping applications and route visualization features.
+// @Tags			routes
+// @Accept			json
+// @Produce		json
+// @Param			lineId	path		int			true	"Unique identifier of the bus line"
+// @Success		200		{object}	data.Route	"Complete route information including path coordinates"
+// @Router			/routes/{lineId} [get]
 func (app *app) getRouteOfLineHandler(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "lineId")
 	lineId, err := strconv.ParseInt(idParam, 10, 64)
@@ -58,17 +58,17 @@ func (app *app) getRouteOfLineHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//	@Summary		Get all stations along a specific bus route
-//	@Description	Returns a detailed list of all stations that are part of a specific bus line's route.
-//	@Description	The response includes station ordering, distances between stations, estimated travel times,
-//	@Description	platform information, and any special notes about each stop on the route.
-//	@Description	This data is crucial for journey planning and providing users with complete route information.
-//	@Tags			routes
-//	@Accept			json
-//	@Produce		json
-//	@Param			lineId	path	int			true	"Unique identifier of the bus line"
-//	@Success		200		{array}	data.Stop	"Ordered list of stations with detailed information"
-//	@Router			/routes/stations/{lineId} [get]
+// @Summary		Get all stations along a specific bus route
+// @Description	Returns a detailed list of all stations that are part of a specific bus line's route.
+// @Description	The response includes station ordering, distances between stations, estimated travel times,
+// @Description	platform information, and any special notes about each stop on the route.
+// @Description	This data is crucial for journey planning and providing users with complete route information.
+// @Tags			routes
+// @Accept			json
+// @Produce		json
+// @Param			lineId	path	int			true	"Unique identifier of the bus line"
+// @Success		200		{array}	data.Stop	"Ordered list of stations with detailed information"
+// @Router			/routes/stations/{lineId} [get]
 func (app *app) getStationsOnRouteHandler(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "lineId")
 	lineId, err := strconv.ParseInt(idParam, 10, 64)
@@ -95,16 +95,16 @@ func (app *app) getStationsOnRouteHandler(w http.ResponseWriter, r *http.Request
 
 }
 
-//	@Summary		Get a list of all available bus routes
-//	@Description	Provides a comprehensive list of all bus routes in the system, including active and inactive routes.
-//	@Description	Each route entry contains basic information such as route number, name, terminal stations,
-//	@Description	service frequency, operating hours, and current status.
-//	@Description	This endpoint is useful for displaying the complete network coverage and available services.
-//	@Tags			routes
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{array}	data.Route	"List of all routes with basic information"
-//	@Router			/routes/list [get]
+// @Summary		Get a list of all available bus routes
+// @Description	Provides a comprehensive list of all bus routes in the system, including active and inactive routes.
+// @Description	Each route entry contains basic information such as route number, name, terminal stations,
+// @Description	service frequency, operating hours, and current status.
+// @Description	This endpoint is useful for displaying the complete network coverage and available services.
+// @Tags			routes
+// @Accept			json
+// @Produce		json
+// @Success		200	{array}	data.Route	"List of all routes with basic information"
+// @Router			/routes/list [get]
 func (app *app) routesListHandler(w http.ResponseWriter, r *http.Request) {
 	var routes []data.Route
 	ctx := r.Context()
@@ -124,16 +124,16 @@ func (app *app) routesListHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//	@Summary		Get real-time bus location updates via WebSocket
-//	@Description	Establishes a WebSocket connection to receive real-time updates about bus locations.
-//	@Description	The connection sends periodic updates (every 5 seconds) with current bus positions,
-//	@Description	including coordinates, heading, speed, and next stop information.
-//	@Description	This endpoint is crucial for real-time tracking features in client applications.
-//	@Tags			routes
-//	@Accept			json
-//	@Produce		json
-//	@Success		101	{string}	string	"Switching protocols to WebSocket"
-//	@Router			/routes/realtime [get]
+// @Summary		Get real-time bus location updates via WebSocket
+// @Description	Establishes a WebSocket connection to receive real-time updates about bus locations.
+// @Description	The connection sends periodic updates (every 5 seconds) with current bus positions,
+// @Description	including coordinates, heading, speed, and next stop information.
+// @Description	This endpoint is crucial for real-time tracking features in client applications.
+// @Tags			routes
+// @Accept			json
+// @Produce		json
+// @Success		101	{string}	string	"Switching protocols to WebSocket"
+// @Router			/routes/realtime [get]
 func (app *app) getRealtimeLine(w http.ResponseWriter, r *http.Request) {
 	// Upgrade the HTTP connection to a WebSocket connection
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -180,16 +180,16 @@ func (app *app) getRealtimeLine(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//	@Summary		Get the count of currently active bus routes
-//	@Description	Returns the number of bus routes that are currently in service or active.
-//	@Description	This includes routes with buses currently running, scheduled for the current time period,
-//	@Description	or marked as active in the system. The count helps understand current service coverage
-//	@Description	and system activity levels.
-//	@Tags			routes
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{integer}	int	"Number of active routes"
-//	@Router			/routes/active [get]
+// @Summary		Get the count of currently active bus routes
+// @Description	Returns the number of bus routes that are currently in service or active.
+// @Description	This includes routes with buses currently running, scheduled for the current time period,
+// @Description	or marked as active in the system. The count helps understand current service coverage
+// @Description	and system activity levels.
+// @Tags			routes
+// @Accept			json
+// @Produce		json
+// @Success		200	{integer}	int	"Number of active routes"
+// @Router			/routes/active [get]
 func (app *app) getActiveRoutes(w http.ResponseWriter, r *http.Request) {
 	var activeRoutes int
 	ctx := r.Context()
@@ -208,23 +208,21 @@ func (app *app) getActiveRoutes(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//	@Summary		Simulate real-time bus positions for a specific line
-//	@Description	Provides simulated real-time updates of bus positions for a specific line via WebSocket.
-//	@Description	The simulation includes realistic bus movements along the route, considering schedules,
-//	@Description	typical speeds, and stop times. Updates are sent every 2 seconds with precise coordinates
-//	@Description	and movement patterns. This endpoint is useful for testing and demonstration purposes.
-//	@Tags			routes
-//	@Accept			json
-//	@Produce		json
-//	@Param			lineId	path		int		true	"Unique identifier of the bus line to simulate"
-//	@Success		101		{string}	string	"Switching protocols to WebSocket"
-//	@Router			/estimate/simulate/{lineId} [get]
+// @Summary		Simulate real-time bus positions for a specific line
+// @Description	Provides simulated real-time updates of bus positions for a specific line via WebSocket.
+// @Description	The simulation includes realistic bus movements along the route, considering schedules,
+// @Description	typical speeds, and stop times. Updates are sent every 2 seconds with precise coordinates
+// @Description	and movement patterns. This endpoint is useful for testing and demonstration purposes.
+// @Tags			routes
+// @Accept			json
+// @Produce		json
+// @Param			lineId	path		int		true	"Unique identifier of the bus line to simulate"
+// @Success		101		{string}	string	"Switching protocols to WebSocket"
+// @Router			/estimate/simulate/{lineId} [get]
 func (app *app) serveRealtimeLine(w http.ResponseWriter, r *http.Request) {
 	conn, err := wsUpgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("websocket write error:", err)
-		conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "internal error"))
-		conn.Close()
+		log.Println("websocket upgrade error:", err)
 		return
 	}
 	defer conn.Close()
@@ -232,60 +230,72 @@ func (app *app) serveRealtimeLine(w http.ResponseWriter, r *http.Request) {
 	lineIDStr := chi.URLParam(r, "lineId")
 	lineID, err := strconv.Atoi(lineIDStr)
 	if err != nil {
-		log.Println("websocket write error:", err)
-		conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "internal error"))
-		conn.Close()
+		log.Println("invalid line ID:", err)
+		conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "invalid line ID"))
 		return
 	}
 
 	ctx := r.Context()
-	ticker := time.NewTicker(2 * time.Second)
+
+	runs, err := app.store.Routes.FetchActiveRuns(ctx, lineID)
+	if err != nil {
+		log.Println("database error on initial fetch:", err)
+		return
+	}
+	if len(runs) == 0 {
+		log.Println("no active runs found for line", lineID)
+		return
+	}
+
+	ticker := time.NewTicker(500 * time.Millisecond)
 	defer ticker.Stop()
+
+	log.Printf("Starting simulation for line %d with %d runs", lineID, len(runs))
 
 	for {
 		select {
+		case <-ctx.Done():
+			return
 		case <-ticker.C:
 			now := time.Now()
-			runs, err := app.store.Routes.FetchActiveRuns(ctx, lineID)
-			if err != nil {
-				log.Println("websocket write error:", err)
-				conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "internal error"))
-				conn.Close()
-				return
-			}
+			nowSec := now.Hour()*3600 + now.Minute()*60 + now.Second()
 
 			type BusPosition struct {
 				DepartureID int     `json:"departure_id"`
 				DirectionID int     `json:"direction_id"`
 				Lat         float64 `json:"lat"`
 				Lon         float64 `json:"lon"`
+				Status      string  `json:"status"`
 			}
+
 			var payload []BusPosition
-			nowSec := now.Hour()*3600 + now.Minute()*60 + now.Second()
 
 			for _, run := range runs {
 				lat, lon := interpPosition(run, nowSec)
+				status := "active"
+				if nowSec < run.StartSec {
+					status = "waiting"
+				} else if nowSec > run.EndSec {
+					status = "completed"
+				}
 				payload = append(payload, BusPosition{
 					DepartureID: run.DepartureID,
 					DirectionID: run.DirectionID,
 					Lat:         lat,
 					Lon:         lon,
+					Status:      status,
 				})
 			}
 
 			if err := conn.WriteJSON(payload); err != nil {
 				log.Println("websocket write error:", err)
-				conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "internal error"))
-				conn.Close()
 				return
 			}
-
 		}
 	}
 }
 
 func interpPosition(run data.ActiveRun, nowSec int) (float64, float64) {
-	// clamp
 	if nowSec <= run.StartSec {
 		return run.Path[0][0], run.Path[0][1]
 	}
@@ -297,12 +307,20 @@ func interpPosition(run data.ActiveRun, nowSec int) (float64, float64) {
 	tElapsed := nowSec - run.StartSec
 	totalDuration := run.EndSec - run.StartSec
 
-	fraction := float64(tElapsed) / float64(totalDuration)
+	speedMultiplier := 17.0
+
+	timeOffset := float64(run.DepartureID%4) * 0.25
+
+	fraction := (float64(tElapsed)*speedMultiplier)/float64(totalDuration) + timeOffset
+
 	if fraction < 0 {
 		fraction = 0
 	}
-	if fraction > 1 {
-		fraction = 1
+	cycle := math.Mod(fraction, 2.0)
+	if cycle > 1.0 {
+		fraction = 2.0 - cycle
+	} else {
+		fraction = cycle
 	}
 
 	numPoints := len(run.Path)

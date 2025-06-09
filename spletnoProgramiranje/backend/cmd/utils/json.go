@@ -2,8 +2,27 @@ package utils
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+	"os"
+	"sync"
 )
+
+var (
+	errorLog *log.Logger
+	once     sync.Once
+)
+
+func initLogger() {
+	once.Do(func() {
+		file, err := os.OpenFile("error.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		if err != nil {
+			log.Fatalf("Failed to open error log file: %v", err)
+		}
+
+		errorLog = log.New(file, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+	})
+}
 
 func WriteJSON(w http.ResponseWriter, status int, data any) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -12,18 +31,21 @@ func WriteJSON(w http.ResponseWriter, status int, data any) error {
 }
 
 func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
-	// limit size of request for secuirity to 1mb
+
 	maxBytes := 1_048_578
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
 	decoder := json.NewDecoder(r.Body)
-	decoder.DisallowUnknownFields() // doesn't allow random data structures that i've not defined
+	decoder.DisallowUnknownFields()
 
 	return decoder.Decode(data)
 }
 
-// function for consistent error handling
 func WriteJSONError(w http.ResponseWriter, status int, message string) error {
+	initLogger()
+
+	errorLog.Printf("Status: %d, Message: %s", status, message)
+
 	type envelope struct {
 		Error string `json:"error"`
 	}

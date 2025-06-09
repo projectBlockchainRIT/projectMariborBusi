@@ -6,7 +6,7 @@ DOCKER_USERNAME="a30drian"
 sudo docker compose down --rmi all -v --remove-orphans
 
 echo "Pulling latest backend image..."
-docker pull ${DOCKER_USERNAME}/backend:latest
+# docker pull ${DOCKER_USERNAME}/backend:latest
 
 sudo docker compose up -d --build
 
