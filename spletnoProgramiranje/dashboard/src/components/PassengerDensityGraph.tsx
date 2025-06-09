@@ -12,7 +12,7 @@ interface PassengerData {
 }
 
 interface Route {
-  id: number;
+  line_id: number;
   name: string;
   description?: string;
   [key: string]: any;
@@ -99,7 +99,7 @@ export default function PassengerDensityGraph() {
         if (routesArray.length > 0) {
           setRoutes(routesArray);
           // Select first route by default
-          setSelectedLineId(routesArray[0].id);
+          setSelectedLineId(routesArray[0].line_id);
         } else {
           setError('No routes available');
         }
@@ -113,6 +113,7 @@ export default function PassengerDensityGraph() {
 
     fetchRoutes();
   }, []);
+
 // Fetch occupancy data when selectedLineId or date changes
 useEffect(() => {
   if (!selectedLineId) return;
@@ -174,7 +175,7 @@ useEffect(() => {
         
         newLineData.data.push({
           hour: `${hour}h`,
-          density: Math.round(item.OccupancyLevel * 25) // Convert 0-4 scale to 0-100%
+          density: Math.round(item.OccupancyLevel * 20) // Convert 0-4 scale to 0-100%
         });
       });
       
@@ -204,7 +205,7 @@ useEffect(() => {
   
   // Find the name of the selected route
   const selectedRouteName = useMemo(() => {
-    const route = routes.find(r => r.id === selectedLineId);
+    const route = routes.find(r => r.line_id === selectedLineId);
     return route ? route.name : `Line ${selectedLineId}`;
   }, [routes, selectedLineId]);
   
@@ -239,7 +240,8 @@ useEffect(() => {
   const maxDensity = useMemo(() => {
     if (selectedLineData.length === 0) return 100; // Default max if no data
     const maxValue = Math.max(...selectedLineData.map(d => d.density));
-    return Math.max(100, maxValue); // Always at least 100% for consistent scaling
+    // Always use 100 as max to align with y-axis values
+    return 100;
   }, [selectedLineData]);
 
   // Get list of hours from the data
@@ -343,32 +345,23 @@ useEffect(() => {
       <div className="flex flex-wrap gap-2 mb-6">
         {routes.map((route) => (
           <button
-            key={route.id}
-            onClick={() => setSelectedLineId(route.id)}
+            key={route.line_id}
+            onClick={() => setSelectedLineId(route.line_id)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              selectedLineId === route.id
+              selectedLineId === route.line_id
                 ? 'bg-blue-500 text-white'
                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
             }`}
           >
-            {route.name || `Line ${route.id}`}
+            {route.name || `Line ${route.line_id}`}
           </button>
         ))}
       </div>
 
       {/* Graph */}
-<div className="relative h-[400px] w-full">
-  {/* Y-axis labels */}
-  <div className="absolute left-0 top-0 bottom-0 w-12 flex flex-col justify-between text-xs text-gray-600 dark:text-gray-400">
-    {[100, 75, 50, 25, 0].map((value) => (
-      <div key={value} className="text-right pr-2">
-        {value}%
-      </div>
-    ))}
-  </div>
-
+<div className="relative h-[500px] w-full">
   {/* Graph area */}
-  <div className="absolute left-12 right-0 top-0 bottom-0">
+  <div className="absolute inset-0 px-4">
     {/* Grid lines */}
     <div className="absolute inset-0 flex flex-col justify-between">
       {[0, 1, 2, 3, 4].map((i) => (
@@ -389,8 +382,8 @@ useEffect(() => {
       </div>
     ) : (
       /* Linear graph implementation */
-      <div className="relative h-full px-4">
-        <svg className="w-full h-full" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice">
+      <div className="relative h-full">
+        <svg className="w-full h-full" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
           {/* Define the gradient */}
           <defs>
             <linearGradient id="blue-gradient" x1="0" x2="0" y1="0" y2="1">
@@ -402,11 +395,11 @@ useEffect(() => {
           {/* Add shaded area under line */}
           {selectedLineData.length > 1 && (
             <path
-              d={`M 0 ${500 - (selectedLineData[0].density / maxDensity) * 500} ${selectedLineData.slice(1).map((point, i) => {
-                const x = ((i + 1) / (selectedLineData.length - 1)) * 1000;
-                const y = 500 - (point.density / maxDensity) * 500;
+              d={`M 20 ${600 - (selectedLineData[0].density / 100) * 480} ${selectedLineData.slice(1).map((point, i) => {
+                const x = 20 + ((i + 1) / (selectedLineData.length - 1)) * 960;
+                const y = 600 - (point.density / 100) * 480;
                 return `L ${x} ${y}`;
-              }).join(' ')} L 1000 500 L 0 500 Z`}
+              }).join(' ')} L 980 600 L 20 600 Z`}
               fill="url(#blue-gradient)"
               opacity="0.2"
             />
@@ -415,13 +408,13 @@ useEffect(() => {
           {/* Add the line */}
           {selectedLineData.length > 1 && (
             <path
-              d={`M 0 ${500 - (selectedLineData[0].density / maxDensity) * 500} ${selectedLineData.slice(1).map((point, i) => {
-                const x = ((i + 1) / (selectedLineData.length - 1)) * 1000;
-                const y = 500 - (point.density / maxDensity) * 500;
+              d={`M 20 ${600 - (selectedLineData[0].density / 100) * 480} ${selectedLineData.slice(1).map((point, i) => {
+                const x = 20 + ((i + 1) / (selectedLineData.length - 1)) * 960;
+                const y = 600 - (point.density / 100) * 480;
                 return `L ${x} ${y}`;
               }).join(' ')}`}
               stroke="#3b82f6"
-              strokeWidth="3"
+              strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
               fill="none"
@@ -431,10 +424,13 @@ useEffect(() => {
 
           {/* Add data points */}
           {selectedLineData.map((point, index) => {
-            const x = selectedLineData.length > 1 
-              ? (index / (selectedLineData.length - 1)) * 1000
+            // Calculate x position based on the hour
+            const hour = parseInt(point.hour.replace('h', ''));
+            const hourIndex = hours.indexOf(hour.toString());
+            const x = hourIndex !== -1 
+              ? 20 + (hourIndex / (hours.length - 1)) * 960
               : 500;
-            const y = 500 - (point.density / maxDensity) * 500;
+            const y = 600 - (point.density / 100) * 480;
             
             return (
               <g key={point.hour}>
@@ -442,17 +438,17 @@ useEffect(() => {
                 <circle
                   cx={x}
                   cy={y}
-                  r="8"
+                  r="4"
                   className="fill-blue-500"
                 />
                 
                 {/* Value label */}
                 <text
                   x={x}
-                  y={Math.max(20, y - 30)}
+                  y={Math.max(40, y - 20)}
                   textAnchor="middle"
                   className="fill-gray-700 dark:fill-gray-300"
-                  style={{ fontSize: '24px' }}
+                  style={{ fontSize: '16px' }}
                 >
                   {point.density}%
                 </text>
