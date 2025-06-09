@@ -437,24 +437,26 @@ export default function OccupancyController({ onRouteSelect, mapInstance }: Occu
                 <button
                   onClick={handlePlay}
                   disabled={isPlaying || loadingOccupancy || PRESET_HOURS.length === 0}
-                  className={`flex items-center gap-1 px-4 py-2 rounded font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                  className={`flex items-center justify-center p-2 rounded-full transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                     ${isDarkMode
                       ? 'bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-900'
                       : 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300'}
                     ${isPlaying || loadingOccupancy || PRESET_HOURS.length === 0 ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  aria-label="Play"
                 >
-                  <PlayArrow className="w-5 h-5" /> Play
+                  <PlayArrow className="w-5 h-5" />
                 </button>
                 <button
                   onClick={handlePause}
                   disabled={!isPlaying}
-                  className={`flex items-center gap-1 px-4 py-2 rounded font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                  className={`flex items-center justify-center p-2 rounded-full transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                     ${isDarkMode
                       ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 disabled:bg-gray-900'
                       : 'bg-gray-200 text-gray-900 hover:bg-gray-300 disabled:bg-gray-100'}
                     ${!isPlaying ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  aria-label="Pause"
                 >
-                  <Pause className="w-5 h-5" /> Pause
+                  <Pause className="w-5 h-5" />
                 </button>
                 <span className="ml-2 text-xs">Speed:</span>
                 <Slider
