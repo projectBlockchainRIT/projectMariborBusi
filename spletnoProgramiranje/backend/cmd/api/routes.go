@@ -307,7 +307,7 @@ func interpPosition(run data.ActiveRun, nowSec int) (float64, float64) {
 	tElapsed := nowSec - run.StartSec
 	totalDuration := run.EndSec - run.StartSec
 
-	speedMultiplier := 17.0
+	speedMultiplier := 15.0
 
 	timeOffset := float64(run.DepartureID%4) * 0.25
 
