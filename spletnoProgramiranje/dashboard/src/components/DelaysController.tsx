@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { useUser } from '../context/UserContext';
 import {
   ExclamationTriangleIcon,
   ClockIcon,
@@ -9,7 +10,9 @@ import {
   TruckIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  ListBulletIcon
+  ListBulletIcon,
+  BellAlertIcon, // Added for delay reporting
+  XMarkIcon // For closing the modal
 } from '@heroicons/react/24/outline';
 import type { Route, Station } from '../types';
 import { fetchRoutes, fetchStationsForRoute } from '../utils/api';
@@ -25,6 +28,15 @@ interface DelaysControllerProps {
   mapInstance: mapboxgl.Map | null;
 }
 
+// Interface for delay report data
+interface DelayReport {
+  date: string;
+  delayTime: number;
+  stopId: number | string;
+  lineId: number | string;
+  userId: number | string;
+}
+
 export default function DelaysController({
   onTimeRangeChange,
   onFilterChange,
@@ -32,6 +44,9 @@ export default function DelaysController({
   onStationSelect,
   mapInstance
 }: DelaysControllerProps) {
+  // Get the user context
+  const { user, isAuthenticated } = useUser();
+  
   const [activeTimeRange, setActiveTimeRange] = useState('realtime');
   const [showFilters, setShowFilters] = useState(false);
   const [routes, setRoutes] = useState<Route[]>([]);
@@ -48,6 +63,13 @@ export default function DelaysController({
   });
   const [isDateFilterEnabled, setIsDateFilterEnabled] = useState(false);
   const [isLineFilterEnabled, setIsLineFilterEnabled] = useState(false);
+  
+  // Delay reporting state
+  const [isDelayModalOpen, setIsDelayModalOpen] = useState(false);
+  const [delayStation, setDelayStation] = useState<Station | null>(null);
+  const [delayTime, setDelayTime] = useState(5); // Default 5 minutes
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [delayFeedback, setDelayFeedback] = useState<{type: 'success' | 'error'; message: string} | null>(null);
 
   // Fetch routes on component mount
   useEffect(() => {
@@ -71,6 +93,16 @@ export default function DelaysController({
 
     loadRoutes();
   }, []);
+
+  // Reset delay feedback message after 5 seconds
+  useEffect(() => {
+    if (delayFeedback) {
+      const timer = setTimeout(() => {
+        setDelayFeedback(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [delayFeedback]);
 
   const handleTimeRangeChange = (range: string) => {
     setActiveTimeRange(range);
@@ -110,6 +142,106 @@ export default function DelaysController({
     }
     setSelectedStation(station);
     onStationSelect(station);
+  };
+
+  const openDelayReportModal = (e: React.MouseEvent, station: Station) => {
+    // Prevent the click from bubbling up to the station button
+    e.stopPropagation();
+    setDelayStation(station);
+    setIsDelayModalOpen(true);
+  };
+
+  const closeDelayReportModal = () => {
+    setIsDelayModalOpen(false);
+    setDelayStation(null);
+    setDelayTime(5); // Reset to default
+    setDelayFeedback(null);
+  };
+
+  const handleDelayTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDelayTime(Number(e.target.value));
+  };
+
+  const submitDelayReport = async () => {
+    if (!delayStation || !expandedRouteId) return;
+    
+    try {
+      setIsSubmitting(true);
+      
+      // Check if user is authenticated using context
+      if (!isAuthenticated) {
+        setDelayFeedback({
+          type: 'error',
+          message: 'You must be logged in to report delays'
+        });
+        return;
+      }
+      
+      // Check if we have user data and ID from the context
+      if (!user || !user.id) {
+        setDelayFeedback({
+          type: 'error',
+          message: 'User information not found. Please log in again.'
+        });
+        return;
+      }
+      
+      // Get auth token from localStorage
+      const authToken = localStorage.getItem('authToken');
+      if (!authToken) {
+        setDelayFeedback({
+          type: 'error',
+          message: 'Authentication token missing. Please log in again.'
+        });
+        return;
+      }
+      
+      // Prepare the delay report data with userId from context
+      const delayReport: DelayReport = {
+        date: new Date().toISOString(),
+        delayTime: delayTime,
+        stopId: delayStation.id,
+        lineId: expandedRouteId,
+        userId: user.id // Use the userId from context
+      };
+      
+      console.log('Submitting delay report:', delayReport);
+      
+      // Send the report to the API
+      const response = await fetch('http://40.68.198.73:8080/v1/delays/report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify(delayReport)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || `Request failed with status ${response.status}`);
+      }
+      
+      // Handle success
+      setDelayFeedback({
+        type: 'success',
+        message: `Thank you! Delay of ${delayTime} minutes reported for ${delayStation.name}.`
+      });
+      
+      // Close modal after a short delay
+      setTimeout(() => {
+        closeDelayReportModal();
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Error submitting delay report:', error);
+      setDelayFeedback({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to submit delay report'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Filter routes based on search term
@@ -294,32 +426,46 @@ export default function DelaysController({
                             Stations ({stations.length})
                           </div>
                           {stations.map((station, index) => (
-                            <button
-                              key={station.id}
-                              onClick={() => handleStationClick(station)}
-                              className={`w-full text-left p-2 rounded-lg transition-colors ${
-                                selectedStation?.id === station.id
-                                  ? isDarkMode
-                                    ? 'bg-blue-900 border border-blue-700'
-                                    : 'bg-blue-100 border border-blue-200'
-                                  : isDarkMode 
-                                    ? 'hover:bg-gray-700' 
-                                    : 'hover:bg-gray-100'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2">
-                                <MapPinIcon className={`h-3 w-3 ${
+                            <div key={station.id} className="relative group">
+                              <button
+                                onClick={() => handleStationClick(station)}
+                                className={`w-full text-left p-2 rounded-lg transition-colors ${
                                   selectedStation?.id === station.id
-                                    ? 'text-blue-500'
-                                    : ''
-                                }`} />
-                                <div className="flex-1">
-                                  <div className="text-sm font-medium">{station.name}</div>
-                                  <div className="text-xs opacity-75">#{station.number}</div>
+                                    ? isDarkMode
+                                      ? 'bg-blue-900 border border-blue-700'
+                                      : 'bg-blue-100 border border-blue-200'
+                                    : isDarkMode 
+                                      ? 'hover:bg-gray-700' 
+                                      : 'hover:bg-gray-100'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <MapPinIcon className={`h-3 w-3 ${
+                                    selectedStation?.id === station.id
+                                      ? 'text-blue-500'
+                                      : ''
+                                  }`} />
+                                  <div className="flex-1">
+                                    <div className="text-sm font-medium">{station.name}</div>
+                                    <div className="text-xs opacity-75">#{station.number}</div>
+                                  </div>
+                                  <div className="text-xs opacity-50">#{index + 1}</div>
                                 </div>
-                                <div className="text-xs opacity-50">#{index + 1}</div>
-                              </div>
-                            </button>
+                              </button>
+                              
+                              {/* Delay report button */}
+                              <button 
+                                onClick={(e) => openDelayReportModal(e, station)}
+                                className={`absolute right-2 top-2 p-1 rounded-full transition-opacity opacity-0 group-hover:opacity-100 ${
+                                  isDarkMode 
+                                    ? 'bg-yellow-600 hover:bg-yellow-700' 
+                                    : 'bg-yellow-500 hover:bg-yellow-600'
+                                } text-white`}
+                                title="Report delay at this station"
+                              >
+                                <BellAlertIcon className="h-3 w-3" />
+                              </button>
+                            </div>
                           ))}
                         </div>
                       )}
@@ -331,6 +477,113 @@ export default function DelaysController({
           )}
         </div>
       </div>
+
+      {/* Delay Report Modal */}
+      {isDelayModalOpen && delayStation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className={`p-6 rounded-lg shadow-xl max-w-md w-full mx-4 ${
+            isDarkMode ? 'bg-gray-800' : 'bg-white'
+          }`}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-yellow-500 flex items-center gap-2">
+                <BellAlertIcon className="h-5 w-5" />
+                Report Delay
+              </h3>
+              <button 
+                onClick={closeDelayReportModal}
+                className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <p className={`mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                Station: <span className="font-medium">{delayStation.name}</span>
+              </p>
+              <p className={`mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                Line: <span className="font-medium">
+                  {routes.find(r => r.id === expandedRouteId)?.name || `Line ${expandedRouteId}`}
+                </span>
+              </p>
+              
+              <div className="mb-4">
+                <label className={`block mb-2 text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                  Delay time (in minutes):
+                </label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min="1"
+                    max="60"
+                    value={delayTime}
+                    onChange={handleDelayTimeChange}
+                    className={`flex-1 h-2 rounded-lg appearance-none cursor-pointer ${
+                      isDarkMode ? 'bg-gray-700' : 'bg-gray-200'
+                    }`}
+                  />
+                  <div className={`w-12 text-center font-bold ${
+                    delayTime > 15 ? 'text-red-500' : delayTime > 5 ? 'text-yellow-500' : 'text-green-500'
+                  }`}>
+                    {delayTime}
+                  </div>
+                </div>
+              </div>
+              
+              {delayFeedback && (
+                <div className={`p-3 rounded-md mb-4 ${
+                  delayFeedback.type === 'success' 
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                }`}>
+                  {delayFeedback.message}
+                </div>
+              )}
+            </div>
+            
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={closeDelayReportModal}
+                className={`px-4 py-2 rounded-md ${
+                  isDarkMode 
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' 
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                }`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitDelayReport}
+                disabled={isSubmitting}
+                className={`px-4 py-2 rounded-md flex items-center gap-1 ${
+                  isSubmitting
+                    ? isDarkMode
+                      ? 'bg-yellow-700 text-gray-300'
+                      : 'bg-yellow-400 text-gray-700'
+                    : isDarkMode
+                      ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                      : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                }`}
+              >
+                {isSubmitting ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <BellAlertIcon className="h-4 w-4" />
+                    Report Delay
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-} 
+}

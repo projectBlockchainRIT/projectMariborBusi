@@ -5,6 +5,7 @@ import type { Map as MapboxMap } from 'mapbox-gl';
 import mapboxgl from 'mapbox-gl';
 import type { Station, Route } from '../types/station';
 import { drawRoutesOnMap } from '../utils/drawRoutesOnMap';
+import { useTheme } from '../context/ThemeContext';
 
 // Function to generate a random color
 const getRandomColor = () => {
@@ -35,7 +36,10 @@ export default function InteractiveMap() {
   const [loading, setLoading] = useState(true);
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
+  const [stationMetadata, setStationMetadata] = useState<any>(null);
+  const [showStationInfo, setShowStationInfo] = useState(false);
   const routeColorsRef = useRef(new Map<number, string>());
+  const { isDarkMode } = useTheme();
   
   // WebSocket and bus tracking
   const webSocketRef = useRef<WebSocket | null>(null);
@@ -614,6 +618,22 @@ export default function InteractiveMap() {
     if (!mapInstance) return;
 
     try {
+      // Fetch station metadata
+      const metadataResponse = await fetch(`http://40.68.198.73:8080/v1/stations/${station.id}`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      let metadata;
+      if (metadataResponse.ok) {
+        const responseData = await metadataResponse.json();
+        console.log("metadata: ", responseData);
+        metadata = responseData.data || responseData;
+        setStationMetadata(metadata);
+      }
+
       // Try to fetch station location
       const response = await fetch(`http://40.68.198.73:8080/v1/stations/location/${station.id}`, {
         headers: {
@@ -660,6 +680,7 @@ export default function InteractiveMap() {
         longitude: locationData.longitude
       };
       setSelectedStation(updatedStation);
+      setShowStationInfo(true);
 
       // Update markers on the map
       if (mapInstance && typeof (mapInstance as any).updateMarkers === 'function') {
@@ -689,6 +710,7 @@ export default function InteractiveMap() {
           longitude: station.longitude
         };
         setSelectedStation(updatedStation);
+        setShowStationInfo(true);
 
         if (mapInstance && typeof (mapInstance as any).updateMarkers === 'function') {
           (mapInstance as any).updateMarkers([updatedStation]);
@@ -758,6 +780,90 @@ export default function InteractiveMap() {
             </div>
             <div className="text-xs text-gray-500 mt-1">
               {busLocations.length} buses on route
+            </div>
+          </div>
+        )}
+
+        {/* Station Information Panel */}
+        {showStationInfo && selectedStation && (
+          <div className={`absolute top-4 right-4 w-96 rounded-lg shadow-lg z-20 border backdrop-blur-sm ${
+            isDarkMode 
+              ? 'bg-gray-800/90 border-gray-700/50' 
+              : 'bg-white/90 border-gray-200/50'
+          }`}>
+            <div className={`p-4 border-b flex justify-between items-center ${
+              isDarkMode ? 'border-gray-700/50' : 'border-gray-200/50'
+            }`}>
+              <h3 className={`text-lg font-semibold ${
+                isDarkMode ? 'text-gray-100' : 'text-gray-900'
+              }`}>
+                {selectedStation.name}
+              </h3>
+              <button
+                onClick={() => setShowStationInfo(false)}
+                className={`p-1 rounded-full hover:bg-opacity-10 transition-colors ${
+                  isDarkMode 
+                    ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' 
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+              <div className="mb-4">
+                <p className={`text-sm ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                }`}>
+                  Station #{selectedStation.number}
+                </p>
+              </div>
+
+              {stationMetadata && stationMetadata.departures && stationMetadata.departures.length > 0 ? (
+                <div>
+                  <h4 className={`font-medium mb-3 ${
+                    isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                  }`}>
+                    Upcoming Departures
+                  </h4>
+                  <div className="space-y-4">
+                    {stationMetadata.departures.map((departure: any, index: number) => (
+                      <div key={index} className={`border-b pb-3 last:border-0 ${
+                        isDarkMode ? 'border-gray-700/50' : 'border-gray-200/50'
+                      }`}>
+                        <div className={`font-medium ${
+                          isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                        }`}>
+                          Line {departure.line} ({departure.direction})
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {departure.times.map((time: string, timeIndex: number) => (
+                            <span
+                              key={timeIndex}
+                              className={`px-2 py-1 rounded text-sm ${
+                                isDarkMode
+                                  ? 'bg-blue-900/50 text-blue-100'
+                                  : 'bg-blue-100 text-blue-800'
+                              }`}
+                            >
+                              {time}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className={`text-sm ${
+                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  No departure information available
+                </div>
+              )}
             </div>
           </div>
         )}

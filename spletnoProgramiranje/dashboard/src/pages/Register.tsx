@@ -6,14 +6,18 @@ import Logo from '../components/Logo';
 
 export default function Register() {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      setError('Passwords do not match');
       return;
     }
 
@@ -23,19 +27,30 @@ export default function Register() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, username, password }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        // Navigate to login page after successful registration
-        navigate('/login', { state: { message: 'Registration successful! Please log in.' } });
+        // Check if the API returned a JWT token
+        if (data.token) {
+          // Store the token in localStorage
+          localStorage.setItem('authToken', data.token);
+          localStorage.setItem('user', JSON.stringify({ email, username }));
+          
+          // Navigate directly to dashboard as the user is now logged in
+          navigate('/dashboard');
+        } else {
+          // If no token was returned, navigate to login page
+          navigate('/login', { state: { message: 'Registration successful! Please log in.' } });
+        }
       } else {
-        const data = await response.json();
-        alert(data.message || 'Registration failed');
+        setError(data.message || 'Registration failed');
       }
     } catch (error) {
       console.error('Error during registration:', error);
-      alert('Registration failed. Please try again.');
+      setError('Registration failed. Please try again.');
     }
   };
 
@@ -76,6 +91,16 @@ export default function Register() {
           className="mt-8 space-y-6"
           onSubmit={handleSubmit}
         >
+          {error && (
+            <div className="rounded-md bg-red-50 dark:bg-red-900/30 p-4">
+              <div className="flex">
+                <div className="text-sm text-red-700 dark:text-red-300">
+                  {error}
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email-address" className="sr-only">
@@ -91,6 +116,22 @@ export default function Register() {
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="username" className="sr-only">
+                Username
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                autoComplete="username"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div>
@@ -151,4 +192,4 @@ export default function Register() {
       </motion.div>
     </div>
   );
-} 
+}
