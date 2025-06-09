@@ -15,7 +15,7 @@ def webhook():
         if WEBHOOK_SECRET:
             if 'X-Hub-Signature' not in request.headers:
                 print("Error: X-Hub-Signature header missing.")
-                abort(403) 
+                abort(403)
 
             signature = request.headers['X-Hub-Signature'].split('=')[1]
             payload = request.data
@@ -28,16 +28,25 @@ def webhook():
         else:
             print("Warning: WEBHOOK_SECRET not set, skipping signature verification.")
 
-
         print("Executing deploy script...")
         try:
-            with open("/var/log/webhook_deploy.log", "a") as log_file:
-                subprocess.Popen([DEPLOY_SCRIPT_PATH], stdout=log_file, stderr=subprocess.STDOUT)
+            log_path = "/var/log/webhook_deploy.log"
+            os.makedirs(os.path.dirname(log_path), exist_ok=True)
+
+            with open(log_path, "a") as log_file:
+                script_dir = os.path.dirname(DEPLOY_SCRIPT_PATH)
+                result = subprocess.Popen(
+                    ['sudo', DEPLOY_SCRIPT_PATH],
+                    stdout=log_file,
+                    stderr=subprocess.STDOUT,
+                    cwd=script_dir
+                )
             print("Deploy script launched successfully.")
             return 'Webhook received and deploy script launched!', 200
         except Exception as e:
             print(f"Error launching deploy script: {e}")
-            return 'Failed to launch deploy script', 500
+            return f'Failed to launch deploy script: {e}', 500
+
     else:
         return 'Method Not Allowed', 405
 
