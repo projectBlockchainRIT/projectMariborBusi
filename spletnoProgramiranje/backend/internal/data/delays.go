@@ -61,6 +61,22 @@ type LineAverageDelay struct {
 	AvgDelayMins float64
 }
 
+type DelayReportInput struct {
+	Date      time.Time `json:"date"`
+	DelayMin  int       `json:"delay_min"`
+	StopID    int64     `json:"stop_id"`
+	LineID    int64     `json:"line_id"`
+	UserEmail string    `json:"user_email"`
+}
+
+type DelayReportInputUnMarshaled struct {
+	Date     time.Time `json:"date"`
+	DelayMin int       `json:"delay_min"`
+	StopID   int64     `json:"stop_id"`
+	LineID   int64     `json:"line_id"`
+	UserId   int       `json:"user_id"`
+}
+
 type DelaysStorage struct {
 	db *sql.DB
 }
@@ -343,4 +359,27 @@ func (s *DelaysStorage) GetOverallAverageDelay(ctx context.Context) (float64, er
 	}
 
 	return avgDelay.Float64, nil
+}
+
+func (s *DelaysStorage) InsertDelay(ctx context.Context, input DelayReportInputUnMarshaled) error {
+	query := `
+		INSERT INTO delays (date, delay_min, stop_id, line_id, user_id)
+		VALUES ($1, $2, $3, $4, $5);
+	`
+
+	_, err := s.db.ExecContext(
+		ctx,
+		query,
+		input.Date,
+		input.DelayMin,
+		input.StopID,
+		input.LineID,
+		input.UserId,
+	)
+
+	if err != nil {
+		return fmt.Errorf("failed to insert delay: %w", err)
+	}
+
+	return nil
 }

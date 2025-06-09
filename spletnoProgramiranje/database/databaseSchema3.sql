@@ -181,6 +181,9 @@ REFERENCES public.lines (id) MATCH SIMPLE
 ON DELETE RESTRICT ON UPDATE NO ACTION;
 -- ddl-end --
 
+ALTER TABLE public.departures ADD COLUMN line_id INTEGER;
+ALTER TABLE public.departures ADD CONSTRAINT fk_departures_line FOREIGN KEY (line_id)
+  REFERENCES public.lines(id) ON DELETE SET NULL;
 
 
 

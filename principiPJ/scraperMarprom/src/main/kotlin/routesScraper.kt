@@ -31,10 +31,6 @@ class MarpromRouteScraper(private val date: String) {
         return result
     }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 94035348ab0f31ce71a902353fd988e4e577f437
     private fun scrapeRoutePath(route: String): List<List<Double>> {
         val url = "$baseUrl/?datum=$date&route1=&route=$route"
         val coords = mutableListOf<List<Double>>()
