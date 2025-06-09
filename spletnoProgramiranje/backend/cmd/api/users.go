@@ -163,7 +163,6 @@ func (app *app) usersUpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get user ID from JWT (assuming you store it in context middleware)
 	userIDRaw := r.Context().Value("userID")
 	if userIDRaw == nil {
 		utils.WriteJSONError(w, http.StatusUnauthorized, "Unauthorized")
@@ -178,7 +177,6 @@ func (app *app) usersUpdateProfile(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	// Optional: Check for existing email (only if changing email)
 	existingUser, err := app.store.User.GetByEmail(ctx, payload.Email)
 	if err == nil && existingUser.ID != userID {
 		utils.WriteJSONError(w, http.StatusBadRequest, "Email already in use by another account")

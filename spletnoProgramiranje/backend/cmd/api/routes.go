@@ -135,7 +135,6 @@ func (app *app) routesListHandler(w http.ResponseWriter, r *http.Request) {
 // @Success		101	{string}	string	"Switching protocols to WebSocket"
 // @Router			/routes/realtime [get]
 func (app *app) getRealtimeLine(w http.ResponseWriter, r *http.Request) {
-	// Upgrade the HTTP connection to a WebSocket connection
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		http.Error(w, "Could not open WebSocket connection", http.StatusBadRequest)
@@ -143,37 +142,30 @@ func (app *app) getRealtimeLine(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	// Create a ticker that triggers every 5 seconds
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
-	// Channel to signal when the connection is closed
 	done := make(chan struct{})
 
-	// Goroutine to read messages from the client
 	go func() {
 		defer close(done)
 		for {
 			_, _, err := conn.ReadMessage()
 			if err != nil {
-				// Exit the loop if there's an error (e.g., client disconnects)
 				break
 			}
 		}
 	}()
 
-	// Loop to send messages to the client at each tick
 	for {
 		select {
 		case <-done:
-			// Exit the loop if the connection is closed
 			return
 		case t := <-ticker.C:
 			// Send a message to the client
 			message := fmt.Sprintf("Current time: %s", t.Format(time.RFC3339))
 			err := conn.WriteMessage(websocket.TextMessage, []byte(message))
 			if err != nil {
-				// Exit the loop if there's an error sending the message
 				return
 			}
 		}

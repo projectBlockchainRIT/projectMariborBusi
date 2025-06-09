@@ -73,7 +73,6 @@ func (s *StopStorage) ReadStation(ctx context.Context, id int64) (*Stop, error) 
 	return &stop, nil
 }
 
-// fetches a list of all the stations in the database (used for a station list, to display all stations on the map and so on)
 func (s *StopStorage) ReadList(ctx context.Context) ([]Stop, error) {
 	query := `
         SELECT id, number, name, latitude, longitude

@@ -66,7 +66,6 @@ func (s *UsersStorage) GetByEmail(ctx context.Context, email string) (*User, err
 	}
 
 	var user User
-	//lastLogin sql.NullTime
 
 	for rows.Next() {
 		err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.CreatedAt, &user.LastLogin)
