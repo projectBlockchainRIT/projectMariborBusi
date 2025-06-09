@@ -1,10 +1,20 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
+// Define the User interface for storing user data
+export interface User {
+  id: string | number;
+  username?: string;
+  email?: string;
+  [key: string]: any; // Allow for additional properties
+}
+
 interface UserContextType {
   isAuthenticated: boolean;
   setIsAuthenticated: (value: boolean) => void;
   isAdmin: boolean;
   setIsAdmin: (value: boolean) => void;
+  user: User | null;
+  setUser: (user: User | null) => void;
   logout: () => void;
 }
 
@@ -20,6 +30,20 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const savedAdmin = localStorage.getItem('isAdmin');
     return savedAdmin === 'true';
   });
+  
+  // Initialize user state from localStorage
+  const [user, setUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      try {
+        return JSON.parse(savedUser);
+      } catch (error) {
+        console.error('Failed to parse user from localStorage:', error);
+        return null;
+      }
+    }
+    return null;
+  });
 
   // Update localStorage when auth state changes
   useEffect(() => {
@@ -29,16 +53,36 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     localStorage.setItem('isAdmin', isAdmin.toString());
   }, [isAdmin]);
+  
+  // Update localStorage when user data changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
+    }
+  }, [user]);
 
   const logout = () => {
     setIsAuthenticated(false);
     setIsAdmin(false);
+    setUser(null);
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('isAdmin');
+    localStorage.removeItem('user');
+    localStorage.removeItem('authToken');
   };
 
   return (
-    <UserContext.Provider value={{ isAuthenticated, setIsAuthenticated, isAdmin, setIsAdmin, logout }}>
+    <UserContext.Provider value={{ 
+      isAuthenticated, 
+      setIsAuthenticated, 
+      isAdmin, 
+      setIsAdmin, 
+      user,
+      setUser,
+      logout 
+    }}>
       {children}
     </UserContext.Provider>
   );

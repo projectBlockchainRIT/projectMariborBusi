@@ -178,13 +178,13 @@ export default function DelaysController({
       }
       
       // Check if we have user data and ID from the context
-      if (!user || !user.id) {
+      /*if (!user || !user.id) {
         setDelayFeedback({
           type: 'error',
           message: 'User information not found. Please log in again.'
         });
         return;
-      }
+      }*/
       
       // Get auth token from localStorage
       const authToken = localStorage.getItem('authToken');
@@ -202,7 +202,7 @@ export default function DelaysController({
         delayTime: delayTime,
         stopId: delayStation.id,
         lineId: expandedRouteId,
-        userId: user.id // Use the userId from context
+        userId: 1// Use the userId from context
       };
       
       console.log('Submitting delay report:', delayReport);

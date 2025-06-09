@@ -6,49 +6,67 @@ import Logo from '../components/Logo';
 import { useUser } from '../context/UserContext';
 
 export default function Login() {
-  const { setIsAuthenticated, setIsAdmin } = useUser();
+  const { setIsAuthenticated, setIsAdmin, setUser: setUserContext } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
   // Get the redirect path from location state or default to dashboard
   const from = (location.state as any)?.from?.pathname || '/dashboard/interactive-map';
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (credentials) => {
     try {
+      const requestBody = {
+      email: credentials.email,
+      password: credentials.password,
+    };
+
       const response = await fetch('http://40.68.198.73:8080/v1/authentication/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
+
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(credentials),
       });
 
-      let data;
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-      } else {
-        data = await response.text();
-      }
+      const data = await response.json();
+
 
       if (response.ok) {
+        // Store the JWT token
+        localStorage.setItem('authToken', data.token);
+        
+        // Create user object with ID
+        const userData = {
+          id: data.userId || data.id,
+          username: data.username,
+          email: credentials.email,
+          // Include any other user data returned from API
+        };
+        
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Update authentication state and user in context
         setIsAuthenticated(true);
-        // Set admin status based on response if available
+        setUserContext(userData);
+        
+        // If the API indicates admin status
         if (data.isAdmin) {
           setIsAdmin(true);
         }
-        // Navigate to the attempted page or dashboard
-        navigate(from, { replace: true });
-        console.log('Login successful:', data);
+        
+        navigate(from);
       } else {
-        // Handle error
-        console.error('Login failed:', data);
+        setError(data.message || 'Login failed');
       }
     } catch (error) {
-      console.error('Error during login:', error);
+      setError('An error occurred during login');
+      console.error(error);
     }
   };
 
@@ -82,12 +100,23 @@ export default function Login() {
           </motion.h2>
         </div>
 
+        {error && (
+          <div className="rounded-md bg-red-50 dark:bg-red-900/30 p-4">
+            <div className="text-sm text-red-700 dark:text-red-300">
+              {error}
+            </div>
+          </div>
+        )}
+
         <motion.form
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
           className="mt-8 space-y-6"
-          onSubmit={handleSubmit}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin({ email, password });
+          }}
         >
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -148,4 +177,4 @@ export default function Login() {
       </motion.div>
     </div>
   );
-} 
+}
