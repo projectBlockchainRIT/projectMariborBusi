@@ -117,7 +117,7 @@ export default function DelaysController({
       setExpandedRouteId(route.id);
       setStationsLoading(true);
       try {
-        const response = await fetch(`http://40.68.198.73:8080/v1/routes/stations/${route.id}`);
+        const response = await fetch(`http://40.68.198.73:8080/v1/routes/stations/${route.line_id}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch stations: ${response.status} ${response.statusText}`);
         }
