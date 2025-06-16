@@ -207,12 +207,15 @@ export default function DelaysController({
       
       console.log('Submitting delay report:', delayReport);
       
-      // Send the report to the API
-      const response = await fetch('http://40.68.198.73:8080/v1/delays/report', {
+      const corsProxyUrl = 'https://cors-anywhere.herokuapp.com/';
+      const apiUrl = 'http://40.68.198.73:8080/v1/delays/report';
+      
+      const response = await fetch(corsProxyUrl + apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
+          'Authorization': `Bearer ${authToken}`,
+          'X-Requested-With': 'XMLHttpRequest' // Required by some CORS proxies
         },
         body: JSON.stringify(delayReport)
       });
