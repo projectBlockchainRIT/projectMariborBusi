@@ -145,16 +145,18 @@ export default function InteractiveMapControls({
   }, [routes, searchTerm]);
 
   const handleRouteClick = (route: Route) => {
-    console.log('Route clicked:', route.id);
+    // Use line_id if available, fall back to id if not
+    const routeId = route.line_id || route.id;
+    console.log('Route clicked:', routeId);
     
-    if (expandedRouteId === route.id) {
+    if (expandedRouteId === routeId) {
       setExpandedRouteId(null);
       setSelectedRoute(null);
       setStations([]);
     } else {
-      setExpandedRouteId(route.id);
+      setExpandedRouteId(routeId);
       setSelectedRoute(route);
-      onRouteSelect(route.id);
+      onRouteSelect(routeId);
     }
   };
 
@@ -219,61 +221,68 @@ export default function InteractiveMapControls({
             </div>
           ) : (
             <div className="space-y-2">
-              {filteredRoutes.map((route) => (
-                <div key={route.id || Math.random().toString()} className="mb-2">
-                  <button
-                    onClick={() => handleRouteClick(route)}
-                    className={`w-full p-3 text-left rounded-lg transition-colors border flex items-center justify-between ${
-                      expandedRouteId === route.id
-                        ? isDarkMode 
-                          ? 'bg-blue-900 border-blue-700' 
-                          : 'bg-blue-100 border-blue-200'
-                        : isDarkMode
-                          ? 'bg-gray-700 hover:bg-gray-600 border-gray-600'
-                          : 'bg-gray-100 hover:bg-gray-200 border-gray-200'
-                    }`}
-                  >
-                    <div className="font-medium flex items-center gap-2">
-                      <Bus className="h-4 w-4" />
-                      {route.name}
-                    </div>
-                    {expandedRouteId === route.id ? (
-                      <ChevronUp className="h-5 w-5" />
-                    ) : (
-                      <ChevronDown className="h-5 w-5" />
-                    )}
-                  </button>
-                  
-                  {expandedRouteId === route.id && (
-                    <div className={`mt-2 ml-4 space-y-2 ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                    }`}>
-                      {stationsLoading ? (
-                        <div className="text-sm">Loading stations...</div>
-                      ) : stations.length > 0 ? (
-                        stations.map((station) => (
-                          <button
-                            key={station.id}
-                            onClick={() => handleStationClick(station)}
-                            className={`w-full text-left p-2 rounded-lg hover:bg-opacity-50 transition-colors ${
-                              isDarkMode 
-                                ? 'hover:bg-gray-700' 
-                                : 'hover:bg-gray-100'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <MapPin className="h-3 w-3" />
-                              <span className="text-sm">{station.name}</span>
-                            </div>
-                          </button>
-                        ))
+              {filteredRoutes.map((route) => {
+                // Use line_id if available, fall back to id
+                const routeId = route.line_id !== undefined ? route.line_id : route.id;
+                // Generate a key using available properties
+                const key = `route-${routeId || Math.random().toString()}`;
+                
+                return (
+                  <div key={key} className="mb-2">
+                    <button
+                      onClick={() => handleRouteClick(route)}
+                      className={`w-full p-3 text-left rounded-lg transition-colors border flex items-center justify-between ${
+                        expandedRouteId === routeId
+                          ? isDarkMode 
+                            ? 'bg-blue-900 border-blue-700' 
+                            : 'bg-blue-100 border-blue-200'
+                          : isDarkMode
+                            ? 'bg-gray-700 hover:bg-gray-600 border-gray-600'
+                            : 'bg-gray-100 hover:bg-gray-200 border-gray-200'
+                      }`}
+                    >
+                      <div className="font-medium flex items-center gap-2">
+                        <Bus className="h-4 w-4" />
+                        {route.name}
+                      </div>
+                      {expandedRouteId === routeId ? (
+                        <ChevronUp className="h-5 w-5" />
                       ) : (
-                        <div className="text-sm">No stations available</div>
+                        <ChevronDown className="h-5 w-5" />
                       )}
-                    </div>
-                  )}
-                </div>
-              ))}
+                    </button>
+                    
+                    {expandedRouteId === routeId && (
+                      <div className={`mt-2 ml-4 space-y-2 ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                      }`}>
+                        {stationsLoading ? (
+                          <div className="text-sm">Loading stations...</div>
+                        ) : stations.length > 0 ? (
+                          stations.map((station) => (
+                            <button
+                              key={station.id}
+                              onClick={() => handleStationClick(station)}
+                              className={`w-full text-left p-2 rounded-lg hover:bg-opacity-50 transition-colors ${
+                                isDarkMode 
+                                  ? 'hover:bg-gray-700' 
+                                  : 'hover:bg-gray-100'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <MapPin className="h-3 w-3" />
+                                <span className="text-sm">{station.name}</span>
+                              </div>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="text-sm">No stations available</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
