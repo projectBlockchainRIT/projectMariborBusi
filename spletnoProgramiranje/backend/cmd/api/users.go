@@ -8,14 +8,17 @@ import (
 	"net/http"
 )
 
-//	@Summary		Register a new user
-//	@Description	Register a new user with username, email and password
+//	@Summary		Register a new user account
+//	@Description	Creates a new user account in the system with the provided credentials.
+//	@Description	The endpoint expects a JSON payload containing username, email, and password.
+//	@Description	The password is securely hashed before storage, and the email must be unique
+//	@Description	in the system. Upon successful registration, the user can proceed to login.
+//	@Description	This endpoint performs validation of input data and checks for existing emails.
 //	@Tags			authentication
 //	@Accept			json
 //	@Produce		json
-//	@Param			user	body		data.RegisterUserPayload	true	"User registration data"
-//	@Success		201		{object}	nil
-//	@Failure		500		{object}	utils.ErrorResponse
+//	@Param			user	body		data.RegisterUserPayload	true	"User registration details including username, email, and password"
+//	@Success		201		{object}	nil							"User successfully registered"
 //	@Router			/authentication/register [post]
 func (app *app) usersResgisterUser(w http.ResponseWriter, r *http.Request) {
 	/*
@@ -77,15 +80,18 @@ func (app *app) usersResgisterUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//	@Summary		Login user
-//	@Description	Login with email and password to get JWT token
+//	@Summary		Authenticate user and get access token
+//	@Description	Authenticates a user with their email and password, returning a JWT token for access.
+//	@Description	The endpoint validates the provided credentials against stored user data,
+//	@Description	ensuring the password matches the hashed version in the database.
+//	@Description	Upon successful authentication, returns a JWT token that should be included
+//	@Description	in subsequent API requests in the Authorization header.
+//	@Description	The token includes user identification and expiration information.
 //	@Tags			authentication
 //	@Accept			json
 //	@Produce		json
-//	@Param			credentials	body		data.LoginUserPayload	true	"Login credentials"
-//	@Success		200			{object}	map[string]string
-//	@Failure		400			{object}	utils.ErrorResponse
-//	@Failure		500			{object}	utils.ErrorResponse
+//	@Param			credentials	body		data.LoginUserPayload	true	"User login credentials (email and password)"
+//	@Success		200			{object}	map[string]string		"JWT token for authenticated access"
 //	@Router			/authentication/login [post]
 func (app *app) usersLoginUser(w http.ResponseWriter, r *http.Request) {
 	/*

@@ -17,21 +17,41 @@ type Storage struct {
 		ReadStationMetadata(context.Context, int64) (*StopMetadata, error)
 		ReadStationsCloseBy(context.Context, *Location) ([]Stop, error)
 		ReadThreeStationsAtDestination(context.Context, *PathLocation) ([]Stop, error)
-		ReadStationLines(ctx context.Context, stops []Stop) ([]Line, error)
-		ReadThreeStationsAtLocation(ctx context.Context, payload *PathLocation, lines []Line) ([]Stop, error)
+		ReadStationLines(context.Context, []Stop) ([]Line, error)
+		ReadThreeStationsAtLocation(context.Context, *PathLocation, []Line) ([]Stop, error)
 	}
 	Routes interface {
 		ReadRoute(context.Context, int64) (*Route, error)
 		ReadRouteStations(context.Context, int64) ([]Stop, error)
-		ReadRoutesList(ctx context.Context) ([]Route, error)
-		ReadActiveLines(ctx context.Context) (int, error)
+		ReadRoutesList(context.Context) ([]Route, error)
+		ReadActiveLines(context.Context) (int, error)
+		FetchActiveRuns(context.Context, int) ([]ActiveRun, error)
+	}
+
+	Delays interface {
+		GetDelaysByStop(context.Context, int64) ([]Delay, error)
+		GetRecentDelaysByLine(context.Context, int64) ([]DelayEntry, error)
+		GetDelaysByUser(context.Context, int64) ([]UserDelay, error)
+		GetMostRecentDelays(context.Context) ([]MostRecentDelay, error)
+		GetDelayCountsByLine(context.Context) ([]LineDelayCount, error)
+		GetAverageDelayForLine(context.Context, int64) (*LineAverageDelay, error)
+		GetOverallAverageDelay(context.Context) (float64, error)
+	}
+
+	Occupancy interface {
+		GetOccupancyForLineByDate(context.Context, int, string) ([]OccupancyRecord, error)
+		GetOccupancyForLineByDateAndHour(context.Context, int, string, int) ([]OccupancyRecord, error)
+		GetAvgOccupancyAllLinesByHour(context.Context, int) (*AvgOccupancyByHour, error)
+		GetAvgDailyOccupancyAllLines(context.Context, string) (*AvgDailyOccupancy, error)
 	}
 }
 
 func NewStorage(db *sql.DB) Storage {
 	return Storage{
-		Stations: &StopStorage{db},
-		Routes:   &RoutesStorage{db},
-		User:     &UsersStorage{db},
+		Stations:  &StopStorage{db},
+		Routes:    &RoutesStorage{db},
+		User:      &UsersStorage{db},
+		Delays:    &DelaysStorage{db},
+		Occupancy: &OccupancyStorage{db},
 	}
 }

@@ -9,6 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
+        "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "API Support",
             "url": "http://www.swagger.io/support",
@@ -25,7 +26,7 @@ const docTemplate = `{
     "paths": {
         "/authentication/login": {
             "post": {
-                "description": "Login with email and password to get JWT token",
+                "description": "Authenticates a user with their email and password, returning a JWT token for access.\nThe endpoint validates the provided credentials against stored user data,\nensuring the password matches the hashed version in the database.\nUpon successful authentication, returns a JWT token that should be included\nin subsequent API requests in the Authorization header.\nThe token includes user identification and expiration information.",
                 "consumes": [
                     "application/json"
                 ],
@@ -35,10 +36,10 @@ const docTemplate = `{
                 "tags": [
                     "authentication"
                 ],
-                "summary": "Login user",
+                "summary": "Authenticate user and get access token",
                 "parameters": [
                     {
-                        "description": "Login credentials",
+                        "description": "User login credentials (email and password)",
                         "name": "credentials",
                         "in": "body",
                         "required": true,
@@ -49,24 +50,12 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "JWT token for authenticated access",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
                                 "type": "string"
                             }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -74,7 +63,7 @@ const docTemplate = `{
         },
         "/authentication/register": {
             "post": {
-                "description": "Register a new user with username, email and password",
+                "description": "Creates a new user account in the system with the provided credentials.\nThe endpoint expects a JSON payload containing username, email, and password.\nThe password is securely hashed before storage, and the email must be unique\nin the system. Upon successful registration, the user can proceed to login.\nThis endpoint performs validation of input data and checks for existing emails.",
                 "consumes": [
                     "application/json"
                 ],
@@ -84,10 +73,10 @@ const docTemplate = `{
                 "tags": [
                     "authentication"
                 ],
-                "summary": "Register a new user",
+                "summary": "Register a new user account",
                 "parameters": [
                     {
-                        "description": "User registration data",
+                        "description": "User registration details including username, email, and password",
                         "name": "user",
                         "in": "body",
                         "required": true,
@@ -98,12 +87,250 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created"
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
+                        "description": "User successfully registered"
+                    }
+                }
+            }
+        },
+        "/delays/average": {
+            "get": {
+                "description": "Provides comprehensive statistics about average delays across the entire bus network.\nThe response includes system-wide mean delay time, variation by time of day,\nseasonal patterns, and comparative analysis across different service areas.\nThis data is essential for overall system performance assessment and planning.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delays"
+                ],
+                "summary": "Get system-wide average delay statistics",
+                "responses": {
+                    "200": {
+                        "description": "System-wide average delay in minutes",
                         "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
+                            "type": "number"
+                        }
+                    }
+                }
+            }
+        },
+        "/delays/average/{lineId}": {
+            "get": {
+                "description": "Calculates and returns the average delay duration for a particular bus line.\nThe response includes mean delay time, standard deviation, peak delay periods,\nand historical trends. This information helps understand service reliability\nand identify patterns in service disruptions for specific routes.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delays"
+                ],
+                "summary": "Get average delay duration for a specific line",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Unique identifier of the bus line",
+                        "name": "lineId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detailed delay statistics for the specified line",
+                        "schema": {
+                            "$ref": "#/definitions/data.APILineAverageDelay"
+                        }
+                    }
+                }
+            }
+        },
+        "/delays/lines/number": {
+            "get": {
+                "description": "Returns statistical data about delay frequencies for each bus line.\nThe response includes the total number of delays per line, frequency patterns,\ncommon delay causes, and trend analysis where available.\nThis data is valuable for identifying problematic routes and planning improvements.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delays"
+                ],
+                "summary": "Get delay frequency statistics by bus line",
+                "responses": {
+                    "200": {
+                        "description": "Delay frequency statistics by line",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/data.APILineDelayCount"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/delays/recent": {
+            "get": {
+                "description": "Provides a list of the most recent delay incidents across all bus lines and stations.\nThe response includes comprehensive details about each delay, including location,\nduration, affected services, passenger impact, and current status.\nThis endpoint is crucial for real-time system monitoring and service updates.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delays"
+                ],
+                "summary": "Get most recent delays across the entire system",
+                "responses": {
+                    "200": {
+                        "description": "List of recent system-wide delays with full details",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/data.APIMostRecentDelay"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/delays/recent/line/{lineId}": {
+            "get": {
+                "description": "Returns the most recent delay incidents for a particular bus line.\nThe data includes detailed timing information, delay durations, locations,\npassenger impact, and any available resolution information.\nThis endpoint is useful for monitoring current service status and recent performance.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delays"
+                ],
+                "summary": "Get recent delays for a specific bus line",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Unique identifier of the bus line",
+                        "name": "lineId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recent delays with comprehensive details",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/data.APIDelayEntry"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/delays/station/{stationId}": {
+            "get": {
+                "description": "Retrieves a comprehensive list of all recorded delays at a particular bus station.\nThe response includes detailed information about each delay incident, including\ntimestamp, duration, cause (if available), affected bus lines, and impact level.\nThis data helps analyze station-specific performance and identify problematic locations.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delays"
+                ],
+                "summary": "Get all delays for a specific station",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Unique identifier of the bus station",
+                        "name": "stationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of delays with detailed information",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/data.APIDelay"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/delays/user/{userId}": {
+            "get": {
+                "description": "Retrieves all delay reports submitted by a particular user.\nThe response includes full details of each reported delay, including\ntimestamp, location, affected services, and any additional notes provided.\nThis endpoint helps track user contributions and verify reporting patterns.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delays"
+                ],
+                "summary": "Get all delays reported by a specific user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Unique identifier of the user",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of user-reported delays with details",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/data.APIUserDelay"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/estimate/simulate/{lineId}": {
+            "get": {
+                "description": "Provides simulated real-time updates of bus positions for a specific line via WebSocket.\nThe simulation includes realistic bus movements along the route, considering schedules,\ntypical speeds, and stop times. Updates are sent every 2 seconds with precise coordinates\nand movement patterns. This endpoint is useful for testing and demonstration purposes.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "routes"
+                ],
+                "summary": "Simulate real-time bus positions for a specific line",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Unique identifier of the bus line to simulate",
+                        "name": "lineId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "101": {
+                        "description": "Switching protocols to WebSocket",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -113,10 +340,10 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "Bearer": []
+                        "ApiKeyAuth": []
                     }
                 ],
-                "description": "Get the health status of the API",
+                "description": "Returns the current health status of the API service, including environment information\nand version details. This endpoint is useful for monitoring service availability,\nperforming health checks, and verifying deployment configurations.\nThe response includes the service status, environment name, and version number.",
                 "consumes": [
                     "application/json"
                 ],
@@ -124,12 +351,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "health"
+                    "system"
                 ],
-                "summary": "Health check endpoint",
+                "summary": "Check API health status",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Health status information including environment and version",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -140,9 +367,164 @@ const docTemplate = `{
                 }
             }
         },
+        "/occupancy/average/{date}": {
+            "get": {
+                "description": "Provides detailed daily occupancy analytics across the entire bus network for a specific date.\nThe response includes comprehensive metrics such as daily passenger totals, peak hours identification,\nline-by-line comparisons, unusual patterns detection, and historical trend analysis.\nThis data is crucial for daily operations management, service optimization,\nand understanding system-wide usage patterns on specific dates (e.g., events, holidays).\nThe information helps in both operational planning and user travel planning.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "occupancy"
+                ],
+                "summary": "Get average daily occupancy across all lines for a specific date",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Target date in YYYY-MM-DD format",
+                        "name": "date",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comprehensive daily occupancy statistics with detailed analysis",
+                        "schema": {
+                            "$ref": "#/definitions/data.AvgDailyOccupancy"
+                        }
+                    }
+                }
+            }
+        },
+        "/occupancy/average/{hour}": {
+            "get": {
+                "description": "Calculates and returns comprehensive average occupancy statistics across all bus lines for a specific hour.\nThis aggregated data includes system-wide occupancy patterns, comparative analysis between different lines,\nidentification of busiest routes, and historical trends for the specified hour.\nThe endpoint is valuable for system-wide capacity planning, identifying peak travel patterns,\nand helping users understand general system busyness during specific hours.\nResults can be used for optimizing service frequency and capacity allocation.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "occupancy"
+                ],
+                "summary": "Get average occupancy across all lines for a specific hour",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Hour of the day (0-23)",
+                        "name": "hour",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "System-wide average occupancy statistics with detailed breakdowns",
+                        "schema": {
+                            "$ref": "#/definitions/data.AvgOccupancyByHour"
+                        }
+                    }
+                }
+            }
+        },
+        "/occupancy/line/{lineId}/date/{date}": {
+            "get": {
+                "description": "Retrieves comprehensive occupancy data for a specific bus line throughout an entire day.\nThe data includes hourly breakdowns of passenger counts, occupancy percentages,\npeak and off-peak patterns, and historical comparisons where available.\nThis endpoint is particularly useful for analyzing daily ridership patterns,\nplanning capacity adjustments, and helping users choose less crowded travel times.\nThe response includes timestamps, occupancy levels, and trend indicators.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "occupancy"
+                ],
+                "summary": "Get detailed bus line occupancy throughout a specific day",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Unique identifier of the bus line",
+                        "name": "lineId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Target date in YYYY-MM-DD format",
+                        "name": "date",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detailed hourly occupancy data for the specified day",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/data.OccupancyRecord"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/occupancy/line/{lineId}/date/{date}/hour/{hour}": {
+            "get": {
+                "description": "Provides granular occupancy data for a specific bus line during a particular hour of a day.\nThe response includes detailed metrics such as current passenger count, capacity percentage,\nhistorical comparison for the same hour, typical occupancy patterns, and real-time updates if available.\nThis endpoint is essential for real-time crowd management and helping users plan their immediate travel.\nThe data can be used to make informed decisions about immediate travel plans and avoid overcrowded buses.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "occupancy"
+                ],
+                "summary": "Get detailed bus line occupancy for a specific hour",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Unique identifier of the bus line",
+                        "name": "lineId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Target date in YYYY-MM-DD format",
+                        "name": "date",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Hour of the day (0-23)",
+                        "name": "hour",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detailed occupancy data for the specified hour",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/data.OccupancyRecord"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/routes/active": {
             "get": {
-                "description": "Get all currently active bus routes",
+                "description": "Returns the number of bus routes that are currently in service or active.\nThis includes routes with buses currently running, scheduled for the current time period,\nor marked as active in the system. The count helps understand current service coverage\nand system activity levels.",
                 "consumes": [
                     "application/json"
                 ],
@@ -152,18 +534,12 @@ const docTemplate = `{
                 "tags": [
                     "routes"
                 ],
-                "summary": "Get active routes",
+                "summary": "Get the count of currently active bus routes",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Number of active routes",
                         "schema": {
                             "type": "integer"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -171,7 +547,7 @@ const docTemplate = `{
         },
         "/routes/list": {
             "get": {
-                "description": "Get all bus routes to display coverage on map",
+                "description": "Provides a comprehensive list of all bus routes in the system, including active and inactive routes.\nEach route entry contains basic information such as route number, name, terminal stations,\nservice frequency, operating hours, and current status.\nThis endpoint is useful for displaying the complete network coverage and available services.",
                 "consumes": [
                     "application/json"
                 ],
@@ -181,29 +557,23 @@ const docTemplate = `{
                 "tags": [
                     "routes"
                 ],
-                "summary": "Get routes list",
+                "summary": "Get a list of all available bus routes",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "List of all routes with basic information",
                         "schema": {
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/data.Route"
                             }
                         }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
                     }
                 }
             }
         },
-        "/routes/simulate/{lineId}": {
+        "/routes/realtime": {
             "get": {
-                "description": "Get realtime bus locations through websocket connection",
+                "description": "Establishes a WebSocket connection to receive real-time updates about bus locations.\nThe connection sends periodic updates (every 5 seconds) with current bus positions,\nincluding coordinates, heading, speed, and next stop information.\nThis endpoint is crucial for real-time tracking features in client applications.",
                 "consumes": [
                     "application/json"
                 ],
@@ -213,27 +583,12 @@ const docTemplate = `{
                 "tags": [
                     "routes"
                 ],
-                "summary": "Get realtime line location",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Line ID",
-                        "name": "lineId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "summary": "Get real-time bus location updates via WebSocket",
                 "responses": {
                     "101": {
-                        "description": "Switching to WebSocket protocol",
+                        "description": "Switching protocols to WebSocket",
                         "schema": {
                             "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -241,7 +596,7 @@ const docTemplate = `{
         },
         "/routes/stations/{lineId}": {
             "get": {
-                "description": "Get all stops that appear on a specific route",
+                "description": "Returns a detailed list of all stations that are part of a specific bus line's route.\nThe response includes station ordering, distances between stations, estimated travel times,\nplatform information, and any special notes about each stop on the route.\nThis data is crucial for journey planning and providing users with complete route information.",
                 "consumes": [
                     "application/json"
                 ],
@@ -251,11 +606,11 @@ const docTemplate = `{
                 "tags": [
                     "routes"
                 ],
-                "summary": "Get stations on route",
+                "summary": "Get all stations along a specific bus route",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Line ID",
+                        "description": "Unique identifier of the bus line",
                         "name": "lineId",
                         "in": "path",
                         "required": true
@@ -263,18 +618,12 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Ordered list of stations with detailed information",
                         "schema": {
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/data.Stop"
                             }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -282,7 +631,7 @@ const docTemplate = `{
         },
         "/routes/{lineId}": {
             "get": {
-                "description": "Get the route path for a specific bus line",
+                "description": "Retrieves comprehensive route data for a specific bus line, including the complete path,\nall waypoints, direction information, and geographical coordinates for the entire route.\nThe response includes detailed path segments, turn-by-turn information, and route variants if available.\nThis endpoint is essential for mapping applications and route visualization features.",
                 "consumes": [
                     "application/json"
                 ],
@@ -292,11 +641,11 @@ const docTemplate = `{
                 "tags": [
                     "routes"
                 ],
-                "summary": "Get route of line",
+                "summary": "Get detailed route information for a specific bus line",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Line ID",
+                        "description": "Unique identifier of the bus line",
                         "name": "lineId",
                         "in": "path",
                         "required": true
@@ -304,66 +653,17 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Complete route information including path coordinates",
                         "schema": {
                             "$ref": "#/definitions/data.Route"
                         }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
                     }
                 }
             }
         },
-        "/show/shortest": {
-            "post": {
-                "description": "Find the most optimal path to desired location",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "path"
-                ],
-                "summary": "Get shortest path",
-                "parameters": [
-                    {
-                        "description": "Source and destination locations",
-                        "name": "location",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/data.PathLocation"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/data.Line"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/stations/closeBy": {
-            "post": {
-                "description": "Get all stations within a specified radius from given location",
+        "/stations": {
+            "get": {
+                "description": "Returns a detailed list of all available bus stations in the system. Each station entry includes\nits unique identifier, geographical coordinates (latitude and longitude), full name, description,\ncurrent status, and any associated metadata such as nearby landmarks or accessibility features.\nThis endpoint is useful for applications needing to display all available stations or create a station map.",
                 "consumes": [
                     "application/json"
                 ],
@@ -373,10 +673,36 @@ const docTemplate = `{
                 "tags": [
                     "stations"
                 ],
-                "summary": "Get stations nearby",
+                "summary": "Retrieve a comprehensive list of all bus stations",
+                "responses": {
+                    "200": {
+                        "description": "List of stations with their complete details",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/data.Stop"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/stations/nearby": {
+            "post": {
+                "description": "Searches for and returns a list of bus stations within a specified radius of given coordinates.\nThe search uses precise geolocation calculations to find stations, considering the actual\nwalking distance where possible. Results are sorted by proximity to the provided location.\nEach station in the response includes distance from the search point, walking time estimates,\nand complete station details including real-time availability and accessibility information.\nThis endpoint is crucial for mobile apps and location-based services.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stations"
+                ],
+                "summary": "Locate nearby bus stations based on geographical coordinates",
                 "parameters": [
                     {
-                        "description": "Location data",
+                        "description": "JSON object containing latitude, longitude, and search radius in meters",
                         "name": "location",
                         "in": "body",
                         "required": true,
@@ -387,88 +713,12 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Array of nearby stations sorted by distance, with complete details",
                         "schema": {
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/data.Stop"
                             }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/stations/list": {
-            "get": {
-                "description": "Get a list of all bus stations",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "stations"
-                ],
-                "summary": "Get list of stations",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/data.Stop"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/stations/location/{stationId}": {
-            "get": {
-                "description": "Get geolocation data of a specific station",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "stations"
-                ],
-                "summary": "Get station location",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Station ID",
-                        "name": "stationId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/data.Stop"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -476,7 +726,7 @@ const docTemplate = `{
         },
         "/stations/{stationId}": {
             "get": {
-                "description": "Get detailed station data including departure times and bus lines",
+                "description": "Fetches comprehensive information about a single bus station identified by its unique ID.\nThe response includes detailed station attributes such as exact location coordinates,\nfull station name, operational status, platform information, accessibility features,\navailable facilities, and real-time status updates if available.\nThis endpoint is essential for displaying detailed station information to users.",
                 "consumes": [
                     "application/json"
                 ],
@@ -486,11 +736,11 @@ const docTemplate = `{
                 "tags": [
                     "stations"
                 ],
-                "summary": "Get station metadata",
+                "summary": "Retrieve detailed information for a specific bus station",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Station ID",
+                        "description": "Unique identifier of the bus station",
                         "name": "stationId",
                         "in": "path",
                         "required": true
@@ -498,15 +748,41 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Complete station details including location and status",
+                        "schema": {
+                            "$ref": "#/definitions/data.Stop"
+                        }
+                    }
+                }
+            }
+        },
+        "/stations/{stationId}/metadata": {
+            "get": {
+                "description": "Retrieves advanced metadata and supplementary information for a specific station.\nThis includes detailed information such as historical occupancy patterns,\npeak hours, typical waiting times, available amenities (shelters, benches, lighting),\naccessibility features (wheelchair access, tactile paving), nearby points of interest,\nand any special notes about the station's operation or temporary changes.\nThis data is particularly useful for journey planning and accessibility requirements.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stations"
+                ],
+                "summary": "Fetch extended metadata for a specific station",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Unique identifier of the station to fetch metadata for",
+                        "name": "stationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comprehensive metadata including historical data and features",
                         "schema": {
                             "$ref": "#/definitions/data.StopMetadata"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -514,6 +790,148 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "data.APIDelay": {
+            "type": "object",
+            "properties": {
+                "delay_time": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "line_id": {
+                    "type": "integer"
+                },
+                "report_time": {
+                    "type": "string"
+                },
+                "station_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "data.APIDelayEntry": {
+            "type": "object",
+            "properties": {
+                "delay_time": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "line_id": {
+                    "type": "integer"
+                },
+                "report_time": {
+                    "type": "string"
+                }
+            }
+        },
+        "data.APILineAverageDelay": {
+            "type": "object",
+            "properties": {
+                "average_delay": {
+                    "type": "number"
+                },
+                "line_id": {
+                    "type": "integer"
+                },
+                "max_delay": {
+                    "type": "number"
+                },
+                "min_delay": {
+                    "type": "number"
+                },
+                "total_incidents": {
+                    "type": "integer"
+                }
+            }
+        },
+        "data.APILineDelayCount": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "delay_time": {
+                    "type": "number"
+                },
+                "line_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "data.APIMostRecentDelay": {
+            "type": "object",
+            "properties": {
+                "delay_time": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "line_id": {
+                    "type": "integer"
+                },
+                "report_time": {
+                    "type": "string"
+                }
+            }
+        },
+        "data.APIUserDelay": {
+            "type": "object",
+            "properties": {
+                "delay_time": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "line_id": {
+                    "type": "integer"
+                },
+                "report_time": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "data.AvgDailyOccupancy": {
+            "type": "object",
+            "properties": {
+                "avgDailyOccupancy": {
+                    "type": "number"
+                },
+                "date": {
+                    "type": "string"
+                }
+            }
+        },
+        "data.AvgOccupancyByHour": {
+            "type": "object",
+            "properties": {
+                "avgOccupancy": {
+                    "type": "number"
+                },
+                "hourOfDay": {
+                    "type": "integer"
+                }
+            }
+        },
         "data.DepartureGroup": {
             "type": "object",
             "properties": {
@@ -528,20 +946,6 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
-                }
-            }
-        },
-        "data.Line": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "line_code": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
                 }
             }
         },
@@ -570,20 +974,14 @@ const docTemplate = `{
                 }
             }
         },
-        "data.PathLocation": {
+        "data.OccupancyRecord": {
             "type": "object",
             "properties": {
-                "destination_latitude": {
-                    "type": "number"
+                "occupancyLevel": {
+                    "type": "integer"
                 },
-                "destination_longitude": {
-                    "type": "number"
-                },
-                "location_latitude": {
-                    "type": "number"
-                },
-                "location_longitude": {
-                    "type": "number"
+                "time": {
+                    "type": "string"
                 }
             }
         },
@@ -605,6 +1003,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
+                    "type": "integer"
+                },
+                "line_id": {
                     "type": "integer"
                 },
                 "name": {
@@ -666,26 +1067,18 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "utils.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string"
-                }
-            }
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "1.0",
 	Host:             "",
 	BasePath:         "/v1",
 	Schemes:          []string{},
-	Title:            "M-Busi API",
-	Description:      "API for our bus simulation app",
+	Title:            "M-Busi",
+	Description:      "Bus simulation app",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

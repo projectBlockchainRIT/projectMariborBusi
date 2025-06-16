@@ -4,26 +4,44 @@
 *.dll
 *.so
 *.dylib
-
-# Test binary, built with `go test -c`
 *.test
-
-# Code coverage profiles and other test artifacts
 *.out
-coverage.*
+
+# Output of `go build`
+/bin/
+/build/
+
+# Output of `go test`
 *.coverprofile
-profile.cov
+*.testresult
+*.testlog
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
+# Go workspace file (Go 1.18+)
+/go.work
+/go.work.sum
 
-# Go workspace file
-go.work
-go.work.sum
+# Dependency directories (often used by tools)
+/vendor/
 
-# env file
-.env
-
-# Editor/IDE
+# IDE/editor files
 .idea/
 .vscode/
+*.swp
+*.swo
+*.swn
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.*
+
+# Application-specific
+coverage.out
+dist/
+tmp/
