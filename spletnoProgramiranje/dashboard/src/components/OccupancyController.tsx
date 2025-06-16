@@ -101,7 +101,9 @@ export default function OccupancyController({ onRouteSelect, mapInstance }: Occu
   };
 
   const handleRouteClick = async (route: Route) => {
-    setSelectedRouteId(route.id);
+    // Use line_id instead of id
+    const routeId = route.line_id;
+    setSelectedRouteId(routeId);
     onRouteSelect(route);
     setLoadingOccupancy(true);
     let datesToFetch: string[] = [];
@@ -116,7 +118,8 @@ export default function OccupancyController({ onRouteSelect, mapInstance }: Occu
     for (const date of datesToFetch) {
       newData[date] = {};
       for (const hour of PRESET_HOURS) {
-        newData[date][hour] = await fetchOccupancyData(route.id, date, hour);
+        // Use line_id instead of id
+        newData[date][hour] = await fetchOccupancyData(routeId, date, hour);
       }
     }
     setOccupancyData(newData);
@@ -236,11 +239,12 @@ export default function OccupancyController({ onRouteSelect, mapInstance }: Occu
   // Always render the selected route on the map when both are available
   useEffect(() => {
     if (!mapInstance || !selectedRouteId) return;
-    const route = routes.find(r => r.id === selectedRouteId);
+    // Use line_id instead of id for finding routes
+    const route = routes.find(r => r.line_id === selectedRouteId);
     if (route) {
       drawRouteOnMap(mapInstance, route, { setStatus: (msg: string) => console.log(msg) });
     }
-  }, [mapInstance, selectedRouteId]);
+  }, [mapInstance, selectedRouteId, routes]);
 
   return (
     <div className={`h-full w-80 shadow-lg transition-colors duration-200 ${isDarkMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-700'}`}>
@@ -491,10 +495,11 @@ export default function OccupancyController({ onRouteSelect, mapInstance }: Occu
           ) : (
             <div className="space-y-2">
               {filteredRoutes.map((route) => {
-                const isSelected = selectedRouteId === route.id;
+                // Use line_id instead of id
+                const isSelected = selectedRouteId === route.line_id;
                 return (
                   <button
-                    key={route.id}
+                    key={`route-${route.line_id}`}
                     onClick={() => handleRouteClick(route)}
                     className={`w-full p-3 text-left rounded-lg transition-colors border flex items-center font-medium gap-2
                       ${isSelected
@@ -533,4 +538,4 @@ export default function OccupancyController({ onRouteSelect, mapInstance }: Occu
       </div>
     </div>
   );
-} 
+}
