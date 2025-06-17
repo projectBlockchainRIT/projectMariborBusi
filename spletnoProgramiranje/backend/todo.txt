@@ -80,3 +80,35 @@ za frontend:
 
 
 swag init -g ./api/main.go -d cmd,internal && swag fmt
+
+swag init -g ./main.go -d cmd/api,internal/data && swag fmt
+
+- intervali prihodnih časov
+
+
+- update user fetch function
+- po moznosti se dodej time v delays table
+- allow for time 
+
+
+- UNIT TESTING CI/CD (pogledni ovi guide do konca v glavnem)
+- za handlerje:
+    - optimalna pot
+    - simulacija (nejprej vzemi direction pa preveri za vse avtobuse datum pa trenutni cas, ce ki spadajo. te poisci nejblizjo postajo glede na trenuten cas, te pa od tam naprej interpolirej)
+    - naredi broadcast za web sockets. nejbojse je, ka asinhrono kalkuliras vse trenutne avtobuse pa samo posilas lokacije, ki jih uporabniki zelijo
+    - pri depploymenti naredi safety malo bol. pa se enviorment variables. pa ci/cd, ko se pushne na main. ce bo vredi na main, te se pushne na prod, s tam pa de se dol potegnilo na server z webhookom pa de se ova skripta zagnala
+    - ko je user logged in, se more vrniti celi user objekt vkljucno z id-jom
+
+    - landing page more biti bol avtobus-like
+    - settings menu implementacija
+    - search function za maribor lokacije na zemljevidi, ka de uporabnik lehko poiska kam ce iti
+    - porihtati se more tisti line_id pa to
+
+    
+    - jiro nafilati s pravimi descriptioni pa tickte nazej se delati zej na konci. en zadnji sprint
+    - narediti github wiki dokumentaicjo. to se fejst hitro naredi za celi projekt. 
+    - predstavitev za projekt. maybe dejansko malo povaditi totokrat
+
+- na konci porihtej dokumentacijo da bo tak, kak se spodobi
+- dodej pravi logger
+- ce bo cas, naredi redis chachings
