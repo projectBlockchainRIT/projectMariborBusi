@@ -13,11 +13,13 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/gorilla/websocket"
 	httpSwagger "github.com/swaggo/http-swagger"
+	"go.uber.org/zap"
 )
 
 type app struct {
 	serverConfig config
 	store        data.Storage
+	logger       *zap.SugaredLogger
 }
 
 type config struct {
@@ -133,7 +135,7 @@ func (app *app) run(mux http.Handler) error {
 		IdleTimeout:  time.Minute,
 	}
 
-	fmt.Printf("Listening on port: %s\n", app.serverConfig.address)
+	app.logger.Infow("Listening on port: %s\n", app.serverConfig.address)
 
 	return server.ListenAndServe()
 }

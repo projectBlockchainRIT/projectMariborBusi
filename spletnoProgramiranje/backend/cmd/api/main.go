@@ -5,7 +5,8 @@ import (
 	"backend/internal/db"
 	"backend/internal/env"
 	"fmt"
-	"log"
+
+	"go.uber.org/zap"
 )
 
 const version = "0.0.1"
@@ -35,15 +36,19 @@ func main() {
 
 	fmt.Print(cfg.addr)
 
+	// logger
+	logger := zap.Must(zap.NewProduction()).Sugar()
+	defer logger.Sync()
+
 	db, err := db.New(cfg.addr, cfg.maxOpenConnections, cfg.maxIdleConnections, cfg.maxIdleTime)
 
 	if err != nil {
-		log.Panic(err)
+		logger.Fatal(err)
 	}
 
 	defer db.Close()
-	log.Printf("established database connection")
-	log.Print("Testiram za webhook 3")
+	logger.Info("established database connection")
+	logger.Info("Testiram za webhook 3")
 
 	store := data.NewStorage(db)
 
@@ -54,11 +59,12 @@ func main() {
 			env:     env.GetString("ENV", "development"),
 			apiURL:  env.GetString("EXTERNAL_URL", "localhost:3000"),
 		},
-		store: store,
+		store:  store,
+		logger: logger,
 	}
 
 	mux := app.mount()
 
-	log.Fatal(app.run(mux))
+	logger.Fatal(app.run(mux))
 
 }
