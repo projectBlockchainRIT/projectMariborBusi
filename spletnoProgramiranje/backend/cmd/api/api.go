@@ -135,7 +135,9 @@ func (app *app) run(mux http.Handler) error {
 		IdleTimeout:  time.Minute,
 	}
 
-	app.logger.Infow("Listening on port: %s\n", app.serverConfig.address)
+	app.logger.Infow("Server started",
+		"address", app.serverConfig.address,
+	)
 
 	return server.ListenAndServe()
 }

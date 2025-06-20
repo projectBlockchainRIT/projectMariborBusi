@@ -175,8 +175,8 @@ func (s *RoutesStorage) ReadActiveLines(ctx context.Context) (int, error) {
 		TripSegments
 	WHERE
 		segment_start_time IS NOT NULL
-		AND (NOW()::time + INTERVAL '10 hour') >= segment_start_time
-		AND (NOW()::time + INTERVAL '10 hour') <= segment_end_time;
+		AND (NOW()::time) >= segment_start_time
+		AND (NOW()::time) <= segment_end_time;
 	`
 
 	var activeTrips int
@@ -219,13 +219,13 @@ func (s *RoutesStorage) FetchActiveRuns(ctx context.Context, lineID int) ([]Acti
 			AND a.departure_time[1] <= $3::time
 			AND a.departure_time[array_length(a.departure_time,1)] >= $3::time
 		ORDER BY
-			d.direction_id,                -- group by the right column
-			a.departure_time[1] ASC        -- earliest first in each group
+			d.direction_id,                
+			a.departure_time[1] ASC        
 		)
 		SELECT DISTINCT ON (direction_id) *
 		FROM candidates
 		ORDER BY
-		direction_id,                    -- DISTINCT ON key
+		direction_id,                    
 		start_time_str DESC;   
 		`
 
