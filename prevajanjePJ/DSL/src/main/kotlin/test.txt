@@ -1,0 +1,18 @@
+city "BusMesto" {
+  bus_stop "Center" {
+    location((5,5));
+  }
+
+  bus_stop "Postaja2" (
+    linije: ["Linija1", "Linija2"],
+    klopca: true,
+    nadstresek: false
+  ) {
+    location((10,10));
+  }
+
+  bus_line "Linija1" {
+    line((0,0), (5,5));
+    bend((5,5), (10,10), 45);
+  }
+}

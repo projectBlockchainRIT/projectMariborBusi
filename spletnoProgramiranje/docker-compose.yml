@@ -1,0 +1,52 @@
+volumes:
+  database-v:
+    name: "database-v"
+services:
+  database:
+    image: database:1.0.0
+    container_name: postgres-db
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_DB: m-busi
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+     - database-v:/var/lib/postgresql/datatest123412
+    ports:
+      - "5432:5432"
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d m-busi"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend: 
+    build:
+      context: ./backend 
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" 
+    environment:
+      DB_ADDR: "postgresql://user:password@database:5432/m-busi?sslmode=disable"
+      ADDR: ":8080"
+    depends_on:
+      database:
+        condition: service_healthy 
+    restart: on-failure 
+
+  frontend:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_BACKEND_URL: "http://backend:8080" 
+    depends_on:
+      backend:
+        condition: service_started
+    restart: on-failure
+
