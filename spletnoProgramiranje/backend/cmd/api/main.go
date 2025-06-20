@@ -48,7 +48,7 @@ func main() {
 
 	defer db.Close()
 	// logger.Info("established database connection")
-	// logger.Info("Testiram za webhook 3")
+	logger.Info("CI/CD demonstracija")
 
 	store := data.NewStorage(db)
 
