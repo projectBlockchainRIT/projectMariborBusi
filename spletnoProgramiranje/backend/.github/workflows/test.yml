@@ -1,0 +1,138 @@
+name: Go Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.24.3'
+        cache: true
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Run linter
+      run: make lint
+
+    - name: Run vet
+      run: make vet
+
+    - name: Run tests
+      run: make test-all
+      env:
+        DB_ADDR: postgresql://postgres:postgres@localhost:5432/testdb?sslmode=disable
+        JWT_SECRET: test-secret-key
+        JWT_EXP: 3600
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.out
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
+
+    - name: Build application
+      run: make build
+      env:
+        DB_ADDR: postgresql://postgres:postgres@localhost:5432/testdb?sslmode=disable
+        JWT_SECRET: test-secret-key
+        JWT_EXP: 3600
+
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.24.3'
+        cache: true
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Run integration tests
+      run: |
+        # Start the application in background
+        go run ./cmd/api &
+        APP_PID=$!
+        
+        # Wait for app to start
+        sleep 5
+        
+        # Run integration tests
+        go test -v -tags=integration ./...
+        
+        # Kill the application
+        kill $APP_PID
+      env:
+        DB_ADDR: postgresql://postgres:postgres@localhost:5432/testdb?sslmode=disable
+        JWT_SECRET: test-secret-key
+        JWT_EXP: 3600
+        ADDR: :8080
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run security scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif' 

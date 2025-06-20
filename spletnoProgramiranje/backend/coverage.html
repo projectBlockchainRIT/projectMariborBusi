@@ -1,0 +1,1711 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>api: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">backend/cmd/api/api.go (0.0%)</option>
+				
+				<option value="file1">backend/cmd/api/auth.go (88.0%)</option>
+				
+				<option value="file2">backend/cmd/api/delays.go (28.3%)</option>
+				
+				<option value="file3">backend/cmd/api/health.go (66.7%)</option>
+				
+				<option value="file4">backend/cmd/api/main.go (0.0%)</option>
+				
+				<option value="file5">backend/cmd/api/occupancy.go (32.8%)</option>
+				
+				<option value="file6">backend/cmd/api/path.go (57.9%)</option>
+				
+				<option value="file7">backend/cmd/api/routes.go (17.6%)</option>
+				
+				<option value="file8">backend/cmd/api/stations.go (52.9%)</option>
+				
+				<option value="file9">backend/cmd/api/users.go (30.1%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "backend/internal/data"
+        "fmt"
+        "net/http"
+        "time"
+
+        "backend/docs"
+
+        "github.com/go-chi/chi/v5"
+        "github.com/go-chi/chi/v5/middleware"
+        "github.com/go-chi/cors"
+        "github.com/gorilla/websocket"
+        httpSwagger "github.com/swaggo/http-swagger"
+        "go.uber.org/zap"
+)
+
+type app struct {
+        serverConfig config
+        store        data.Storage
+        logger       *zap.SugaredLogger
+}
+
+type config struct {
+        address string
+        db      dbConfig
+        env     string
+        apiURL  string
+}
+
+type dbConfig struct {
+        addr               string
+        maxOpenConnections int
+        maxIdleConnections int
+        maxIdleTime        string
+}
+
+var wsUpgrader = websocket.Upgrader{
+        ReadBufferSize:  1024,
+        WriteBufferSize: 1024,
+        CheckOrigin: func(r *http.Request) bool <span class="cov0" title="0">{
+                return true
+        }</span>,
+}
+
+func (app *app) mount() http.Handler <span class="cov0" title="0">{
+        r := chi.NewRouter()
+
+        r.Use(cors.Handler(cors.Options{
+                AllowedOrigins:   []string{"http://localhost:5173"},
+                AllowedHeaders:   []string{"Accept", "Content-Type"},
+                AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+                ExposedHeaders:   []string{"Link"},
+                AllowCredentials: true,
+                MaxAge:           300,
+        }))
+
+        r.Use(middleware.Logger)
+        r.Use(middleware.RequestID)
+        r.Use(middleware.RealIP)
+        r.Use(middleware.Recoverer)
+        r.Use(middleware.Timeout(60 * time.Second))
+
+        r.Group(func(ws chi.Router) </span><span class="cov0" title="0">{
+                ws.Get("/v1/estimate/simulate/{lineId}", app.serveRealtimeLine) // simulates an estimate of current bus locations through the city
+        }</span>)
+
+        // version 1.0 group of the api routes
+        // easy addition of new handlers and routes in the future without breaking the current funcionality
+        <span class="cov0" title="0">r.Route("/v1", func(r chi.Router) </span><span class="cov0" title="0">{
+                r.Get("/health", app.WithJWTAuth(app.healthCheckHandler))
+
+                docsURL := fmt.Sprintf("%s/swagger/doc.json", app.serverConfig.address)
+                r.Get("/swagger/*", httpSwagger.Handler(
+                        httpSwagger.URL(docsURL),
+                ))
+
+                r.Route("/stations", func(r chi.Router) </span><span class="cov0" title="0">{
+                        r.Get("/list", app.stationsListHandler)               // fetch a list of basic station data for displaying a list
+                        r.Get("/location/{stationId}", app.getStationHandler) // fetch geolocation data of a station
+                        r.Get("/{stationId}", app.getStationMetadataHandler)  // fetch detailed station data, like the geolocation, depatrute times and associated bus lines
+                        r.Post("/closeBy", app.getStationsCloseBy)            // fetch all of the stations in a specified radius from the given location
+                }</span>)
+
+                <span class="cov0" title="0">r.Route("/routes", func(r chi.Router) </span><span class="cov0" title="0">{
+                        r.Get("/{lineId}", app.getRouteOfLineHandler)              // fetch the route of a specifc line based on the id
+                        r.Get("/stations/{lineId}", app.getStationsOnRouteHandler) // fetch all stops that appear on this route
+                        r.Get("/list", app.routesListHandler)                      // fetch all routes to display entire bus coverage on the map
+                        r.Get("/active", app.getActiveRoutes)                      // fetch all of the currently active routes
+                }</span>)
+
+                <span class="cov0" title="0">r.Route("/authentication", func(r chi.Router) </span><span class="cov0" title="0">{
+                        r.Post("/register", app.usersResgisterUser)               // creating a new user
+                        r.Post("/login", app.usersLoginUser)                      // logging in an existing user
+                        r.Put("/update", app.WithJWTAuth(app.usersUpdateProfile)) // update the user profile
+                        r.Get("/users/{id}", app.getUserByID)
+                }</span>)
+
+                <span class="cov0" title="0">r.Route("/delays", func(r chi.Router) </span><span class="cov0" title="0">{
+                        r.Get("/station/{stationId}", app.getDelaysForStation)     // fetch all delays for specific station
+                        r.Get("/recent/line/{lineId}", app.getRecentDelaysForLine) // fetch recent delays for specific line
+                        r.Get("/user/{userId}", app.getDelaysFromUser)             // fetch delays submitted by a user
+                        r.Get("/recent", app.getRecentOverallDelays)               // fetch the overall most recent delays
+                        r.Get("/lines/number", app.getNumDelaysForLine)            // fetch the number of delays for each line
+                        r.Get("/average/{lineId}", app.getAvgDelayForLine)         // fetch the average delay time for a specific line
+                        r.Get("/average", app.getAvgDelay)                         // fetch the average delay time overall
+                        r.Post("/report", app.submitDelayReport)
+                }</span>)
+
+                <span class="cov0" title="0">r.Route("/occupancy", func(r chi.Router) </span><span class="cov0" title="0">{
+                        r.Get("/line/{lineId}/date/{date}", app.getLineOccupancyThroughDay)          // fetch the occupancy of a line throughout a day
+                        r.Get("/line/{lineId}/date/{date}/hour/{hour}", app.getLineOccupancyForHour) // fetch the occupancy of a line on a specific date for a specific hour
+                        r.Get("/average/{hour}", app.getAvgLineOccupancyForHour)                     // fetch the occupancy of a line on a specific date for a specific hour
+                        r.Get("/average/{date}", app.getAvgLineOccupancyForDate)                     // fetch the occupancy of a line on a specific date for a specific hour
+                }</span>)
+
+                <span class="cov0" title="0">r.Route("/show", func(r chi.Router) </span><span class="cov0" title="0">{
+                        r.Post("/shortest", app.getShortestPath) // finds the most optimal path to he desired location
+                }</span>)
+        })
+
+        <span class="cov0" title="0">return r</span>
+}
+
+func (app *app) run(mux http.Handler) error <span class="cov0" title="0">{
+
+        docs.SwaggerInfo.Host = app.serverConfig.apiURL
+
+        server := &amp;http.Server{
+                Addr:         app.serverConfig.address,
+                Handler:      mux,
+                WriteTimeout: time.Second * 300,
+                ReadTimeout:  time.Second * 300,
+                IdleTimeout:  time.Minute,
+        }
+
+        app.logger.Infow("Server started",
+                "address", app.serverConfig.address,
+        )
+
+        return server.ListenAndServe()
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package main
+
+import (
+        "backend/cmd/utils"
+        "backend/internal/env"
+        "context"
+        "fmt"
+        "log"
+        "net/http"
+        "strconv"
+        "strings"
+        "time"
+
+        "github.com/golang-jwt/jwt/v5"
+        "golang.org/x/crypto/bcrypt"
+)
+
+type contextKey string
+
+const UserKey contextKey = "userID"
+
+func HashPassword(password string) (string, error) <span class="cov8" title="1">{
+        hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+
+        <span class="cov8" title="1">return string(hash), nil</span>
+}
+
+func ComparePasswords(hashedPassword string, password []byte) bool <span class="cov8" title="1">{
+        err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), password)
+
+        return err == nil
+}</span>
+
+func CreateJWT(secret []byte, userID int) (string, error) <span class="cov8" title="1">{
+        expiration := time.Second * time.Duration(env.GetInt("JWT_EXP", 3600*24*7))
+
+        token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+                "userID":    strconv.Itoa(userID),
+                "expiredAt": time.Now().Add(expiration).Unix(),
+        })
+
+        tokenString, err := token.SignedString(secret)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+
+        <span class="cov8" title="1">return tokenString, nil</span>
+
+}
+
+func (app *app) WithJWTAuth(handlerFuncion http.HandlerFunc) http.HandlerFunc <span class="cov8" title="1">{
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                // get the token from the user request
+                tokenString := getTokenFromRequest(r)
+
+                // validate the jwt
+                token, err := validateToken(tokenString)
+                if err != nil </span><span class="cov8" title="1">{
+                        log.Printf("failed to validate token: %v", err)
+                        utils.WriteJSONError(w, http.StatusForbidden, "permision denied")
+                        return
+                }</span>
+                // if yes, fetch the user id from the db
+
+                <span class="cov8" title="1">if !token.Valid </span><span class="cov0" title="0">{
+                        log.Println("invalid token")
+                        utils.WriteJSONError(w, http.StatusForbidden, "permision denied")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">claims := token.Claims.(jwt.MapClaims)
+                str := claims["userID"].(string)
+
+                userID, _ := strconv.Atoi(str)
+
+                ctx := r.Context()
+
+                temp, err := app.store.User.GetById(ctx, userID)
+                if err != nil </span><span class="cov8" title="1">{
+                        log.Printf("failed to get user by id: %v", err)
+                        utils.WriteJSONError(w, http.StatusForbidden, "permision denied")
+                        return
+                }</span>
+
+                <span class="cov8" title="1">ctx = context.WithValue(ctx, UserKey, temp.ID)
+                r = r.WithContext(ctx)
+
+                handlerFuncion(w, r)</span>
+                // set context "userID" to userID
+        }
+}
+
+func getTokenFromRequest(r *http.Request) string <span class="cov8" title="1">{
+        authHeader := r.Header.Get("Authorization")
+        if authHeader == "" </span><span class="cov8" title="1">{
+                return ""
+        }</span>
+
+        <span class="cov8" title="1">parts := strings.SplitN(authHeader, " ", 2)
+        if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" </span><span class="cov8" title="1">{
+                return ""
+        }</span>
+
+        <span class="cov8" title="1">return parts[1]</span>
+}
+
+func validateToken(tokenString string) (*jwt.Token, error) <span class="cov8" title="1">{
+        return jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) </span><span class="cov8" title="1">{
+                if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok </span><span class="cov0" title="0">{
+                        return nil, fmt.Errorf("unexptected signing method: %v", t.Header["alg"])
+                }</span>
+
+                <span class="cov8" title="1">return []byte(env.GetString("JWT_SECRET", "notSoSecret-anymore")), nil</span>
+        })
+}
+
+func GetUserIDFromContext(ctx context.Context) int <span class="cov8" title="1">{
+        userID, ok := ctx.Value(UserKey).(int)
+        if !ok </span><span class="cov8" title="1">{
+                return -1
+        }</span>
+
+        <span class="cov8" title="1">return userID</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package main
+
+import (
+        "backend/cmd/utils"
+        "backend/internal/data"
+        "encoding/json"
+        "net/http"
+        "strconv"
+
+        "github.com/go-chi/chi/v5"
+)
+
+// @Summary                Get all delays for a specific station
+// @Description        Retrieves a comprehensive list of all recorded delays at a particular bus station.
+// @Description        The response includes detailed information about each delay incident, including
+// @Description        timestamp, duration, cause (if available), affected bus lines, and impact level.
+// @Description        This data helps analyze station-specific performance and identify problematic locations.
+// @Tags                        delays
+// @Accept                        json
+// @Produce                json
+// @Param                        stationId        path        int                                true        "Unique identifier of the bus station"
+// @Success                200                        {array}        data.APIDelay        "List of delays with detailed information"
+// @Router                        /delays/station/{stationId} [get]
+func (app *app) getDelaysForStation(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        idParam := chi.URLParam(r, "stationId")
+
+        stationId, err := strconv.ParseInt(idParam, 10, 64)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">ctx := r.Context()
+
+        stop, err := app.store.Delays.GetDelaysByStop(ctx, stationId)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusOK, stop); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+}
+
+// @Summary                Get recent delays for a specific bus line
+// @Description        Returns the most recent delay incidents for a particular bus line.
+// @Description        The data includes detailed timing information, delay durations, locations,
+// @Description        passenger impact, and any available resolution information.
+// @Description        This endpoint is useful for monitoring current service status and recent performance.
+// @Tags                        delays
+// @Accept                        json
+// @Produce                json
+// @Param                        lineId        path        int                                        true        "Unique identifier of the bus line"
+// @Success                200                {array}        data.APIDelayEntry        "Recent delays with comprehensive details"
+// @Router                        /delays/recent/line/{lineId} [get]
+func (app *app) getRecentDelaysForLine(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        idParam := chi.URLParam(r, "lineId")
+
+        lineId, err := strconv.ParseInt(idParam, 10, 64)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">ctx := r.Context()
+
+        stop, err := app.store.Delays.GetRecentDelaysByLine(ctx, lineId)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusOK, stop); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+}
+
+// @Summary                Get all delays reported by a specific user
+// @Description        Retrieves all delay reports submitted by a particular user.
+// @Description        The response includes full details of each reported delay, including
+// @Description        timestamp, location, affected services, and any additional notes provided.
+// @Description        This endpoint helps track user contributions and verify reporting patterns.
+// @Tags                        delays
+// @Accept                        json
+// @Produce                json
+// @Param                        userId        path        int                                        true        "Unique identifier of the user"
+// @Success                200                {array}        data.APIUserDelay        "List of user-reported delays with details"
+// @Router                        /delays/user/{userId} [get]
+func (app *app) getDelaysFromUser(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        idParam := chi.URLParam(r, "userId")
+
+        userId, err := strconv.ParseInt(idParam, 10, 64)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov0" title="0">ctx := r.Context()
+
+        stop, err := app.store.Delays.GetDelaysByUser(ctx, userId)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov0" title="0">if err := utils.WriteJSONResponse(w, http.StatusOK, stop); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+}
+
+// @Summary                Get most recent delays across the entire system
+// @Description        Provides a list of the most recent delay incidents across all bus lines and stations.
+// @Description        The response includes comprehensive details about each delay, including location,
+// @Description        duration, affected services, passenger impact, and current status.
+// @Description        This endpoint is crucial for real-time system monitoring and service updates.
+// @Tags                        delays
+// @Accept                        json
+// @Produce                json
+// @Success                200        {array}        data.APIMostRecentDelay        "List of recent system-wide delays with full details"
+// @Router                        /delays/recent [get]
+func (app *app) getRecentOverallDelays(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        ctx := r.Context()
+
+        stop, err := app.store.Delays.GetMostRecentDelays(ctx)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusOK, stop); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+}
+
+// @Summary                Get delay frequency statistics by bus line
+// @Description        Returns statistical data about delay frequencies for each bus line.
+// @Description        The response includes the total number of delays per line, frequency patterns,
+// @Description        common delay causes, and trend analysis where available.
+// @Description        This data is valuable for identifying problematic routes and planning improvements.
+// @Tags                        delays
+// @Accept                        json
+// @Produce                json
+// @Success                200        {array}        data.APILineDelayCount        "Delay frequency statistics by line"
+// @Router                        /delays/lines/number [get]
+func (app *app) getNumDelaysForLine(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        ctx := r.Context()
+
+        stop, err := app.store.Delays.GetDelayCountsByLine(ctx)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov0" title="0">if err := utils.WriteJSONResponse(w, http.StatusOK, stop); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+}
+
+// @Summary                Get average delay duration for a specific line
+// @Description        Calculates and returns the average delay duration for a particular bus line.
+// @Description        The response includes mean delay time, standard deviation, peak delay periods,
+// @Description        and historical trends. This information helps understand service reliability
+// @Description        and identify patterns in service disruptions for specific routes.
+// @Tags                        delays
+// @Accept                        json
+// @Produce                json
+// @Param                        lineId        path                int                                                        true        "Unique identifier of the bus line"
+// @Success                200                {object}        data.APILineAverageDelay        "Detailed delay statistics for the specified line"
+// @Router                        /delays/average/{lineId} [get]
+func (app *app) getAvgDelayForLine(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        idParam := chi.URLParam(r, "lineId")
+
+        lineId, err := strconv.ParseInt(idParam, 10, 64)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+        <span class="cov0" title="0">ctx := r.Context()
+
+        stop, err := app.store.Delays.GetAverageDelayForLine(ctx, lineId)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov0" title="0">if err := utils.WriteJSONResponse(w, http.StatusOK, stop); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+}
+
+// @Summary                Get system-wide average delay statistics
+// @Description        Provides comprehensive statistics about average delays across the entire bus network.
+// @Description        The response includes system-wide mean delay time, variation by time of day,
+// @Description        seasonal patterns, and comparative analysis across different service areas.
+// @Description        This data is essential for overall system performance assessment and planning.
+// @Tags                        delays
+// @Accept                        json
+// @Produce                json
+// @Success                200        {object}        float64        "System-wide average delay in minutes"
+// @Router                        /delays/average [get]
+func (app *app) getAvgDelay(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        ctx := r.Context()
+
+        stop, err := app.store.Delays.GetOverallAverageDelay(ctx)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov0" title="0">if err := utils.WriteJSONResponse(w, http.StatusOK, stop); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+}
+
+// @Summary Submit a new delay report
+// @Description Users can submit a new delay incident report for a specific bus stop and line.
+// @Tags delays
+// @Accept json
+// @Produce json
+// @Param delay body DelayReportInput true "Delay report payload"
+// @Success 201 {string} string "Delay report submitted successfully"
+// @Failure 400 {string} string "Invalid input"
+// @Failure 500 {string} string "Internal server error"
+// @Router /delays [post]
+func (app *app) submitDelayReport(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        var input data.DelayReportInput
+        if err := json.NewDecoder(r.Body).Decode(&amp;input); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusBadRequest, "Invalid JSON body: "+err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">ctx := r.Context()
+        user, err := app.store.User.GetByEmail(ctx, input.UserEmail)
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusBadRequest, "User lookup failed: "+err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">dbInput := data.DelayReportInputUnMarshaled{
+                Date:     input.Date,
+                DelayMin: input.DelayMin,
+                StopID:   input.StopID,
+                LineID:   input.LineID,
+                UserId:   user.ID,
+        }
+
+        // Step 4: Insert into DB
+        if err := app.store.Delays.InsertDelay(ctx, dbInput); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, "Failed to save delay: "+err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusCreated, nil); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package main
+
+import (
+        "backend/cmd/utils"
+        "net/http"
+)
+
+// @Summary                Check API health status
+// @Description        Returns the current health status of the API service, including environment information
+// @Description        and version details. This endpoint is useful for monitoring service availability,
+// @Description        performing health checks, and verifying deployment configurations.
+// @Description        The response includes the service status, environment name, and version number.
+// @Tags                        system
+// @Accept                        json
+// @Produce                json
+// @Success                200        {object}        map[string]string        "Health status information including environment and version"
+// @Router                        /health [get]
+// @Security                ApiKeyAuth
+func (app *app) healthCheckHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        data := map[string]string{
+                "status":  "ok",
+                "env":     app.serverConfig.env,
+                "version": version,
+        }
+
+        if err := utils.WriteJSONResponse(w, http.StatusOK, data); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package main
+
+import (
+        "backend/internal/data"
+        "backend/internal/db"
+        "backend/internal/env"
+        "fmt"
+
+        "go.uber.org/zap"
+)
+
+const version = "0.0.1"
+
+//        @title                        M-Busi
+//        @version                1.0
+//        @description        Bus simulation app
+//        @termsOfService        http://swagger.io/terms/
+
+//        @contact.name        API Support
+//        @contact.url        http://www.swagger.io/support
+//        @contact.email        support@swagger.io
+
+//        @license.name        Apache 2.0
+//        @license.url        http://www.apache.org/licenses/LICENSE-2.0.html
+
+//        @BasePath        /v1
+
+func main() <span class="cov0" title="0">{
+
+        cfg := dbConfig{
+                addr:               env.GetString("DB_ADDRaa", "postgresql://user:password@localhost:5432/m-busi?sslmode=disable"),
+                maxOpenConnections: env.GetInt("DB_MAX_OPEN_CONNS", 30),
+                maxIdleConnections: env.GetInt("DB_MAX_IDLE_CONNS", 30),
+                maxIdleTime:        env.GetString("DB_MAX_IDLE_TIME", "15m"),
+        }
+
+        fmt.Print(cfg.addr)
+
+        // logger
+        logger := zap.Must(zap.NewProduction()).Sugar()
+        defer logger.Sync()
+
+        db, err := db.New(cfg.addr, cfg.maxOpenConnections, cfg.maxIdleConnections, cfg.maxIdleTime)
+
+        if err != nil </span><span class="cov0" title="0">{
+                logger.Fatal(err)
+        }</span>
+
+        <span class="cov0" title="0">defer db.Close()
+        // logger.Info("established database connection")
+        // logger.Info("Testiram za webhook 3")
+
+        store := data.NewStorage(db)
+
+        app := &amp;app{
+                serverConfig: config{
+                        address: env.GetString("ADDR", ":8080"),
+                        db:      cfg,
+                        env:     env.GetString("ENV", "development"),
+                        apiURL:  env.GetString("EXTERNAL_URL", "localhost:3000"),
+                },
+                store:  store,
+                logger: logger,
+        }
+
+        mux := app.mount()
+
+        logger.Fatal(app.run(mux))</span>
+
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package main
+
+import (
+        "backend/cmd/utils"
+        "net/http"
+        "strconv"
+        "time"
+
+        "github.com/go-chi/chi/v5"
+)
+
+const dateLayout = "2006-01-02"
+
+// @Summary                Get detailed bus line occupancy throughout a specific day
+// @Description        Retrieves comprehensive occupancy data for a specific bus line throughout an entire day.
+// @Description        The data includes hourly breakdowns of passenger counts, occupancy percentages,
+// @Description        peak and off-peak patterns, and historical comparisons where available.
+// @Description        This endpoint is particularly useful for analyzing daily ridership patterns,
+// @Description        planning capacity adjustments, and helping users choose less crowded travel times.
+// @Description        The response includes timestamps, occupancy levels, and trend indicators.
+// @Tags                        occupancy
+// @Accept                        json
+// @Produce                json
+// @Param                        lineId        path        int                                                true        "Unique identifier of the bus line"
+// @Param                        date        path        string                                        true        "Target date in YYYY-MM-DD format"
+// @Success                200                {array}        data.OccupancyRecord        "Detailed hourly occupancy data for the specified day"
+// @Router                        /occupancy/line/{lineId}/date/{date} [get]
+func (app *app) getLineOccupancyThroughDay(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        idParam := chi.URLParam(r, "lineId")
+        dateParam := chi.URLParam(r, "date") // format: YYYY-MM-DD
+
+        lineID, err := strconv.Atoi(idParam)
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusBadRequest, "invalid line ID")
+                return
+        }</span>
+
+        <span class="cov8" title="1">if _, err := time.Parse(dateLayout, dateParam); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusBadRequest, "invalid date format (expected YYYY-MM-DD)")
+                return
+        }</span>
+
+        <span class="cov8" title="1">ctx := r.Context()
+        records, err := app.store.Occupancy.GetOccupancyForLineByDate(ctx, lineID, dateParam)
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusOK, records); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+}
+
+// @Summary                Get detailed bus line occupancy for a specific hour
+// @Description        Provides granular occupancy data for a specific bus line during a particular hour of a day.
+// @Description        The response includes detailed metrics such as current passenger count, capacity percentage,
+// @Description        historical comparison for the same hour, typical occupancy patterns, and real-time updates if available.
+// @Description        This endpoint is essential for real-time crowd management and helping users plan their immediate travel.
+// @Description        The data can be used to make informed decisions about immediate travel plans and avoid overcrowded buses.
+// @Tags                        occupancy
+// @Accept                        json
+// @Produce                json
+// @Param                        lineId        path        int                                                true        "Unique identifier of the bus line"
+// @Param                        date        path        string                                        true        "Target date in YYYY-MM-DD format"
+// @Param                        hour        path        int                                                true        "Hour of the day (0-23)"
+// @Success                200                {array}        data.OccupancyRecord        "Detailed occupancy data for the specified hour"
+// @Router                        /occupancy/line/{lineId}/date/{date}/hour/{hour} [get]
+func (app *app) getLineOccupancyForHour(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        idParam := chi.URLParam(r, "lineId")
+        dateParam := chi.URLParam(r, "date")
+        hourParam := chi.URLParam(r, "hour")
+
+        lineID, err := strconv.Atoi(idParam)
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusBadRequest, "invalid line ID")
+                return
+        }</span>
+
+        <span class="cov8" title="1">if _, err := time.Parse(dateLayout, dateParam); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusBadRequest, "invalid date format (expected YYYY-MM-DD)")
+                return
+        }</span>
+
+        <span class="cov8" title="1">hour, err := strconv.Atoi(hourParam)
+        if err != nil || hour &lt; 0 || hour &gt; 23 </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusBadRequest, "invalid hour (expected 0–23)")
+                return
+        }</span>
+
+        <span class="cov8" title="1">ctx := r.Context()
+        records, err := app.store.Occupancy.GetOccupancyForLineByDateAndHour(ctx, lineID, dateParam, hour)
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusOK, records); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+}
+
+// @Summary                Get average occupancy across all lines for a specific hour
+// @Description        Calculates and returns comprehensive average occupancy statistics across all bus lines for a specific hour.
+// @Description        This aggregated data includes system-wide occupancy patterns, comparative analysis between different lines,
+// @Description        identification of busiest routes, and historical trends for the specified hour.
+// @Description        The endpoint is valuable for system-wide capacity planning, identifying peak travel patterns,
+// @Description        and helping users understand general system busyness during specific hours.
+// @Description        Results can be used for optimizing service frequency and capacity allocation.
+// @Tags                        occupancy
+// @Accept                        json
+// @Produce                json
+// @Param                        hour        path                int                                                true        "Hour of the day (0-23)"
+// @Success                200                {object}        data.AvgOccupancyByHour        "System-wide average occupancy statistics with detailed breakdowns"
+// @Router                        /occupancy/average/{hour} [get]
+func (app *app) getAvgLineOccupancyForHour(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        hourParam := chi.URLParam(r, "hour")
+
+        hour, err := strconv.Atoi(hourParam)
+        if err != nil || hour &lt; 0 || hour &gt; 23 </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusBadRequest, "invalid hour")
+                return
+        }</span>
+
+        <span class="cov0" title="0">ctx := r.Context()
+        avg, err := app.store.Occupancy.GetAvgOccupancyAllLinesByHour(ctx, hour)
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov0" title="0">if err := utils.WriteJSONResponse(w, http.StatusOK, avg); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+}
+
+// @Summary                Get average daily occupancy across all lines for a specific date
+// @Description        Provides detailed daily occupancy analytics across the entire bus network for a specific date.
+// @Description        The response includes comprehensive metrics such as daily passenger totals, peak hours identification,
+// @Description        line-by-line comparisons, unusual patterns detection, and historical trend analysis.
+// @Description        This data is crucial for daily operations management, service optimization,
+// @Description        and understanding system-wide usage patterns on specific dates (e.g., events, holidays).
+// @Description        The information helps in both operational planning and user travel planning.
+// @Tags                        occupancy
+// @Accept                        json
+// @Produce                json
+// @Param                        date        path                string                                        true        "Target date in YYYY-MM-DD format"
+// @Success                200                {object}        data.AvgDailyOccupancy        "Comprehensive daily occupancy statistics with detailed analysis"
+// @Router                        /occupancy/average/{date} [get]
+func (app *app) getAvgLineOccupancyForDate(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        dateParam := chi.URLParam(r, "date")
+
+        if _, err := time.Parse(dateLayout, dateParam); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusBadRequest, "invalid date format (expected YYYY-MM-DD)")
+                return
+        }</span>
+
+        <span class="cov0" title="0">ctx := r.Context()
+        avg, err := app.store.Occupancy.GetAvgDailyOccupancyAllLines(ctx, dateParam)
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov0" title="0">if err := utils.WriteJSONResponse(w, http.StatusOK, avg); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package main
+
+import (
+        "backend/cmd/utils"
+        "backend/internal/data"
+        "encoding/json"
+        "net/http"
+)
+
+func (app *app) getShortestPath(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        if r.Body == nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, "No user data in request body")
+                return
+        }</span>
+
+        <span class="cov8" title="1">var payload data.PathLocation
+        err := json.NewDecoder(r.Body).Decode(&amp;payload)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">ctx := r.Context()
+
+        stopsAtDestination, err := app.store.Stations.ReadThreeStationsAtDestination(ctx, &amp;payload)
+
+        linesAtDestination, err := app.store.Stations.ReadStationLines(ctx, stopsAtDestination)
+
+        stopsAtLocation, err := app.store.Stations.ReadThreeStationsAtLocation(ctx, &amp;payload, linesAtDestination)
+
+        utils.WriteJSONResponse(w, http.StatusOK, stopsAtLocation)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusOK, linesAtDestination); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package main
+
+import (
+        "backend/cmd/utils"
+        "backend/internal/data"
+        "fmt"
+        "log"
+        "math"
+        "net/http"
+        "strconv"
+        "time"
+
+        "github.com/go-chi/chi/v5"
+        "github.com/gorilla/websocket"
+)
+
+var upgrader = websocket.Upgrader{
+        CheckOrigin: func(r *http.Request) bool <span class="cov0" title="0">{
+                // returing true for now
+                return true
+        }</span>,
+}
+
+// @Summary                Get detailed route information for a specific bus line
+// @Description        Retrieves comprehensive route data for a specific bus line, including the complete path,
+// @Description        all waypoints, direction information, and geographical coordinates for the entire route.
+// @Description        The response includes detailed path segments, turn-by-turn information, and route variants if available.
+// @Description        This endpoint is essential for mapping applications and route visualization features.
+// @Tags                        routes
+// @Accept                        json
+// @Produce                json
+// @Param                        lineId        path                int                        true        "Unique identifier of the bus line"
+// @Success                200                {object}        data.Route        "Complete route information including path coordinates"
+// @Router                        /routes/{lineId} [get]
+func (app *app) getRouteOfLineHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        idParam := chi.URLParam(r, "lineId")
+        lineId, err := strconv.ParseInt(idParam, 10, 64)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">ctx := r.Context()
+
+        //log.Printf("sem tu notri")
+        route, err := app.store.Routes.ReadRoute(ctx, lineId)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusOK, route); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+}
+
+// @Summary                Get all stations along a specific bus route
+// @Description        Returns a detailed list of all stations that are part of a specific bus line's route.
+// @Description        The response includes station ordering, distances between stations, estimated travel times,
+// @Description        platform information, and any special notes about each stop on the route.
+// @Description        This data is crucial for journey planning and providing users with complete route information.
+// @Tags                        routes
+// @Accept                        json
+// @Produce                json
+// @Param                        lineId        path        int                        true        "Unique identifier of the bus line"
+// @Success                200                {array}        data.Stop        "Ordered list of stations with detailed information"
+// @Router                        /routes/stations/{lineId} [get]
+func (app *app) getStationsOnRouteHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        idParam := chi.URLParam(r, "lineId")
+        lineId, err := strconv.ParseInt(idParam, 10, 64)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">ctx := r.Context()
+
+        //log.Printf("sem tu notri")
+        route, err := app.store.Routes.ReadRouteStations(ctx, lineId)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusOK, route); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+}
+
+// @Summary                Get a list of all available bus routes
+// @Description        Provides a comprehensive list of all bus routes in the system, including active and inactive routes.
+// @Description        Each route entry contains basic information such as route number, name, terminal stations,
+// @Description        service frequency, operating hours, and current status.
+// @Description        This endpoint is useful for displaying the complete network coverage and available services.
+// @Tags                        routes
+// @Accept                        json
+// @Produce                json
+// @Success                200        {array}        data.Route        "List of all routes with basic information"
+// @Router                        /routes/list [get]
+func (app *app) routesListHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        var routes []data.Route
+        ctx := r.Context()
+
+        //log.Printf("sem tu notri")
+        routes, err := app.store.Routes.ReadRoutesList(ctx)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusOK, routes); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+}
+
+// @Summary                Get real-time bus location updates via WebSocket
+// @Description        Establishes a WebSocket connection to receive real-time updates about bus locations.
+// @Description        The connection sends periodic updates (every 5 seconds) with current bus positions,
+// @Description        including coordinates, heading, speed, and next stop information.
+// @Description        This endpoint is crucial for real-time tracking features in client applications.
+// @Tags                        routes
+// @Accept                        json
+// @Produce                json
+// @Success                101        {string}        string        "Switching protocols to WebSocket"
+// @Router                        /routes/realtime [get]
+func (app *app) getRealtimeLine(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        conn, err := upgrader.Upgrade(w, r, nil)
+        if err != nil </span><span class="cov0" title="0">{
+                http.Error(w, "Could not open WebSocket connection", http.StatusBadRequest)
+                return
+        }</span>
+        <span class="cov0" title="0">defer conn.Close()
+
+        ticker := time.NewTicker(5 * time.Second)
+        defer ticker.Stop()
+
+        done := make(chan struct{})
+
+        go func() </span><span class="cov0" title="0">{
+                defer close(done)
+                for </span><span class="cov0" title="0">{
+                        _, _, err := conn.ReadMessage()
+                        if err != nil </span><span class="cov0" title="0">{
+                                break</span>
+                        }
+                }
+        }()
+
+        <span class="cov0" title="0">for </span><span class="cov0" title="0">{
+                select </span>{
+                case &lt;-done:<span class="cov0" title="0">
+                        return</span>
+                case t := &lt;-ticker.C:<span class="cov0" title="0">
+                        // Send a message to the client
+                        message := fmt.Sprintf("Current time: %s", t.Format(time.RFC3339))
+                        err := conn.WriteMessage(websocket.TextMessage, []byte(message))
+                        if err != nil </span><span class="cov0" title="0">{
+                                return
+                        }</span>
+                }
+        }
+}
+
+// @Summary                Get the count of currently active bus routes
+// @Description        Returns the number of bus routes that are currently in service or active.
+// @Description        This includes routes with buses currently running, scheduled for the current time period,
+// @Description        or marked as active in the system. The count helps understand current service coverage
+// @Description        and system activity levels.
+// @Tags                        routes
+// @Accept                        json
+// @Produce                json
+// @Success                200        {integer}        int        "Number of active routes"
+// @Router                        /routes/active [get]
+func (app *app) getActiveRoutes(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        var activeRoutes int
+        ctx := r.Context()
+
+        activeRoutes, err := app.store.Routes.ReadActiveLines(ctx)
+
+        if err != nil </span><span class="cov0" title="0">{
+                //fmt.Print("tu notri lol")
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusOK, activeRoutes); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+}
+
+// @Summary                Simulate real-time bus positions for a specific line
+// @Description        Provides simulated real-time updates of bus positions for a specific line via WebSocket.
+// @Description        The simulation includes realistic bus movements along the route, considering schedules,
+// @Description        typical speeds, and stop times. Updates are sent every 2 seconds with precise coordinates
+// @Description        and movement patterns. This endpoint is useful for testing and demonstration purposes.
+// @Tags                        routes
+// @Accept                        json
+// @Produce                json
+// @Param                        lineId        path                int                true        "Unique identifier of the bus line to simulate"
+// @Success                101                {string}        string        "Switching protocols to WebSocket"
+// @Router                        /estimate/simulate/{lineId} [get]
+func (app *app) serveRealtimeLine(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        conn, err := wsUpgrader.Upgrade(w, r, nil)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Println("websocket upgrade error:", err)
+                return
+        }</span>
+        <span class="cov0" title="0">defer conn.Close()
+
+        lineIDStr := chi.URLParam(r, "lineId")
+        lineID, err := strconv.Atoi(lineIDStr)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Println("invalid line ID:", err)
+                conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "invalid line ID"))
+                return
+        }</span>
+
+        <span class="cov0" title="0">ctx := r.Context()
+
+        runs, err := app.store.Routes.FetchActiveRuns(ctx, lineID)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Println("database error on initial fetch:", err)
+                return
+        }</span>
+        <span class="cov0" title="0">if len(runs) == 0 </span><span class="cov0" title="0">{
+                log.Println("no active runs found for line", lineID)
+                return
+        }</span>
+
+        <span class="cov0" title="0">ticker := time.NewTicker(500 * time.Millisecond)
+        defer ticker.Stop()
+
+        log.Printf("Starting simulation for line %d with %d runs", lineID, len(runs))
+
+        for </span><span class="cov0" title="0">{
+                select </span>{
+                case &lt;-ctx.Done():<span class="cov0" title="0">
+                        return</span>
+                case &lt;-ticker.C:<span class="cov0" title="0">
+                        now := time.Now()
+                        nowSec := now.Hour()*3600 + now.Minute()*60 + now.Second()
+
+                        type BusPosition struct {
+                                DepartureID int     `json:"departure_id"`
+                                DirectionID int     `json:"direction_id"`
+                                Lat         float64 `json:"lat"`
+                                Lon         float64 `json:"lon"`
+                                Status      string  `json:"status"`
+                        }
+
+                        var payload []BusPosition
+
+                        for _, run := range runs </span><span class="cov0" title="0">{
+                                lat, lon := interpPosition(run, nowSec)
+                                status := "active"
+                                if nowSec &lt; run.StartSec </span><span class="cov0" title="0">{
+                                        status = "waiting"
+                                }</span> else<span class="cov0" title="0"> if nowSec &gt; run.EndSec </span><span class="cov0" title="0">{
+                                        status = "completed"
+                                }</span>
+                                <span class="cov0" title="0">payload = append(payload, BusPosition{
+                                        DepartureID: run.DepartureID,
+                                        DirectionID: run.DirectionID,
+                                        Lat:         lat,
+                                        Lon:         lon,
+                                        Status:      status,
+                                })</span>
+                        }
+
+                        <span class="cov0" title="0">if err := conn.WriteJSON(payload); err != nil </span><span class="cov0" title="0">{
+                                log.Println("websocket write error:", err)
+                                return
+                        }</span>
+                }
+        }
+}
+
+func interpPosition(run data.ActiveRun, nowSec int) (float64, float64) <span class="cov0" title="0">{
+        if nowSec &lt;= run.StartSec </span><span class="cov0" title="0">{
+                return run.Path[0][0], run.Path[0][1]
+        }</span>
+        <span class="cov0" title="0">if nowSec &gt;= run.EndSec </span><span class="cov0" title="0">{
+                last := run.Path[len(run.Path)-1]
+                return last[0], last[1]
+        }</span>
+
+        <span class="cov0" title="0">tElapsed := nowSec - run.StartSec
+        totalDuration := run.EndSec - run.StartSec
+
+        speedMultiplier := 15.0
+
+        timeOffset := float64(run.DepartureID%4) * 0.25
+
+        fraction := (float64(tElapsed)*speedMultiplier)/float64(totalDuration) + timeOffset
+
+        if fraction &lt; 0 </span><span class="cov0" title="0">{
+                fraction = 0
+        }</span>
+        <span class="cov0" title="0">cycle := math.Mod(fraction, 2.0)
+        if cycle &gt; 1.0 </span><span class="cov0" title="0">{
+                fraction = 2.0 - cycle
+        }</span> else<span class="cov0" title="0"> {
+                fraction = cycle
+        }</span>
+
+        <span class="cov0" title="0">numPoints := len(run.Path)
+        if numPoints == 0 </span><span class="cov0" title="0">{
+                return 0, 0
+        }</span>
+        <span class="cov0" title="0">if numPoints == 1 </span><span class="cov0" title="0">{
+                return run.Path[0][0], run.Path[0][1]
+        }</span>
+
+        <span class="cov0" title="0">idxFloat := fraction * float64(numPoints-1)
+        lowerIdx := int(math.Floor(idxFloat))
+        upperIdx := int(math.Ceil(idxFloat))
+
+        if lowerIdx == upperIdx </span><span class="cov0" title="0">{
+                return run.Path[lowerIdx][0], run.Path[lowerIdx][1]
+        }</span>
+
+        <span class="cov0" title="0">alpha := idxFloat - float64(lowerIdx)
+        lat := run.Path[lowerIdx][0]*(1-alpha) + run.Path[upperIdx][0]*alpha
+        lon := run.Path[lowerIdx][1]*(1-alpha) + run.Path[upperIdx][1]*alpha
+        return lat, lon</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package main
+
+import (
+        "backend/cmd/utils"
+        "backend/internal/data"
+        "encoding/json"
+        "net/http"
+        "strconv"
+
+        "github.com/go-chi/chi/v5"
+)
+
+//        @Summary                Retrieve a comprehensive list of all bus stations
+//        @Description        Returns a detailed list of all available bus stations in the system. Each station entry includes
+//        @Description        its unique identifier, geographical coordinates (latitude and longitude), full name, description,
+//        @Description        current status, and any associated metadata such as nearby landmarks or accessibility features.
+//        @Description        This endpoint is useful for applications needing to display all available stations or create a station map.
+//        @Tags                        stations
+//        @Accept                        json
+//        @Produce                json
+//        @Success                200        {array}        data.Stop        "List of stations with their complete details"
+//        @Router                        /stations [get]
+func (app *app) stationsListHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        var stops []data.Stop
+        ctx := r.Context()
+
+        //log.Printf("sem tu notri")
+        stops, err := app.store.Stations.ReadList(ctx)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusOK, stops); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+}
+
+//        @Summary                Retrieve detailed information for a specific bus station
+//        @Description        Fetches comprehensive information about a single bus station identified by its unique ID.
+//        @Description        The response includes detailed station attributes such as exact location coordinates,
+//        @Description        full station name, operational status, platform information, accessibility features,
+//        @Description        available facilities, and real-time status updates if available.
+//        @Description        This endpoint is essential for displaying detailed station information to users.
+//        @Tags                        stations
+//        @Accept                        json
+//        @Produce                json
+//        @Param                        stationId        path                int                        true        "Unique identifier of the bus station"
+//        @Success                200                        {object}        data.Stop        "Complete station details including location and status"
+//        @Router                        /stations/{stationId} [get]
+func (app *app) getStationHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        idParam := chi.URLParam(r, "stationId")
+        stationId, err := strconv.ParseInt(idParam, 10, 64)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">ctx := r.Context()
+
+        //log.Printf("sem tu notri")
+        stop, err := app.store.Stations.ReadStation(ctx, stationId)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusOK, stop); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+}
+
+//        @Summary                Fetch extended metadata for a specific station
+//        @Description        Retrieves advanced metadata and supplementary information for a specific station.
+//        @Description        This includes detailed information such as historical occupancy patterns,
+//        @Description        peak hours, typical waiting times, available amenities (shelters, benches, lighting),
+//        @Description        accessibility features (wheelchair access, tactile paving), nearby points of interest,
+//        @Description        and any special notes about the station's operation or temporary changes.
+//        @Description        This data is particularly useful for journey planning and accessibility requirements.
+//        @Tags                        stations
+//        @Accept                        json
+//        @Produce                json
+//        @Param                        stationId        path                int                                        true        "Unique identifier of the station to fetch metadata for"
+//        @Success                200                        {object}        data.StopMetadata        "Comprehensive metadata including historical data and features"
+//        @Router                        /stations/{stationId}/metadata [get]
+func (app *app) getStationMetadataHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        idParam := chi.URLParam(r, "stationId")
+        stationId, err := strconv.ParseInt(idParam, 10, 64)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">ctx := r.Context()
+
+        stopMetadata, err := app.store.Stations.ReadStationMetadata(ctx, stationId)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusOK, stopMetadata); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+}
+
+//        @Summary                Locate nearby bus stations based on geographical coordinates
+//        @Description        Searches for and returns a list of bus stations within a specified radius of given coordinates.
+//        @Description        The search uses precise geolocation calculations to find stations, considering the actual
+//        @Description        walking distance where possible. Results are sorted by proximity to the provided location.
+//        @Description        Each station in the response includes distance from the search point, walking time estimates,
+//        @Description        and complete station details including real-time availability and accessibility information.
+//        @Description        This endpoint is crucial for mobile apps and location-based services.
+//        @Tags                        stations
+//        @Accept                        json
+//        @Produce                json
+//        @Param                        location        body        data.Location        true        "JSON object containing latitude, longitude, and search radius in meters"
+//        @Success                200                        {array}        data.Stop                "Array of nearby stations sorted by distance, with complete details"
+//        @Router                        /stations/nearby [post]
+func (app *app) getStationsCloseBy(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        if r.Body == nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, "No user data in request body")
+                return
+        }</span>
+
+        <span class="cov8" title="1">var payload data.Location
+        err := json.NewDecoder(r.Body).Decode(&amp;payload)
+
+        //fmt.Printf("Latitude: %f\nLongitude: %f\nRadius: %d\n", payload.Latitude, payload.Longitude, payload.Radius)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">ctx := r.Context()
+
+        stops, err := app.store.Stations.ReadStationsCloseBy(ctx, &amp;payload)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusOK, stops); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package main
+
+import (
+        "backend/cmd/utils"
+        "backend/internal/data"
+        "backend/internal/env"
+        "encoding/json"
+        "net/http"
+        "strconv"
+
+        "github.com/go-chi/chi/v5"
+)
+
+// @Summary                Register a new user account
+// @Description        Creates a new user account in the system with the provided credentials.
+// @Description        The endpoint expects a JSON payload containing username, email, and password.
+// @Description        The password is securely hashed before storage, and the email must be unique
+// @Description        in the system. Upon successful registration, the user can proceed to login.
+// @Description        This endpoint performs validation of input data and checks for existing emails.
+// @Tags                        authentication
+// @Accept                        json
+// @Produce                json
+// @Param                        user        body                data.RegisterUserPayload        true        "User registration details including username, email, and password"
+// @Success                201                {object}        nil                                                        "User successfully registered"
+// @Router                        /authentication/register [post]
+func (app *app) usersResgisterUser(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        /*
+                {
+                "Username": "testUser"
+                "Email": "testEmail@email.com",
+                "Password": "yoyo"
+                }
+        */
+
+        if r.Body == nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, "No user data in request body")
+                return
+        }</span>
+
+        <span class="cov8" title="1">var payload data.RegisterUserPayload
+        err := json.NewDecoder(r.Body).Decode(&amp;payload)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">ctx := r.Context()
+
+        _, err3 := app.store.User.GetByEmail(ctx, payload.Email)
+
+        if err3 == nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, "User with this email already exists")
+                return
+        }</span>
+
+        //log.Printf("sem tu notri")
+        <span class="cov8" title="1">hashedPassword, err := HashPassword(payload.Password)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">temp := data.User{
+                Username: payload.Username,
+                Email:    payload.Email,
+                Password: hashedPassword,
+        }
+
+        //fmt.Printf("Username: %s\nEmail: %s\nPassword: %s\n", temp.Username, temp.Email, temp.Password)
+        err2 := app.store.User.Create(ctx, &amp;temp)
+
+        if err2 != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err2.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">if err := utils.WriteJSONResponse(w, http.StatusCreated, nil); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+}
+
+// @Summary                Authenticate user and get access token
+// @Description        Authenticates a user with their email and password, returning a JWT token for access.
+// @Description        The endpoint validates the provided credentials against stored user data,
+// @Description        ensuring the password matches the hashed version in the database.
+// @Description        Upon successful authentication, returns a JWT token that should be included
+// @Description        in subsequent API requests in the Authorization header.
+// @Description        The token includes user identification and expiration information.
+// @Tags                        authentication
+// @Accept                        json
+// @Produce                json
+// @Param                        credentials        body                data.LoginUserPayload        true        "User login credentials (email and password)"
+// @Success                200                        {object}        map[string]string                "JWT token for authenticated access"
+// @Router                        /authentication/login [post]
+func (app *app) usersLoginUser(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        /*
+                {
+                "Email": "testEmail@email.com",
+                "Password": "yoyo"
+                }
+        */
+
+        if r.Body == nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, "No user data in request body")
+                return
+        }</span>
+
+        <span class="cov8" title="1">var payload data.LoginUserPayload
+        err := json.NewDecoder(r.Body).Decode(&amp;payload)
+
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">ctx := r.Context()
+
+        temp, err3 := app.store.User.GetByEmail(ctx, payload.Email)
+
+        if err3 != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusBadRequest, "User does not exist")
+                return
+        }</span>
+
+        <span class="cov8" title="1">if !ComparePasswords(temp.Password, []byte(payload.Password)) </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusBadRequest, "Invalid password and email combination")
+                return
+        }</span>
+
+        <span class="cov8" title="1">secret := []byte(env.GetString("JWT_SECRET", "notSoSecret-anymore"))
+        token, err := CreateJWT(secret, temp.ID)
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">utils.WriteJSONResponse(w, http.StatusOK, map[string]string{"token": token})</span>
+
+}
+
+// @Summary                Update user profile
+// @Description        Update user's profile information such as username and email.
+// @Tags                        users
+// @Accept                        json
+// @Produce                json
+// @Param                        update        body                data.UpdateUserPayload        true        "User profile update payload"
+// @Success                200                {object}        nil                                                        "User successfully updated"
+// @Failure                400                {object}        map[string]string                        "Invalid input"
+// @Router                        /users/profile [put]
+func (app *app) usersUpdateProfile(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        if r.Body == nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusBadRequest, "No user data in request body")
+                return
+        }</span>
+
+        <span class="cov0" title="0">var payload data.UpdateUserPayload
+        if err := json.NewDecoder(r.Body).Decode(&amp;payload); err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusBadRequest, "Invalid input")
+                return
+        }</span>
+
+        <span class="cov0" title="0">userIDRaw := r.Context().Value("userID")
+        if userIDRaw == nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusUnauthorized, "Unauthorized")
+                return
+        }</span>
+
+        <span class="cov0" title="0">userID, ok := userIDRaw.(int)
+        if !ok </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, "Invalid user ID in context")
+                return
+        }</span>
+
+        <span class="cov0" title="0">ctx := r.Context()
+
+        existingUser, err := app.store.User.GetByEmail(ctx, payload.Email)
+        if err == nil &amp;&amp; existingUser.ID != userID </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusBadRequest, "Email already in use by another account")
+                return
+        }</span>
+
+        <span class="cov0" title="0">err = app.store.User.UpdateById(ctx, userID, &amp;payload)
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusInternalServerError, "Failed to update user")
+                return
+        }</span>
+
+        <span class="cov0" title="0">utils.WriteJSONResponse(w, http.StatusOK, nil)</span>
+}
+
+func (app *app) getUserByID(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        idStr := chi.URLParam(r, "id")
+        id, err := strconv.Atoi(idStr)
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusBadRequest, "Invalid user ID")
+                return
+        }</span>
+
+        <span class="cov0" title="0">ctx := r.Context()
+        user, err := app.store.User.GetByIDForClient(ctx, id)
+        if err != nil </span><span class="cov0" title="0">{
+                utils.WriteJSONError(w, http.StatusNotFound, "User not found: "+err.Error())
+                return
+        }</span>
+
+        <span class="cov0" title="0">utils.WriteJSONResponse(w, http.StatusOK, user)</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

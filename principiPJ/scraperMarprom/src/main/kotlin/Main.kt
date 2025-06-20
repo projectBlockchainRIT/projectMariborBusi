@@ -164,8 +164,8 @@ fun main() {
 
 
     val today = LocalDate.now()
-    val numberOfPastDays = 10
-    val numberOfFutureDays = 10
+    val numberOfPastDays = 15
+    val numberOfFutureDays = 15
 
 
     println("Starting to scrape data for dates from ${today.minusDays(numberOfPastDays.toLong())} to ${today.plusDays(numberOfFutureDays.toLong() - 1)}")

@@ -3,19 +3,14 @@ package env
 import (
 	"os"
 	"strconv"
-
-	"github.com/joho/godotenv"
 )
 
 func GetString(key string, fallback string) string {
-	err := godotenv.Load()
-
-	if err != nil {
-		// log.Fatalf(err.Error())
+	val, ok := os.LookupEnv(key)
+	if !ok {
 		return fallback
 	}
-
-	return os.Getenv(key)
+	return val
 }
 
 func GetInt(key string, fallback int) int {

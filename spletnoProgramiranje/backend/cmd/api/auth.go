@@ -63,6 +63,7 @@ func (app *app) WithJWTAuth(handlerFuncion http.HandlerFunc) http.HandlerFunc {
 		if err != nil {
 			log.Printf("failed to validate token: %v", err)
 			utils.WriteJSONError(w, http.StatusForbidden, "permision denied")
+			return
 		}
 		// if yes, fetch the user id from the db
 
