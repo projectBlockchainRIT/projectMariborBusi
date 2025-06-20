@@ -54,7 +54,7 @@ jobs:
           context: ./spletnoProgramiranje/dashboard
           file: ./spletnoProgramiranje/dashboard/dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/dashboard:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/frontend:latest
 
       - name: Build and push Database Docker image
         uses: docker/build-push-action@v5
