@@ -48,7 +48,7 @@ func main() {
 
 	defer db.Close()
 	// logger.Info("established database connection")
-	logger.Info("CI/CD demonstracija")
+	logger.Info("CI/CD demonstracija 123")
 
 	store := data.NewStorage(db)
 
