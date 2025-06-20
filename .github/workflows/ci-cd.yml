@@ -64,24 +64,24 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/database:latest
 
-  update_release_branch:
-    needs: build_and_push_images 
-    if: success()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: main 
-
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Push main to release branch
-        run: |
-          git push origin main:release --force 
+#  update_release_branch:
+#    needs: build_and_push_images 
+#    if: success()
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#        with:
+#          ref: main 
+#
+#      - name: Configure Git
+#        run: |
+#          git config user.name "github-actions[bot]"
+#          git config user.email "github-actions[bot]@users.noreply.github.com"
+#
+#      - name: Push main to release branch
+#        run: |
+#          git push origin main:release --force 
 
   notify_server:
     needs: build_and_push_images
