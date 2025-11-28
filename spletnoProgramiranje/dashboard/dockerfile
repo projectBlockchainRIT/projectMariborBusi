@@ -13,8 +13,5 @@ COPY . .
 
 # Expose the port Vite's dev server typically runs on
 EXPOSE 5173 
-# Default Vite dev server port
 
-# Command to start the development server
-# --host 0.0.0.0 is crucial to make it accessible from outside the container
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

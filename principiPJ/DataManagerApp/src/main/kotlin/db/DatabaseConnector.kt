@@ -6,9 +6,9 @@ import java.sql.SQLException
 
 object DatabaseConnector {
 
-    private const val url = "jdbc:postgresql://localhost:5432/bus_base"
-    private const val user = "postgres"
-    private const val password = "1234"
+    private const val url = "jdbc:postgresql://localhost:5432/m-busi"
+    private const val user = "user"
+    private const val password = "password"
 
     init {
         try {

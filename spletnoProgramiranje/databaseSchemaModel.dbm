@@ -5,7 +5,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 -->
 <dbmodel pgmodeler-ver="1.2.0" use-changelog="false" max-obj-count="129"
 	 gen-disabled-objs-code="false" show-sys-schemas-rects="true"
-	 last-position="-84,0" last-zoom="0.95" scene-rect="-88,0,1927.52,1176.12"
+	 last-position="0,0" last-zoom="0.95" scene-rect="-60,0,1620.62,1076.8"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -462,35 +462,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<columns names="id" ref-type="dst-columns"/>
 </constraint>
 
-<relationship name="rel_directions_lines" type="relfk" layers="0"
-	 custom-color="#bcfe24"
-	 src-table="public.directions"
-	 dst-table="public.lines" reference-fk="line_id"
-	 src-required="false" dst-required="false"/>
-
-<relationship name="rel_departures_stops" type="relfk" layers="0"
-	 custom-color="#70a8f8"
-	 src-table="public.departures"
-	 dst-table="public.stops" reference-fk="stop_id"
-	 src-required="false" dst-required="true"/>
-
-<relationship name="rel_departures_directions" type="relfk" layers="0"
-	 custom-color="#a8b409"
-	 src-table="public.departures"
-	 dst-table="public.directions" reference-fk="direction_id"
-	 src-required="false" dst-required="true"/>
-
-<relationship name="rel_routes_lines" type="relfk" layers="0"
-	 custom-color="#0858dc"
-	 src-table="public.routes"
-	 dst-table="public.lines" reference-fk="line_id"
-	 src-required="false" dst-required="false"/>
-
-<relationship name="rel_arrivals_departures" type="relfk" layers="0"
-	 src-table="public.arrivals"
-	 dst-table="public.departures" reference-fk="departure_id"
-	 src-required="false" dst-required="true"/>
-
 <relationship name="rel_delays_users" type="relfk" layers="0"
 	 src-table="public.delays"
 	 dst-table="public.users" reference-fk="user_id"
@@ -501,19 +472,40 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 dst-table="public.stops" reference-fk="stop_id"
 	 src-required="false" dst-required="true"/>
 
+<relationship name="rel_departures_stops" type="relfk" layers="0"
+	 src-table="public.departures"
+	 dst-table="public.stops" reference-fk="stop_id"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="rel_arrivals_departures" type="relfk" layers="0"
+	 src-table="public.arrivals"
+	 dst-table="public.departures" reference-fk="departure_id"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="rel_departures_directions" type="relfk" layers="0"
+	 src-table="public.departures"
+	 dst-table="public.directions" reference-fk="direction_id"
+	 src-required="false" dst-required="true"/>
+
+<relationship name="rel_directions_lines" type="relfk" layers="0"
+	 src-table="public.directions"
+	 dst-table="public.lines" reference-fk="line_id"
+	 src-required="false" dst-required="false"/>
+
 <relationship name="rel_delays_lines" type="relfk" layers="0"
 	 src-table="public.delays"
 	 dst-table="public.lines" reference-fk="line_id"
-	 src-required="false" dst-required="true">
-	<label ref-type="name-label">
-		<position x="9.39072" y="9.86456"/>
-	</label>
-</relationship>
+	 src-required="false" dst-required="true"/>
 
 <relationship name="rel_occupancy_lines" type="relfk" layers="0"
 	 src-table="public.occupancy"
 	 dst-table="public.lines" reference-fk="line_id"
 	 src-required="false" dst-required="true"/>
+
+<relationship name="rel_routes_lines" type="relfk" layers="0"
+	 src-table="public.routes"
+	 dst-table="public.lines" reference-fk="line_id"
+	 src-required="false" dst-required="false"/>
 
 <permission>
 	<object name="topology" type="schema"/>
