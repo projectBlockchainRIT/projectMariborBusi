@@ -1,16 +1,47 @@
+#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <optional>
 #include <random>
 #include <string>
+#include <thread>
+#include <vector>
 
 #include "AppSettings.h"
 #include "Blockchain.h"
 #include "MiningService.h"
 #include "PeerNetwork.h"
 
-int main()
+int parseThreadsArgument(int argc, char* argv[]) {
+    unsigned int hwThreads = std::thread::hardware_concurrency();
+    int numThreads = (hwThreads > 0) ? static_cast<int>(hwThreads) : 1;
+    
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "--threads" && i + 1 < argc) {
+            try {
+                int threads = std::stoi(argv[i + 1]);
+                if (threads < 1) {
+                    std::cerr << "Warning: Invalid thread count " << threads 
+                              << ", using default: " << numThreads << "\n";
+                } else {
+                    numThreads = threads;
+                }
+            } catch (const std::exception& e) {
+                std::cerr << "Warning: Failed to parse thread count, using default: " 
+                          << numThreads << "\n";
+            }
+            break;
+        }
+    }
+    
+    return numThreads;
+}
+
+int main(int argc, char* argv[])
 {
+    int numThreads = parseThreadsArgument(argc, argv);
+    std::cout << "Mining threads: " << numThreads << "\n";
     std::cout << "Enter your name: ";
     std::string username;
     std::getline(std::cin, username);
@@ -28,7 +59,7 @@ int main()
     Blockchain blockchain(AppSettings::DefaultDifficulty,
                           AppSettings::BlockGenerationInterval,
                           AppSettings::DifficultyAdjustmentInterval);
-    MiningService miningService(blockchain);
+    MiningService miningService(blockchain, numThreads);
     PeerNetwork network;
 
     network.SetMessageHandler([](const std::string &msg)
