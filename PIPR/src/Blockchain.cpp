@@ -17,8 +17,23 @@ Blockchain::Blockchain(int difficulty,
       chain_({CreateGenesisBlock()}) {}
 
 Block Blockchain::CreateGenesisBlock() const {
-    return Block(0, "Genesis Block", std::chrono::system_clock::now(), "0",
-                 std::max(1, difficulty_));
+    // Genesis block: STATIC and IDENTICAL on all nodes
+    // Fixed timestamp (epoch 0 = 1970-01-01T00:00:00 UTC)
+    // Fixed nonce = 0
+    // Fixed difficulty = 0 (genesis doesn't need mining/validation)
+    // Fixed data = "Genesis Block"
+    // Fixed prevHash = "0"
+    
+    auto genesisTime = std::chrono::system_clock::from_time_t(0); // Epoch 0
+    int genDifficulty = 0; // Genesis doesn't need difficulty validation
+    int genNonce = 0; // Fixed nonce for genesis
+    
+    Block genesis(0, "Genesis Block", genesisTime, "0", genDifficulty, genNonce, false);
+    
+    // Compute hash with fixed values (no mining needed)
+    genesis.hash = genesis.computeHash();
+    
+    return genesis;
 }
 
 Block Blockchain::GetLatestBlock() const {
@@ -33,19 +48,62 @@ std::vector<Block> Blockchain::GetChain() const {
 
 bool Blockchain::AddBlock(const Block& newBlock) {
     std::scoped_lock lock(chainMutex_);
-    auto tempChain = chain_;
-    tempChain.push_back(newBlock);
-
-    std::string reason;
-    if (!ValidateChain(tempChain, &reason)) {
-        if (!reason.empty()) {
-            std::cout << "AddBlock rejected: " << reason << "\n";
-        }
+    
+    if (chain_.empty()) {
+        // Should not happen - genesis block is created in constructor
+        return false;
+    }
+    
+    const Block& previous = chain_.back();
+    if (!isValidNewBlock(newBlock, previous)) {
         return false;
     }
 
     chain_.push_back(newBlock);
     return true;
+}
+
+bool Blockchain::isValidNewBlock(const Block& current, const Block& previous) const {
+    // Check index sequence
+    if (current.index != previous.index + 1) {
+        return false;
+    }
+    
+    // Check previous hash reference
+    if (current.previousHash != previous.hash) {
+        return false;
+    }
+    
+    // Check that computed hash matches stored hash
+    std::string computedHash = current.computeHash();
+    if (current.hash != computedHash) {
+        return false;
+    }
+    
+    // Check difficulty (hash must have correct number of leading zeros)
+    if (current.difficulty < 1) {
+        return false;
+    }
+    
+    int leadingZeros = 0;
+    for (size_t i = 0; i < current.hash.size() && i < static_cast<size_t>(current.difficulty); ++i) {
+        if (current.hash[i] == '0') {
+            ++leadingZeros;
+        } else {
+            break;
+        }
+    }
+    
+    if (leadingZeros < current.difficulty) {
+        return false;
+    }
+    
+    return true;
+}
+
+bool Blockchain::isValidChain() const {
+    std::scoped_lock lock(chainMutex_);
+    return ValidateChain(chain_);
 }
 
 bool Blockchain::ValidateChain(const std::vector<Block>& chainToValidate) const {
@@ -130,49 +188,62 @@ bool Blockchain::ValidateChain(const std::vector<Block>& chainToValidate,
         return false;
     }
 
-    const auto maxGap = std::chrono::minutes(60);  // allow up to 1h gap
+    // Validate genesis block - must be STATIC and IDENTICAL
+    const auto& genesis = chainToValidate[0];
+    
+    // Basic structure validation
+    if (genesis.index != 0) {
+        if (reason) *reason = "Genesis block must have index 0";
+        return false;
+    }
+    if (genesis.previousHash != "0") {
+        if (reason) *reason = "Genesis block previousHash must be '0'";
+        return false;
+    }
+    if (genesis.data != "Genesis Block") {
+        if (reason) *reason = "Genesis block data must be 'Genesis Block'";
+        return false;
+    }
+    if (genesis.nonce != 0) {
+        if (reason) *reason = "Genesis block nonce must be 0";
+        return false;
+    }
+    
+    // Validate genesis block timestamp (must be epoch 0)
+    auto expectedTime = std::chrono::system_clock::from_time_t(0);
+    auto timeDiff = std::chrono::duration_cast<std::chrono::seconds>(
+        genesis.timestamp - expectedTime).count();
+    if (std::abs(timeDiff) > 1) { // Allow 1 second tolerance for time_t conversion
+        if (reason) *reason = "Genesis block timestamp must be epoch 0 (1970-01-01T00:00:00)";
+        return false;
+    }
+    
+    // Validate genesis block hash - must match computed hash with fixed values
+    std::string genesisComputed = genesis.computeHash();
+    if (genesis.hash != genesisComputed) {
+        if (reason) *reason = "Genesis block hash mismatch";
+        return false;
+    }
 
+    // Validate each subsequent block
     for (std::size_t i = 1; i < chainToValidate.size(); ++i) {
         const auto& current = chainToValidate[i];
         const auto& previous = chainToValidate[i - 1];
 
-        if (current.index != previous.index + 1) {
-            if (reason) *reason = "Invalid block index sequence";
-            return false;
-        }
-
-        if (current.previousHash != previous.hash) {
-            if (reason) *reason = "Invalid previous hash reference";
-            return false;
-        }
-
-        if (current.difficulty < 1) {
-            if (reason) *reason = "Difficulty less than 1";
-            return false;
-        }
-
-        std::ostringstream payload;
-        payload << current.index << current.TimestampString() << current.data
-                << current.previousHash << current.difficulty << current.nonce;
-        auto calculated = Block::Sha256Hash(payload.str());
-        if (current.hash != calculated) {
-            if (reason) *reason = "Invalid block hash";
-            return false;
-        }
-
-        auto now = std::chrono::system_clock::now();
-        if (current.timestamp > now + std::chrono::minutes(1)) {
-            if (reason) *reason = "Block timestamp is in the future";
-            return false;
-        }
-
-        if (current.timestamp < previous.timestamp) {
-            if (reason) *reason = "Block timestamp earlier than previous";
-            return false;
-        }
-
-        if (current.timestamp > previous.timestamp + maxGap) {
-            if (reason) *reason = "Block timestamp too far after previous";
+        // Use isValidNewBlock for consistency
+        if (!isValidNewBlock(current, previous)) {
+            if (reason) {
+                // Determine specific reason
+                if (current.index != previous.index + 1) {
+                    *reason = "Invalid block index sequence";
+                } else if (current.previousHash != previous.hash) {
+                    *reason = "Invalid previous hash reference";
+                } else if (current.hash != current.computeHash()) {
+                    *reason = "Invalid block hash";
+                } else {
+                    *reason = "Hash does not meet difficulty requirement";
+                }
+            }
             return false;
         }
     }

@@ -18,9 +18,18 @@ public:
           std::chrono::system_clock::time_point time,
           std::string prevHash,
           int diff,
-          bool mine = true);
+          int nonceValue = 0,
+          bool computeHashNow = false);
 
+    // Deterministic serialization for hashing
+    std::string toStringForHash() const;
+    
+    // Compute hash without mining (uses current nonce)
+    std::string computeHash() const;
+    
+    // Legacy method - kept for compatibility but should use computeHash()
     std::string CalculateHash();
+    
     static std::string Sha256Hash(const std::string& input);
 
     std::string TimestampString() const;

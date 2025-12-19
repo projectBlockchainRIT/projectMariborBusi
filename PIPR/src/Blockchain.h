@@ -15,6 +15,8 @@ public:
     std::vector<Block> GetChain() const;
 
     bool AddBlock(const Block& newBlock);
+    bool isValidNewBlock(const Block& current, const Block& previous) const;
+    bool isValidChain() const;
     bool ValidateChain(const std::vector<Block>& chainToValidate) const;
     bool ReplaceChain(const std::vector<Block>& newChain);
     int GetAdjustedDifficulty() const;

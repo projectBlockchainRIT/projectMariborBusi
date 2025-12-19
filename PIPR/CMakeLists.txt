@@ -9,6 +9,8 @@ add_executable(nal5_cplus
     src/Block.cpp
     src/Blockchain.cpp
     src/MiningService.cpp
+    src/Mining.cpp
+    src/Crypto.cpp
     src/PeerNetwork.cpp
     src/JsonUtils.cpp
 )

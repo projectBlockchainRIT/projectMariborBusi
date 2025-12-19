@@ -84,13 +84,13 @@ std::optional<std::vector<Block>> DeserializeChain(const std::string& jsonText) 
             return std::nullopt;
         }
 
-        Block b(*idxOpt, *dataOpt,
-                Block::ParseTimestamp(*tsOpt),
-                *prevHashOpt, *diffOpt, false);
+        // Parse timestamp once to avoid redundant parsing
+        auto parsedTimestamp = Block::ParseTimestamp(*tsOpt);
+        Block b(*idxOpt, *dataOpt, parsedTimestamp, *prevHashOpt, *diffOpt, *nonceOpt, false);
         b.difficulty = *diffOpt;
         b.hash = *hashOpt;
         b.nonce = *nonceOpt;
-        b.timestamp = Block::ParseTimestamp(*tsOpt);
+        b.timestamp = parsedTimestamp;  // Use already parsed timestamp
 
         blocks.push_back(std::move(b));
     }

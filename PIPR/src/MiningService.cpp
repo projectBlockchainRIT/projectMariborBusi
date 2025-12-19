@@ -4,6 +4,8 @@
 #include <optional>
 #include <string>
 
+#include "Mining.h"
+
 MiningService::MiningService(Blockchain &blockchain)
     : blockchain_(blockchain) {}
 
@@ -14,8 +16,13 @@ std::optional<Block> MiningService::MineBlock(const std::string &data)
     auto latest = blockchain_.GetLatestBlock();
     auto difficulty = std::max(1, blockchain_.GetAdjustedDifficulty());
 
-    Block newBlock(latest.index + 1, data, std::chrono::system_clock::now(),
-                   latest.hash, difficulty);
+    // Use the new Mining::mineBlock() function for sequential mining
+    Block newBlock = Mining::mineBlock(
+        latest.index + 1,
+        data,
+        latest.hash,
+        difficulty
+    );
 
     if (blockchain_.AddBlock(newBlock))
     {
