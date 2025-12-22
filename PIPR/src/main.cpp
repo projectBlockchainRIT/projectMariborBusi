@@ -7,6 +7,10 @@
 #include <thread>
 #include <vector>
 
+#ifdef USE_MPI
+#include <mpi.h>
+#endif
+
 #include "AppSettings.h"
 #include "Blockchain.h"
 #include "MiningService.h"
@@ -40,14 +44,57 @@ int parseThreadsArgument(int argc, char* argv[]) {
 
 int main(int argc, char* argv[])
 {
+#ifdef USE_MPI
+    // Initialize MPI
+    MPI_Init(&argc, &argv);
+    
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    
+    bool useMPI = (size > 1);
+    
+    if (rank == 0) {
+        std::cout << "MPI initialized: " << size << " process(es)\n";
+    }
+#else
+    int rank = 0;
+    int size = 1;
+    bool useMPI = false;
+#endif
+
     int numThreads = parseThreadsArgument(argc, argv);
-    std::cout << "Mining threads: " << numThreads << "\n";
-    std::cout << "Enter your name: ";
+    
+    if (rank == 0) {
+        std::cout << "Mining threads per process: " << numThreads << "\n";
+        std::cout << "Enter your name: ";
+    }
+    
     std::string username;
-    std::getline(std::cin, username);
+    if (rank == 0) {
+        std::getline(std::cin, username);
+    }
+    
+#ifdef USE_MPI
+    // Broadcast username from rank 0 to all processes
+    if (size > 1) {
+        int usernameLen = static_cast<int>(username.size());
+        MPI_Bcast(&usernameLen, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        if (rank != 0) {
+            username.resize(usernameLen);
+        }
+        MPI_Bcast(const_cast<char*>(username.data()), usernameLen, MPI_CHAR, 0, MPI_COMM_WORLD);
+    }
+#endif
+    
     if (username.empty())
     {
-        std::cout << "Name is required. Exiting.\n";
+        if (rank == 0) {
+            std::cout << "Name is required. Exiting.\n";
+        }
+#ifdef USE_MPI
+        MPI_Finalize();
+#endif
         return 0;
     }
 
@@ -59,7 +106,7 @@ int main(int argc, char* argv[])
     Blockchain blockchain(AppSettings::DefaultDifficulty,
                           AppSettings::BlockGenerationInterval,
                           AppSettings::DifficultyAdjustmentInterval);
-    MiningService miningService(blockchain, numThreads);
+    MiningService miningService(blockchain, numThreads, useMPI);
     PeerNetwork network;
 
     network.SetMessageHandler([](const std::string &msg)
@@ -160,5 +207,10 @@ int main(int argc, char* argv[])
     }
 
     network.Stop();
+    
+#ifdef USE_MPI
+    MPI_Finalize();
+#endif
+    
     return 0;
 }

@@ -7,9 +7,14 @@
 #include <string>
 
 #include "Mining.h"
+#include "DistributedMining.h"
 
-MiningService::MiningService(Blockchain &blockchain, int numThreads)
-    : blockchain_(blockchain), numThreads_(numThreads) {}
+#ifdef USE_MPI
+#include <mpi.h>
+#endif
+
+MiningService::MiningService(Blockchain &blockchain, int numThreads, bool useMPI)
+    : blockchain_(blockchain), numThreads_(numThreads), useMPI_(useMPI) {}
 
 std::optional<Block> MiningService::MineBlock(const std::string &data)
 {
@@ -21,21 +26,38 @@ std::optional<Block> MiningService::MineBlock(const std::string &data)
     // Start timing for benchmark
     auto startTime = std::chrono::high_resolution_clock::now();
 
-    // Use threaded mining if numThreads > 1, otherwise use sequential
-    Block newBlock = (numThreads_ > 1) 
-        ? Mining::mineBlockThreaded(
-            latest.index + 1,
-            data,
-            latest.hash,
-            difficulty,
-            numThreads_
-        )
-        : Mining::mineBlock(
-            latest.index + 1,
-            data,
-            latest.hash,
-            difficulty
-        );
+    Block newBlock = [&]() -> Block {
+#ifdef USE_MPI
+        if (useMPI_) {
+            // Use MPI-based distributed mining
+            return DistributedMining::mineBlockMPI(
+                latest.index + 1,
+                data,
+                latest.hash,
+                difficulty,
+                numThreads_
+            );
+        } else {
+#endif
+            // Use threaded mining if numThreads > 1, otherwise use sequential
+            return (numThreads_ > 1) 
+                ? Mining::mineBlockThreaded(
+                    latest.index + 1,
+                    data,
+                    latest.hash,
+                    difficulty,
+                    numThreads_
+                )
+                : Mining::mineBlock(
+                    latest.index + 1,
+                    data,
+                    latest.hash,
+                    difficulty
+                );
+#ifdef USE_MPI
+        }
+#endif
+    }();
 
     // End timing and calculate duration
     auto endTime = std::chrono::high_resolution_clock::now();

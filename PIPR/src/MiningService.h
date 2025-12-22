@@ -11,7 +11,7 @@ class MiningService {
 public:
     using BlockMinedHandler = std::function<void(const Block&)>;
 
-    explicit MiningService(Blockchain& blockchain, int numThreads = 1);
+    explicit MiningService(Blockchain& blockchain, int numThreads = 1, bool useMPI = false);
 
     std::optional<Block> MineBlock(const std::string& data);
     void SetBlockMinedHandler(BlockMinedHandler handler);
@@ -21,5 +21,6 @@ private:
     std::mutex mineMutex_;
     BlockMinedHandler blockMinedHandler_;
     int numThreads_;
+    bool useMPI_;
 };
 
