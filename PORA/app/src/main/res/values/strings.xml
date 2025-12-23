@@ -1,3 +1,37 @@
 <resources>
-    <string name="app_name">projektna</string>
+    <string name="app_name">M-Busi</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Domov</string>
+    <string name="nav_sensors">Senzorji</string>
+    <string name="nav_events">Dogodki</string>
+    <string name="nav_settings">Nastavitve</string>
+
+    <!-- Home screen -->
+    <string name="home_title">Pregled</string>
+    <string name="home_connection_status">Status povezave</string>
+    <string name="home_active_sensors">Aktivni senzorji</string>
+    <string name="home_events_today">Današnji dogodki</string>
+
+    <!-- Sensors screen -->
+    <string name="sensors_title">Senzorji</string>
+    <string name="sensor_camera">Kamera</string>
+    <string name="sensor_gps">GPS lokacija</string>
+    <string name="sensor_accelerometer">Pospeškometer</string>
+
+    <!-- Events screen -->
+    <string name="events_title">Dogodki</string>
+    <string name="events_new">Nov dogodek</string>
+    <string name="events_history">Zgodovina</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Nastavitve</string>
+    <string name="settings_mqtt">MQTT povezava</string>
+    <string name="settings_simulation">Simulacija</string>
+
+    <!-- Common -->
+    <string name="status_connected">Povezano</string>
+    <string name="status_disconnected">Nepovezano</string>
+    <string name="enabled">Omogočeno</string>
+    <string name="disabled">Onemogočeno</string>
 </resources>
