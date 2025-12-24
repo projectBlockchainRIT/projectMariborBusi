@@ -1,4 +1,5 @@
 ## Gradle:
+CLAUDE.md
 .gradle/
 gradle-app.setting
 /build/

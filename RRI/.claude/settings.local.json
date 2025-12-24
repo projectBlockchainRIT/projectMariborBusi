@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(git -C /Users/timimaucec/FAKS/3.1_semester/PROjektni_praktikum/projectMariborBusi/RRI log --oneline -20)",
+      "Bash(./gradlew build:*)",
+      "Bash(./gradlew:*)"
+    ]
+  }
+}

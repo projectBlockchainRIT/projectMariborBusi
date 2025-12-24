@@ -1,34 +1,25 @@
 package si.um.feri.mbusi;
 
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
+import si.um.feri.mbusi.screens.MapScreen;
 
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
-public class MainMap extends ApplicationAdapter {
-    private SpriteBatch batch;
-    private Texture image;
+
+public class MainMap extends Game {
 
     @Override
     public void create() {
-        batch = new SpriteBatch();
-        image = new Texture("libgdx.png");
-    }
+        Gdx.app.log("MainMap", "Starting MbusiiMap application");
+        Gdx.app.log("MainMap", "Graphics: " + Gdx.graphics.getWidth() + "x" + Gdx.graphics.getHeight());
 
-    @Override
-    public void render() {
-        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-        batch.begin();
-        batch.draw(image, 140, 210);
-        batch.end();
+        setScreen(new MapScreen());
+
+        Gdx.app.log("MainMap", "Application initialized successfully");
     }
 
     @Override
     public void dispose() {
-        batch.dispose();
-        image.dispose();
+        super.dispose();
+        Gdx.app.log("MainMap", "Application disposed");
     }
 }
