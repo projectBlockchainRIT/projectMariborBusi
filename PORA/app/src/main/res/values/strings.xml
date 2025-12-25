@@ -34,4 +34,12 @@
     <string name="status_disconnected">Nepovezano</string>
     <string name="enabled">Omogočeno</string>
     <string name="disabled">Onemogočeno</string>
+
+    <!-- Accelerometer -->
+    <string name="accelerometer_magnitude">Magnituda: %.1f m/s²</string>
+    <string name="accelerometer_extreme">EKSTREMNI DOGODEK!</string>
+    <string name="notification_channel_name">Pospeškometer</string>
+    <string name="notification_channel_description">Obvestila za zajem podatkov pospeškometra</string>
+    <string name="notification_title">Pospeškometer aktiven</string>
+    <string name="notification_text">Magnituda: %.1f m/s²</string>
 </resources>
