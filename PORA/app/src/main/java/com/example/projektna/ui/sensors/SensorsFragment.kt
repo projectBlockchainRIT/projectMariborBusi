@@ -17,8 +17,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.projektna.R
+import com.example.projektna.data.GpsData
 import com.example.projektna.data.PreferencesManager
 import com.example.projektna.services.AccelerometerService
+import com.example.projektna.services.GpsService
 import com.google.android.material.materialswitch.MaterialSwitch
 
 class SensorsFragment : Fragment() {
@@ -28,6 +30,11 @@ class SensorsFragment : Fragment() {
     private lateinit var switchAccelerometer: MaterialSwitch
     private lateinit var accelerometerStatus: TextView
     private lateinit var accelerometerMagnitude: TextView
+
+    private lateinit var switchGps: MaterialSwitch
+    private lateinit var gpsStatus: TextView
+    private lateinit var gpsCoordinates: TextView
+    private lateinit var gpsSpeed: TextView
 
     private val accelerometerReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -39,6 +46,18 @@ class SensorsFragment : Fragment() {
         }
     }
 
+    private val gpsReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            intent?.let {
+                val latitude = it.getDoubleExtra(GpsService.EXTRA_LATITUDE, 0.0)
+                val longitude = it.getDoubleExtra(GpsService.EXTRA_LONGITUDE, 0.0)
+                val speed = it.getFloatExtra(GpsService.EXTRA_SPEED, 0f)
+                val isExtreme = it.getBooleanExtra(GpsService.EXTRA_IS_EXTREME, false)
+                updateGpsDisplay(latitude, longitude, speed, isExtreme)
+            }
+        }
+    }
+
     private val notificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -46,6 +65,39 @@ class SensorsFragment : Fragment() {
             startAccelerometerService()
         } else {
             switchAccelerometer.isChecked = false
+            Toast.makeText(
+                requireContext(),
+                "Potrebno je dovoljenje za obvestila",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+        val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+
+        if (fineLocationGranted || coarseLocationGranted) {
+            checkNotificationPermissionForGps()
+        } else {
+            switchGps.isChecked = false
+            Toast.makeText(
+                requireContext(),
+                "Potrebno je dovoljenje za lokacijo",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private val gpsNotificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            startGpsService()
+        } else {
+            switchGps.isChecked = false
             Toast.makeText(
                 requireContext(),
                 "Potrebno je dovoljenje za obvestila",
@@ -71,24 +123,43 @@ class SensorsFragment : Fragment() {
         accelerometerStatus = view.findViewById(R.id.accelerometer_status)
         accelerometerMagnitude = view.findViewById(R.id.accelerometer_magnitude)
 
+        switchGps = view.findViewById(R.id.switch_gps)
+        gpsStatus = view.findViewById(R.id.gps_status)
+        gpsCoordinates = view.findViewById(R.id.gps_coordinates)
+        gpsSpeed = view.findViewById(R.id.gps_speed)
+
         setupAccelerometerSwitch()
+        setupGpsSwitch()
         restoreSwitchStates()
     }
 
     override fun onResume() {
         super.onResume()
-        val filter = IntentFilter(AccelerometerService.ACTION_ACCELEROMETER_DATA)
+        val accelerometerFilter = IntentFilter(AccelerometerService.ACTION_ACCELEROMETER_DATA)
+        val gpsFilter = IntentFilter(GpsService.ACTION_GPS_DATA)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requireContext().registerReceiver(
                 accelerometerReceiver,
-                filter,
+                accelerometerFilter,
+                Context.RECEIVER_NOT_EXPORTED
+            )
+            requireContext().registerReceiver(
+                gpsReceiver,
+                gpsFilter,
                 Context.RECEIVER_NOT_EXPORTED
             )
         } else {
             ContextCompat.registerReceiver(
                 requireContext(),
                 accelerometerReceiver,
-                filter,
+                accelerometerFilter,
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+            ContextCompat.registerReceiver(
+                requireContext(),
+                gpsReceiver,
+                gpsFilter,
                 ContextCompat.RECEIVER_NOT_EXPORTED
             )
         }
@@ -97,6 +168,7 @@ class SensorsFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         requireContext().unregisterReceiver(accelerometerReceiver)
+        requireContext().unregisterReceiver(gpsReceiver)
     }
 
     private fun setupAccelerometerSwitch() {
@@ -123,10 +195,17 @@ class SensorsFragment : Fragment() {
 
     private fun restoreSwitchStates() {
         switchAccelerometer.isChecked = preferencesManager.isAccelerometerEnabled
+        switchGps.isChecked = preferencesManager.isGpsEnabled
 
         if (preferencesManager.isAccelerometerEnabled) {
             accelerometerStatus.text = getString(R.string.enabled)
             accelerometerMagnitude.visibility = View.VISIBLE
+        }
+
+        if (preferencesManager.isGpsEnabled) {
+            gpsStatus.text = getString(R.string.enabled)
+            gpsCoordinates.visibility = View.VISIBLE
+            gpsSpeed.visibility = View.VISIBLE
         }
     }
 
@@ -158,5 +237,76 @@ class SensorsFragment : Fragment() {
                 ContextCompat.getColor(requireContext(), R.color.primary)
             )
         }
+    }
+
+    private fun setupGpsSwitch() {
+        switchGps.setOnCheckedChangeListener { _, isChecked ->
+            preferencesManager.isGpsEnabled = isChecked
+
+            if (isChecked) {
+                if (ContextCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    locationPermissionLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        )
+                    )
+                    return@setOnCheckedChangeListener
+                }
+                checkNotificationPermissionForGps()
+            } else {
+                stopGpsService()
+            }
+        }
+    }
+
+    private fun checkNotificationPermissionForGps() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                gpsNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                return
+            }
+        }
+        startGpsService()
+    }
+
+    private fun startGpsService() {
+        gpsStatus.text = getString(R.string.enabled)
+        gpsCoordinates.visibility = View.VISIBLE
+        gpsSpeed.visibility = View.VISIBLE
+
+        val intent = Intent(requireContext(), GpsService::class.java)
+        ContextCompat.startForegroundService(requireContext(), intent)
+    }
+
+    private fun stopGpsService() {
+        gpsStatus.text = getString(R.string.disabled)
+        gpsCoordinates.visibility = View.GONE
+        gpsSpeed.visibility = View.GONE
+
+        val intent = Intent(requireContext(), GpsService::class.java)
+        requireContext().stopService(intent)
+    }
+
+    private fun updateGpsDisplay(latitude: Double, longitude: Double, speed: Float, isExtreme: Boolean) {
+        gpsCoordinates.text = getString(R.string.gps_coordinates, latitude, longitude)
+        val speedKmh = speed * 3.6f
+        gpsSpeed.text = getString(R.string.gps_speed, speedKmh)
+
+        val textColor = if (isExtreme) {
+            ContextCompat.getColor(requireContext(), R.color.error)
+        } else {
+            ContextCompat.getColor(requireContext(), R.color.primary)
+        }
+        gpsCoordinates.setTextColor(textColor)
+        gpsSpeed.setTextColor(textColor)
     }
 }

@@ -42,4 +42,13 @@
     <string name="notification_channel_description">Obvestila za zajem podatkov pospeškometra</string>
     <string name="notification_title">Pospeškometer aktiven</string>
     <string name="notification_text">Magnituda: %.1f m/s²</string>
+
+    <!-- GPS -->
+    <string name="gps_coordinates">Lat: %1$.5f, Lon: %2$.5f</string>
+    <string name="gps_speed">Hitrost: %.1f km/h</string>
+    <string name="gps_extreme">VISOKA HITROST!</string>
+    <string name="gps_notification_channel_name">GPS lokacija</string>
+    <string name="gps_notification_channel_description">Obvestila za sledenje GPS lokaciji</string>
+    <string name="gps_notification_title">GPS aktiven</string>
+    <string name="gps_notification_text">%1$.5f, %2$.5f | %3$.1f km/h</string>
 </resources>
