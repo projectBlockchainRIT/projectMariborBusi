@@ -4,7 +4,11 @@
       "Bash(tree:*)",
       "Bash(git -C /Users/timimaucec/FAKS/3.1_semester/PROjektni_praktikum/projectMariborBusi/RRI log --oneline -20)",
       "Bash(./gradlew build:*)",
-      "Bash(./gradlew:*)"
+      "Bash(./gradlew:*)",
+      "Bash(curl:*)",
+      "Bash(for path in \"v1/stations\" \"api/v1/stations\" \"stops\" \"api/stops\" \"postaje\" \"api/postaje\")",
+      "Bash(do echo \"Testing: $path\")",
+      "Bash(done)"
     ]
   }
 }

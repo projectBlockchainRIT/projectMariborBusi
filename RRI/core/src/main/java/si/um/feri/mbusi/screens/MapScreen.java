@@ -181,7 +181,7 @@ public class MapScreen extends InputAdapter implements Screen {
         int offsetY = tileCoord.y - centerTile.y;
 
         float x = offsetX * Constants.TILE_SIZE;
-        float y = -offsetY * Constants.TILE_SIZE; // Flip Y axis
+        float y = -offsetY * Constants.TILE_SIZE;
 
         return new Vector2(x, y);
     }

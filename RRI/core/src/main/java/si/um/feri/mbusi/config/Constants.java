@@ -34,6 +34,12 @@ public class Constants {
     public static final int DISK_CACHE_MAX_SIZE_MB = 500;
     public static final long DISK_CACHE_EXPIRATION_DAYS = 1;
 
+    public static final String MARPROM_API_BASE_URL = "http://20.208.138.248:8080";
+    public static final String MARPROM_API_ROUTES = MARPROM_API_BASE_URL + "/v1/routes/list";
+    public static final String MARPROM_API_STATIONS = MARPROM_API_BASE_URL + "/routes/stations/";
+    public static final String MARPROM_API_STATION_DETAILS = MARPROM_API_BASE_URL + "/stations/";
+    public static final int API_TIMEOUT_MS = 5000;
+
     private Constants() {
     }
 }
