@@ -83,11 +83,24 @@
                                 android:textColor="?attr/colorOnSurfaceVariant" />
                         </LinearLayout>
 
-                        <com.google.android.material.materialswitch.MaterialSwitch
-                            android:id="@+id/switch_camera"
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_open_camera"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content"
+                            android:text="@string/open_camera"
+                            style="@style/Widget.Material3.Button.TonalButton" />
                     </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/camera_last_capture"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:textColor="?attr/colorPrimary"
+                        android:visibility="gone"
+                        tools:text="Zadnji zajem: 12:34:56"
+                        tools:visibility="visible" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

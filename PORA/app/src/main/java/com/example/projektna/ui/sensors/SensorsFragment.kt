@@ -6,8 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,13 +18,20 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.example.projektna.R
+import com.example.projektna.data.CameraData
 import com.example.projektna.data.GpsData
 import com.example.projektna.data.PreferencesManager
 import com.example.projektna.services.AccelerometerService
 import com.example.projektna.services.GpsService
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class SensorsFragment : Fragment() {
 
@@ -35,6 +45,12 @@ class SensorsFragment : Fragment() {
     private lateinit var gpsStatus: TextView
     private lateinit var gpsCoordinates: TextView
     private lateinit var gpsSpeed: TextView
+
+    private lateinit var buttonOpenCamera: MaterialButton
+    private lateinit var cameraStatus: TextView
+    private lateinit var cameraLastCapture: TextView
+    private var currentPhotoUri: Uri? = null
+    private var currentPhotoPath: String? = null
 
     private val accelerometerReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -106,6 +122,30 @@ class SensorsFragment : Fragment() {
         }
     }
 
+    private val cameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            openCamera()
+        } else {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.camera_permission_denied),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private val takePictureLauncher = registerForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            currentPhotoPath?.let { path ->
+                onPhotoCaptured(path)
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -128,8 +168,13 @@ class SensorsFragment : Fragment() {
         gpsCoordinates = view.findViewById(R.id.gps_coordinates)
         gpsSpeed = view.findViewById(R.id.gps_speed)
 
+        buttonOpenCamera = view.findViewById(R.id.button_open_camera)
+        cameraStatus = view.findViewById(R.id.camera_status)
+        cameraLastCapture = view.findViewById(R.id.camera_last_capture)
+
         setupAccelerometerSwitch()
         setupGpsSwitch()
+        setupCameraButton()
         restoreSwitchStates()
     }
 
@@ -308,5 +353,73 @@ class SensorsFragment : Fragment() {
         }
         gpsCoordinates.setTextColor(textColor)
         gpsSpeed.setTextColor(textColor)
+    }
+
+    private fun setupCameraButton() {
+        buttonOpenCamera.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.CAMERA
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            } else {
+                openCamera()
+            }
+        }
+    }
+
+    private fun openCamera() {
+        val photoFile = createImageFile()
+        if (photoFile != null) {
+            currentPhotoPath = photoFile.absolutePath
+            currentPhotoUri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.fileprovider",
+                photoFile
+            )
+            takePictureLauncher.launch(currentPhotoUri)
+        } else {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.camera_error),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun createImageFile(): File? {
+        return try {
+            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+            val imageFileName = "IMG_${timeStamp}"
+            val storageDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            File.createTempFile(imageFileName, ".jpg", storageDir)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun onPhotoCaptured(imagePath: String) {
+        val timestamp = System.currentTimeMillis()
+        val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        val timeString = timeFormat.format(Date(timestamp))
+
+        cameraStatus.text = getString(R.string.enabled)
+        cameraLastCapture.visibility = View.VISIBLE
+        cameraLastCapture.text = getString(R.string.last_capture, timeString)
+
+        // TODO: Get current GPS location if GPS service is running
+        val latitude: Double? = null
+        val longitude: Double? = null
+
+        val cameraData = CameraData(
+            imagePath = imagePath,
+            timestamp = timestamp,
+            latitude = latitude,
+            longitude = longitude,
+            isPendingUpload = true
+        )
+
+        // TODO: Save cameraData to Room database for MQTT upload queue
     }
 }
