@@ -24,6 +24,7 @@ import com.example.projektna.R
 import com.example.projektna.data.CameraData
 import com.example.projektna.data.GpsData
 import com.example.projektna.data.PreferencesManager
+import com.example.projektna.network.ImageUploadManager
 import com.example.projektna.services.AccelerometerService
 import com.example.projektna.services.GpsService
 import com.google.android.material.button.MaterialButton
@@ -49,8 +50,12 @@ class SensorsFragment : Fragment() {
     private lateinit var buttonOpenCamera: MaterialButton
     private lateinit var cameraStatus: TextView
     private lateinit var cameraLastCapture: TextView
+    private lateinit var buttonUploadImage: MaterialButton
+    private lateinit var cameraUploadStatus: TextView
     private var currentPhotoUri: Uri? = null
     private var currentPhotoPath: String? = null
+    private var currentCameraData: CameraData? = null
+    private lateinit var imageUploadManager: ImageUploadManager
 
     private val accelerometerReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -171,10 +176,16 @@ class SensorsFragment : Fragment() {
         buttonOpenCamera = view.findViewById(R.id.button_open_camera)
         cameraStatus = view.findViewById(R.id.camera_status)
         cameraLastCapture = view.findViewById(R.id.camera_last_capture)
+        buttonUploadImage = view.findViewById(R.id.button_upload_image)
+        cameraUploadStatus = view.findViewById(R.id.camera_upload_status)
+
+        imageUploadManager = ImageUploadManager(requireContext())
+        setupImageUploadListener()
 
         setupAccelerometerSwitch()
         setupGpsSwitch()
         setupCameraButton()
+        setupUploadButton()
         restoreSwitchStates()
     }
 
@@ -412,7 +423,7 @@ class SensorsFragment : Fragment() {
         val latitude: Double? = null
         val longitude: Double? = null
 
-        val cameraData = CameraData(
+        currentCameraData = CameraData(
             imagePath = imagePath,
             timestamp = timestamp,
             latitude = latitude,
@@ -420,6 +431,61 @@ class SensorsFragment : Fragment() {
             isPendingUpload = true
         )
 
+        // Show upload button
+        buttonUploadImage.visibility = View.VISIBLE
+        buttonUploadImage.isEnabled = true
+        cameraUploadStatus.visibility = View.VISIBLE
+        cameraUploadStatus.text = getString(R.string.upload_pending)
+
         // TODO: Save cameraData to Room database for MQTT upload queue
+    }
+
+    private fun setupUploadButton() {
+        buttonUploadImage.setOnClickListener {
+            currentCameraData?.let { cameraData ->
+                imageUploadManager.uploadImage(cameraData)
+            }
+        }
+    }
+
+    private fun setupImageUploadListener() {
+        imageUploadManager.setUploadListener(object : ImageUploadManager.UploadListener {
+            override fun onUploadStarted(cameraData: CameraData) {
+                activity?.runOnUiThread {
+                    buttonUploadImage.isEnabled = false
+                    cameraUploadStatus.text = getString(R.string.upload_in_progress)
+                    cameraUploadStatus.setTextColor(
+                        ContextCompat.getColor(requireContext(), R.color.primary)
+                    )
+                }
+            }
+
+            override fun onUploadProgress(cameraData: CameraData, progress: Int) {
+                activity?.runOnUiThread {
+                    cameraUploadStatus.text = "${getString(R.string.upload_in_progress)} $progress%"
+                }
+            }
+
+            override fun onUploadSuccess(cameraData: CameraData) {
+                activity?.runOnUiThread {
+                    buttonUploadImage.visibility = View.GONE
+                    cameraUploadStatus.text = getString(R.string.upload_success)
+                    cameraUploadStatus.setTextColor(
+                        ContextCompat.getColor(requireContext(), R.color.success)
+                    )
+                    currentCameraData = currentCameraData?.copy(isPendingUpload = false)
+                }
+            }
+
+            override fun onUploadFailed(cameraData: CameraData, error: String) {
+                activity?.runOnUiThread {
+                    buttonUploadImage.isEnabled = true
+                    cameraUploadStatus.text = "${getString(R.string.upload_failed)}: $error"
+                    cameraUploadStatus.setTextColor(
+                        ContextCompat.getColor(requireContext(), R.color.error)
+                    )
+                }
+            }
+        })
     }
 }

@@ -58,4 +58,10 @@
     <string name="camera_error">Napaka pri zajemu slike</string>
     <string name="camera_permission_denied">Dovoljenje za kamero zavrnjeno</string>
     <string name="camera_not_available">Kamera ni na voljo</string>
+    <string name="upload_image">Pošlji na strežnik</string>
+    <string name="upload_pending">Čaka na nalaganje</string>
+    <string name="upload_in_progress">Nalaganje…</string>
+    <string name="upload_success">Uspešno naloženo</string>
+    <string name="upload_failed">Nalaganje ni uspelo</string>
+    <string name="upload_no_connection">Ni povezave s strežnikom</string>
 </resources>
