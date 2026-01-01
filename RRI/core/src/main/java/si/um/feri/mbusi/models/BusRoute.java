@@ -1,5 +1,7 @@
 package si.um.feri.mbusi.models;
 
+import com.badlogic.gdx.graphics.Color;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +10,7 @@ public class BusRoute {
     private String name;
     private int lineId;
     private List<double[]> path;
+    private Color color;
 
     public BusRoute() {
         this.path = new ArrayList<>();
@@ -54,6 +57,14 @@ public class BusRoute {
 
     public void addPathPoint(double latitude, double longitude) {
         this.path.add(new double[]{latitude, longitude});
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
     }
 
     @Override

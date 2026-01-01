@@ -20,7 +20,6 @@ public class MainMap extends Game {
 
         apiClient = new MarPromApiClient();
 
-        // Test API call - fetch routes
         Gdx.app.log("MainMap", "");
         Gdx.app.log("MainMap", "=== FETCHING BUS ROUTES ===");
         apiClient.fetchRoutes(new MarPromApiClient.RoutesCallback() {
