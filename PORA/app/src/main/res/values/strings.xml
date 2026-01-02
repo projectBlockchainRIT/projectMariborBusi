@@ -28,6 +28,11 @@
     <string name="settings_title">Nastavitve</string>
     <string name="settings_mqtt">MQTT povezava</string>
     <string name="settings_simulation">Simulacija</string>
+    <string name="settings_frequency">Frekvenca zajemanja</string>
+    <string name="settings_gps_interval">GPS lokacija</string>
+    <string name="settings_accelerometer_interval">Pospeškometer</string>
+    <string name="settings_interval_seconds">%d s</string>
+    <string name="settings_frequency_note">Spremembe veljajo ob ponovnem zagonu senzorja</string>
 
     <!-- Common -->
     <string name="status_connected">Povezano</string>

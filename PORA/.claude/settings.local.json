@@ -4,7 +4,10 @@
       "Bash(xargs:*)",
       "Bash(cat:*)",
       "Bash(./gradlew assembleDebug:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(cd \"/home/adrian/Documents/PORA_PROJEKTNA/commit_6: git commit -m \"\"SC-101 Modul za kamero\"\" \")",
+      "Bash(pushd '/home/adrian/Documents/PORA_PROJEKTNA/commit_6: git commit -m \"\"SC-101 Modul za kamero\"\" ')",
+      "Bash(popd)"
     ]
   }
 }

@@ -9,6 +9,7 @@ import android.hardware.SensorManager
 import android.os.IBinder
 import android.util.Log
 import com.example.projektna.data.AccelerometerData
+import com.example.projektna.data.PreferencesManager
 import kotlin.math.sqrt
 
 class AccelerometerService : Service(), SensorEventListener {
@@ -22,15 +23,20 @@ class AccelerometerService : Service(), SensorEventListener {
     }
 
     private lateinit var sensorManager: SensorManager
+    private lateinit var preferencesManager: PreferencesManager
     private var accelerometer: Sensor? = null
     private var lastUpdateTime = 0L
-    private val updateInterval = 200L // ms
+    private var updateIntervalMs = 1000L // privzeto 1 sekunda
 
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "Service onCreate")
 
         NotificationHelper.createNotificationChannel(this)
+
+        preferencesManager = PreferencesManager(this)
+        updateIntervalMs = preferencesManager.accelerometerIntervalSeconds * 1000L
+        Log.d(TAG, "Update interval: ${updateIntervalMs}ms")
 
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -72,7 +78,7 @@ class AccelerometerService : Service(), SensorEventListener {
             if (it.sensor.type == Sensor.TYPE_ACCELEROMETER) {
                 val currentTime = System.currentTimeMillis()
 
-                if (currentTime - lastUpdateTime >= updateInterval) {
+                if (currentTime - lastUpdateTime >= updateIntervalMs) {
                     lastUpdateTime = currentTime
 
                     val x = it.values[0]

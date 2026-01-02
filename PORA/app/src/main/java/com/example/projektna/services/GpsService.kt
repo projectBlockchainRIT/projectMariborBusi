@@ -9,6 +9,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.example.projektna.data.GpsData
+import com.example.projektna.data.PreferencesManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -26,14 +27,13 @@ class GpsService : Service() {
         const val EXTRA_SPEED = "speed"
         const val EXTRA_TIMESTAMP = "timestamp"
         const val EXTRA_IS_EXTREME = "is_extreme"
-
-        private const val UPDATE_INTERVAL = 5000L // 5 sekund
-        private const val FASTEST_INTERVAL = 3000L
     }
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
+    private lateinit var preferencesManager: PreferencesManager
 
+    private var updateIntervalMs = 5000L // privzeto 5 sekund
     private var lastLatitude = 0.0
     private var lastLongitude = 0.0
     private var lastSpeedKmh = 0f
@@ -43,6 +43,10 @@ class GpsService : Service() {
         Log.d(TAG, "Service onCreate")
 
         NotificationHelper.createGpsNotificationChannel(this)
+
+        preferencesManager = PreferencesManager(this)
+        updateIntervalMs = preferencesManager.gpsIntervalSeconds * 1000L
+        Log.d(TAG, "Update interval: ${updateIntervalMs}ms")
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -103,8 +107,9 @@ class GpsService : Service() {
             return
         }
 
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, UPDATE_INTERVAL)
-            .setMinUpdateIntervalMillis(FASTEST_INTERVAL)
+        val fastestInterval = (updateIntervalMs * 0.6).toLong() // 60% od glavnega intervala
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, updateIntervalMs)
+            .setMinUpdateIntervalMillis(fastestInterval)
             .build()
 
         fusedLocationClient.requestLocationUpdates(
