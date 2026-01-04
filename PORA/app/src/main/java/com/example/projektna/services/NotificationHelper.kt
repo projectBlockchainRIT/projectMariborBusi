@@ -10,6 +10,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.projektna.MainActivity
 import com.example.projektna.R
+import com.example.projektna.data.schedule.SensorType
 
 object NotificationHelper {
     const val CHANNEL_ID = "accelerometer_channel"
@@ -17,6 +18,9 @@ object NotificationHelper {
 
     const val GPS_CHANNEL_ID = "gps_channel"
     const val GPS_NOTIFICATION_ID = 1002
+
+    const val SCHEDULE_CHANNEL_ID = "schedule_reminders"
+    private const val SCHEDULE_NOTIFICATION_BASE_ID = 2000
 
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -90,5 +94,71 @@ object NotificationHelper {
             .setContentIntent(pendingIntent)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .build()
+    }
+
+    fun createScheduleNotificationChannel(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                SCHEDULE_CHANNEL_ID,
+                context.getString(R.string.schedule_notification_channel_name),
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = context.getString(R.string.schedule_notification_channel_description)
+                enableVibration(true)
+            }
+
+            val notificationManager = context.getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    fun showScheduleReminderNotification(context: Context, sensorType: SensorType, scheduleId: Long) {
+        createScheduleNotificationChannel(context)
+
+        val title = when (sensorType) {
+            SensorType.CAMERA -> context.getString(R.string.camera_reminder_title)
+            SensorType.GPS -> context.getString(R.string.gps_reminder_title)
+            SensorType.ACCELEROMETER -> context.getString(R.string.accelerometer_reminder_title)
+        }
+
+        val text = when (sensorType) {
+            SensorType.CAMERA -> context.getString(R.string.camera_reminder_text)
+            SensorType.GPS -> context.getString(R.string.gps_reminder_text)
+            SensorType.ACCELEROMETER -> context.getString(R.string.accelerometer_reminder_text)
+        }
+
+        val icon = when (sensorType) {
+            SensorType.CAMERA -> R.drawable.ic_camera
+            SensorType.GPS -> R.drawable.ic_location
+            SensorType.ACCELEROMETER -> R.drawable.ic_accelerometer
+        }
+
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra("navigate_to", "sensors")
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            SCHEDULE_NOTIFICATION_BASE_ID + scheduleId.toInt(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(context, SCHEDULE_CHANNEL_ID)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setSmallIcon(icon)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .build()
+
+        val notificationManager = context.getSystemService(NotificationManager::class.java)
+        notificationManager.notify(
+            SCHEDULE_NOTIFICATION_BASE_ID + scheduleId.toInt(),
+            notification
+        )
     }
 }

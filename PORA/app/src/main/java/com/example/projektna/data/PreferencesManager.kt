@@ -10,6 +10,11 @@ class PreferencesManager(context: Context) {
         private const val KEY_ACCELEROMETER_ENABLED = "accelerometer_enabled"
         private const val KEY_CAMERA_ENABLED = "camera_enabled"
         private const val KEY_GPS_ENABLED = "gps_enabled"
+        private const val KEY_ACCELEROMETER_INTERVAL = "accelerometer_interval"
+        private const val KEY_GPS_INTERVAL = "gps_interval"
+
+        const val DEFAULT_ACCELEROMETER_INTERVAL = 1 // sekunde
+        const val DEFAULT_GPS_INTERVAL = 5 // sekunde
     }
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -25,4 +30,12 @@ class PreferencesManager(context: Context) {
     var isGpsEnabled: Boolean
         get() = prefs.getBoolean(KEY_GPS_ENABLED, false)
         set(value) = prefs.edit().putBoolean(KEY_GPS_ENABLED, value).apply()
+
+    var accelerometerIntervalSeconds: Int
+        get() = prefs.getInt(KEY_ACCELEROMETER_INTERVAL, DEFAULT_ACCELEROMETER_INTERVAL)
+        set(value) = prefs.edit().putInt(KEY_ACCELEROMETER_INTERVAL, value).apply()
+
+    var gpsIntervalSeconds: Int
+        get() = prefs.getInt(KEY_GPS_INTERVAL, DEFAULT_GPS_INTERVAL)
+        set(value) = prefs.edit().putInt(KEY_GPS_INTERVAL, value).apply()
 }

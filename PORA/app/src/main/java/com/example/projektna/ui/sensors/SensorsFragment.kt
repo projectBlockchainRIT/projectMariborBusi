@@ -10,10 +10,10 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,11 +22,12 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.example.projektna.R
 import com.example.projektna.data.CameraData
-import com.example.projektna.data.GpsData
 import com.example.projektna.data.PreferencesManager
+import com.example.projektna.data.schedule.SensorType
 import com.example.projektna.network.ImageUploadManager
 import com.example.projektna.services.AccelerometerService
 import com.example.projektna.services.GpsService
+import com.example.projektna.ui.schedule.ScheduleListBottomSheet
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import java.io.File
@@ -186,7 +187,27 @@ class SensorsFragment : Fragment() {
         setupGpsSwitch()
         setupCameraButton()
         setupUploadButton()
+        setupScheduleButtons(view)
         restoreSwitchStates()
+    }
+
+    private fun setupScheduleButtons(view: View) {
+        view.findViewById<ImageButton>(R.id.button_camera_schedule).setOnClickListener {
+            showScheduleBottomSheet(SensorType.CAMERA)
+        }
+
+        view.findViewById<ImageButton>(R.id.button_gps_schedule).setOnClickListener {
+            showScheduleBottomSheet(SensorType.GPS)
+        }
+
+        view.findViewById<ImageButton>(R.id.button_accelerometer_schedule).setOnClickListener {
+            showScheduleBottomSheet(SensorType.ACCELEROMETER)
+        }
+    }
+
+    private fun showScheduleBottomSheet(sensorType: SensorType) {
+        val bottomSheet = ScheduleListBottomSheet.newInstance(sensorType)
+        bottomSheet.show(parentFragmentManager, "schedule_list")
     }
 
     override fun onResume() {
