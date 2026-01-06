@@ -59,6 +59,12 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.runtime)
 
+    // MapBox
+    implementation(libs.mapbox.maps)
+
+    // OkHttp for geocoding API calls
+    implementation(libs.okhttp)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

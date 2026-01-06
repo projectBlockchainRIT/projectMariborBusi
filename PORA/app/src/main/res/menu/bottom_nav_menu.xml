@@ -9,6 +9,10 @@
         android:icon="@drawable/ic_sensors"
         android:title="@string/nav_sensors" />
     <item
+        android:id="@+id/navigation_map"
+        android:icon="@drawable/ic_map"
+        android:title="@string/nav_map" />
+    <item
         android:id="@+id/navigation_events"
         android:icon="@drawable/ic_events"
         android:title="@string/nav_events" />

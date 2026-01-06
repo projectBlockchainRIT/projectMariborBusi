@@ -4,6 +4,7 @@
     <!-- Navigation -->
     <string name="nav_home">Domov</string>
     <string name="nav_sensors">Senzorji</string>
+    <string name="nav_map">Zemljevid</string>
     <string name="nav_events">Dogodki</string>
     <string name="nav_settings">Nastavitve</string>
 
@@ -126,4 +127,13 @@
     <string name="accelerometer">pospeškometer</string>
     <string name="gps">GPS</string>
     <string name="camera">kamero</string>
+
+    <!-- Map screen -->
+    <string name="map_title">Zemljevid</string>
+    <string name="map_my_location">Moja lokacija</string>
+    <string name="map_search_hint">Išči lokacijo…</string>
+    <string name="map_search_no_results">Ni rezultatov</string>
+    <string name="map_selected_location">Izbrana lokacija</string>
+    <string name="map_location_permission_required">Potrebno je dovoljenje za lokacijo</string>
+    <string name="mapbox_access_token" translatable="false">pk.eyJ1IjoiYml0LWJhbmRpdCIsImEiOiJjbWJldzQyM28wNXRmMmlzaDhleWkwNXllIn0.CcdSzZ3I4zYYe4XXeUEItQ</string>
 </resources>

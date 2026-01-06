@@ -7,7 +7,13 @@
       "Bash(tree:*)",
       "Bash(cd \"/home/adrian/Documents/PORA_PROJEKTNA/commit_6: git commit -m \"\"SC-101 Modul za kamero\"\" \")",
       "Bash(pushd '/home/adrian/Documents/PORA_PROJEKTNA/commit_6: git commit -m \"\"SC-101 Modul za kamero\"\" ')",
-      "Bash(popd)"
+      "Bash(popd)",
+      "Bash(cd \"/home/adrian/Documents/PORA_PROJEKTNA/commit 9: git commit -m \"\"SC-108 Dodajanje zemljevida\"\"\")",
+      "Bash(bash -c 'cd \"\"/home/adrian/Documents/PORA_PROJEKTNA/commit 9: git commit -m \\\\\"\"SC-108 Dodajanje zemljevida\\\\\"\"\"\" && ./gradlew assembleDebug')",
+      "Bash(PROJ_DIR='/home/adrian/Documents/PORA_PROJEKTNA/commit 9: git commit -m \"\"SC-108 Dodajanje zemljevida\"\"')",
+      "Bash(\"$PROJ_DIR/gradlew\" -p \"$PROJ_DIR\" assembleDebug)",
+      "Bash(java:*)",
+      "Bash(bash ./gradlew:*)"
     ]
   }
 }
