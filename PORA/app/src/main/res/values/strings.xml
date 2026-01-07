@@ -136,4 +136,29 @@
     <string name="map_selected_location">Izbrana lokacija</string>
     <string name="map_location_permission_required">Potrebno je dovoljenje za lokacijo</string>
     <string name="mapbox_access_token" translatable="false">pk.eyJ1IjoiYml0LWJhbmRpdCIsImEiOiJjbWJldzQyM28wNXRmMmlzaDhleWkwNXllIn0.CcdSzZ3I4zYYe4XXeUEItQ</string>
+
+    <!-- Bus map -->
+    <string name="view_stations">Postaje</string>
+    <string name="view_lines">Linije</string>
+    <string name="select_line_to_view">Izberi linijo</string>
+    <string name="loading_route">Nalaganje linije…</string>
+    <string name="search_stops">Iskanje postaj</string>
+    <string name="show_all_stations">Prikaži vse postaje</string>
+    <string name="location_permission_denied">Dovoljenje za lokacijo zavrnjeno</string>
+    <string name="no_route_data">Ni podatkov o liniji</string>
+    <string name="nearby_stations_title">Bližnje postaje</string>
+    <string name="nearby_stations_message">Ali želite prikazati samo bližnje postaje?</string>
+    <string name="yes">Da</string>
+    <string name="no">Ne</string>
+    <string name="no_nearby_stations">V bližini ni postaj</string>
+    <string name="location_not_available">Lokacija ni na voljo</string>
+    <string name="searching_nearby_stations">Iščem bližnje postaje…</string>
+    <string name="enable_location_first">Najprej omogočite lokacijo</string>
+    <string name="station_number_format">Postaja št. %s</string>
+    <string name="bus_stop_icon">Ikona avtobusne postaje</string>
+    <string name="favorite">Priljubljeno</string>
+    <string name="departures">Odhodi</string>
+    <string name="no_departures">Ni prihodnjih odhodov</string>
+    <string name="view_details">Prikaži podrobnosti</string>
+    <string name="added_to_favorites">Dodano med priljubljene</string>
 </resources>

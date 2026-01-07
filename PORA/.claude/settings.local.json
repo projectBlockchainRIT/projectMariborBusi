@@ -13,7 +13,8 @@
       "Bash(PROJ_DIR='/home/adrian/Documents/PORA_PROJEKTNA/commit 9: git commit -m \"\"SC-108 Dodajanje zemljevida\"\"')",
       "Bash(\"$PROJ_DIR/gradlew\" -p \"$PROJ_DIR\" assembleDebug)",
       "Bash(java:*)",
-      "Bash(bash ./gradlew:*)"
+      "Bash(bash ./gradlew:*)",
+      "Bash(./gradlew clean:*)"
     ]
   }
 }
