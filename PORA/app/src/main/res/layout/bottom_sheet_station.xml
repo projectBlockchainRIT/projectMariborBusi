@@ -128,13 +128,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textViewDeparturesLabel" />
 
-    <!-- View details button -->
+    <!-- Report delay button -->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonViewDetails"
+        android:id="@+id/buttonReportDelay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="@string/view_details"
+        android:text="@string/report_delay"
+        app:icon="@drawable/ic_schedule"
         app:layout_constraintTop_toBottomOf="@id/recyclerViewDepartures" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

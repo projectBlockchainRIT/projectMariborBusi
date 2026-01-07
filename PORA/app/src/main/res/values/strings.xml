@@ -161,4 +161,23 @@
     <string name="no_departures">Ni prihodnjih odhodov</string>
     <string name="view_details">Prikaži podrobnosti</string>
     <string name="added_to_favorites">Dodano med priljubljene</string>
+
+    <!-- Delay reporting -->
+    <string name="report_delay">Vnesi zamudo</string>
+    <string name="report_delay_title">Prijava zamude</string>
+    <string name="station_delay_info">Postaja: %s</string>
+    <string name="select_line">Izberi linijo</string>
+    <string name="delay_minutes_label">Zamuda v minutah</string>
+    <string name="delay_value_format">%d min</string>
+    <string name="delay_min">1 min</string>
+    <string name="delay_max">60 min</string>
+    <string name="submit_delay">Pošlji</string>
+    <string name="delay_submitted">Zamuda uspešno poslana</string>
+    <string name="delay_submit_error">Napaka pri pošiljanju: %s</string>
+    <string name="select_line_first">Najprej izberite linijo</string>
+    <string name="no_lines_available">Ni razpoložljivih linij</string>
+    <string name="select_station">Izberi postajo</string>
+    <string name="select_station_first">Najprej izberite postajo</string>
+    <string name="events_delay_section">Prijava zamude</string>
+    <string name="delay_for_line">Zamuda za linijo</string>
 </resources>

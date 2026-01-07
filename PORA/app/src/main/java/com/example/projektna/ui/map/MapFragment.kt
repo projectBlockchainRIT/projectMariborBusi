@@ -393,6 +393,9 @@ class MapFragment : Fragment() {
         sheetBinding.progressBarDepartures.visibility = View.VISIBLE
         viewModel.loadStopDetails(stop.id)
 
+        // Store departures for delay dialog
+        var currentDepartures: List<com.example.projektna.data.api.model.DepartureGroup> = emptyList()
+
         // Observe station metadata
         viewModel.stopMetadata.observe(viewLifecycleOwner) { resource ->
             when (resource) {
@@ -405,6 +408,7 @@ class MapFragment : Fragment() {
                     sheetBinding.progressBarDepartures.visibility = View.GONE
                     val metadata = resource.data
                     if (metadata != null && metadata.departures.isNotEmpty()) {
+                        currentDepartures = metadata.departures
                         departuresAdapter.submitList(metadata.departures)
                         sheetBinding.recyclerViewDepartures.visibility = View.VISIBLE
                         sheetBinding.textViewNoDepartures.visibility = View.GONE
@@ -426,13 +430,23 @@ class MapFragment : Fragment() {
             Toast.makeText(context, getString(R.string.added_to_favorites), Toast.LENGTH_SHORT).show()
         }
 
-        // View details button click
-        sheetBinding.buttonViewDetails.setOnClickListener {
+        // Report delay button click
+        sheetBinding.buttonReportDelay.setOnClickListener {
             bottomSheetDialog.dismiss()
-            // TODO: Navigate to stop detail screen if needed
+            showDelayInputDialog(stop, currentDepartures)
         }
 
         bottomSheetDialog.show()
+    }
+
+    private fun showDelayInputDialog(stop: BusStop, departures: List<com.example.projektna.data.api.model.DepartureGroup>) {
+        val dialog = DelayInputDialog.newInstance(
+            busStop = stop,
+            availableLines = departures,
+            userLatitude = userLocation?.latitude(),
+            userLongitude = userLocation?.longitude()
+        )
+        dialog.show(childFragmentManager, DelayInputDialog.TAG)
     }
 
     private fun setupClickListeners() {

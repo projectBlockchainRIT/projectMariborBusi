@@ -6,6 +6,11 @@ import retrofit2.http.*
 
 interface BusiMobileApi {
 
+    // ==================== Delays ====================
+
+    @POST("delays/user")
+    suspend fun submitDelay(@Body delay: DelayRequest): Response<DelayResponse>
+
     // ==================== Stations ====================
 
     @GET("stations/list")
