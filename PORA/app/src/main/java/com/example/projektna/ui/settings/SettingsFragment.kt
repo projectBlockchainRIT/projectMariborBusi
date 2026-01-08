@@ -18,6 +18,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.projektna.R
@@ -25,6 +26,7 @@ import com.example.projektna.data.PreferencesManager
 import com.example.projektna.data.SimulationSensorType
 import com.example.projektna.data.api.model.BusRoute
 import com.example.projektna.data.repository.BusRouteRepository
+import com.example.projektna.data.repository.SimulationRepository
 import com.example.projektna.services.SimulationService
 import com.example.projektna.util.Resource
 import com.google.android.material.button.MaterialButton
@@ -46,6 +48,7 @@ class SettingsFragment : Fragment() {
 
     private lateinit var preferencesManager: PreferencesManager
     private val busRouteRepository = BusRouteRepository()
+    private val simulationRepository = SimulationRepository()
     private var availableRoutes: List<BusRoute> = emptyList()
 
     // Account views
@@ -54,12 +57,17 @@ class SettingsFragment : Fragment() {
     private lateinit var btnLogout: MaterialButton
 
     // Collapsible section views
-    private lateinit var headerMqtt: LinearLayout
-    private lateinit var contentMqtt: LinearLayout
-    private lateinit var iconMqttExpand: ImageView
     private lateinit var headerFrequency: LinearLayout
     private lateinit var contentFrequency: LinearLayout
     private lateinit var iconFrequencyExpand: ImageView
+
+    // MQTT views
+    private lateinit var switchMqtt: MaterialSwitch
+    private lateinit var textMqttStatus: TextView
+    private lateinit var layoutMqttSettings: LinearLayout
+    private lateinit var inputBrokerUrl: TextInputEditText
+    private lateinit var inputMqttUsername: TextInputEditText
+    private lateinit var inputMqttPassword: TextInputEditText
 
     // Existing views
     private lateinit var sliderGpsInterval: Slider
@@ -75,19 +83,21 @@ class SettingsFragment : Fragment() {
     private lateinit var sliderSimulationInterval: Slider
     private lateinit var textSimulationIntervalValue: TextView
     private lateinit var layoutGpsRange: LinearLayout
-    private lateinit var layoutSpeedRange: LinearLayout
     private lateinit var inputLatMin: TextInputEditText
     private lateinit var inputLatMax: TextInputEditText
     private lateinit var inputLonMin: TextInputEditText
     private lateinit var inputLonMax: TextInputEditText
-    private lateinit var inputSpeedMin: TextInputEditText
-    private lateinit var inputSpeedMax: TextInputEditText
+    private lateinit var layoutAccelRange: LinearLayout
+    private lateinit var inputAccelMin: TextInputEditText
+    private lateinit var inputAccelMax: TextInputEditText
     private lateinit var checkboxManualLocation: MaterialCheckBox
     private lateinit var layoutManualLocation: LinearLayout
     private lateinit var inputManualLat: TextInputEditText
     private lateinit var inputManualLon: TextInputEditText
     private lateinit var btnPickOnMap: MaterialButton
     private lateinit var btnStartSimulation: MaterialButton
+    private lateinit var btnSimulateCollision: MaterialButton
+    private lateinit var layoutFollowRoute: LinearLayout
 
     // Route following views
     private lateinit var checkboxFollowRoute: MaterialCheckBox
@@ -99,7 +109,7 @@ class SettingsFragment : Fragment() {
 
     private val sensorTypes = listOf(
         SimulationSensorType.GPS,
-        SimulationSensorType.SPEED
+        SimulationSensorType.ACCELEROMETER
     )
 
     private val simulationStatusReceiver = object : BroadcastReceiver() {
@@ -146,6 +156,14 @@ class SettingsFragment : Fragment() {
         loadSavedValues()
         setupListeners()
         updateSimulationUI()
+
+        // Register for location picker result (on childFragmentManager since dialog is shown there)
+        childFragmentManager.setFragmentResultListener(LocationPickerDialog.REQUEST_KEY, viewLifecycleOwner) { _, bundle ->
+            val latitude = bundle.getDouble(LocationPickerDialog.RESULT_LATITUDE)
+            val longitude = bundle.getDouble(LocationPickerDialog.RESULT_LONGITUDE)
+            val address = bundle.getString(LocationPickerDialog.RESULT_ADDRESS) ?: ""
+            simulateCollisionAtLocation(latitude, longitude, address)
+        }
     }
 
     override fun onResume() {
@@ -183,12 +201,17 @@ class SettingsFragment : Fragment() {
         btnLogout = view.findViewById(R.id.btn_logout)
 
         // Collapsible section views
-        headerMqtt = view.findViewById(R.id.header_mqtt)
-        contentMqtt = view.findViewById(R.id.content_mqtt)
-        iconMqttExpand = view.findViewById(R.id.icon_mqtt_expand)
         headerFrequency = view.findViewById(R.id.header_frequency)
         contentFrequency = view.findViewById(R.id.content_frequency)
         iconFrequencyExpand = view.findViewById(R.id.icon_frequency_expand)
+
+        // MQTT views
+        switchMqtt = view.findViewById(R.id.switch_mqtt)
+        textMqttStatus = view.findViewById(R.id.text_mqtt_status)
+        layoutMqttSettings = view.findViewById(R.id.layout_mqtt_settings)
+        inputBrokerUrl = view.findViewById(R.id.input_broker_url)
+        inputMqttUsername = view.findViewById(R.id.input_mqtt_username)
+        inputMqttPassword = view.findViewById(R.id.input_mqtt_password)
 
         // Existing views
         sliderGpsInterval = view.findViewById(R.id.slider_gps_interval)
@@ -204,19 +227,21 @@ class SettingsFragment : Fragment() {
         sliderSimulationInterval = view.findViewById(R.id.slider_simulation_interval)
         textSimulationIntervalValue = view.findViewById(R.id.text_simulation_interval_value)
         layoutGpsRange = view.findViewById(R.id.layout_gps_range)
-        layoutSpeedRange = view.findViewById(R.id.layout_speed_range)
         inputLatMin = view.findViewById(R.id.input_lat_min)
         inputLatMax = view.findViewById(R.id.input_lat_max)
         inputLonMin = view.findViewById(R.id.input_lon_min)
         inputLonMax = view.findViewById(R.id.input_lon_max)
-        inputSpeedMin = view.findViewById(R.id.input_speed_min)
-        inputSpeedMax = view.findViewById(R.id.input_speed_max)
+        layoutAccelRange = view.findViewById(R.id.layout_accel_range)
+        inputAccelMin = view.findViewById(R.id.input_accel_min)
+        inputAccelMax = view.findViewById(R.id.input_accel_max)
         checkboxManualLocation = view.findViewById(R.id.checkbox_manual_location)
         layoutManualLocation = view.findViewById(R.id.layout_manual_location)
         inputManualLat = view.findViewById(R.id.input_manual_lat)
         inputManualLon = view.findViewById(R.id.input_manual_lon)
         btnPickOnMap = view.findViewById(R.id.btn_pick_on_map)
         btnStartSimulation = view.findViewById(R.id.btn_start_simulation)
+        btnSimulateCollision = view.findViewById(R.id.btn_simulate_collision)
+        layoutFollowRoute = view.findViewById(R.id.layout_follow_route)
 
         // Route following views
         checkboxFollowRoute = view.findViewById(R.id.checkbox_follow_route)
@@ -230,7 +255,7 @@ class SettingsFragment : Fragment() {
         val sensorTypeLabels = sensorTypes.map { type ->
             when (type) {
                 SimulationSensorType.GPS -> getString(R.string.simulation_type_gps)
-                SimulationSensorType.SPEED -> getString(R.string.simulation_type_speed)
+                SimulationSensorType.ACCELEROMETER -> getString(R.string.simulation_type_accelerometer)
             }
         }
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, sensorTypeLabels)
@@ -241,6 +266,13 @@ class SettingsFragment : Fragment() {
         // Account values
         textUserUsername.text = preferencesManager.userUsername ?: getString(R.string.account_no_email)
         textUserEmail.text = preferencesManager.userEmail ?: getString(R.string.account_no_email)
+
+        // MQTT values
+        switchMqtt.isChecked = preferencesManager.isMqttEnabled
+        inputBrokerUrl.setText(preferencesManager.mqttBrokerUrl)
+        inputMqttUsername.setText(preferencesManager.mqttUsername)
+        inputMqttPassword.setText(preferencesManager.mqttPassword)
+        updateMqttUI()
 
         // Existing interval values
         val gpsInterval = preferencesManager.gpsIntervalSeconds
@@ -258,7 +290,7 @@ class SettingsFragment : Fragment() {
         val currentSensorType = preferencesManager.simulationSensorType
         val sensorTypeLabel = when (currentSensorType) {
             SimulationSensorType.GPS -> getString(R.string.simulation_type_gps)
-            SimulationSensorType.SPEED -> getString(R.string.simulation_type_speed)
+            SimulationSensorType.ACCELEROMETER -> getString(R.string.simulation_type_accelerometer)
         }
         dropdownSensorType.setText(sensorTypeLabel, false)
 
@@ -269,8 +301,8 @@ class SettingsFragment : Fragment() {
         inputLatMax.setText(preferencesManager.simulationGpsLatMax.toString())
         inputLonMin.setText(preferencesManager.simulationGpsLonMin.toString())
         inputLonMax.setText(preferencesManager.simulationGpsLonMax.toString())
-        inputSpeedMin.setText(preferencesManager.simulationSpeedMin.toString())
-        inputSpeedMax.setText(preferencesManager.simulationSpeedMax.toString())
+        inputAccelMin.setText(preferencesManager.simulationAccelMin.toString())
+        inputAccelMax.setText(preferencesManager.simulationAccelMax.toString())
 
         checkboxManualLocation.isChecked = preferencesManager.useManualLocation
         inputManualLat.setText(preferencesManager.simulationManualLat.toString())
@@ -319,11 +351,26 @@ class SettingsFragment : Fragment() {
         }
 
         // Collapsible section listeners
-        headerMqtt.setOnClickListener {
-            toggleSection(contentMqtt, iconMqttExpand)
-        }
         headerFrequency.setOnClickListener {
             toggleSection(contentFrequency, iconFrequencyExpand)
+        }
+
+        // MQTT listeners
+        switchMqtt.setOnCheckedChangeListener { _, isChecked ->
+            preferencesManager.isMqttEnabled = isChecked
+            updateMqttUI()
+        }
+
+        inputBrokerUrl.doAfterTextChanged { text ->
+            preferencesManager.mqttBrokerUrl = text?.toString() ?: PreferencesManager.DEFAULT_MQTT_BROKER_URL
+        }
+
+        inputMqttUsername.doAfterTextChanged { text ->
+            preferencesManager.mqttUsername = text?.toString() ?: ""
+        }
+
+        inputMqttPassword.doAfterTextChanged { text ->
+            preferencesManager.mqttPassword = text?.toString() ?: ""
         }
 
         // Existing listeners
@@ -387,15 +434,15 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        // Speed range inputs
-        inputSpeedMin.doAfterTextChanged { text ->
+        // Accelerometer range inputs
+        inputAccelMin.doAfterTextChanged { text ->
             text?.toString()?.toFloatOrNull()?.let {
-                preferencesManager.simulationSpeedMin = it
+                preferencesManager.simulationAccelMin = it
             }
         }
-        inputSpeedMax.doAfterTextChanged { text ->
+        inputAccelMax.doAfterTextChanged { text ->
             text?.toString()?.toFloatOrNull()?.let {
-                preferencesManager.simulationSpeedMax = it
+                preferencesManager.simulationAccelMax = it
             }
         }
 
@@ -451,6 +498,26 @@ class SettingsFragment : Fragment() {
             }
             updateSimulationButtonState()
         }
+
+        // Collision simulation button - opens location picker dialog
+        btnSimulateCollision.setOnClickListener {
+            showLocationPickerDialog()
+        }
+    }
+
+    private fun showLocationPickerDialog() {
+        val dialog = LocationPickerDialog.newInstance()
+        dialog.show(childFragmentManager, "location_picker")
+    }
+
+    private fun updateMqttUI() {
+        val isEnabled = switchMqtt.isChecked
+        layoutMqttSettings.visibility = if (isEnabled) View.VISIBLE else View.GONE
+        textMqttStatus.text = if (isEnabled) {
+            getString(R.string.mqtt_enabled)
+        } else {
+            getString(R.string.mqtt_disabled)
+        }
     }
 
     private fun updateGpsIntervalText(interval: Int) {
@@ -486,21 +553,24 @@ class SettingsFragment : Fragment() {
         val sensorType = preferencesManager.simulationSensorType
         val followRoute = preferencesManager.simulationFollowRoute
 
-        // GPS range je skrit, če sledimo liniji
-        val showGpsRange = !followRoute
-        layoutGpsRange.visibility = if (showGpsRange) View.VISIBLE else View.GONE
+        when (sensorType) {
+            SimulationSensorType.GPS -> {
+                // GPS: pokaži GPS range (razen če sledi liniji), pokaži follow route opcijo
+                val showGpsRange = !followRoute
+                layoutGpsRange.visibility = if (showGpsRange) View.VISIBLE else View.GONE
+                layoutFollowRoute.visibility = View.VISIBLE
+                layoutAccelRange.visibility = View.GONE
+            }
+            SimulationSensorType.ACCELEROMETER -> {
+                // ACCELEROMETER: pokaži accel range, skrij GPS range in follow route
+                layoutGpsRange.visibility = View.GONE
+                layoutFollowRoute.visibility = View.GONE
+                layoutAccelRange.visibility = View.VISIBLE
+            }
+        }
 
         // Route selection je viden samo za GPS tip in ko je follow route omogočen
         updateRouteSelectionUI()
-
-        when (sensorType) {
-            SimulationSensorType.GPS -> {
-                layoutSpeedRange.visibility = View.GONE
-            }
-            SimulationSensorType.SPEED -> {
-                layoutSpeedRange.visibility = View.VISIBLE
-            }
-        }
     }
 
     private fun updateRouteSelectionUI() {
@@ -680,6 +750,67 @@ class SettingsFragment : Fragment() {
             textRouteProgress.text = getString(R.string.simulation_route_progress, pathIndex + 1, pathTotal)
         } else {
             textRouteProgress.visibility = View.GONE
+        }
+    }
+
+    /**
+     * Simulira trčenje in pošlje podatke na strežnik.
+     * Generira naključne vrednosti pospeška znotraj nastavljenega razpona
+     * z lokacijo izbrano v dialogu.
+     */
+    private fun simulateCollisionAtLocation(latitude: Double, longitude: Double, address: String) {
+        val minMag = preferencesManager.simulationAccelMin
+        val maxMag = preferencesManager.simulationAccelMax
+
+        // Generiraj naključno magnitudo
+        val magnitude = minMag + (Math.random() * (maxMag - minMag)).toFloat()
+
+        // Generiraj naključne x, y, z komponente, ki dajo to magnitudo
+        val theta = Math.random() * Math.PI * 2
+        val phi = Math.random() * Math.PI
+        val x = (magnitude * Math.sin(phi) * Math.cos(theta)).toFloat()
+        val y = (magnitude * Math.sin(phi) * Math.sin(theta)).toFloat()
+        val z = (magnitude * Math.cos(phi)).toFloat()
+
+        // Onemogoči gumb med pošiljanjem
+        btnSimulateCollision.isEnabled = false
+        btnSimulateCollision.text = getString(R.string.simulation_collision_sending)
+
+        Log.d(TAG, "Simulating collision at: $address ($latitude, $longitude)")
+
+        lifecycleScope.launch {
+            when (val result = simulationRepository.submitSimulatedCollision(
+                magnitude = magnitude,
+                x = x,
+                y = y,
+                z = z,
+                latitude = latitude,
+                longitude = longitude
+            )) {
+                is Resource.Success -> {
+                    Log.d(TAG, "Collision simulated successfully: magnitude=$magnitude at $address")
+                    view?.let { v ->
+                        Snackbar.make(v, R.string.simulation_collision_success, Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+                is Resource.Error -> {
+                    Log.e(TAG, "Failed to simulate collision: ${result.message}")
+                    view?.let { v ->
+                        Snackbar.make(
+                            v,
+                            getString(R.string.simulation_collision_error, result.message),
+                            Snackbar.LENGTH_LONG
+                        ).show()
+                    }
+                }
+                is Resource.Loading -> {
+                    // N/A - already showing loading state
+                }
+            }
+
+            // Ponovno omogoči gumb
+            btnSimulateCollision.isEnabled = true
+            btnSimulateCollision.text = getString(R.string.simulation_collision_button)
         }
     }
 }

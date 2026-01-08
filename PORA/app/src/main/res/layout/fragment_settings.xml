@@ -126,73 +126,145 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <!-- Clickable header -->
+                    <!-- Header z toggle -->
                     <LinearLayout
-                        android:id="@+id/header_mqtt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <TextView
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="@string/settings_mqtt"
-                            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:orientation="vertical">
 
-                        <ImageView
-                            android:id="@+id/icon_mqtt_expand"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:contentDescription="@string/expand_collapse"
-                            android:src="@drawable/ic_expand_more" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/settings_mqtt"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                                android:textColor="?attr/colorOnSurface" />
+
+                            <TextView
+                                android:id="@+id/text_mqtt_status"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="@string/mqtt_disabled"
+                                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                                android:textColor="?attr/colorOnSurfaceVariant" />
+                        </LinearLayout>
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switch_mqtt"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
                     </LinearLayout>
 
-                    <!-- Collapsible content -->
+                    <!-- MQTT settings (visible when enabled) -->
                     <LinearLayout
-                        android:id="@+id/content_mqtt"
+                        android:id="@+id/layout_mqtt_settings"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:visibility="gone">
 
                         <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/input_broker_url"
+                            android:id="@+id/input_layout_broker_url"
                             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
-                            android:hint="Broker URL">
+                            android:hint="@string/mqtt_broker_url">
 
                             <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/input_broker_url"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:inputType="textUri"
-                                android:text="tcp://broker.hivemq.com:1883" />
+                                android:inputType="textUri" />
                         </com.google.android.material.textfield.TextInputLayout>
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/mqtt_broker_hint"
+                            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
                         <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/input_client_id"
+                            android:id="@+id/input_layout_mqtt_username"
                             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
-                            android:hint="Client ID">
+                            android:hint="@string/mqtt_username">
 
                             <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/input_mqtt_username"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="text" />
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_connect"
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/input_layout_mqtt_password"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:hint="@string/mqtt_password"
+                            app:endIconMode="password_toggle">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/input_mqtt_password"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textPassword" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/mqtt_auth_optional"
+                            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <!-- MQTT Topics Info -->
+                        <com.google.android.material.card.MaterialCardView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
-                            android:text="Poveži" />
+                            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:padding="12dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/mqtt_topics_title"
+                                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+                                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:fontFamily="monospace"
+                                    android:text="@string/mqtt_topics_list"
+                                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                                    android:textColor="?attr/colorOnSurface" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -618,9 +690,9 @@
                             </LinearLayout>
                         </LinearLayout>
 
-                        <!-- Speed Range Section -->
+                        <!-- Accelerometer Range Section -->
                         <LinearLayout
-                            android:id="@+id/layout_speed_range"
+                            android:id="@+id/layout_accel_range"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
@@ -630,7 +702,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="16dp"
-                                android:text="@string/simulation_speed_range"
+                                android:text="@string/simulation_accel_range"
                                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                                 android:textColor="?attr/colorOnSurface" />
 
@@ -646,10 +718,10 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginEnd="8dp"
                                     android:layout_weight="1"
-                                    android:hint="@string/simulation_speed_min">
+                                    android:hint="@string/simulation_accel_min">
 
                                     <com.google.android.material.textfield.TextInputEditText
-                                        android:id="@+id/input_speed_min"
+                                        android:id="@+id/input_accel_min"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:inputType="numberDecimal" />
@@ -660,15 +732,25 @@
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:hint="@string/simulation_speed_max">
+                                    android:hint="@string/simulation_accel_max">
 
                                     <com.google.android.material.textfield.TextInputEditText
-                                        android:id="@+id/input_speed_max"
+                                        android:id="@+id/input_accel_max"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:inputType="numberDecimal" />
                                 </com.google.android.material.textfield.TextInputLayout>
                             </LinearLayout>
+
+                            <!-- Simulate Collision Button -->
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_simulate_collision"
+                                style="@style/Widget.Material3.Button.TonalButton"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="16dp"
+                                android:text="@string/simulation_collision_button"
+                                app:icon="@drawable/ic_warning" />
                         </LinearLayout>
 
                         <!-- Manual Location Section -->

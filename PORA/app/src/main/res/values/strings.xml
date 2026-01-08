@@ -219,22 +219,38 @@
     <string name="logout_confirm_title">Odjava</string>
     <string name="logout_confirm_message">Ali se res želite odjaviti?</string>
 
+    <!-- MQTT -->
+    <string name="mqtt_disabled">Onemogočeno</string>
+    <string name="mqtt_enabled">Omogočeno</string>
+    <string name="mqtt_connected">Povezano</string>
+    <string name="mqtt_disconnected">Nepovezano</string>
+    <string name="mqtt_connecting">Povezovanje…</string>
+    <string name="mqtt_connection_failed">Povezava neuspešna</string>
+    <string name="mqtt_broker_url">URL MQTT posrednika</string>
+    <string name="mqtt_broker_hint">Format: tcp://naslov:vrata (npr. tcp://192.168.1.100:1883)</string>
+    <string name="mqtt_username">Uporabniško ime (opcijsko)</string>
+    <string name="mqtt_password">Geslo (opcijsko)</string>
+    <string name="mqtt_auth_optional">Avtentikacija je opcijska</string>
+    <string name="mqtt_topics_title">MQTT teme (topics)</string>
+    <string name="mqtt_topics_list">GPS: sensors/simulation/gps\nPospeškometer: sensors/simulation/accelerometer</string>
+    <string name="mqtt_test_connection">Preizkusi povezavo</string>
+
     <!-- Simulation mode -->
     <string name="simulation_disabled">Onemogočeno</string>
     <string name="simulation_enabled">Omogočeno</string>
     <string name="simulation_running">Simulacija teče</string>
     <string name="simulation_sensor_type">Tip senzorja</string>
     <string name="simulation_type_gps">GPS lokacija</string>
-    <string name="simulation_type_speed">Hitrost</string>
     <string name="simulation_interval">Interval pošiljanja</string>
     <string name="simulation_gps_range">Razpon GPS koordinat</string>
-    <string name="simulation_speed_range">Razpon hitrosti (km/h)</string>
     <string name="simulation_lat_min">Lat min</string>
     <string name="simulation_lat_max">Lat max</string>
     <string name="simulation_lon_min">Lon min</string>
     <string name="simulation_lon_max">Lon max</string>
-    <string name="simulation_speed_min">Min (km/h)</string>
-    <string name="simulation_speed_max">Max (km/h)</string>
+    <string name="simulation_accel_range">Razpon pospeška (m/s²)</string>
+    <string name="simulation_accel_min">Min (m/s²)</string>
+    <string name="simulation_accel_max">Max (m/s²)</string>
+    <string name="simulation_type_accelerometer">Pospeškometer</string>
     <string name="simulation_use_manual_location">Uporabi ročno lokacijo</string>
     <string name="simulation_manual_lat">Latitude</string>
     <string name="simulation_manual_lon">Longitude</string>
@@ -254,4 +270,29 @@
     <string name="simulation_notification_channel_description">Obvestila za simulirani način</string>
     <string name="simulation_notification_title">Simulacija aktivna</string>
     <string name="simulation_notification_text">%1$s: %2$s</string>
+
+    <!-- Collision simulation -->
+    <string name="simulation_collision_button">Simuliraj trk</string>
+    <string name="simulation_collision_success">Trk uspešno poslan</string>
+    <string name="simulation_collision_error">Napaka pri pošiljanju trka: %s</string>
+    <string name="simulation_collision_sending">Pošiljam simulirano trčenje…</string>
+
+    <!-- Location picker dialog -->
+    <string name="location_picker_title">Izberi lokacijo trka</string>
+    <string name="location_picker_subtitle">Izberi lokacijo na zemljevidu ali vnesi naslov</string>
+    <string name="location_street">Ulica</string>
+    <string name="location_city">Kraj</string>
+    <string name="location_search_address">Poišči naslov</string>
+    <string name="location_pick_on_map">Izberi na zemljevidu</string>
+    <string name="location_use_current">Uporabi trenutno lokacijo</string>
+    <string name="location_selected">Izbrana lokacija:</string>
+    <string name="location_confirm">Simuliraj trk</string>
+    <string name="location_error_not_found">Naslova ni mogoče najti</string>
+    <string name="location_error_geocoding">Napaka pri iskanju naslova</string>
+    <string name="location_error_no_location">Lokacija ni na voljo</string>
+    <string name="location_searching">Iščem…</string>
+    <string name="location_unknown_address">Neznan naslov</string>
+    <string name="location_map_hint">Premakni zemljevid na želeno lokacijo</string>
+    <string name="location_use_map_center">Uporabi to lokacijo</string>
+    <string name="location_or_enter_address">Ali vnesi naslov</string>
 </resources>

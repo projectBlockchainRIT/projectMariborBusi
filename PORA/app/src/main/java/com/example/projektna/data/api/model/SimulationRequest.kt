@@ -16,25 +16,19 @@ data class SimulatedGpsRequest(
 )
 
 /**
- * Request za pošiljanje simuliranih hitrostnih podatkov na strežnik.
+ * Request za pošiljanje simuliranega trčenja na strežnik.
  *
- * Endpoint: POST /v1/simulation/speed
+ * Endpoint: POST /v1/simulation/collision
+ * Backend vrne HTTP 200 brez body-ja.
  */
 @JsonClass(generateAdapter = true)
-data class SimulatedSpeedRequest(
-    val speed: Float, // km/h
+data class SimulatedCollisionRequest(
+    val magnitude: Float,    // m/s² - nivo pojemanja
+    val x: Float,            // x komponenta pospeška
+    val y: Float,            // y komponenta pospeška
+    val z: Float,            // z komponenta pospeška
     val latitude: Double,
     val longitude: Double,
     val timestamp: Long,
     val isSimulated: Boolean = true
-)
-
-/**
- * Response od strežnika za simulacijske podatke.
- */
-@JsonClass(generateAdapter = true)
-data class SimulationResponse(
-    val success: Boolean,
-    val message: String? = null,
-    val id: Long? = null
 )

@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.example.projektna.data.GpsData
 import com.example.projektna.data.PreferencesManager
+import com.example.projektna.data.mqtt.MqttManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -17,7 +18,7 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 
-class GpsService : Service() {
+class GpsService : Service(), MqttManager.MqttConnectionCallback {
 
     companion object {
         const val TAG = "GpsService"
@@ -38,6 +39,10 @@ class GpsService : Service() {
     private var lastLongitude = 0.0
     private var lastSpeedKmh = 0f
 
+    // MQTT
+    private var isMqttEnabled = false
+    private var isMqttConnected = false
+
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "Service onCreate")
@@ -46,15 +51,23 @@ class GpsService : Service() {
 
         preferencesManager = PreferencesManager(this)
         updateIntervalMs = preferencesManager.gpsIntervalSeconds * 1000L
-        Log.d(TAG, "Update interval: ${updateIntervalMs}ms")
+        isMqttEnabled = preferencesManager.isMqttEnabled
+        Log.d(TAG, "Update interval: ${updateIntervalMs}ms, MQTT enabled: $isMqttEnabled")
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        // Vzpostavi MQTT povezavo
+        if (isMqttEnabled) {
+            Log.d(TAG, "MQTT enabled, connecting to broker...")
+            MqttManager.connect(this, this)
+        }
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult.lastLocation?.let { location ->
                     val speed = location.speed // m/s
                     val isExtreme = speed > GpsData.SPEED_THRESHOLD
+                    val timestamp = System.currentTimeMillis()
 
                     lastLatitude = location.latitude
                     lastLongitude = location.longitude
@@ -64,11 +77,24 @@ class GpsService : Service() {
                         Log.w(TAG, "EXTREME EVENT DETECTED! Speed: ${lastSpeedKmh} km/h")
                     }
 
+                    // Pošlji preko MQTT
+                    if (isMqttEnabled) {
+                        val success = MqttManager.publishGps(
+                            latitude = location.latitude,
+                            longitude = location.longitude,
+                            timestamp = timestamp,
+                            isSimulated = false
+                        )
+                        if (success) {
+                            Log.d(TAG, "GPS data published to MQTT")
+                        }
+                    }
+
                     broadcastData(
                         location.latitude,
                         location.longitude,
                         speed,
-                        System.currentTimeMillis(),
+                        timestamp,
                         isExtreme
                     )
                     updateNotification()
@@ -92,9 +118,38 @@ class GpsService : Service() {
         super.onDestroy()
         Log.d(TAG, "Service onDestroy")
         stopLocationUpdates()
+
+        // Prekini MQTT povezavo
+        if (isMqttEnabled) {
+            MqttManager.disconnect()
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    // MQTT Callback implementacija
+    override fun onConnected() {
+        Log.d(TAG, "MQTT connected")
+        isMqttConnected = true
+    }
+
+    override fun onDisconnected(cause: Throwable?) {
+        Log.d(TAG, "MQTT disconnected: ${cause?.message}")
+        isMqttConnected = false
+    }
+
+    override fun onConnectionFailed(error: String) {
+        Log.e(TAG, "MQTT connection failed: $error")
+        isMqttConnected = false
+    }
+
+    override fun onMessagePublished(topic: String) {
+        Log.d(TAG, "MQTT message published to $topic")
+    }
+
+    override fun onPublishFailed(topic: String, error: String) {
+        Log.e(TAG, "MQTT publish failed to $topic: $error")
+    }
 
     private fun startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(

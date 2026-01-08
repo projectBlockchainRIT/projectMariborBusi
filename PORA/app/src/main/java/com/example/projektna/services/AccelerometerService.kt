@@ -14,6 +14,7 @@ import android.os.IBinder
 import android.util.Log
 import com.example.projektna.data.AccelerometerData
 import com.example.projektna.data.PreferencesManager
+import com.example.projektna.data.mqtt.MqttManager
 import com.example.projektna.data.repository.CollisionRepository
 import com.example.projektna.util.Resource
 import kotlinx.coroutines.CoroutineScope
@@ -23,7 +24,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
-class AccelerometerService : Service(), SensorEventListener {
+class AccelerometerService : Service(), SensorEventListener, MqttManager.MqttConnectionCallback {
 
     companion object {
         const val TAG = "AccelerometerService"
@@ -54,6 +55,10 @@ class AccelerometerService : Service(), SensorEventListener {
     private var lastLatitude: Double? = null
     private var lastLongitude: Double? = null
 
+    // MQTT
+    private var isMqttEnabled = false
+    private var isMqttConnected = false
+
     // Receiver za GPS podatke
     private val gpsReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -73,7 +78,8 @@ class AccelerometerService : Service(), SensorEventListener {
         preferencesManager = PreferencesManager(this)
         collisionRepository = CollisionRepository()
         updateIntervalMs = preferencesManager.accelerometerIntervalSeconds * 1000L
-        Log.d(TAG, "Update interval: ${updateIntervalMs}ms")
+        isMqttEnabled = preferencesManager.isMqttEnabled
+        Log.d(TAG, "Update interval: ${updateIntervalMs}ms, MQTT enabled: $isMqttEnabled")
 
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -82,6 +88,12 @@ class AccelerometerService : Service(), SensorEventListener {
             Log.e(TAG, "Accelerometer not available on this device")
             stopSelf()
             return
+        }
+
+        // Vzpostavi MQTT povezavo
+        if (isMqttEnabled) {
+            Log.d(TAG, "MQTT enabled, connecting to broker...")
+            MqttManager.connect(this, this)
         }
 
         // Registriraj receiver za GPS podatke
@@ -119,6 +131,12 @@ class AccelerometerService : Service(), SensorEventListener {
         } catch (e: Exception) {
             Log.w(TAG, "GPS receiver already unregistered")
         }
+
+        // Prekini MQTT povezavo
+        if (isMqttEnabled) {
+            MqttManager.disconnect()
+        }
+
         serviceScope.cancel()
     }
 
@@ -152,6 +170,23 @@ class AccelerometerService : Service(), SensorEventListener {
                             reportCollisionToApi(x, y, z, magnitude)
                         } else {
                             Log.d(TAG, "Collision cooldown active, skipping report")
+                        }
+                    }
+
+                    // Pošlji preko MQTT
+                    if (isMqttEnabled) {
+                        val success = MqttManager.publishAccelerometer(
+                            x = x,
+                            y = y,
+                            z = z,
+                            magnitude = magnitude,
+                            latitude = lastLatitude ?: 0.0,
+                            longitude = lastLongitude ?: 0.0,
+                            timestamp = currentTime,
+                            isSimulated = false
+                        )
+                        if (success) {
+                            Log.d(TAG, "Accelerometer data published to MQTT")
                         }
                     }
 
@@ -227,5 +262,29 @@ class AccelerometerService : Service(), SensorEventListener {
         val notification = NotificationHelper.createForegroundNotification(this, magnitude)
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
         notificationManager.notify(NotificationHelper.NOTIFICATION_ID, notification)
+    }
+
+    // MQTT Callback implementacija
+    override fun onConnected() {
+        Log.d(TAG, "MQTT connected")
+        isMqttConnected = true
+    }
+
+    override fun onDisconnected(cause: Throwable?) {
+        Log.d(TAG, "MQTT disconnected: ${cause?.message}")
+        isMqttConnected = false
+    }
+
+    override fun onConnectionFailed(error: String) {
+        Log.e(TAG, "MQTT connection failed: $error")
+        isMqttConnected = false
+    }
+
+    override fun onMessagePublished(topic: String) {
+        Log.d(TAG, "MQTT message published to $topic")
+    }
+
+    override fun onPublishFailed(topic: String, error: String) {
+        Log.e(TAG, "MQTT publish failed to $topic: $error")
     }
 }

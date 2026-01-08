@@ -58,21 +58,36 @@ interface BusiMobileApi {
     suspend fun getStationsForRoute(@Path("lineId") lineId: Long): Response<StationsResponse>
 
     // ==================== Simulation ====================
-    // PLACEHOLDER: Te poti je treba posodobiti, ko bo backend pripravljen
 
     /**
      * Pošlje simulirane GPS podatke na strežnik.
-     * PLACEHOLDER pot: /v1/simulation/gps
+     * Pot: /v1/simulation/gps
      * Backend vrne samo HTTP 200 brez body-ja.
      */
     @POST("simulation/gps")
     suspend fun submitSimulatedGps(@Body gpsData: SimulatedGpsRequest): Response<Unit>
 
     /**
-     * Pošlje simulirane hitrostne podatke na strežnik.
-     * PLACEHOLDER pot: /v1/simulation/speed
-     * Backend vrne samo HTTP 200 brez body-ja.
+     * Pošlje simulirano trčenje na strežnik.
+     * Pot: /v1/simulation/collision
+     * Uporablja se za testiranje zaznave trkov.
+     * Backend vrne HTTP 200 brez body-ja.
      */
-    @POST("simulation/speed")
-    suspend fun submitSimulatedSpeed(@Body speedData: SimulatedSpeedRequest): Response<Unit>
+    @POST("simulation/collision")
+    suspend fun submitSimulatedCollision(@Body collision: SimulatedCollisionRequest): Response<Unit>
+
+    /**
+     * Pošlje sliko kamere na strežnik.
+     * Pot: /v1/simulation/image
+     * Backend vrne HTTP 200 brez body-ja.
+     */
+    @Multipart
+    @POST("simulation/image")
+    suspend fun uploadSimulatedImage(
+        @Part image: okhttp3.MultipartBody.Part,
+        @Part("timestamp") timestamp: okhttp3.RequestBody,
+        @Part("latitude") latitude: okhttp3.RequestBody?,
+        @Part("longitude") longitude: okhttp3.RequestBody?,
+        @Part("isSimulated") isSimulated: okhttp3.RequestBody
+    ): Response<Unit>
 }

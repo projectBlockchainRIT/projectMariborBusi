@@ -6,6 +6,7 @@ import android.os.IBinder
 import android.util.Log
 import com.example.projektna.data.PreferencesManager
 import com.example.projektna.data.SimulationSensorType
+import com.example.projektna.data.mqtt.MqttManager
 import com.example.projektna.data.repository.SimulationRepository
 import com.example.projektna.util.Resource
 import kotlinx.coroutines.CoroutineScope
@@ -19,27 +20,36 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import kotlin.random.Random
 
-class SimulationService : Service() {
+class SimulationService : Service(), MqttManager.MqttConnectionCallback {
 
     companion object {
         const val TAG = "SimulationService"
         const val ACTION_SIMULATION_DATA = "com.example.projektna.SIMULATION_DATA"
         const val ACTION_SIMULATION_STATUS = "com.example.projektna.SIMULATION_STATUS"
+        const val ACTION_MQTT_STATUS = "com.example.projektna.MQTT_STATUS"
         const val EXTRA_SENSOR_TYPE = "sensor_type"
         const val EXTRA_LATITUDE = "latitude"
         const val EXTRA_LONGITUDE = "longitude"
-        const val EXTRA_SPEED = "speed"
         const val EXTRA_TIMESTAMP = "timestamp"
         const val EXTRA_SUCCESS = "success"
         const val EXTRA_MESSAGE = "message"
         const val EXTRA_PATH_INDEX = "path_index"
         const val EXTRA_PATH_TOTAL = "path_total"
+        const val EXTRA_MQTT_CONNECTED = "mqtt_connected"
+        const val EXTRA_ACCEL_X = "accel_x"
+        const val EXTRA_ACCEL_Y = "accel_y"
+        const val EXTRA_ACCEL_Z = "accel_z"
+        const val EXTRA_ACCEL_MAGNITUDE = "accel_magnitude"
     }
 
     // Route path data
     private var routePath: List<List<Double>> = emptyList()
     private var currentPathIndex: Int = 0
     private var routeDirection: Int = 1 // 1 = naprej, -1 = nazaj
+
+    // MQTT state
+    private var isMqttEnabled: Boolean = false
+    private var isMqttConnected: Boolean = false
 
     private lateinit var preferencesManager: PreferencesManager
     private lateinit var simulationRepository: SimulationRepository
@@ -53,6 +63,13 @@ class SimulationService : Service() {
         NotificationHelper.createSimulationNotificationChannel(this)
         preferencesManager = PreferencesManager(this)
         simulationRepository = SimulationRepository()
+
+        // Preveri ali je MQTT omogočen in vzpostavi povezavo
+        isMqttEnabled = preferencesManager.isMqttEnabled
+        if (isMqttEnabled) {
+            Log.d(TAG, "MQTT enabled, connecting to broker...")
+            MqttManager.connect(this, this)
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -61,7 +78,7 @@ class SimulationService : Service() {
         val sensorType = preferencesManager.simulationSensorType
         val sensorName = when (sensorType) {
             SimulationSensorType.GPS -> "GPS"
-            SimulationSensorType.SPEED -> "Hitrost"
+            SimulationSensorType.ACCELEROMETER -> "Pospeškometer"
         }
 
         val notification = NotificationHelper.createSimulationNotification(
@@ -81,9 +98,52 @@ class SimulationService : Service() {
         Log.d(TAG, "Service onDestroy")
         simulationJob?.cancel()
         serviceScope.cancel()
+
+        // Prekini MQTT povezavo
+        if (isMqttEnabled) {
+            MqttManager.disconnect()
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    // ==================== MQTT Callbacks ====================
+
+    override fun onConnected() {
+        Log.i(TAG, "MQTT connected")
+        isMqttConnected = true
+        broadcastMqttStatus(true, "MQTT povezan")
+    }
+
+    override fun onDisconnected(cause: Throwable?) {
+        Log.w(TAG, "MQTT disconnected: ${cause?.message}")
+        isMqttConnected = false
+        broadcastMqttStatus(false, cause?.message ?: "MQTT prekinjen")
+    }
+
+    override fun onConnectionFailed(error: String) {
+        Log.e(TAG, "MQTT connection failed: $error")
+        isMqttConnected = false
+        broadcastMqttStatus(false, "Povezava neuspešna: $error")
+    }
+
+    override fun onMessagePublished(topic: String) {
+        Log.d(TAG, "MQTT message published to $topic")
+    }
+
+    override fun onPublishFailed(topic: String, error: String) {
+        Log.e(TAG, "MQTT publish failed to $topic: $error")
+        broadcastStatus(false, "MQTT objava neuspešna: $error")
+    }
+
+    private fun broadcastMqttStatus(connected: Boolean, message: String?) {
+        val intent = Intent(ACTION_MQTT_STATUS).apply {
+            putExtra(EXTRA_MQTT_CONNECTED, connected)
+            putExtra(EXTRA_MESSAGE, message)
+            setPackage(packageName)
+        }
+        sendBroadcast(intent)
+    }
 
     private fun startSimulation() {
         simulationJob?.cancel()
@@ -106,7 +166,7 @@ class SimulationService : Service() {
                 try {
                     when (sensorType) {
                         SimulationSensorType.GPS -> simulateGps()
-                        SimulationSensorType.SPEED -> simulateSpeed()
+                        SimulationSensorType.ACCELEROMETER -> simulateAccelerometer()
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Simulation error", e)
@@ -187,26 +247,46 @@ class SimulationService : Service() {
         Log.d(TAG, "Simulating GPS: lat=$latitude, lon=$longitude" +
                 if (pathIndex >= 0) " (point ${pathIndex + 1}/$pathTotal)" else "")
 
-        // Pošlji na strežnik
-        val result = simulationRepository.submitSimulatedGps(latitude, longitude)
-
-        when (result) {
-            is Resource.Success -> {
-                Log.i(TAG, "GPS simulation sent successfully")
-                broadcastData(SimulationSensorType.GPS, latitude, longitude, 0f, timestamp, pathIndex, pathTotal)
+        // Pošlji na MQTT ali HTTP glede na nastavitve
+        if (isMqttEnabled) {
+            // MQTT objava
+            val success = MqttManager.publishGps(latitude, longitude, timestamp, true)
+            if (success || isMqttConnected) {
+                Log.i(TAG, "GPS simulation published to MQTT")
+                broadcastData(SimulationSensorType.GPS, latitude, longitude, timestamp, pathIndex, pathTotal)
                 val notificationText = if (pathIndex >= 0) {
-                    "%.5f, %.5f (%d/%d)".format(latitude, longitude, pathIndex + 1, pathTotal)
+                    "MQTT: %.5f, %.5f (%d/%d)".format(latitude, longitude, pathIndex + 1, pathTotal)
                 } else {
-                    "%.5f, %.5f".format(latitude, longitude)
+                    "MQTT: %.5f, %.5f".format(latitude, longitude)
                 }
                 updateNotification("GPS", notificationText)
-                broadcastStatus(true, "GPS podatki poslani")
+                broadcastStatus(true, "GPS podatki objavljeni na MQTT")
+            } else {
+                Log.e(TAG, "Failed to publish GPS to MQTT - not connected")
+                broadcastStatus(false, "MQTT ni povezan")
             }
-            is Resource.Error -> {
-                Log.e(TAG, "Failed to send GPS simulation: ${result.message}")
-                broadcastStatus(false, result.message)
+        } else {
+            // HTTP pošiljanje (stara metoda)
+            val result = simulationRepository.submitSimulatedGps(latitude, longitude)
+
+            when (result) {
+                is Resource.Success -> {
+                    Log.i(TAG, "GPS simulation sent successfully via HTTP")
+                    broadcastData(SimulationSensorType.GPS, latitude, longitude, timestamp, pathIndex, pathTotal)
+                    val notificationText = if (pathIndex >= 0) {
+                        "%.5f, %.5f (%d/%d)".format(latitude, longitude, pathIndex + 1, pathTotal)
+                    } else {
+                        "%.5f, %.5f".format(latitude, longitude)
+                    }
+                    updateNotification("GPS", notificationText)
+                    broadcastStatus(true, "GPS podatki poslani")
+                }
+                is Resource.Error -> {
+                    Log.e(TAG, "Failed to send GPS simulation: ${result.message}")
+                    broadcastStatus(false, result.message)
+                }
+                is Resource.Loading -> {}
             }
-            is Resource.Loading -> {}
         }
     }
 
@@ -231,48 +311,83 @@ class SimulationService : Service() {
         preferencesManager.simulationRouteDirection = routeDirection
     }
 
-    private suspend fun simulateSpeed() {
+    private suspend fun simulateAccelerometer() {
+        // Generiraj naključne vrednosti za x, y, z
+        val minMag = preferencesManager.simulationAccelMin
+        val maxMag = preferencesManager.simulationAccelMax
+
+        // Generiraj magnitude v razponu
+        val magnitude = generateRandomValue(minMag, maxMag)
+
+        // Razdeli magnitude na x, y, z komponente naključno
+        // Uporabimo enostavno distribucijo
+        val x = generateRandomValue(-magnitude, magnitude)
+        val remainingForYZ = kotlin.math.sqrt((magnitude * magnitude - x * x).coerceAtLeast(0f))
+        val y = generateRandomValue(-remainingForYZ, remainingForYZ)
+        val z = kotlin.math.sqrt((magnitude * magnitude - x * x - y * y).coerceAtLeast(0f)) *
+                (if (Random.nextBoolean()) 1 else -1)
+
+        // Pridobi lokacijo (ročna ali privzeta)
         val latitude: Double
         val longitude: Double
-
         if (preferencesManager.useManualLocation) {
             latitude = preferencesManager.simulationManualLat.toDouble()
             longitude = preferencesManager.simulationManualLon.toDouble()
         } else {
-            latitude = generateRandomValue(
-                preferencesManager.simulationGpsLatMin,
-                preferencesManager.simulationGpsLatMax
-            ).toDouble()
-            longitude = generateRandomValue(
-                preferencesManager.simulationGpsLonMin,
-                preferencesManager.simulationGpsLonMax
-            ).toDouble()
+            // Privzete koordinate (center Maribora)
+            latitude = 46.5547
+            longitude = 15.6459
         }
 
-        val speed = generateRandomValue(
-            preferencesManager.simulationSpeedMin,
-            preferencesManager.simulationSpeedMax
-        )
         val timestamp = System.currentTimeMillis()
 
-        Log.d(TAG, "Simulating Speed: speed=$speed km/h at lat=$latitude, lon=$longitude")
+        Log.d(TAG, "Simulating Accelerometer: x=%.2f, y=%.2f, z=%.2f, mag=%.2f m/s², loc=%.5f,%.5f".format(
+            x, y, z, magnitude, latitude, longitude))
 
-        // Pošlji na strežnik
-        val result = simulationRepository.submitSimulatedSpeed(speed, latitude, longitude)
-
-        when (result) {
-            is Resource.Success -> {
-                Log.i(TAG, "Speed simulation sent successfully")
-                broadcastData(SimulationSensorType.SPEED, latitude, longitude, speed, timestamp)
-                updateNotification("Hitrost", "%.1f km/h".format(speed))
-                broadcastStatus(true, "Hitrostni podatki poslani")
+        // Pošlji na MQTT ali HTTP glede na nastavitve
+        if (isMqttEnabled) {
+            // MQTT objava z lokacijo
+            val success = MqttManager.publishAccelerometer(x, y, z, magnitude, latitude, longitude, timestamp, true)
+            if (success || isMqttConnected) {
+                Log.i(TAG, "Accelerometer simulation published to MQTT")
+                broadcastAccelerometerData(x, y, z, magnitude, latitude, longitude, timestamp)
+                updateNotification("Pospeškometer", "MQTT: %.2f m/s²".format(magnitude))
+                broadcastStatus(true, "Pospeškometer podatki objavljeni na MQTT")
+            } else {
+                Log.e(TAG, "Failed to publish accelerometer to MQTT - not connected")
+                broadcastStatus(false, "MQTT ni povezan")
             }
-            is Resource.Error -> {
-                Log.e(TAG, "Failed to send speed simulation: ${result.message}")
-                broadcastStatus(false, result.message)
-            }
-            is Resource.Loading -> {}
+        } else {
+            // HTTP pošiljanje ni implementirano za accelerometer simulacijo
+            // Samo broadcast za UI
+            Log.i(TAG, "Accelerometer simulation (HTTP not implemented, MQTT disabled)")
+            broadcastAccelerometerData(x, y, z, magnitude, latitude, longitude, timestamp)
+            updateNotification("Pospeškometer", "%.2f m/s²".format(magnitude))
+            broadcastStatus(true, "Pospeškometer simulacija (samo lokalno)")
         }
+    }
+
+    private fun broadcastAccelerometerData(
+        x: Float,
+        y: Float,
+        z: Float,
+        magnitude: Float,
+        latitude: Double,
+        longitude: Double,
+        timestamp: Long
+    ) {
+        val intent = Intent(ACTION_SIMULATION_DATA).apply {
+            putExtra(EXTRA_SENSOR_TYPE, SimulationSensorType.ACCELEROMETER.name)
+            putExtra(EXTRA_ACCEL_X, x)
+            putExtra(EXTRA_ACCEL_Y, y)
+            putExtra(EXTRA_ACCEL_Z, z)
+            putExtra(EXTRA_ACCEL_MAGNITUDE, magnitude)
+            putExtra(EXTRA_LATITUDE, latitude)
+            putExtra(EXTRA_LONGITUDE, longitude)
+            putExtra(EXTRA_TIMESTAMP, timestamp)
+            setPackage(packageName)
+        }
+        sendBroadcast(intent)
     }
 
     private fun generateRandomValue(min: Float, max: Float): Float {
@@ -283,7 +398,6 @@ class SimulationService : Service() {
         sensorType: SimulationSensorType,
         latitude: Double,
         longitude: Double,
-        speed: Float,
         timestamp: Long,
         pathIndex: Int = -1,
         pathTotal: Int = -1
@@ -292,7 +406,6 @@ class SimulationService : Service() {
             putExtra(EXTRA_SENSOR_TYPE, sensorType.name)
             putExtra(EXTRA_LATITUDE, latitude)
             putExtra(EXTRA_LONGITUDE, longitude)
-            putExtra(EXTRA_SPEED, speed)
             putExtra(EXTRA_TIMESTAMP, timestamp)
             putExtra(EXTRA_PATH_INDEX, pathIndex)
             putExtra(EXTRA_PATH_TOTAL, pathTotal)

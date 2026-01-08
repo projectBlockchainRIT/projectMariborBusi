@@ -30,8 +30,8 @@ class PreferencesManager(context: Context) {
         private const val KEY_SIMULATION_GPS_LAT_MAX = "simulation_gps_lat_max"
         private const val KEY_SIMULATION_GPS_LON_MIN = "simulation_gps_lon_min"
         private const val KEY_SIMULATION_GPS_LON_MAX = "simulation_gps_lon_max"
-        private const val KEY_SIMULATION_SPEED_MIN = "simulation_speed_min"
-        private const val KEY_SIMULATION_SPEED_MAX = "simulation_speed_max"
+        private const val KEY_SIMULATION_ACCEL_MIN = "simulation_accel_min"
+        private const val KEY_SIMULATION_ACCEL_MAX = "simulation_accel_max"
         private const val KEY_SIMULATION_MANUAL_LAT = "simulation_manual_lat"
         private const val KEY_SIMULATION_MANUAL_LON = "simulation_manual_lon"
         private const val KEY_SIMULATION_USE_MANUAL_LOCATION = "simulation_use_manual_location"
@@ -44,6 +44,15 @@ class PreferencesManager(context: Context) {
         private const val KEY_SIMULATION_PATH_INDEX = "simulation_path_index"
         private const val KEY_SIMULATION_ROUTE_DIRECTION = "simulation_route_direction"
 
+        // MQTT keys
+        private const val KEY_MQTT_ENABLED = "mqtt_enabled"
+        private const val KEY_MQTT_BROKER_URL = "mqtt_broker_url"
+        private const val KEY_MQTT_USERNAME = "mqtt_username"
+        private const val KEY_MQTT_PASSWORD = "mqtt_password"
+
+        // MQTT defaults
+        const val DEFAULT_MQTT_BROKER_URL = "tcp://10.0.2.2:1883"  // Android emulator localhost
+
         const val DEFAULT_ACCELEROMETER_INTERVAL = 1 // sekunde
         const val DEFAULT_GPS_INTERVAL = 5 // sekunde
         const val DEFAULT_SIMULATION_INTERVAL = 10 // sekunde
@@ -53,8 +62,8 @@ class PreferencesManager(context: Context) {
         const val DEFAULT_GPS_LAT_MAX = 46.57f
         const val DEFAULT_GPS_LON_MIN = 15.63f
         const val DEFAULT_GPS_LON_MAX = 15.67f
-        const val DEFAULT_SPEED_MIN = 0f // km/h
-        const val DEFAULT_SPEED_MAX = 50f // km/h
+        const val DEFAULT_ACCEL_MIN = 0f // m/s²
+        const val DEFAULT_ACCEL_MAX = 15f // m/s² (do praga ekstremnega dogodka)
     }
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -154,13 +163,13 @@ class PreferencesManager(context: Context) {
         get() = prefs.getFloat(KEY_SIMULATION_GPS_LON_MAX, DEFAULT_GPS_LON_MAX)
         set(value) = prefs.edit().putFloat(KEY_SIMULATION_GPS_LON_MAX, value).apply()
 
-    var simulationSpeedMin: Float
-        get() = prefs.getFloat(KEY_SIMULATION_SPEED_MIN, DEFAULT_SPEED_MIN)
-        set(value) = prefs.edit().putFloat(KEY_SIMULATION_SPEED_MIN, value).apply()
+    var simulationAccelMin: Float
+        get() = prefs.getFloat(KEY_SIMULATION_ACCEL_MIN, DEFAULT_ACCEL_MIN)
+        set(value) = prefs.edit().putFloat(KEY_SIMULATION_ACCEL_MIN, value).apply()
 
-    var simulationSpeedMax: Float
-        get() = prefs.getFloat(KEY_SIMULATION_SPEED_MAX, DEFAULT_SPEED_MAX)
-        set(value) = prefs.edit().putFloat(KEY_SIMULATION_SPEED_MAX, value).apply()
+    var simulationAccelMax: Float
+        get() = prefs.getFloat(KEY_SIMULATION_ACCEL_MAX, DEFAULT_ACCEL_MAX)
+        set(value) = prefs.edit().putFloat(KEY_SIMULATION_ACCEL_MAX, value).apply()
 
     var simulationManualLat: Float
         get() = prefs.getFloat(KEY_SIMULATION_MANUAL_LAT, DEFAULT_GPS_LAT_MIN)
@@ -206,11 +215,29 @@ class PreferencesManager(context: Context) {
         simulationPathIndex = 0
         simulationRouteDirection = 1
     }
+
+    // ==================== MQTT ====================
+
+    var isMqttEnabled: Boolean
+        get() = prefs.getBoolean(KEY_MQTT_ENABLED, true)  // MQTT privzeto omogočen
+        set(value) = prefs.edit().putBoolean(KEY_MQTT_ENABLED, value).apply()
+
+    var mqttBrokerUrl: String
+        get() = prefs.getString(KEY_MQTT_BROKER_URL, DEFAULT_MQTT_BROKER_URL) ?: DEFAULT_MQTT_BROKER_URL
+        set(value) = prefs.edit().putString(KEY_MQTT_BROKER_URL, value).apply()
+
+    var mqttUsername: String
+        get() = prefs.getString(KEY_MQTT_USERNAME, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_MQTT_USERNAME, value).apply()
+
+    var mqttPassword: String
+        get() = prefs.getString(KEY_MQTT_PASSWORD, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_MQTT_PASSWORD, value).apply()
 }
 
 enum class SimulationSensorType {
     GPS,
-    SPEED;
+    ACCELEROMETER;
 
     companion object {
         fun fromOrdinal(ordinal: Int): SimulationSensorType {
