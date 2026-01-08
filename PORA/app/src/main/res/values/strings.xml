@@ -69,4 +69,61 @@
     <string name="upload_success">Uspešno naloženo</string>
     <string name="upload_failed">Nalaganje ni uspelo</string>
     <string name="upload_no_connection">Ni povezave s strežnikom</string>
+
+    <!-- Schedules -->
+    <string name="schedule_sensor">Urnik</string>
+    <string name="schedules">Urniki</string>
+    <string name="schedules_for_sensor">Urniki za %1$s</string>
+    <string name="no_schedules">Ni nastavljenih urnikov</string>
+    <string name="add_schedule">Dodaj urnik</string>
+    <string name="new_schedule">Nov urnik</string>
+    <string name="edit_schedule">Uredi urnik</string>
+    <string name="save">Shrani</string>
+    <string name="cancel">Prekliči</string>
+    <string name="delete">Izbriši</string>
+
+    <!-- Schedule types -->
+    <string name="schedule_type">Tip urnika</string>
+    <string name="schedule_daily">Vsak dan</string>
+    <string name="schedule_weekly">Tedensko</string>
+    <string name="schedule_one_time">Enkratno</string>
+
+    <!-- Schedule actions -->
+    <string name="action">Akcija</string>
+    <string name="action_notification">Samo obvestilo</string>
+    <string name="action_auto_start">Avtomatski zagon</string>
+    <string name="action_auto_start_with_duration">Avtomatski zagon - %1$d min</string>
+
+    <!-- Time and duration -->
+    <string name="time">Čas</string>
+    <string name="select_time">Izberi čas</string>
+    <string name="select_date">Izberi datum</string>
+    <string name="duration_minutes">Trajanje: %1$d minut</string>
+    <string name="duration_30_min">Trajanje: 30 minut</string>
+
+    <!-- Week days -->
+    <string name="day_mon">Pon</string>
+    <string name="day_tue">Tor</string>
+    <string name="day_wed">Sre</string>
+    <string name="day_thu">Čet</string>
+    <string name="day_fri">Pet</string>
+    <string name="day_sat">Sob</string>
+    <string name="day_sun">Ned</string>
+
+    <!-- Schedule notification channel -->
+    <string name="schedule_notification_channel_name">Opomniki urnikov</string>
+    <string name="schedule_notification_channel_description">Obvestila za načrtovane urnike senzorjev</string>
+
+    <!-- Schedule reminders -->
+    <string name="camera_reminder_title">Čas za zajem slike</string>
+    <string name="camera_reminder_text">Odpri aplikacijo in zajemi sliko</string>
+    <string name="gps_reminder_title">GPS urnik aktiven</string>
+    <string name="gps_reminder_text">GPS sledenje se je pričelo</string>
+    <string name="accelerometer_reminder_title">Pospeškometer urnik aktiven</string>
+    <string name="accelerometer_reminder_text">Pospeškometer se je pričel zajemati</string>
+
+    <!-- Sensor names for schedules -->
+    <string name="accelerometer">pospeškometer</string>
+    <string name="gps">GPS</string>
+    <string name="camera">kamero</string>
 </resources>

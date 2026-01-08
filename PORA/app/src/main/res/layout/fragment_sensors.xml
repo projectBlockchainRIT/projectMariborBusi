@@ -83,6 +83,16 @@
                                 android:textColor="?attr/colorOnSurfaceVariant" />
                         </LinearLayout>
 
+                        <ImageButton
+                            android:id="@+id/button_camera_schedule"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginEnd="4dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/schedule_sensor"
+                            android:src="@drawable/ic_schedule"
+                            app:tint="?attr/colorOnSurfaceVariant" />
+
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/button_open_camera"
                             android:layout_width="wrap_content"
@@ -178,6 +188,16 @@
                                 android:textColor="?attr/colorOnSurfaceVariant" />
                         </LinearLayout>
 
+                        <ImageButton
+                            android:id="@+id/button_gps_schedule"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginEnd="4dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/schedule_sensor"
+                            android:src="@drawable/ic_schedule"
+                            app:tint="?attr/colorOnSurfaceVariant" />
+
                         <com.google.android.material.materialswitch.MaterialSwitch
                             android:id="@+id/switch_gps"
                             android:layout_width="wrap_content"
@@ -259,6 +279,16 @@
                                 android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                                 android:textColor="?attr/colorOnSurfaceVariant" />
                         </LinearLayout>
+
+                        <ImageButton
+                            android:id="@+id/button_accelerometer_schedule"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginEnd="4dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/schedule_sensor"
+                            android:src="@drawable/ic_schedule"
+                            app:tint="?attr/colorOnSurfaceVariant" />
 
                         <com.google.android.material.materialswitch.MaterialSwitch
                             android:id="@+id/switch_accelerometer"
