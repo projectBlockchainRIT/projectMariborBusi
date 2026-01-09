@@ -6,10 +6,15 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
 import com.badlogic.gdx.utils.Disposable;
+import si.um.feri.mbusi.models.Arrival;
 import si.um.feri.mbusi.models.BusRoute;
 import si.um.feri.mbusi.models.Station;
+import si.um.feri.mbusi.models.StationDetails;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ModernOverlay implements Disposable {
@@ -28,6 +33,14 @@ public class ModernOverlay implements Disposable {
     private int tilesRendered = 0;
     private String cacheStats = "";
 
+    
+    private boolean rightPanelHovered = false;
+    private float stationScrollOffset = 0f;
+
+    
+    private float stationDetailsScrollOffset = 0f;
+    private boolean stationDetailsPanelHovered = false;
+
     public ModernOverlay() {
         uiRenderer = new UIRenderer();
         uiCamera = new OrthographicCamera();
@@ -37,15 +50,37 @@ public class ModernOverlay implements Disposable {
     public void update(float delta) {
         animationTime += delta;
 
+        
         float targetSlide = panelVisible ? 1f : 0f;
         panelSlideProgress = MathUtils.lerp(panelSlideProgress, targetSlide,
             delta / DesignSystem.ANIM_NORMAL);
     }
 
+    public void setRightPanelHovered(boolean hovered) {
+        this.rightPanelHovered = hovered;
+    }
+
+    public void setStationScrollOffset(float offset) {
+        this.stationScrollOffset = offset;
+    }
+
+    public void setStationDetailsScrollOffset(float offset) {
+        this.stationDetailsScrollOffset = offset;
+    }
+
+    public void setStationDetailsPanelHovered(boolean hovered) {
+        this.stationDetailsPanelHovered = hovered;
+    }
+
+    public void resetStationDetailsScroll() {
+        this.stationDetailsScrollOffset = 0f;
+    }
+
     public void render(float centerLat, float centerLon, int zoom,
                        List<BusRoute> routes, List<Station> stations,
                        BusRoute selectedRoute, boolean dataLoaded, boolean loadingData,
-                       String loadingStatus) {
+                       String loadingStatus, StationDetails selectedStation,
+                       boolean loadingStationDetails) {
 
         uiCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         uiCamera.update();
@@ -63,7 +98,10 @@ public class ModernOverlay implements Disposable {
         drawBottomBar(shapes, dataLoaded, loadingData, loadingStatus, routes, stations, selectedRoute);
         drawLeftPanel(shapes, routes, selectedRoute);
         if (selectedRoute != null) {
-            drawRouteInfoPanel(shapes, selectedRoute);
+            drawStationListPanel(shapes, selectedRoute, stations);
+        }
+        if (selectedStation != null) {
+            drawStationDetailsPanel(shapes, selectedStation);
         }
         drawMiniStats(shapes);
         uiRenderer.endShapes();
@@ -73,13 +111,18 @@ public class ModernOverlay implements Disposable {
         drawBottomBarText(batch, dataLoaded, loadingData, loadingStatus, routes, stations, selectedRoute);
         drawLeftPanelText(batch, routes, selectedRoute);
         if (selectedRoute != null) {
-            drawRouteInfoPanelText(batch, selectedRoute);
+            drawStationListPanelText(batch, selectedRoute, stations);
+        }
+        if (selectedStation != null) {
+            drawStationDetailsPanelText(batch, selectedStation);
+        } else if (loadingStationDetails) {
+            drawStationDetailsPanelLoading(batch);
         }
         drawMiniStatsText(batch);
         uiRenderer.endText();
     }
 
-    // === TOP BAR ===
+    
 
     private void drawTopBar(ShapeRenderer shapes, int zoom, float lat, float lon) {
         float screenWidth = Gdx.graphics.getWidth();
@@ -129,7 +172,7 @@ public class ModernOverlay implements Disposable {
             DesignSystem.TEXT_SECONDARY);
     }
 
-    // === BOTTOM BAR ===
+    
 
     private void drawBottomBar(ShapeRenderer shapes, boolean dataLoaded, boolean loadingData,
                                 String loadingStatus, List<BusRoute> routes,
@@ -190,7 +233,7 @@ public class ModernOverlay implements Disposable {
             DesignSystem.TEXT_MUTED);
     }
 
-    // === LEFT PANEL (Route List) ===
+    
 
     private void drawLeftPanel(ShapeRenderer shapes, List<BusRoute> routes, BusRoute selectedRoute) {
         if (routes == null || routes.isEmpty()) return;
@@ -278,21 +321,26 @@ public class ModernOverlay implements Disposable {
         }
     }
 
-    // === ROUTE INFO PANEL ===
+    
 
-    private void drawRouteInfoPanel(ShapeRenderer shapes, BusRoute route) {
+    private void drawStationListPanel(ShapeRenderer shapes, BusRoute route, List<Station> allStations) {
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
 
-        float panelWidth = 260;
-        float panelHeight = 160;
+        float panelWidth = 340;
+        
+        float bottomBarTop = DesignSystem.SPACE_MD + DesignSystem.FOOTER_HEIGHT + DesignSystem.SPACE_MD;
+        float panelHeight = screenHeight - DesignSystem.HEADER_HEIGHT - DesignSystem.SPACE_MD * 2 - bottomBarTop;
         float panelX = screenWidth - panelWidth - DesignSystem.SPACE_MD;
-        float panelY = screenHeight - panelHeight - DesignSystem.HEADER_HEIGHT - DesignSystem.SPACE_MD * 2;
+        float panelY = bottomBarTop;
 
+        
         uiRenderer.drawRoundedRect(panelX, panelY, panelWidth, panelHeight,
             DesignSystem.RADIUS_LG, DesignSystem.SURFACE_GLASS);
 
         Color routeColor = route.getColor() != null ? route.getColor() : DesignSystem.ACCENT_PRIMARY;
+
+        
         uiRenderer.drawRoundedRect(
             panelX,
             panelY + panelHeight - 4,
@@ -301,48 +349,560 @@ public class ModernOverlay implements Disposable {
             DesignSystem.RADIUS_SM,
             routeColor
         );
+
+        
+        List<Station> routeStations = new ArrayList<>();
+        if (allStations != null) {
+            for (Station station : allStations) {
+                routeStations.add(station);
+            }
+        }
+
+        
+        uiRenderer.getShapeRenderer().flush();
+        Rectangle clipBounds = new Rectangle(panelX + 8, panelY + 8, panelWidth - 16, panelHeight - 100);
+        Rectangle scissors = new Rectangle();
+        ScissorStack.calculateScissors(uiCamera, uiRenderer.getShapeRenderer().getTransformMatrix(), clipBounds, scissors);
+        ScissorStack.pushScissors(scissors);
+
+        
+        
+        
+        float itemHeight = 70;
+        float itemY = panelY + panelHeight - 100 - itemHeight - stationScrollOffset;
+
+        
+        if (Gdx.graphics.getFrameId() % 60 == 0) {
+            Gdx.app.log("Render", String.format("SHAPES: scrollOffset=%.1f, startItemY=%.1f, stations=%d",
+                stationScrollOffset, itemY, routeStations.size()));
+        }
+
+        for (int i = 0; i < routeStations.size(); i++) {
+            Station station = routeStations.get(i);
+
+            
+            Color cardBg = DesignSystem.withAlpha(DesignSystem.SURFACE_DARK, 0.4f);
+            uiRenderer.drawRoundedRect(
+                panelX + 12,
+                itemY - 2,
+                panelWidth - 24,
+                64,
+                DesignSystem.RADIUS_MD,
+                cardBg
+            );
+
+            
+            uiRenderer.drawRoundedRect(
+                panelX + 12,
+                itemY - 2,
+                4,
+                64,
+                DesignSystem.RADIUS_SM,
+                routeColor
+            );
+
+            
+            uiRenderer.drawCircle(
+                panelX + 38,
+                itemY + 30,
+                16,
+                routeColor
+            );
+
+            
+            uiRenderer.drawCircle(
+                panelX + 38,
+                itemY + 30,
+                14,
+                DesignSystem.withAlpha(routeColor, 0.9f)
+            );
+
+            itemY -= itemHeight;
+        }
+
+        
+        uiRenderer.getShapeRenderer().flush();
+        ScissorStack.popScissors();
     }
 
-    private void drawRouteInfoPanelText(SpriteBatch batch, BusRoute route) {
+    private void drawStationListPanelText(SpriteBatch batch, BusRoute route, List<Station> allStations) {
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
 
-        float panelWidth = 260;
-        float panelHeight = 160;
+        float panelWidth = 340;
+        
+        float bottomBarTop = DesignSystem.SPACE_MD + DesignSystem.FOOTER_HEIGHT + DesignSystem.SPACE_MD;
+        float panelHeight = screenHeight - DesignSystem.HEADER_HEIGHT - DesignSystem.SPACE_MD * 2 - bottomBarTop;
         float panelX = screenWidth - panelWidth - DesignSystem.SPACE_MD;
-        float panelY = screenHeight - panelHeight - DesignSystem.HEADER_HEIGHT - DesignSystem.SPACE_MD * 2;
+        float panelY = bottomBarTop;
 
-        uiRenderer.drawTextSmall("SELECTED ROUTE",
-            panelX + 16,
+        
+        uiRenderer.drawTextSmall("STATIONS ON ROUTE",
+            panelX + 20,
             panelY + panelHeight - 20,
             DesignSystem.TEXT_MUTED);
 
+        String routeName = route.getName();
+        if (routeName != null && routeName.length() > 25) {
+            routeName = routeName.substring(0, 22) + "...";
+        }
+
         uiRenderer.drawTextLarge("Line " + route.getLineId(),
-            panelX + 16,
-            panelY + panelHeight - 50,
+            panelX + 20,
+            panelY + panelHeight - 45,
             DesignSystem.TEXT_PRIMARY);
 
-        String name = route.getName();
-        if (name != null && name.length() > 28) {
-            name = name.substring(0, 25) + "...";
-        }
-        uiRenderer.drawText(name != null ? name : "No name",
-            panelX + 16,
-            panelY + panelHeight - 80,
+        uiRenderer.drawText(routeName != null ? routeName : "",
+            panelX + 20,
+            panelY + panelHeight - 70,
             DesignSystem.TEXT_SECONDARY);
 
-        int pathPoints = route.getPath() != null ? route.getPath().size() : 0;
-        uiRenderer.drawTextSmall("Path points: " + pathPoints,
-            panelX + 16,
-            panelY + 40,
+        
+        List<Station> routeStations = new ArrayList<>();
+        if (allStations != null) {
+            for (Station station : allStations) {
+                routeStations.add(station);
+            }
+        }
+
+        
+        uiRenderer.drawTextSmall(routeStations.size() + " stations",
+            panelX + 20,
+            panelY + panelHeight - 85,
             DesignSystem.TEXT_MUTED);
 
-        uiRenderer.drawTextSmall("Click line again to deselect",
-            panelX + 16,
-            panelY + 20,
+        
+        batch.flush();
+        Rectangle clipBounds = new Rectangle(panelX + 8, panelY + 8, panelWidth - 16, panelHeight - 100);
+        Rectangle scissors = new Rectangle();
+        ScissorStack.calculateScissors(uiCamera, batch.getTransformMatrix(), clipBounds, scissors);
+        ScissorStack.pushScissors(scissors);
+
+        
+        
+        
+        float itemHeight = 70;
+        float itemY = panelY + panelHeight - 100 - itemHeight - stationScrollOffset;
+
+        for (int i = 0; i < routeStations.size(); i++) {
+            Station station = routeStations.get(i);
+
+            
+            uiRenderer.drawTextCentered(String.valueOf(station.getSequence()),
+                panelX + 38,
+                itemY + 36,
+                32,
+                DesignSystem.TEXT_INVERSE,
+                uiRenderer.getFontSmall());
+
+            
+            String name = station.getName();
+            if (name != null && name.length() > 32) {
+                name = name.substring(0, 29) + "...";
+            }
+            uiRenderer.drawText(name != null ? name : "Station " + station.getId(),
+                panelX + 64,
+                itemY + 38,
+                DesignSystem.TEXT_PRIMARY);
+
+            
+            uiRenderer.drawTextSmall("ID: " + station.getId(),
+                panelX + 64,
+                itemY + 18,
+                DesignSystem.TEXT_MUTED);
+
+            itemY -= itemHeight;
+        }
+
+        
+        batch.flush();
+        ScissorStack.popScissors();
+    }
+
+    
+
+    private void drawStationDetailsPanel(ShapeRenderer shapes, StationDetails station) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        
+        uiRenderer.drawRoundedRect(0, 0, screenWidth, screenHeight,
+            0, new Color(0, 0, 0, 0.4f));
+
+        
+        float panelWidth = 420;
+        float panelHeight = screenHeight - DesignSystem.SPACE_MD * 2;
+        float panelX = screenWidth - panelWidth - DesignSystem.SPACE_MD;
+        float panelY = DesignSystem.SPACE_MD;
+
+        
+        uiRenderer.drawRoundedRect(panelX, panelY, panelWidth, panelHeight,
+            DesignSystem.RADIUS_XL, DesignSystem.SURFACE_DARK);
+
+        
+        shapes.setColor(DesignSystem.BORDER_LIGHT);
+
+        
+        float headerHeight = 140;
+        float headerY = panelY + panelHeight - headerHeight;
+
+        
+        uiRenderer.drawRoundedRect(
+            panelX,
+            headerY,
+            panelWidth,
+            headerHeight,
+            DesignSystem.RADIUS_XL,
+            DesignSystem.SURFACE_ELEVATED
+        );
+
+        
+        uiRenderer.drawRoundedRect(
+            panelX + DesignSystem.SPACE_LG,
+            panelY + panelHeight - 6,
+            panelWidth - DesignSystem.SPACE_LG * 2,
+            4,
+            DesignSystem.RADIUS_PILL,
+            DesignSystem.ACCENT_PRIMARY
+        );
+
+        
+        float iconX = panelX + DesignSystem.SPACE_LG + 30;
+        float iconY = headerY + headerHeight / 2 + 10;
+
+        
+        uiRenderer.drawCircle(iconX, iconY, 32, DesignSystem.withAlpha(DesignSystem.ACCENT_PRIMARY, 0.2f));
+        
+        uiRenderer.drawCircle(iconX, iconY, 28, DesignSystem.ACCENT_PRIMARY);
+        
+        uiRenderer.drawCircle(iconX, iconY, 24, DesignSystem.withAlpha(DesignSystem.ACCENT_GRADIENT_END, 0.6f));
+
+        
+        float contentTop = headerY - DesignSystem.SPACE_MD;
+        float contentBottom = panelY + 60; 
+        float contentHeight = contentTop - contentBottom;
+
+        
+        java.util.Map<Integer, java.util.List<Arrival>> groupedArrivals = new java.util.LinkedHashMap<>();
+        for (Arrival arrival : station.getArrivals()) {
+            Integer lineKey = arrival.getLineId();
+            if (!groupedArrivals.containsKey(lineKey)) {
+                groupedArrivals.put(lineKey, new java.util.ArrayList<>());
+            }
+            groupedArrivals.get(lineKey).add(arrival);
+        }
+
+        
+        float lineCardHeight = 90;
+        float totalContentHeight = groupedArrivals.size() * lineCardHeight + DesignSystem.SPACE_MD;
+
+        
+        float maxScroll = Math.max(0, totalContentHeight - contentHeight);
+        stationDetailsScrollOffset = MathUtils.clamp(stationDetailsScrollOffset, 0, maxScroll);
+
+        
+        uiRenderer.getShapeRenderer().flush();
+        Rectangle clipBounds = new Rectangle(panelX + 8, contentBottom, panelWidth - 16, contentHeight);
+        Rectangle scissors = new Rectangle();
+        ScissorStack.calculateScissors(uiCamera, uiRenderer.getShapeRenderer().getTransformMatrix(), clipBounds, scissors);
+        ScissorStack.pushScissors(scissors);
+
+        
+        float cardY = contentTop - lineCardHeight + stationDetailsScrollOffset;
+        int lineIndex = 0;
+
+        for (java.util.Map.Entry<Integer, java.util.List<Arrival>> entry : groupedArrivals.entrySet()) {
+            java.util.List<Arrival> lineArrivals = entry.getValue();
+            if (lineArrivals.isEmpty()) continue;
+
+            Arrival firstArrival = lineArrivals.get(0);
+            Color lineColor = DesignSystem.getLineColor(entry.getKey());
+
+            
+            uiRenderer.drawRoundedRect(
+                panelX + DesignSystem.SPACE_MD,
+                cardY,
+                panelWidth - DesignSystem.SPACE_MD * 2,
+                lineCardHeight - 8,
+                DesignSystem.RADIUS_MD,
+                DesignSystem.withAlpha(DesignSystem.SURFACE_ELEVATED, 0.7f)
+            );
+
+            
+            uiRenderer.drawRoundedRect(
+                panelX + DesignSystem.SPACE_MD,
+                cardY,
+                5,
+                lineCardHeight - 8,
+                DesignSystem.RADIUS_SM,
+                lineColor
+            );
+
+            
+            uiRenderer.drawCircle(
+                panelX + DesignSystem.SPACE_MD + 40,
+                cardY + (lineCardHeight - 8) / 2,
+                22,
+                lineColor
+            );
+
+            cardY -= lineCardHeight;
+            lineIndex++;
+        }
+
+        
+        uiRenderer.getShapeRenderer().flush();
+        ScissorStack.popScissors();
+
+        
+        if (totalContentHeight > contentHeight) {
+            float scrollbarHeight = contentHeight * (contentHeight / totalContentHeight);
+            float scrollbarY = contentBottom + contentHeight - scrollbarHeight
+                - (stationDetailsScrollOffset / maxScroll) * (contentHeight - scrollbarHeight);
+
+            
+            uiRenderer.drawRoundedRect(
+                panelX + panelWidth - 10,
+                contentBottom,
+                4,
+                contentHeight,
+                DesignSystem.RADIUS_PILL,
+                DesignSystem.withAlpha(DesignSystem.BORDER, 0.3f)
+            );
+
+            
+            uiRenderer.drawRoundedRect(
+                panelX + panelWidth - 10,
+                scrollbarY,
+                4,
+                scrollbarHeight,
+                DesignSystem.RADIUS_PILL,
+                DesignSystem.ACCENT_PRIMARY
+            );
+        }
+
+        
+        uiRenderer.drawRoundedRect(
+            panelX + DesignSystem.SPACE_MD,
+            panelY + DesignSystem.SPACE_MD,
+            panelWidth - DesignSystem.SPACE_MD * 2,
+            44,
+            DesignSystem.RADIUS_MD,
+            DesignSystem.withAlpha(DesignSystem.SURFACE_ELEVATED, 0.5f)
+        );
+    }
+
+    private void drawStationDetailsPanelText(SpriteBatch batch, StationDetails station) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float panelWidth = 420;
+        float panelHeight = screenHeight - DesignSystem.SPACE_MD * 2;
+        float panelX = screenWidth - panelWidth - DesignSystem.SPACE_MD;
+        float panelY = DesignSystem.SPACE_MD;
+
+        
+        float headerHeight = 140;
+        float headerY = panelY + panelHeight - headerHeight;
+
+        
+        uiRenderer.drawTextSmall("POSTAJA",
+            panelX + DesignSystem.SPACE_LG + 75,
+            panelY + panelHeight - 30,
+            DesignSystem.TEXT_MUTED);
+
+        
+        String stationName = station.getName();
+        if (stationName != null && stationName.length() > 28) {
+            stationName = stationName.substring(0, 25) + "...";
+        }
+        uiRenderer.drawTextLarge(stationName != null ? stationName : "Neznana postaja",
+            panelX + DesignSystem.SPACE_LG + 75,
+            panelY + panelHeight - 55,
+            DesignSystem.TEXT_PRIMARY);
+
+        
+        uiRenderer.drawTextSmall("ID: " + station.getId(),
+            panelX + DesignSystem.SPACE_LG + 75,
+            panelY + panelHeight - 78,
+            DesignSystem.TEXT_SECONDARY);
+
+        
+        int totalDepartures = station.getArrivals().size();
+        uiRenderer.drawTextSmall(totalDepartures + " odhodov",
+            panelX + panelWidth - DesignSystem.SPACE_LG - 80,
+            panelY + panelHeight - 78,
+            DesignSystem.ACCENT_PRIMARY);
+
+        
+        uiRenderer.drawTextBold("ODHODI",
+            panelX + DesignSystem.SPACE_LG,
+            headerY - 8,
+            DesignSystem.TEXT_PRIMARY);
+
+        
+        float contentTop = headerY - DesignSystem.SPACE_MD;
+        float contentBottom = panelY + 60;
+        float contentHeight = contentTop - contentBottom;
+
+        
+        java.util.Map<Integer, java.util.List<Arrival>> groupedArrivals = new java.util.LinkedHashMap<>();
+        for (Arrival arrival : station.getArrivals()) {
+            Integer lineKey = arrival.getLineId();
+            if (!groupedArrivals.containsKey(lineKey)) {
+                groupedArrivals.put(lineKey, new java.util.ArrayList<>());
+            }
+            groupedArrivals.get(lineKey).add(arrival);
+        }
+
+        
+        batch.flush();
+        Rectangle clipBounds = new Rectangle(panelX + 8, contentBottom, panelWidth - 16, contentHeight);
+        Rectangle scissors = new Rectangle();
+        ScissorStack.calculateScissors(uiCamera, batch.getTransformMatrix(), clipBounds, scissors);
+        ScissorStack.pushScissors(scissors);
+
+        float lineCardHeight = 90;
+        float cardY = contentTop - lineCardHeight + stationDetailsScrollOffset;
+
+        for (java.util.Map.Entry<Integer, java.util.List<Arrival>> entry : groupedArrivals.entrySet()) {
+            java.util.List<Arrival> lineArrivals = entry.getValue();
+            if (lineArrivals.isEmpty()) continue;
+
+            Arrival firstArrival = lineArrivals.get(0);
+
+            
+            uiRenderer.drawTextCentered(
+                String.valueOf(entry.getKey()),
+                panelX + DesignSystem.SPACE_MD + 18,
+                cardY + (lineCardHeight - 8) / 2 + 6,
+                44,
+                DesignSystem.TEXT_INVERSE,
+                uiRenderer.getFontMedium()
+            );
+
+            
+            String direction = firstArrival.getLineName();
+            if (direction != null) {
+                
+                int dashIndex = direction.indexOf(" - ");
+                if (dashIndex > 0 && dashIndex < direction.length() - 3) {
+                    direction = direction.substring(dashIndex + 3);
+                }
+                if (direction.length() > 30) {
+                    direction = direction.substring(0, 27) + "...";
+                }
+            }
+            uiRenderer.drawText(direction != null ? direction : "Smer neznana",
+                panelX + DesignSystem.SPACE_MD + 75,
+                cardY + lineCardHeight - 24,
+                DesignSystem.TEXT_PRIMARY);
+
+            
+            java.util.Set<String> uniqueTimes = new java.util.LinkedHashSet<>();
+            for (Arrival arr : lineArrivals) {
+                uniqueTimes.add(arr.getArrivalTime());
+            }
+
+            
+            java.util.List<String> sortedTimes = new java.util.ArrayList<>(uniqueTimes);
+            java.util.Collections.sort(sortedTimes);
+
+            StringBuilder timesStr = new StringBuilder();
+            int maxTimes = Math.min(sortedTimes.size(), 6);
+            for (int i = 0; i < maxTimes; i++) {
+                if (i > 0) timesStr.append("   ");
+                timesStr.append(sortedTimes.get(i));
+            }
+            if (sortedTimes.size() > 6) {
+                timesStr.append("  ...");
+            }
+
+            uiRenderer.drawTextMedium(timesStr.toString(),
+                panelX + DesignSystem.SPACE_MD + 75,
+                cardY + lineCardHeight - 50,
+                DesignSystem.ACCENT_PRIMARY);
+
+            
+            uiRenderer.drawTextSmall(sortedTimes.size() + " odhodov",
+                panelX + DesignSystem.SPACE_MD + 75,
+                cardY + 18,
+                DesignSystem.TEXT_MUTED);
+
+            cardY -= lineCardHeight;
+        }
+
+        
+        batch.flush();
+        ScissorStack.popScissors();
+
+        
+        uiRenderer.drawTextSmall("ESC ali klik za zapiranje  •  Scroll za več",
+            panelX + panelWidth / 2 - 120,
+            panelY + DesignSystem.SPACE_MD + 28,
             DesignSystem.TEXT_MUTED);
     }
 
+    private void drawStationDetailsPanelLoading(SpriteBatch batch) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        
+        uiRenderer.drawTextLarge("Nalaganje...",
+            screenWidth / 2f - 60,
+            screenHeight / 2f,
+            DesignSystem.TEXT_SECONDARY);
+    }
+
+    
+    public float getStationDetailsMaxScroll(StationDetails station) {
+        if (station == null) return 0;
+
+        float screenHeight = Gdx.graphics.getHeight();
+        float panelHeight = screenHeight - DesignSystem.SPACE_MD * 2;
+        float headerHeight = 140;
+        float contentTop = panelHeight - headerHeight - DesignSystem.SPACE_MD;
+        float contentBottom = 60;
+        float contentHeight = contentTop - contentBottom;
+
+        
+        java.util.Set<Integer> uniqueLines = new java.util.HashSet<>();
+        for (Arrival arrival : station.getArrivals()) {
+            uniqueLines.add(arrival.getLineId());
+        }
+
+        float lineCardHeight = 90;
+        float totalContentHeight = uniqueLines.size() * lineCardHeight + DesignSystem.SPACE_MD;
+
+        return Math.max(0, totalContentHeight - contentHeight);
+    }
+
+    public boolean isStationDetailsPanelArea(float screenX, float screenY) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float panelWidth = 420;
+        float panelHeight = screenHeight - DesignSystem.SPACE_MD * 2;
+        float panelX = screenWidth - panelWidth - DesignSystem.SPACE_MD;
+        float panelY = DesignSystem.SPACE_MD;
+
+        float renderY = screenHeight - screenY;
+
+        return screenX >= panelX && screenX <= panelX + panelWidth &&
+               renderY >= panelY && renderY <= panelY + panelHeight;
+    }
+
+    private String getStatusText(String status) {
+        if (status == null) return "Neznano";
+
+        switch (status.toUpperCase()) {
+            case "ON_TIME": return "Na času";
+            case "DELAYED": return "Zamuda";
+            case "CANCELLED": return "Preklicano";
+            case "ARRIVING": return "Prihaja";
+            default: return status;
+        }
+    }
 
     private void drawMiniStats(ShapeRenderer shapes) {
         float screenWidth = Gdx.graphics.getWidth();
@@ -373,7 +933,7 @@ public class ModernOverlay implements Disposable {
             DesignSystem.TEXT_MUTED);
     }
 
-    // === SETTERS ===
+    
 
     public void setStats(int tilesRendered, String cacheStats) {
         this.tilesRendered = tilesRendered;
@@ -417,6 +977,23 @@ public class ModernOverlay implements Disposable {
         }
 
         return null;
+    }
+
+    public boolean isStationListPanelArea(float screenX, float screenY) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float panelWidth = 340;
+        
+        float bottomBarTop = DesignSystem.SPACE_MD + DesignSystem.FOOTER_HEIGHT + DesignSystem.SPACE_MD;
+        float panelHeight = screenHeight - DesignSystem.HEADER_HEIGHT - DesignSystem.SPACE_MD * 2 - bottomBarTop;
+        float panelX = screenWidth - panelWidth - DesignSystem.SPACE_MD;
+        float panelY = bottomBarTop;
+
+        float renderY = screenHeight - screenY;
+
+        return screenX >= panelX && screenX <= panelX + panelWidth &&
+               renderY >= panelY && renderY <= panelY + panelHeight;
     }
 
     public void resize(int width, int height) {

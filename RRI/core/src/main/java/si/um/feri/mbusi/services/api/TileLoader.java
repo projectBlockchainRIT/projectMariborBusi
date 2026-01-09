@@ -43,7 +43,6 @@ public class TileLoader implements Disposable {
         return placeholderTexture;
     }
 
-
     private Texture loadTileFromNetwork(TileCoordinate coord) {
         try {
             String urlString = getTileUrl(coord.zoom, coord.x, coord.y);

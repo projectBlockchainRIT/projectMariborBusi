@@ -24,7 +24,7 @@ public class StationRenderer {
     private BitmapFont font;
     private GlyphLayout glyphLayout;
 
-    // Modern dark theme colors
+    
     private static final Color STATION_FILL = DesignSystem.TEXT_PRIMARY;
     private static final Color STATION_OUTLINE = DesignSystem.SURFACE_DARK;
     private static final Color STATION_SHADOW = DesignSystem.SHADOW_MEDIUM;
@@ -61,7 +61,7 @@ public class StationRenderer {
 
         Set<String> renderedPositions = new HashSet<>();
 
-        // First pass: render glow effect for modern look
+        
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         for (Station station : stations) {
             String posKey = String.format("%.5f,%.5f", station.getLatitude(), station.getLongitude());
@@ -71,7 +71,7 @@ public class StationRenderer {
                 station.getLatitude(), station.getLongitude(),
                 centerLat, centerLon, zoom, Constants.TILE_SIZE);
 
-            // Soft glow effect
+            
             if (zoom >= 14) {
                 for (int i = 3; i >= 0; i--) {
                     float glowAlpha = 0.08f * (1 - (float)i / 3f);
@@ -81,7 +81,7 @@ public class StationRenderer {
                 }
             }
 
-            // Shadow
+            
             shapeRenderer.setColor(STATION_SHADOW);
             shapeRenderer.circle(screenPos.x + 1.5f, screenPos.y - 1.5f, markerRadius + 1, CIRCLE_SEGMENTS);
 

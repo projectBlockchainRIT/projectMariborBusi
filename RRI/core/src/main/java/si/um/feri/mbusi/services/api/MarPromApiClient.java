@@ -314,11 +314,15 @@ public class MarPromApiClient {
                 if (statusCode == HttpStatus.SC_OK) {
                     String responseJson = httpResponse.getResultAsString();
                     Gdx.app.log("MarPromApiClient", "Response length: " + responseJson.length() + " chars");
+                    Gdx.app.log("MarPromApiClient", "Full response JSON: " + responseJson);
 
                     try {
                         StationDetails stationDetails = parseStationDetailsResponse(responseJson);
                         Gdx.app.log("MarPromApiClient", "Successfully parsed station details with " +
                                 stationDetails.getArrivals().size() + " arrivals");
+                        if (stationDetails.getArrivals().size() > 0) {
+                            Gdx.app.log("MarPromApiClient", "First arrival: " + stationDetails.getArrivals().get(0).toString());
+                        }
                         callback.onSuccess(stationDetails);
                     } catch (Exception e) {
                         Gdx.app.error("MarPromApiClient", "Error parsing response: " + e.getMessage(), e);
@@ -376,35 +380,45 @@ public class MarPromApiClient {
             int lonEnd = findNextCommaOrBrace(dataContent, lonStart);
             stationDetails.setLongitude(Double.parseDouble(dataContent.substring(lonStart, lonEnd).trim()));
 
-            if (dataContent.contains("\"arrivals\"")) {
-                int arrivalsStart = dataContent.indexOf("[", dataContent.indexOf("\"arrivals\""));
-                int arrivalsEnd = dataContent.indexOf("]", arrivalsStart);
+            
+            if (dataContent.contains("\"departures\"")) {
+                int departuresStart = dataContent.indexOf("[", dataContent.indexOf("\"departures\""));
+                int departuresEnd = findMatchingBracket(dataContent, departuresStart);
 
-                if (arrivalsStart != -1 && arrivalsEnd != -1) {
-                    String arrivalsContent = dataContent.substring(arrivalsStart + 1, arrivalsEnd);
+                Gdx.app.log("MarPromApiClient", "Found departures field. Start: " + departuresStart + ", End: " + departuresEnd);
 
-                    List<String> arrivalObjects = new ArrayList<>();
+                if (departuresStart != -1 && departuresEnd != -1) {
+                    String departuresContent = dataContent.substring(departuresStart + 1, departuresEnd);
+                    Gdx.app.log("MarPromApiClient", "Departures content length: " + departuresContent.length());
+
+                    List<String> departureObjects = new ArrayList<>();
                     int braceCount = 0;
                     int start = 0;
 
-                    for (int i = 0; i < arrivalsContent.length(); i++) {
-                        char c = arrivalsContent.charAt(i);
+                    for (int i = 0; i < departuresContent.length(); i++) {
+                        char c = departuresContent.charAt(i);
                         if (c == '{') {
                             if (braceCount == 0) start = i;
                             braceCount++;
                         } else if (c == '}') {
                             braceCount--;
                             if (braceCount == 0) {
-                                arrivalObjects.add(arrivalsContent.substring(start, i + 1));
+                                departureObjects.add(departuresContent.substring(start, i + 1));
                             }
                         }
                     }
 
-                    for (String arrivalObj : arrivalObjects) {
-                        Arrival arrival = parseArrivalObject(arrivalObj);
-                        stationDetails.addArrival(arrival);
+                    Gdx.app.log("MarPromApiClient", "Found " + departureObjects.size() + " departure objects");
+
+                    for (String departureObj : departureObjects) {
+                        List<Arrival> arrivals = parseDepartureObject(departureObj);
+                        for (Arrival arrival : arrivals) {
+                            stationDetails.addArrival(arrival);
+                        }
                     }
                 }
+            } else {
+                Gdx.app.log("MarPromApiClient", "No 'departures' field found in data content");
             }
 
         } catch (Exception e) {
@@ -459,6 +473,124 @@ public class MarPromApiClient {
         return arrival;
     }
 
+    private List<Arrival> parseDepartureObject(String json) {
+        List<Arrival> arrivals = new ArrayList<>();
+
+        try {
+            
+            String line = "";
+            if (json.contains("\"line\":\"")) {
+                int lineStart = json.indexOf("\"line\":\"") + 8;
+                int lineEnd = json.indexOf("\"", lineStart);
+                line = json.substring(lineStart, lineEnd);
+            }
+
+            
+            int lineId = 0;
+            try {
+                
+                String lineNumStr = line.replaceAll("[^0-9]", "");
+                if (!lineNumStr.isEmpty()) {
+                    lineId = Integer.parseInt(lineNumStr);
+                }
+            } catch (Exception e) {
+                Gdx.app.log("MarPromApiClient", "Could not parse line ID from: " + line);
+            }
+
+            
+            String direction = "";
+            if (json.contains("\"direction\":\"")) {
+                int dirStart = json.indexOf("\"direction\":\"") + 13;
+                int dirEnd = json.indexOf("\"", dirStart);
+                direction = json.substring(dirStart, dirEnd);
+            }
+
+            
+            if (json.contains("\"times\"")) {
+                int timesStart = json.indexOf("[", json.indexOf("\"times\""));
+                int timesEnd = json.indexOf("]", timesStart);
+
+                if (timesStart != -1 && timesEnd != -1) {
+                    String timesContent = json.substring(timesStart + 1, timesEnd);
+
+                    
+                    java.util.Calendar now = java.util.Calendar.getInstance();
+                    int currentHour = now.get(java.util.Calendar.HOUR_OF_DAY);
+                    int currentMinute = now.get(java.util.Calendar.MINUTE);
+                    int currentTimeMinutes = currentHour * 60 + currentMinute;
+
+                    
+                    String[] timeStrings = timesContent.split(",");
+                    java.util.Set<String> seenTimes = new java.util.HashSet<>();
+                    int maxUniqueTimes = 8; 
+
+                    for (String timeStr : timeStrings) {
+                        if (arrivals.size() >= maxUniqueTimes) break;
+
+                        
+                        String time = timeStr.trim().replace("\"", "");
+
+                        if (!time.isEmpty() && !seenTimes.contains(time)) {
+                            
+                            try {
+                                String[] parts = time.split(":");
+                                if (parts.length == 2) {
+                                    int hour = Integer.parseInt(parts[0]);
+                                    int minute = Integer.parseInt(parts[1]);
+                                    int timeMinutes = hour * 60 + minute;
+
+                                    
+                                    if (timeMinutes >= currentTimeMinutes - 5) {
+                                        seenTimes.add(time);
+
+                                        Arrival arrival = new Arrival();
+                                        arrival.setLineId(lineId);
+                                        arrival.setLineName(line + " - " + direction);
+                                        arrival.setArrivalTime(time);
+                                        arrival.setDelayMinutes(0);
+                                        arrival.setStatus("on_time");
+
+                                        arrivals.add(arrival);
+                                    }
+                                }
+                            } catch (Exception e) {
+                                
+                                Gdx.app.log("MarPromApiClient", "Failed to parse time: " + time);
+                            }
+                        }
+                    }
+
+                    
+                    if (arrivals.isEmpty() && timeStrings.length > 0) {
+                        seenTimes.clear();
+                        for (String timeStr : timeStrings) {
+                            if (arrivals.size() >= maxUniqueTimes) break;
+
+                            String time = timeStr.trim().replace("\"", "");
+                            if (!time.isEmpty() && !seenTimes.contains(time)) {
+                                seenTimes.add(time);
+
+                                Arrival arrival = new Arrival();
+                                arrival.setLineId(lineId);
+                                arrival.setLineName(line + " - " + direction);
+                                arrival.setArrivalTime(time);
+                                arrival.setDelayMinutes(0);
+                                arrival.setStatus("on_time");
+
+                                arrivals.add(arrival);
+                            }
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            Gdx.app.error("MarPromApiClient", "Error parsing departure object: " + e.getMessage(), e);
+        }
+
+        return arrivals;
+    }
+
     private int findMatchingBrace(String str, int openBraceIndex) {
         int braceCount = 0;
         for (int i = openBraceIndex; i < str.length(); i++) {
@@ -468,6 +600,22 @@ public class MarPromApiClient {
             } else if (c == '}') {
                 braceCount--;
                 if (braceCount == 0) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private int findMatchingBracket(String str, int openBracketIndex) {
+        int bracketCount = 0;
+        for (int i = openBracketIndex; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c == '[') {
+                bracketCount++;
+            } else if (c == ']') {
+                bracketCount--;
+                if (bracketCount == 0) {
                     return i;
                 }
             }

@@ -39,10 +39,22 @@ public class UIRenderer implements Disposable {
                 Gdx.files.internal("fonts/Inter-Regular.ttf"));
 
             FreeTypeFontGenerator.FreeTypeFontParameter params = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+            
             params.color = DesignSystem.TEXT_PRIMARY;
-            params.shadowColor = new Color(0, 0, 0, 0.3f);
+            params.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
+            params.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
+            params.hinting = FreeTypeFontGenerator.Hinting.Full;
+            params.renderCount = 2; 
+            params.gamma = 1.8f; 
+
+            
+            params.shadowColor = new Color(0, 0, 0, 0.25f);
             params.shadowOffsetX = 0;
             params.shadowOffsetY = 1;
+
+            
+            params.characters = FreeTypeFontGenerator.DEFAULT_CHARS + "čćžšđČĆŽŠĐ";
 
             params.size = 14;
             fontRegular = generator.generateFont(params);
@@ -68,6 +80,7 @@ public class UIRenderer implements Disposable {
                 fontBold = boldGen.generateFont(params);
                 boldGen.dispose();
             } catch (Exception e) {
+                Gdx.app.log("UIRenderer", "Inter-Bold.ttf not found, using regular weight");
                 fontBold = fontRegular;
             }
 
@@ -86,7 +99,7 @@ public class UIRenderer implements Disposable {
         }
     }
 
-    // === SHAPE DRAWING ===
+    
 
     public void beginShapes() {
         Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -156,7 +169,7 @@ public class UIRenderer implements Disposable {
     }
 
     public void drawCircleWithGlow(float x, float y, float radius, Color color, float glowRadius) {
-        // Glow layers
+        
         for (int i = 3; i >= 0; i--) {
             float t = (float) i / 3f;
             float r = radius + glowRadius * (1 - t);
@@ -164,7 +177,7 @@ public class UIRenderer implements Disposable {
             shapeRenderer.setColor(glowColor);
             shapeRenderer.circle(x, y, r, 32);
         }
-        // Core
+        
         shapeRenderer.setColor(color);
         shapeRenderer.circle(x, y, radius, 32);
     }
@@ -228,7 +241,7 @@ public class UIRenderer implements Disposable {
         }
     }
 
-    // === TEXT DRAWING ===
+    
 
     public void beginText() {
         batch.begin();
@@ -285,7 +298,7 @@ public class UIRenderer implements Disposable {
         return glyphLayout.height;
     }
 
-    // === GETTERS ===
+    
 
     public ShapeRenderer getShapeRenderer() {
         return shapeRenderer;

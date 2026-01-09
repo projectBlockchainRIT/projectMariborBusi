@@ -22,7 +22,7 @@ public class BusLineRenderer {
     private Map<Integer, Color> lineColors;
     private Random random;
 
-    // Use refined colors from DesignSystem
+    
     private static final Color[] COLOR_PALETTE = DesignSystem.LINE_COLORS;
 
     private static final float LINE_WIDTH_BASE = 4f;

@@ -2,12 +2,10 @@ package si.um.feri.mbusi.utils;
 
 import com.badlogic.gdx.math.Vector2;
 
-
 public class GeoUtils {
 
     private static final double EARTH_RADIUS = 6378137.0;
     private static final double ORIGIN_SHIFT = 2.0 * Math.PI * EARTH_RADIUS / 2.0;
-
 
     public static Vector2 latLonToWebMercator(double lat, double lon) {
         double x = lon * ORIGIN_SHIFT / 180.0;
@@ -16,14 +14,12 @@ public class GeoUtils {
         return new Vector2((float) x, (float) y);
     }
 
-
     public static Vector2 webMercatorToLatLon(Vector2 mercator) {
         double lon = (mercator.x / ORIGIN_SHIFT) * 180.0;
         double lat = (mercator.y / ORIGIN_SHIFT) * 180.0;
         lat = 180.0 / Math.PI * (2.0 * Math.atan(Math.exp(lat * Math.PI / 180.0)) - Math.PI / 2.0);
         return new Vector2((float) lat, (float) lon);
     }
-
 
     public static TileCoordinate latLonToTile(double lat, double lon, int zoom) {
         int n = (int) Math.pow(2, zoom);
@@ -33,7 +29,6 @@ public class GeoUtils {
         return new TileCoordinate(zoom, xTile, yTile);
     }
 
-
     public static Vector2 tileToLatLon(int zoom, int x, int y) {
         double n = Math.pow(2, zoom);
         double lon = x / n * 360.0 - 180.0;
@@ -41,7 +36,6 @@ public class GeoUtils {
         double lat = Math.toDegrees(latRad);
         return new Vector2((float) lat, (float) lon);
     }
-
 
     public static Vector2 latLonToScreenPosition(double lat, double lon,
                                                   double centerLat, double centerLon,
@@ -99,7 +93,6 @@ public class GeoUtils {
 
         return EARTH_RADIUS * c;
     }
-
 
     public static class TileCoordinate {
         public final int zoom;

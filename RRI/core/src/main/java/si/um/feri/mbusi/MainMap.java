@@ -8,7 +8,6 @@ import si.um.feri.mbusi.services.api.MarPromApiClient;
 
 import java.util.List;
 
-
 public class MainMap extends Game {
 
     private MarPromApiClient apiClient;

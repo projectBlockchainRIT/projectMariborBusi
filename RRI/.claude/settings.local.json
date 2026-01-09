@@ -8,7 +8,15 @@
       "Bash(curl:*)",
       "Bash(for path in \"v1/stations\" \"api/v1/stations\" \"stops\" \"api/stops\" \"postaje\" \"api/postaje\")",
       "Bash(do echo \"Testing: $path\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Skill(frontend-design)",
+      "Bash(python3:*)",
+      "Bash(while read file)",
+      "Bash(do python3 remove_comments.py \"$file\")",
+      "Bash(find:*)",
+      "Bash(git restore:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(unzip:*)"
     ]
   }
 }

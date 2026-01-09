@@ -13,7 +13,6 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.*;
 
-
 public class TileCacheManager implements Disposable {
 
     private final Map<String, Texture> memoryCache;
@@ -73,7 +72,6 @@ public class TileCacheManager implements Disposable {
 
         return placeholderTexture;
     }
-
 
     private void startAsyncLoad(TileCoordinate tileCoord) {
         String key = tileCoord.getKey();
@@ -151,7 +149,6 @@ public class TileCacheManager implements Disposable {
         }
     }
 
-
     private String getTileUrl(int zoom, int x, int y) {
         String template;
         if ("geoapify".equals(Constants.MAP_PROVIDER)) {
@@ -166,7 +163,6 @@ public class TileCacheManager implements Disposable {
                 .replace("{y}", String.valueOf(y));
     }
 
-
     private void cacheTile(String key, Texture texture) {
         if (memoryCache.size() >= Constants.TILE_CACHE_SIZE) {
             evictLRUTile();
@@ -179,11 +175,9 @@ public class TileCacheManager implements Disposable {
                 " (Cache: " + memoryCache.size() + "/" + Constants.TILE_CACHE_SIZE + ")");
     }
 
-
     private synchronized void updateAccessTime(String key) {
         accessTimes.put(key, System.currentTimeMillis());
     }
-
 
     private synchronized void evictLRUTile() {
         if (accessTimes.isEmpty()) {
@@ -253,7 +247,6 @@ public class TileCacheManager implements Disposable {
         Gdx.app.log("TileCacheManager", "Cancelled all pending tile loads");
     }
 
-
     public void clearCache() {
         cancelPendingLoads();
 
@@ -273,7 +266,6 @@ public class TileCacheManager implements Disposable {
 
         Gdx.app.log("TileCacheManager", "Memory and disk cache cleared");
     }
-
 
     public String getStats() {
         int totalRequests = memoryCacheHits + diskCacheHits + networkFetches;

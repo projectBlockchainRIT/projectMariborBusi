@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-
 public class DiskCacheManager {
 
     private final FileHandle cacheRoot;
@@ -35,7 +34,6 @@ public class DiskCacheManager {
                 currentCacheSize / (1024.0 * 1024.0), Constants.DISK_CACHE_MAX_SIZE_MB));
     }
 
-
     public byte[] getTile(TileCoordinate tileCoord) {
         FileHandle tileFile = getTileFile(tileCoord);
 
@@ -58,7 +56,6 @@ public class DiskCacheManager {
             return null;
         }
     }
-
 
     public void saveTile(TileCoordinate tileCoord, byte[] imageData) {
         if (imageData == null || imageData.length == 0) {
@@ -86,12 +83,10 @@ public class DiskCacheManager {
         }
     }
 
-
     private FileHandle getTileFile(TileCoordinate tileCoord) {
         String path = String.format("%d/%d/%d.png", tileCoord.zoom, tileCoord.x, tileCoord.y);
         return cacheRoot.child(path);
     }
-
 
     private boolean isExpired(FileHandle file) {
         long age = System.currentTimeMillis() - file.lastModified();
@@ -106,7 +101,6 @@ public class DiskCacheManager {
         }
     }
 
-
     private void initializeCacheState() {
         currentCacheSize = 0;
         List<FileHandle> expiredFiles = new ArrayList<>();
@@ -120,7 +114,6 @@ public class DiskCacheManager {
             }
         }
     }
-
 
     private void scanCacheDirectory(FileHandle dir, List<FileHandle> expiredFiles) {
         if (!dir.exists() || !dir.isDirectory()) {
@@ -166,7 +159,6 @@ public class DiskCacheManager {
                 filesDeleted, spaceFreed / (1024.0 * 1024.0)));
     }
 
-
     private void collectCachedFiles(FileHandle dir, List<CachedFile> files) {
         if (!dir.exists() || !dir.isDirectory()) {
             return;
@@ -181,7 +173,6 @@ public class DiskCacheManager {
         }
     }
 
-
     public void clearCache() {
         if (cacheRoot.exists()) {
             cacheRoot.deleteDirectory();
@@ -191,13 +182,11 @@ public class DiskCacheManager {
         }
     }
 
-
     public String getStats() {
         return String.format("Disk: %.2f / %d MB",
                 currentCacheSize / (1024.0 * 1024.0),
                 Constants.DISK_CACHE_MAX_SIZE_MB);
     }
-
 
     public long getCurrentCacheSize() {
         return currentCacheSize;
