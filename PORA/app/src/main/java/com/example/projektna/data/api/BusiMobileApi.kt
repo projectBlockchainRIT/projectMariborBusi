@@ -11,6 +11,11 @@ interface BusiMobileApi {
     @POST("delays/user")
     suspend fun submitDelay(@Body delay: DelayRequest): Response<DelayResponse>
 
+    // ==================== Collisions ====================
+
+    @POST("collision")
+    suspend fun reportCollision(@Body collision: CollisionRequest): Response<CollisionResponse>
+
     // ==================== Stations ====================
 
     @GET("stations/list")
