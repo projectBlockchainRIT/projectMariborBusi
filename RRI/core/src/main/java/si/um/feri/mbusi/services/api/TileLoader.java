@@ -1,6 +1,5 @@
 package si.um.feri.mbusi.services.api;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Disposable;
@@ -46,7 +45,6 @@ public class TileLoader implements Disposable {
     private Texture loadTileFromNetwork(TileCoordinate coord) {
         try {
             String urlString = getTileUrl(coord.zoom, coord.x, coord.y);
-            Gdx.app.log("TileLoader", "Loading tile: " + urlString);
 
             URL url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -64,14 +62,11 @@ public class TileLoader implements Disposable {
                 Texture texture = new Texture(pixmap);
                 pixmap.dispose();
 
-                Gdx.app.log("TileLoader", "Successfully loaded tile: " + coord);
                 return texture;
             } else {
-                Gdx.app.error("TileLoader", "HTTP error " + responseCode + " for tile: " + coord);
                 return null;
             }
         } catch (Exception e) {
-            Gdx.app.error("TileLoader", "Failed to load tile " + coord + ": " + e.getMessage());
             return null;
         }
     }

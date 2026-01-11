@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import si.um.feri.mbusi.config.Constants;
@@ -17,6 +18,7 @@ import si.um.feri.mbusi.models.Station;
 import si.um.feri.mbusi.models.StationDetails;
 import si.um.feri.mbusi.renderers.BusLineRenderer;
 import si.um.feri.mbusi.renderers.StationRenderer;
+import si.um.feri.mbusi.services.api.BusLocationWebSocketClient;
 import si.um.feri.mbusi.services.api.MarPromApiClient;
 import si.um.feri.mbusi.services.cache.TileCacheManager;
 import si.um.feri.mbusi.ui.DesignSystem;
@@ -35,6 +37,7 @@ public class MapScreen extends InputAdapter implements Screen {
 
     private OrthographicCamera camera;
     private SpriteBatch batch;
+    private ShapeRenderer shapeRenderer;
     private TileCacheManager tileCache;
     private BitmapFont font;
 
@@ -79,6 +82,10 @@ public class MapScreen extends InputAdapter implements Screen {
     
     private float stationDetailsScrollOffset = 0f;
 
+    private BusLocationWebSocketClient busLocationClient = null;
+    private Vector2 currentBusLocation = null;
+    private boolean busLocationConnected = false;
+
     public MapScreen() {
         this.currentZoom = Constants.DEFAULT_ZOOM;
         this.centerLatLon = new Vector2((float) Constants.MARIBOR_CENTER_LAT, (float) Constants.MARIBOR_CENTER_LON);
@@ -86,14 +93,13 @@ public class MapScreen extends InputAdapter implements Screen {
 
     @Override
     public void show() {
-        Gdx.app.log("MapScreen", "Initializing MapScreen");
-
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(0, 0, 0);
         camera.update();
 
         batch = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();
         font = new BitmapFont();
         font.getData().setScale(1.5f);
 
@@ -110,8 +116,6 @@ public class MapScreen extends InputAdapter implements Screen {
         loadBusData();
 
         Gdx.input.setInputProcessor(this);
-
-        Gdx.app.log("MapScreen", "MapScreen initialized successfully with async tile loading");
     }
 
     private void loadBusData() {
@@ -121,7 +125,6 @@ public class MapScreen extends InputAdapter implements Screen {
         apiClient.fetchRoutes(new MarPromApiClient.RoutesCallback() {
             @Override
             public void onSuccess(List<BusRoute> routes) {
-                Gdx.app.log("MapScreen", "Loaded " + routes.size() + " bus routes");
                 busRoutes.clear();
                 busRoutes.addAll(routes);
 
@@ -137,7 +140,6 @@ public class MapScreen extends InputAdapter implements Screen {
 
             @Override
             public void onFailure(String error) {
-                Gdx.app.error("MapScreen", "Failed to load routes: " + error);
                 loadingStatus = "Error: " + error;
                 loadingData = false;
             }
@@ -162,7 +164,6 @@ public class MapScreen extends InputAdapter implements Screen {
             dataLoaded = true;
             loadingData = false;
             loadingStatus = "Loaded " + busRoutes.size() + " routes, " + allStations.size() + " stations";
-            Gdx.app.log("MapScreen", loadingStatus);
             return;
         }
 
@@ -188,9 +189,6 @@ public class MapScreen extends InputAdapter implements Screen {
 
             @Override
             public void onFailure(String error) {
-                Gdx.app.error("MapScreen", "Failed to load stations for route " +
-                    route.getLineId() + ": " + error);
-
                 routesLoaded++;
                 loadStationsForRoute(routeIndex + 1, loadedStationIds);
             }
@@ -213,10 +211,11 @@ public class MapScreen extends InputAdapter implements Screen {
         tilesRendered = renderMapTiles();
 
         if (dataLoaded && !busRoutes.isEmpty()) {
+            busLineRenderer.update(delta);
             List<BusRoute> linesToRender = selectedLine != null ?
                 java.util.Collections.singletonList(selectedLine) : busRoutes;
             busLineRenderer.render(linesToRender, camera,
-                centerLatLon.x, centerLatLon.y, currentZoom);
+                centerLatLon.x, centerLatLon.y, currentZoom, selectedLine);
         }
 
         if (dataLoaded) {
@@ -228,7 +227,11 @@ public class MapScreen extends InputAdapter implements Screen {
             }
         }
 
-        
+        if (currentBusLocation != null && selectedLine != null) {
+            renderBusMarker();
+        }
+
+
         if (useModernUI) {
             modernOverlay.update(delta);
             modernOverlay.setStats(tilesRendered, tileCache.getStats());
@@ -403,9 +406,10 @@ public class MapScreen extends InputAdapter implements Screen {
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         float dragDistance = Vector2.dst(screenX, screenY, lastDragPosition.x, lastDragPosition.y);
         if (dragDistance < 5f && dataLoaded) {
-            
-            if (selectedStation != null) {
-                deselectStation();
+            if (selectedStation != null || loadingStationDetails) {
+                if (!modernOverlay.isStationDetailsPanelArea(screenX, screenY)) {
+                    deselectStation();
+                }
                 dragging = false;
                 return true;
             }
@@ -445,8 +449,6 @@ public class MapScreen extends InputAdapter implements Screen {
                 } else {
                     selectLine(clickedLine);
                 }
-            } else {
-                deselectLine();
             }
         }
 
@@ -457,7 +459,7 @@ public class MapScreen extends InputAdapter implements Screen {
     private void selectLine(BusRoute line) {
         selectedLine = line;
         selectedLineStations.clear();
-        stationListScrollOffset = 0f; 
+        stationListScrollOffset = 0f;
 
         List<Station> stations = stationsByLine.get(line.getLineId());
         if (stations != null) {
@@ -465,31 +467,24 @@ public class MapScreen extends InputAdapter implements Screen {
         }
 
         modernOverlay.setStationScrollOffset(stationListScrollOffset);
-        Gdx.app.log("MapScreen", "Selected line: " + line.getName() +
-            " with " + selectedLineStations.size() + " stations");
+        connectBusLocationWebSocket(line.getLineId());
     }
 
     private void deselectLine() {
-        if (selectedLine != null) {
-            Gdx.app.log("MapScreen", "Deselected line: " + selectedLine.getName());
-        }
+        disconnectBusLocationWebSocket();
         selectedLine = null;
         selectedLineStations.clear();
-        stationListScrollOffset = 0f; 
+        stationListScrollOffset = 0f;
         modernOverlay.setStationScrollOffset(stationListScrollOffset);
-        deselectStation(); 
+        deselectStation();
     }
 
     private void selectStation(Station station) {
-        if (loadingStationDetails) {
-            Gdx.app.log("MapScreen", "Already loading station details, ignoring click");
-            return;
-        }
+        if (loadingStationDetails) return;
 
-        Gdx.app.log("MapScreen", "Station clicked: " + station.getName() + " (ID: " + station.getId() + ")");
         loadingStationDetails = true;
+        modernOverlay.setStationDetailsVisible(true);
 
-        
         stationDetailsScrollOffset = 0f;
         modernOverlay.resetStationDetailsScroll();
 
@@ -501,9 +496,6 @@ public class MapScreen extends InputAdapter implements Screen {
                     public void run() {
                         selectedStation = stationDetails;
                         loadingStationDetails = false;
-                        Gdx.app.log("MapScreen", "Station details loaded: " +
-                            stationDetails.getName() + " with " +
-                            stationDetails.getArrivals().size() + " arrivals");
                     }
                 });
             }
@@ -514,7 +506,7 @@ public class MapScreen extends InputAdapter implements Screen {
                     @Override
                     public void run() {
                         loadingStationDetails = false;
-                        Gdx.app.error("MapScreen", "Failed to load station details: " + error);
+                        modernOverlay.setStationDetailsVisible(false);
                     }
                 });
             }
@@ -523,6 +515,60 @@ public class MapScreen extends InputAdapter implements Screen {
 
     private void deselectStation() {
         selectedStation = null;
+        modernOverlay.setStationDetailsVisible(false);
+    }
+
+    private void connectBusLocationWebSocket(int lineId) {
+        disconnectBusLocationWebSocket();
+
+        busLocationConnected = false;
+        currentBusLocation = null;
+
+        try {
+            busLocationClient = new BusLocationWebSocketClient(
+                Constants.MARPROM_API_BASE_URL,
+                lineId,
+                new BusLocationWebSocketClient.BusLocationCallback() {
+                    @Override
+                    public void onLocationUpdate(double latitude, double longitude, int lineId) {
+                        currentBusLocation = new Vector2((float) latitude, (float) longitude);
+                    }
+
+                    @Override
+                    public void onConnectionEstablished(int lineId) {
+                        busLocationConnected = true;
+                    }
+
+                    @Override
+                    public void onConnectionError(String error, int lineId) {
+                        busLocationConnected = false;
+                    }
+
+                    @Override
+                    public void onConnectionClosed(int lineId) {
+                        busLocationConnected = false;
+                        currentBusLocation = null;
+                    }
+                }
+            );
+
+            busLocationClient.connect();
+
+        } catch (Exception e) {
+            busLocationClient = null;
+        }
+    }
+
+    private void disconnectBusLocationWebSocket() {
+        if (busLocationClient != null) {
+            try {
+                busLocationClient.close();
+            } catch (Exception e) {
+            }
+            busLocationClient = null;
+        }
+        busLocationConnected = false;
+        currentBusLocation = null;
     }
 
     private Station findStationAtPosition(float worldX, float worldY) {
@@ -548,6 +594,35 @@ public class MapScreen extends InputAdapter implements Screen {
         }
 
         return closestStation;
+    }
+
+    private void renderBusMarker() {
+        if (currentBusLocation == null) return;
+
+        Vector2 busScreen = GeoUtils.latLonToScreenPosition(
+            currentBusLocation.x, currentBusLocation.y,
+            centerLatLon.x, centerLatLon.y,
+            currentZoom, Constants.TILE_SIZE);
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        float outerRadius = 16f;
+        float innerRadius = 12f;
+
+        shapeRenderer.setColor(0.25f, 0.53f, 0.97f, 0.3f);
+        shapeRenderer.circle(busScreen.x, busScreen.y, outerRadius, 32);
+
+        shapeRenderer.setColor(0.25f, 0.53f, 0.97f, 1.0f);
+        shapeRenderer.circle(busScreen.x, busScreen.y, innerRadius, 32);
+
+        shapeRenderer.setColor(1f, 1f, 1f, 1.0f);
+        shapeRenderer.circle(busScreen.x, busScreen.y, 4f, 16);
+
+        shapeRenderer.end();
     }
 
     private BusRoute findLineAtPosition(float worldX, float worldY) {
@@ -686,12 +761,10 @@ public class MapScreen extends InputAdapter implements Screen {
 
         if (amountY < 0 && currentZoom < Constants.MAX_ZOOM) {
             currentZoom++;
-            Gdx.app.log("MapScreen", "Zoomed in to level " + currentZoom);
         } else if (amountY > 0 && currentZoom > Constants.MIN_ZOOM) {
             currentZoom--;
-            Gdx.app.log("MapScreen", "Zoomed out to level " + currentZoom);
         } else {
-            return true;  
+            return true;
         }
 
         
@@ -728,7 +801,14 @@ public class MapScreen extends InputAdapter implements Screen {
 
     @Override
     public boolean keyDown(int keycode) {
-        if (keycode == Input.Keys.R) {
+        if (keycode == Input.Keys.ESCAPE) {
+            if (selectedStation != null) {
+                deselectStation();
+            } else if (selectedLine != null) {
+                deselectLine();
+            }
+            return true;
+        } else if (keycode == Input.Keys.R) {
             resetView();
             return true;
         } else if (keycode == Input.Keys.L) {
@@ -740,12 +820,10 @@ public class MapScreen extends InputAdapter implements Screen {
             Gdx.app.exit();
             return true;
         } else if (keycode == Input.Keys.U) {
-            
             useModernUI = !useModernUI;
-            Gdx.app.log("MapScreen", "Modern UI: " + (useModernUI ? "enabled" : "disabled"));
             return true;
         } else if (keycode == Input.Keys.P) {
-            
+
             if (modernOverlay != null) {
                 modernOverlay.togglePanel();
             }
@@ -757,7 +835,6 @@ public class MapScreen extends InputAdapter implements Screen {
     private void resetView() {
         currentZoom = Constants.DEFAULT_ZOOM;
         centerLatLon.set((float) Constants.MARIBOR_CENTER_LAT, (float) Constants.MARIBOR_CENTER_LON);
-        Gdx.app.log("MapScreen", "View reset to default");
     }
 
     @Override
@@ -783,12 +860,13 @@ public class MapScreen extends InputAdapter implements Screen {
 
     @Override
     public void dispose() {
+        disconnectBusLocationWebSocket();
         if (batch != null) batch.dispose();
+        if (shapeRenderer != null) shapeRenderer.dispose();
         if (font != null) font.dispose();
         if (tileCache != null) tileCache.dispose();
         if (busLineRenderer != null) busLineRenderer.dispose();
         if (stationRenderer != null) stationRenderer.dispose();
         if (modernOverlay != null) modernOverlay.dispose();
-        Gdx.app.log("MapScreen", "MapScreen disposed");
     }
 }

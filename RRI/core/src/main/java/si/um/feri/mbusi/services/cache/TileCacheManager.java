@@ -53,8 +53,6 @@ public class TileCacheManager implements Disposable {
         });
 
         createPlaceholderTexture();
-
-        Gdx.app.log("TileCacheManager", "Initialized with " + poolSize + " loader threads + disk cache");
     }
 
     public Texture getTile(TileCoordinate tileCoord) {
@@ -85,13 +83,11 @@ public class TileCacheManager implements Disposable {
                 imageData = diskCache.getTile(tileCoord);
                 if (imageData != null) {
                     diskCacheHits++;
-                    Gdx.app.debug("TileCacheManager", "Disk cache HIT: " + key);
                 } else {
                     imageData = loadTileFromNetwork(tileCoord);
                     if (imageData != null) {
                         networkFetches++;
                         diskCache.saveTile(tileCoord, imageData);
-                        Gdx.app.debug("TileCacheManager", "Network fetch: " + key);
                     }
                 }
 
@@ -105,14 +101,10 @@ public class TileCacheManager implements Disposable {
 
                             cacheTile(key, texture);
                         } catch (Exception e) {
-                            Gdx.app.error("TileCacheManager", "Failed to create texture for " + key + ": " + e.getMessage());
                         }
                     });
-                } else {
-                    Gdx.app.debug("TileCacheManager", "Failed to load tile: " + key);
                 }
             } catch (Exception e) {
-                Gdx.app.error("TileCacheManager", "Error loading tile " + key + ": " + e.getMessage());
             } finally {
                 loadingTiles.remove(key);
                 pendingRequests.remove(key);
@@ -170,9 +162,6 @@ public class TileCacheManager implements Disposable {
 
         memoryCache.put(key, texture);
         updateAccessTime(key);
-
-        Gdx.app.debug("TileCacheManager", "Cached tile: " + key +
-                " (Cache: " + memoryCache.size() + "/" + Constants.TILE_CACHE_SIZE + ")");
     }
 
     private synchronized void updateAccessTime(String key) {
@@ -200,7 +189,6 @@ public class TileCacheManager implements Disposable {
 
             if (texture != null && texture != placeholderTexture) {
                 texture.dispose();
-                Gdx.app.debug("TileCacheManager", "Evicted LRU tile: " + lruKey);
             }
         }
     }
@@ -244,7 +232,6 @@ public class TileCacheManager implements Disposable {
         pendingRequests.clear();
         loadingTiles.clear();
         tilesLoading = 0;
-        Gdx.app.log("TileCacheManager", "Cancelled all pending tile loads");
     }
 
     public void clearCache() {
@@ -263,8 +250,6 @@ public class TileCacheManager implements Disposable {
         memoryCacheHits = 0;
         diskCacheHits = 0;
         networkFetches = 0;
-
-        Gdx.app.log("TileCacheManager", "Memory and disk cache cleared");
     }
 
     public String getStats() {
@@ -278,8 +263,6 @@ public class TileCacheManager implements Disposable {
 
     @Override
     public void dispose() {
-        Gdx.app.log("TileCacheManager", "Disposing...");
-
         tileLoaderPool.shutdown();
         try {
             if (!tileLoaderPool.awaitTermination(2, TimeUnit.SECONDS)) {
@@ -294,7 +277,5 @@ public class TileCacheManager implements Disposable {
         if (placeholderTexture != null) {
             placeholderTexture.dispose();
         }
-
-        Gdx.app.log("TileCacheManager", "Disposed successfully");
     }
 }

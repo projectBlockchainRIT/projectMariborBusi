@@ -22,16 +22,12 @@ public class DiskCacheManager {
 
         if (!cacheRoot.exists()) {
             cacheRoot.mkdirs();
-            Gdx.app.log("DiskCacheManager", "Created cache directory: " + cacheRoot.file().getAbsolutePath());
         }
 
         this.maxCacheSize = Constants.DISK_CACHE_MAX_SIZE_MB * 1024L * 1024L;
         this.expirationMillis = Constants.DISK_CACHE_EXPIRATION_DAYS * 24L * 60L * 60L * 1000L;
 
         initializeCacheState();
-
-        Gdx.app.log("DiskCacheManager", String.format("Initialized disk cache: %.2f MB / %d MB (max)",
-                currentCacheSize / (1024.0 * 1024.0), Constants.DISK_CACHE_MAX_SIZE_MB));
     }
 
     public byte[] getTile(TileCoordinate tileCoord) {
@@ -42,17 +38,13 @@ public class DiskCacheManager {
         }
 
         if (isExpired(tileFile)) {
-            Gdx.app.debug("DiskCacheManager", "Tile expired, deleting: " + tileCoord);
             deleteTile(tileFile);
             return null;
         }
 
         try {
-            byte[] data = tileFile.readBytes();
-            Gdx.app.debug("DiskCacheManager", "Disk cache HIT: " + tileCoord);
-            return data;
+            return tileFile.readBytes();
         } catch (Exception e) {
-            Gdx.app.error("DiskCacheManager", "Failed to read tile " + tileCoord + ": " + e.getMessage());
             return null;
         }
     }
@@ -77,9 +69,7 @@ public class DiskCacheManager {
         try {
             tileFile.writeBytes(imageData, false);
             currentCacheSize += fileSize;
-            Gdx.app.debug("DiskCacheManager", "Saved tile to disk: " + tileCoord + " (" + fileSize + " bytes)");
         } catch (Exception e) {
-            Gdx.app.error("DiskCacheManager", "Failed to save tile " + tileCoord + ": " + e.getMessage());
         }
     }
 
@@ -107,11 +97,8 @@ public class DiskCacheManager {
 
         scanCacheDirectory(cacheRoot, expiredFiles);
 
-        if (!expiredFiles.isEmpty()) {
-            Gdx.app.log("DiskCacheManager", "Removing " + expiredFiles.size() + " expired tiles");
-            for (FileHandle file : expiredFiles) {
-                file.delete();
-            }
+        for (FileHandle file : expiredFiles) {
+            file.delete();
         }
     }
 
@@ -154,9 +141,6 @@ public class DiskCacheManager {
         }
 
         currentCacheSize -= spaceFreed;
-
-        Gdx.app.log("DiskCacheManager", String.format("Evicted %d tiles (%.2f MB freed)",
-                filesDeleted, spaceFreed / (1024.0 * 1024.0)));
     }
 
     private void collectCachedFiles(FileHandle dir, List<CachedFile> files) {
@@ -178,7 +162,6 @@ public class DiskCacheManager {
             cacheRoot.deleteDirectory();
             cacheRoot.mkdirs();
             currentCacheSize = 0;
-            Gdx.app.log("DiskCacheManager", "Disk cache cleared");
         }
     }
 

@@ -80,12 +80,10 @@ public class UIRenderer implements Disposable {
                 fontBold = boldGen.generateFont(params);
                 boldGen.dispose();
             } catch (Exception e) {
-                Gdx.app.log("UIRenderer", "Inter-Bold.ttf not found, using regular weight");
                 fontBold = fontRegular;
             }
 
         } catch (Exception e) {
-            Gdx.app.log("UIRenderer", "Custom fonts not found, using default. Add Inter fonts to assets/fonts/");
             fontRegular = new BitmapFont();
             fontSmall = new BitmapFont();
             fontSmall.getData().setScale(0.85f);

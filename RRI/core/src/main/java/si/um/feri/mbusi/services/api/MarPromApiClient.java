@@ -34,45 +34,33 @@ public class MarPromApiClient {
         request.setUrl(Constants.MARPROM_API_ROUTES);
         request.setTimeOut(Constants.API_TIMEOUT_MS);
 
-        Gdx.app.log("MarPromApiClient", "Fetching routes from: " + Constants.MARPROM_API_ROUTES);
-
         Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
             @Override
             public void handleHttpResponse(Net.HttpResponse httpResponse) {
                 int statusCode = httpResponse.getStatus().getStatusCode();
-                Gdx.app.log("MarPromApiClient", "Response status: " + statusCode);
 
                 if (statusCode == HttpStatus.SC_OK) {
                     String responseJson = httpResponse.getResultAsString();
-                    Gdx.app.log("MarPromApiClient", "Response length: " + responseJson.length() + " chars");
 
                     try {
                         List<BusRoute> routes = parseRoutesResponse(responseJson);
-                        Gdx.app.log("MarPromApiClient", "Successfully parsed " + routes.size() + " routes");
                         callback.onSuccess(routes);
                     } catch (Exception e) {
-                        Gdx.app.error("MarPromApiClient", "Error parsing response: " + e.getMessage(), e);
                         callback.onFailure("Failed to parse response: " + e.getMessage());
                     }
                 } else {
-                    String error = "HTTP error: " + statusCode + " - " + httpResponse.getStatus();
-                    Gdx.app.error("MarPromApiClient", error);
-                    callback.onFailure(error);
+                    callback.onFailure("HTTP error: " + statusCode);
                 }
             }
 
             @Override
             public void failed(Throwable t) {
-                String error = "Network request failed: " + t.getMessage();
-                Gdx.app.error("MarPromApiClient", error, t);
-                callback.onFailure(error);
+                callback.onFailure("Network request failed: " + t.getMessage());
             }
 
             @Override
             public void cancelled() {
-                String error = "Request was cancelled";
-                Gdx.app.error("MarPromApiClient", error);
-                callback.onFailure(error);
+                callback.onFailure("Request was cancelled");
             }
         });
     }
@@ -113,7 +101,6 @@ public class MarPromApiClient {
             }
 
         } catch (Exception e) {
-            Gdx.app.error("MarPromApiClient", "Error in JSON parsing: " + e.getMessage(), e);
             throw e;
         }
 
@@ -123,39 +110,33 @@ public class MarPromApiClient {
     private BusRoute parseRouteObject(String json) {
         BusRoute route = new BusRoute();
 
-        try {
-            int idStart = json.indexOf("\"id\":") + 5;
-            int idEnd = json.indexOf(",", idStart);
-            route.setId(Integer.parseInt(json.substring(idStart, idEnd).trim()));
+        int idStart = json.indexOf("\"id\":") + 5;
+        int idEnd = json.indexOf(",", idStart);
+        route.setId(Integer.parseInt(json.substring(idStart, idEnd).trim()));
 
-            int nameStart = json.indexOf("\"name\":\"") + 8;
-            int nameEnd = json.indexOf("\"", nameStart);
-            route.setName(json.substring(nameStart, nameEnd));
+        int nameStart = json.indexOf("\"name\":\"") + 8;
+        int nameEnd = json.indexOf("\"", nameStart);
+        route.setName(json.substring(nameStart, nameEnd));
 
-            int lineIdStart = json.indexOf("\"line_id\":") + 10;
-            int lineIdEnd = findNextCommaOrBrace(json, lineIdStart);
-            route.setLineId(Integer.parseInt(json.substring(lineIdStart, lineIdEnd).trim()));
+        int lineIdStart = json.indexOf("\"line_id\":") + 10;
+        int lineIdEnd = findNextCommaOrBrace(json, lineIdStart);
+        route.setLineId(Integer.parseInt(json.substring(lineIdStart, lineIdEnd).trim()));
 
-            int pathStart = json.indexOf("\"path\":[[") + 8;
-            int pathEnd = json.indexOf("]]", pathStart) + 1;
-            String pathContent = json.substring(pathStart, pathEnd);
+        int pathStart = json.indexOf("\"path\":[[") + 8;
+        int pathEnd = json.indexOf("]]", pathStart) + 1;
+        String pathContent = json.substring(pathStart, pathEnd);
 
-            String[] pairs = pathContent.split("\\],\\[");
-            for (String pair : pairs) {
-                String cleanPair = pair.replace("[", "").replace("]", "").trim();
-                if (!cleanPair.isEmpty()) {
-                    String[] coords = cleanPair.split(",");
-                    if (coords.length == 2) {
-                        double lat = Double.parseDouble(coords[0].trim());
-                        double lon = Double.parseDouble(coords[1].trim());
-                        route.addPathPoint(lat, lon);
-                    }
+        String[] pairs = pathContent.split("\\],\\[");
+        for (String pair : pairs) {
+            String cleanPair = pair.replace("[", "").replace("]", "").trim();
+            if (!cleanPair.isEmpty()) {
+                String[] coords = cleanPair.split(",");
+                if (coords.length == 2) {
+                    double lat = Double.parseDouble(coords[0].trim());
+                    double lon = Double.parseDouble(coords[1].trim());
+                    route.addPathPoint(lat, lon);
                 }
             }
-
-        } catch (Exception e) {
-            Gdx.app.error("MarPromApiClient", "Error parsing route object: " + e.getMessage(), e);
-            throw e;
         }
 
         return route;
@@ -176,45 +157,33 @@ public class MarPromApiClient {
         request.setUrl(url);
         request.setTimeOut(Constants.API_TIMEOUT_MS);
 
-        Gdx.app.log("MarPromApiClient", "Fetching stations for line " + lineId + " from: " + url);
-
         Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
             @Override
             public void handleHttpResponse(Net.HttpResponse httpResponse) {
                 int statusCode = httpResponse.getStatus().getStatusCode();
-                Gdx.app.log("MarPromApiClient", "Response status: " + statusCode);
 
                 if (statusCode == HttpStatus.SC_OK) {
                     String responseJson = httpResponse.getResultAsString();
-                    Gdx.app.log("MarPromApiClient", "Response length: " + responseJson.length() + " chars");
 
                     try {
                         List<Station> stations = parseStationsResponse(responseJson);
-                        Gdx.app.log("MarPromApiClient", "Successfully parsed " + stations.size() + " stations");
                         callback.onSuccess(stations);
                     } catch (Exception e) {
-                        Gdx.app.error("MarPromApiClient", "Error parsing response: " + e.getMessage(), e);
                         callback.onFailure("Failed to parse response: " + e.getMessage());
                     }
                 } else {
-                    String error = "HTTP error: " + statusCode + " - " + httpResponse.getStatus();
-                    Gdx.app.error("MarPromApiClient", error);
-                    callback.onFailure(error);
+                    callback.onFailure("HTTP error: " + statusCode);
                 }
             }
 
             @Override
             public void failed(Throwable t) {
-                String error = "Network request failed: " + t.getMessage();
-                Gdx.app.error("MarPromApiClient", error, t);
-                callback.onFailure(error);
+                callback.onFailure("Network request failed: " + t.getMessage());
             }
 
             @Override
             public void cancelled() {
-                String error = "Request was cancelled";
-                Gdx.app.error("MarPromApiClient", error);
-                callback.onFailure(error);
+                callback.onFailure("Request was cancelled");
             }
         });
     }
@@ -255,7 +224,6 @@ public class MarPromApiClient {
             }
 
         } catch (Exception e) {
-            Gdx.app.error("MarPromApiClient", "Error in JSON parsing: " + e.getMessage(), e);
             throw e;
         }
 
@@ -265,33 +233,27 @@ public class MarPromApiClient {
     private Station parseStationObject(String json) {
         Station station = new Station();
 
-        try {
-            int idStart = json.indexOf("\"id\":") + 5;
-            int idEnd = json.indexOf(",", idStart);
-            if (idEnd == -1) idEnd = json.indexOf("}", idStart);
-            station.setId(Integer.parseInt(json.substring(idStart, idEnd).trim()));
+        int idStart = json.indexOf("\"id\":") + 5;
+        int idEnd = json.indexOf(",", idStart);
+        if (idEnd == -1) idEnd = json.indexOf("}", idStart);
+        station.setId(Integer.parseInt(json.substring(idStart, idEnd).trim()));
 
-            int nameStart = json.indexOf("\"name\":\"") + 8;
-            int nameEnd = json.indexOf("\"", nameStart);
-            station.setName(json.substring(nameStart, nameEnd));
+        int nameStart = json.indexOf("\"name\":\"") + 8;
+        int nameEnd = json.indexOf("\"", nameStart);
+        station.setName(json.substring(nameStart, nameEnd));
 
-            int latStart = json.indexOf("\"latitude\":") + 11;
-            int latEnd = findNextCommaOrBrace(json, latStart);
-            station.setLatitude(Double.parseDouble(json.substring(latStart, latEnd).trim()));
+        int latStart = json.indexOf("\"latitude\":") + 11;
+        int latEnd = findNextCommaOrBrace(json, latStart);
+        station.setLatitude(Double.parseDouble(json.substring(latStart, latEnd).trim()));
 
-            int lonStart = json.indexOf("\"longitude\":") + 12;
-            int lonEnd = findNextCommaOrBrace(json, lonStart);
-            station.setLongitude(Double.parseDouble(json.substring(lonStart, lonEnd).trim()));
+        int lonStart = json.indexOf("\"longitude\":") + 12;
+        int lonEnd = findNextCommaOrBrace(json, lonStart);
+        station.setLongitude(Double.parseDouble(json.substring(lonStart, lonEnd).trim()));
 
-            if (json.contains("\"sequence\":")) {
-                int seqStart = json.indexOf("\"sequence\":") + 11;
-                int seqEnd = findNextCommaOrBrace(json, seqStart);
-                station.setSequence(Integer.parseInt(json.substring(seqStart, seqEnd).trim()));
-            }
-
-        } catch (Exception e) {
-            Gdx.app.error("MarPromApiClient", "Error parsing station object: " + e.getMessage(), e);
-            throw e;
+        if (json.contains("\"sequence\":")) {
+            int seqStart = json.indexOf("\"sequence\":") + 11;
+            int seqEnd = findNextCommaOrBrace(json, seqStart);
+            station.setSequence(Integer.parseInt(json.substring(seqStart, seqEnd).trim()));
         }
 
         return station;
@@ -303,50 +265,33 @@ public class MarPromApiClient {
         request.setUrl(url);
         request.setTimeOut(Constants.API_TIMEOUT_MS);
 
-        Gdx.app.log("MarPromApiClient", "Fetching details for station " + stationId + " from: " + url);
-
         Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
             @Override
             public void handleHttpResponse(Net.HttpResponse httpResponse) {
                 int statusCode = httpResponse.getStatus().getStatusCode();
-                Gdx.app.log("MarPromApiClient", "Response status: " + statusCode);
 
                 if (statusCode == HttpStatus.SC_OK) {
                     String responseJson = httpResponse.getResultAsString();
-                    Gdx.app.log("MarPromApiClient", "Response length: " + responseJson.length() + " chars");
-                    Gdx.app.log("MarPromApiClient", "Full response JSON: " + responseJson);
 
                     try {
                         StationDetails stationDetails = parseStationDetailsResponse(responseJson);
-                        Gdx.app.log("MarPromApiClient", "Successfully parsed station details with " +
-                                stationDetails.getArrivals().size() + " arrivals");
-                        if (stationDetails.getArrivals().size() > 0) {
-                            Gdx.app.log("MarPromApiClient", "First arrival: " + stationDetails.getArrivals().get(0).toString());
-                        }
                         callback.onSuccess(stationDetails);
                     } catch (Exception e) {
-                        Gdx.app.error("MarPromApiClient", "Error parsing response: " + e.getMessage(), e);
                         callback.onFailure("Failed to parse response: " + e.getMessage());
                     }
                 } else {
-                    String error = "HTTP error: " + statusCode + " - " + httpResponse.getStatus();
-                    Gdx.app.error("MarPromApiClient", error);
-                    callback.onFailure(error);
+                    callback.onFailure("HTTP error: " + statusCode);
                 }
             }
 
             @Override
             public void failed(Throwable t) {
-                String error = "Network request failed: " + t.getMessage();
-                Gdx.app.error("MarPromApiClient", error, t);
-                callback.onFailure(error);
+                callback.onFailure("Network request failed: " + t.getMessage());
             }
 
             @Override
             public void cancelled() {
-                String error = "Request was cancelled";
-                Gdx.app.error("MarPromApiClient", error);
-                callback.onFailure(error);
+                callback.onFailure("Request was cancelled");
             }
         });
     }
@@ -380,16 +325,12 @@ public class MarPromApiClient {
             int lonEnd = findNextCommaOrBrace(dataContent, lonStart);
             stationDetails.setLongitude(Double.parseDouble(dataContent.substring(lonStart, lonEnd).trim()));
 
-            
             if (dataContent.contains("\"departures\"")) {
                 int departuresStart = dataContent.indexOf("[", dataContent.indexOf("\"departures\""));
                 int departuresEnd = findMatchingBracket(dataContent, departuresStart);
 
-                Gdx.app.log("MarPromApiClient", "Found departures field. Start: " + departuresStart + ", End: " + departuresEnd);
-
                 if (departuresStart != -1 && departuresEnd != -1) {
                     String departuresContent = dataContent.substring(departuresStart + 1, departuresEnd);
-                    Gdx.app.log("MarPromApiClient", "Departures content length: " + departuresContent.length());
 
                     List<String> departureObjects = new ArrayList<>();
                     int braceCount = 0;
@@ -408,8 +349,6 @@ public class MarPromApiClient {
                         }
                     }
 
-                    Gdx.app.log("MarPromApiClient", "Found " + departureObjects.size() + " departure objects");
-
                     for (String departureObj : departureObjects) {
                         List<Arrival> arrivals = parseDepartureObject(departureObj);
                         for (Arrival arrival : arrivals) {
@@ -417,12 +356,9 @@ public class MarPromApiClient {
                         }
                     }
                 }
-            } else {
-                Gdx.app.log("MarPromApiClient", "No 'departures' field found in data content");
             }
 
         } catch (Exception e) {
-            Gdx.app.error("MarPromApiClient", "Error in JSON parsing: " + e.getMessage(), e);
             throw e;
         }
 
@@ -466,7 +402,6 @@ public class MarPromApiClient {
             }
 
         } catch (Exception e) {
-            Gdx.app.error("MarPromApiClient", "Error parsing arrival object: " + e.getMessage(), e);
             throw e;
         }
 
@@ -485,16 +420,13 @@ public class MarPromApiClient {
                 line = json.substring(lineStart, lineEnd);
             }
 
-            
             int lineId = 0;
             try {
-                
                 String lineNumStr = line.replaceAll("[^0-9]", "");
                 if (!lineNumStr.isEmpty()) {
                     lineId = Integer.parseInt(lineNumStr);
                 }
             } catch (Exception e) {
-                Gdx.app.log("MarPromApiClient", "Could not parse line ID from: " + line);
             }
 
             
@@ -554,8 +486,6 @@ public class MarPromApiClient {
                                     }
                                 }
                             } catch (Exception e) {
-                                
-                                Gdx.app.log("MarPromApiClient", "Failed to parse time: " + time);
                             }
                         }
                     }
@@ -585,7 +515,6 @@ public class MarPromApiClient {
             }
 
         } catch (Exception e) {
-            Gdx.app.error("MarPromApiClient", "Error parsing departure object: " + e.getMessage(), e);
         }
 
         return arrivals;

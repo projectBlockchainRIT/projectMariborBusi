@@ -1,6 +1,7 @@
 ## Gradle:
 .claude
 /cache
+/assets/cache
 CLAUDE.md
 .gradle/
 gradle-app.setting

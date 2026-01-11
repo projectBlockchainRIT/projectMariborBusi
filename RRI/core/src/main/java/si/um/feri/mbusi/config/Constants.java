@@ -29,7 +29,7 @@ public class Constants {
     public static final int TILE_LOAD_THREADS = 8;
     public static final int TILE_LOAD_TIMEOUT_MS = 10000;
 
-    public static final String DISK_CACHE_DIR = "cache/tiles/";
+    public static final String DISK_CACHE_DIR = "assets/cache/tiles/";
     public static final int DISK_CACHE_MAX_SIZE_MB = 1000;
     public static final long DISK_CACHE_EXPIRATION_DAYS = 7;
 

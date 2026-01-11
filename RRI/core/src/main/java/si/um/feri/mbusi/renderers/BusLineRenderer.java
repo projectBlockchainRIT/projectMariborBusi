@@ -22,7 +22,11 @@ public class BusLineRenderer {
     private Map<Integer, Color> lineColors;
     private Random random;
 
-    
+    private float animationTime = 0f;
+    private static final float ARROW_SPACING = 100f;
+    private static final float ARROW_SIZE = 6f;
+    private static final float ARROW_SPEED = 40f;
+
     private static final Color[] COLOR_PALETTE = DesignSystem.LINE_COLORS;
 
     private static final float LINE_WIDTH_BASE = 4f;
@@ -48,8 +52,15 @@ public class BusLineRenderer {
         }
     }
 
+    public void update(float delta) {
+        animationTime += delta * ARROW_SPEED;
+        if (animationTime > ARROW_SPACING) {
+            animationTime = 0f;
+        }
+    }
+
     public void render(List<BusRoute> routes, OrthographicCamera camera,
-                       float centerLat, float centerLon, int zoom) {
+                       float centerLat, float centerLon, int zoom, BusRoute selectedLine) {
         if (routes == null || routes.isEmpty()) return;
 
         Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -68,6 +79,12 @@ public class BusLineRenderer {
             renderRouteLine(route, centerLat, centerLon, zoom, camera);
         }
         shapeRenderer.end();
+
+        if (selectedLine != null) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            renderRouteArrows(selectedLine, centerLat, centerLon, zoom, camera);
+            shapeRenderer.end();
+        }
 
         Gdx.gl.glDisable(GL20.GL_BLEND);
     }
@@ -130,6 +147,81 @@ public class BusLineRenderer {
 
         shapeRenderer.rect(x1, y1 - thickness / 2f, 0, thickness / 2f,
             length, thickness, 1, 1, angle);
+    }
+
+    private void renderRouteArrows(BusRoute route, float centerLat, float centerLon,
+                                   int zoom, OrthographicCamera camera) {
+        List<double[]> path = route.getPath();
+        if (path == null || path.size() < 2) return;
+
+        assignColor(route);
+        Color arrowColor = new Color(route.getColor());
+        arrowColor.a = 0.6f;
+
+        float totalDistance = 0f;
+        for (int i = 0; i < path.size() - 1; i++) {
+            double[] p1 = path.get(i);
+            double[] p2 = path.get(i + 1);
+
+            Vector2 screen1 = GeoUtils.latLonToScreenPosition(
+                p1[0], p1[1], centerLat, centerLon, zoom, Constants.TILE_SIZE);
+            Vector2 screen2 = GeoUtils.latLonToScreenPosition(
+                p2[0], p2[1], centerLat, centerLon, zoom, Constants.TILE_SIZE);
+
+            float segmentLength = Vector2.dst(screen1.x, screen1.y, screen2.x, screen2.y);
+
+            float segmentStart = totalDistance;
+            float segmentEnd = totalDistance + segmentLength;
+
+            float arrowOffset = animationTime % ARROW_SPACING;
+            float firstArrowPos = ARROW_SPACING - arrowOffset;
+
+            for (float arrowPos = firstArrowPos; arrowPos < 10000f; arrowPos += ARROW_SPACING) {
+                if (arrowPos >= segmentStart && arrowPos < segmentEnd) {
+                    float t = (arrowPos - segmentStart) / segmentLength;
+                    if (t >= 0f && t <= 1f) {
+                        float arrowX = screen1.x + (screen2.x - screen1.x) * t;
+                        float arrowY = screen1.y + (screen2.y - screen1.y) * t;
+
+                        float dx = screen2.x - screen1.x;
+                        float dy = screen2.y - screen1.y;
+                        float angle = (float) Math.atan2(dy, dx);
+
+                        drawArrow(arrowX, arrowY, angle, ARROW_SIZE, arrowColor);
+                    }
+                }
+
+                if (arrowPos > segmentEnd + ARROW_SPACING * 20) {
+                    break;
+                }
+            }
+
+            totalDistance = segmentEnd;
+        }
+    }
+
+    private void drawArrow(float x, float y, float angle, float size, Color color) {
+        shapeRenderer.setColor(color);
+
+        float cos = (float) Math.cos(angle);
+        float sin = (float) Math.sin(angle);
+
+        float tipX = x + cos * size * 1.5f;
+        float tipY = y + sin * size * 1.5f;
+
+        float baseX = x - cos * size * 0.5f;
+        float baseY = y - sin * size * 0.5f;
+
+        float perpX = -sin * size * 0.7f;
+        float perpY = cos * size * 0.7f;
+
+        float left1X = baseX + perpX;
+        float left1Y = baseY + perpY;
+
+        float left2X = baseX - perpX;
+        float left2Y = baseY - perpY;
+
+        shapeRenderer.triangle(tipX, tipY, left1X, left1Y, left2X, left2Y);
     }
 
     private float getLineWidthForZoom(int zoom) {
