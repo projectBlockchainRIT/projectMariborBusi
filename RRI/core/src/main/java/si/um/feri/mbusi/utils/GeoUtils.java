@@ -65,6 +65,25 @@ public class GeoUtils {
         return new Vector2(screenX, screenY);
     }
 
+    public static Vector2 screenToLatLon(float screenX, float screenY,
+                                         double centerLat, double centerLon,
+                                         int zoom, int tileSize) {
+        double n = Math.pow(2, zoom);
+
+        double centerTileX = (centerLon + 180.0) / 360.0 * n;
+        double centerTileY = (1.0 - Math.log(Math.tan(Math.toRadians(centerLat)) +
+                1.0 / Math.cos(Math.toRadians(centerLat))) / Math.PI) / 2.0 * n;
+
+        double pointTileX = centerTileX + screenX / tileSize;
+        double pointTileY = centerTileY - screenY / tileSize;
+
+        double lon = (pointTileX / n) * 360.0 - 180.0;
+        double latRad = Math.atan(Math.sinh(Math.PI * (1 - 2 * pointTileY / n)));
+        double lat = Math.toDegrees(latRad);
+
+        return new Vector2((float) lat, (float) lon);
+    }
+
     public static double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);

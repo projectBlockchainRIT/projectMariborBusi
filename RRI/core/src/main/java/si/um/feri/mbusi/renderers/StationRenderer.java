@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import si.um.feri.mbusi.config.Constants;
 import si.um.feri.mbusi.models.Station;
+import si.um.feri.mbusi.ui.DesignSystem;
 import si.um.feri.mbusi.utils.GeoUtils;
 
 import java.util.HashSet;
@@ -23,12 +24,14 @@ public class StationRenderer {
     private BitmapFont font;
     private GlyphLayout glyphLayout;
 
-    private static final Color STATION_FILL = new Color(1f, 1f, 1f, 1f);
-    private static final Color STATION_OUTLINE = new Color(0.20f, 0.29f, 0.37f, 1f);
-    private static final Color STATION_SHADOW = new Color(0f, 0f, 0f, 0.25f);
-    private static final Color STATION_INNER = new Color(0.20f, 0.60f, 0.86f, 1f);
-    private static final Color LABEL_BG = new Color(1f, 1f, 1f, 0.9f);
-    private static final Color LABEL_TEXT = new Color(0.15f, 0.15f, 0.15f, 1f);
+    // Modern dark theme colors
+    private static final Color STATION_FILL = DesignSystem.TEXT_PRIMARY;
+    private static final Color STATION_OUTLINE = DesignSystem.SURFACE_DARK;
+    private static final Color STATION_SHADOW = DesignSystem.SHADOW_MEDIUM;
+    private static final Color STATION_INNER = DesignSystem.ACCENT_PRIMARY;
+    private static final Color STATION_GLOW = DesignSystem.withAlpha(DesignSystem.ACCENT_PRIMARY, 0.3f);
+    private static final Color LABEL_BG = DesignSystem.SURFACE_GLASS;
+    private static final Color LABEL_TEXT = DesignSystem.TEXT_PRIMARY;
 
     private static final float MARKER_RADIUS_BASE = 6f;
     private static final float MARKER_OUTLINE_WIDTH = 2f;
@@ -40,7 +43,7 @@ public class StationRenderer {
     public StationRenderer() {
         shapeRenderer = new ShapeRenderer();
         font = new BitmapFont();
-        font.getData().setScale(0.8f);
+        font.getData().setScale(0.9f);
         font.setColor(LABEL_TEXT);
         glyphLayout = new GlyphLayout();
     }
@@ -58,6 +61,7 @@ public class StationRenderer {
 
         Set<String> renderedPositions = new HashSet<>();
 
+        // First pass: render glow effect for modern look
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         for (Station station : stations) {
             String posKey = String.format("%.5f,%.5f", station.getLatitude(), station.getLongitude());
@@ -67,8 +71,19 @@ public class StationRenderer {
                 station.getLatitude(), station.getLongitude(),
                 centerLat, centerLon, zoom, Constants.TILE_SIZE);
 
+            // Soft glow effect
+            if (zoom >= 14) {
+                for (int i = 3; i >= 0; i--) {
+                    float glowAlpha = 0.08f * (1 - (float)i / 3f);
+                    float glowRadius = markerRadius + 6 + i * 3;
+                    shapeRenderer.setColor(new Color(STATION_INNER.r, STATION_INNER.g, STATION_INNER.b, glowAlpha));
+                    shapeRenderer.circle(screenPos.x, screenPos.y, glowRadius, CIRCLE_SEGMENTS);
+                }
+            }
+
+            // Shadow
             shapeRenderer.setColor(STATION_SHADOW);
-            shapeRenderer.circle(screenPos.x + 2, screenPos.y - 2, markerRadius + 1, CIRCLE_SEGMENTS);
+            shapeRenderer.circle(screenPos.x + 1.5f, screenPos.y - 1.5f, markerRadius + 1, CIRCLE_SEGMENTS);
 
             renderedPositions.add(posKey);
         }

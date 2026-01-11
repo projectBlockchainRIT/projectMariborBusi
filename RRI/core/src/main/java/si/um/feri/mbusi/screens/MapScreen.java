@@ -18,6 +18,8 @@ import si.um.feri.mbusi.renderers.BusLineRenderer;
 import si.um.feri.mbusi.renderers.StationRenderer;
 import si.um.feri.mbusi.services.api.MarPromApiClient;
 import si.um.feri.mbusi.services.cache.TileCacheManager;
+import si.um.feri.mbusi.ui.DesignSystem;
+import si.um.feri.mbusi.ui.ModernOverlay;
 import si.um.feri.mbusi.utils.GeoUtils;
 import si.um.feri.mbusi.utils.GeoUtils.TileCoordinate;
 
@@ -37,6 +39,8 @@ public class MapScreen extends InputAdapter implements Screen {
 
     private BusLineRenderer busLineRenderer;
     private StationRenderer stationRenderer;
+    private ModernOverlay modernOverlay;
+    private boolean useModernUI = true;
 
     private MarPromApiClient apiClient;
 
@@ -85,6 +89,7 @@ public class MapScreen extends InputAdapter implements Screen {
 
         busLineRenderer = new BusLineRenderer();
         stationRenderer = new StationRenderer();
+        modernOverlay = new ModernOverlay();
 
         busRoutes = new ArrayList<>();
         allStations = new ArrayList<>();
@@ -182,8 +187,13 @@ public class MapScreen extends InputAdapter implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(Constants.BACKGROUND_COLOR.r, Constants.BACKGROUND_COLOR.g,
-                Constants.BACKGROUND_COLOR.b, Constants.BACKGROUND_COLOR.a);
+        // Use modern dark background
+        Gdx.gl.glClearColor(
+            DesignSystem.MAP_BACKGROUND.r,
+            DesignSystem.MAP_BACKGROUND.g,
+            DesignSystem.MAP_BACKGROUND.b,
+            DesignSystem.MAP_BACKGROUND.a
+        );
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
@@ -206,7 +216,15 @@ public class MapScreen extends InputAdapter implements Screen {
             }
         }
 
-        renderUI(delta);
+        // Render UI
+        if (useModernUI) {
+            modernOverlay.update(delta);
+            modernOverlay.setStats(tilesRendered, tileCache.getStats());
+            modernOverlay.render(centerLatLon.x, centerLatLon.y, currentZoom,
+                busRoutes, allStations, selectedLine, dataLoaded, loadingData, loadingStatus);
+        } else {
+            renderUI(delta);
+        }
 
         fps = Gdx.graphics.getFramesPerSecond();
     }
@@ -246,8 +264,9 @@ public class MapScreen extends InputAdapter implements Screen {
 
         TileCoordinate centerTile = GeoUtils.latLonToTile(centerLatLon.x, centerLatLon.y, currentZoom);
 
-        int tilesX = (int) Math.ceil(Gdx.graphics.getWidth() / (float) Constants.TILE_SIZE) + 2;
-        int tilesY = (int) Math.ceil(Gdx.graphics.getHeight() / (float) Constants.TILE_SIZE) + 2;
+        // Buffer of +6 tiles on each side so tiles don't disappear at edges when panning
+        int tilesX = (int) Math.ceil(Gdx.graphics.getWidth() / (float) Constants.TILE_SIZE) + 6;
+        int tilesY = (int) Math.ceil(Gdx.graphics.getHeight() / (float) Constants.TILE_SIZE) + 6;
 
         int startX = centerTile.x - tilesX / 2;
         int endX = centerTile.x + tilesX / 2;
@@ -373,6 +392,21 @@ public class MapScreen extends InputAdapter implements Screen {
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         float dragDistance = Vector2.dst(screenX, screenY, lastDragPosition.x, lastDragPosition.y);
         if (dragDistance < 5f && dataLoaded) {
+            // Check left panel menu clicks first
+            BusRoute clickedInMenu = modernOverlay.handleLeftPanelClick(screenX, screenY, busRoutes);
+
+            if (clickedInMenu != null) {
+                // Handle menu click with toggle behavior
+                if (selectedLine == clickedInMenu) {
+                    deselectLine();
+                } else {
+                    selectLine(clickedInMenu);
+                }
+                dragging = false;
+                return true;
+            }
+
+            // Fall back to map click detection
             Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
 
             BusRoute clickedLine = findLineAtPosition(worldCoords.x, worldCoords.y);
@@ -502,13 +536,47 @@ public class MapScreen extends InputAdapter implements Screen {
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
+        int oldZoom = currentZoom;
+
         if (amountY < 0 && currentZoom < Constants.MAX_ZOOM) {
             currentZoom++;
             Gdx.app.log("MapScreen", "Zoomed in to level " + currentZoom);
         } else if (amountY > 0 && currentZoom > Constants.MIN_ZOOM) {
             currentZoom--;
             Gdx.app.log("MapScreen", "Zoomed out to level " + currentZoom);
+        } else {
+            return true;  // No zoom change
         }
+
+        // Adjust center to keep screen center point stable during zoom
+        // Get screen center in pixels
+        float screenCenterX = Gdx.graphics.getWidth() / 2f;
+        float screenCenterY = Gdx.graphics.getHeight() / 2f;
+
+        // Calculate what world point is at screen center BEFORE zoom change (using oldZoom)
+        Vector2 screenCenter = GeoUtils.screenToLatLon(
+            screenCenterX, screenCenterY,
+            centerLatLon.x, centerLatLon.y,
+            oldZoom, Constants.TILE_SIZE
+        );
+
+        // After zoom change, adjust centerLatLon so the same world point stays at screen center
+        // We want: screenCenter = current screen center at new zoom
+        // So we need to shift centerLatLon
+        Vector2 newScreenCenter = GeoUtils.screenToLatLon(
+            screenCenterX, screenCenterY,
+            centerLatLon.x, centerLatLon.y,
+            currentZoom, Constants.TILE_SIZE
+        );
+
+        // Calculate the shift needed
+        double latShift = screenCenter.x - newScreenCenter.x;
+        double lonShift = screenCenter.y - newScreenCenter.y;
+
+        // Apply the shift to keep the same world point at screen center
+        centerLatLon.x += latShift;
+        centerLatLon.y += lonShift;
+
         return true;
     }
 
@@ -525,6 +593,17 @@ public class MapScreen extends InputAdapter implements Screen {
         } else if (keycode == Input.Keys.Q) {
             Gdx.app.exit();
             return true;
+        } else if (keycode == Input.Keys.U) {
+            // Toggle modern UI
+            useModernUI = !useModernUI;
+            Gdx.app.log("MapScreen", "Modern UI: " + (useModernUI ? "enabled" : "disabled"));
+            return true;
+        } else if (keycode == Input.Keys.P) {
+            // Toggle left panel
+            if (modernOverlay != null) {
+                modernOverlay.togglePanel();
+            }
+            return true;
         }
         return false;
     }
@@ -540,6 +619,9 @@ public class MapScreen extends InputAdapter implements Screen {
     public void resize(int width, int height) {
         camera.setToOrtho(false, width, height);
         camera.update();
+        if (modernOverlay != null) {
+            modernOverlay.resize(width, height);
+        }
     }
 
     @Override
@@ -561,6 +643,7 @@ public class MapScreen extends InputAdapter implements Screen {
         if (tileCache != null) tileCache.dispose();
         if (busLineRenderer != null) busLineRenderer.dispose();
         if (stationRenderer != null) stationRenderer.dispose();
+        if (modernOverlay != null) modernOverlay.dispose();
         Gdx.app.log("MapScreen", "MapScreen disposed");
     }
 }

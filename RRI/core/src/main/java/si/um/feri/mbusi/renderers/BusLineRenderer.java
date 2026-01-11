@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import si.um.feri.mbusi.config.Constants;
 import si.um.feri.mbusi.models.BusRoute;
+import si.um.feri.mbusi.ui.DesignSystem;
 import si.um.feri.mbusi.utils.GeoUtils;
 
 import java.util.HashMap;
@@ -21,23 +22,8 @@ public class BusLineRenderer {
     private Map<Integer, Color> lineColors;
     private Random random;
 
-    private static final Color[] COLOR_PALETTE = {
-        new Color(0.91f, 0.30f, 0.24f, 1f),
-        new Color(0.20f, 0.60f, 0.86f, 1f),
-        new Color(0.18f, 0.80f, 0.44f, 1f),
-        new Color(0.95f, 0.61f, 0.07f, 1f),
-        new Color(0.61f, 0.35f, 0.71f, 1f),
-        new Color(0.10f, 0.74f, 0.61f, 1f),
-        new Color(0.95f, 0.77f, 0.06f, 1f),
-        new Color(0.83f, 0.33f, 0.58f, 1f),
-        new Color(0.20f, 0.29f, 0.37f, 1f),
-        new Color(0.85f, 0.53f, 0.26f, 1f),
-        new Color(0.40f, 0.73f, 0.42f, 1f),
-        new Color(0.36f, 0.42f, 0.75f, 1f),
-        new Color(0.94f, 0.50f, 0.50f, 1f),
-        new Color(0.00f, 0.59f, 0.53f, 1f),
-        new Color(0.55f, 0.27f, 0.07f, 1f),
-    };
+    // Use refined colors from DesignSystem
+    private static final Color[] COLOR_PALETTE = DesignSystem.LINE_COLORS;
 
     private static final float LINE_WIDTH_BASE = 4f;
     private static final float LINE_WIDTH_OUTLINE = 6f;
