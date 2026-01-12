@@ -22,6 +22,9 @@ object NotificationHelper {
     const val SCHEDULE_CHANNEL_ID = "schedule_reminders"
     private const val SCHEDULE_NOTIFICATION_BASE_ID = 2000
 
+    const val SIMULATION_CHANNEL_ID = "simulation_channel"
+    const val SIMULATION_NOTIFICATION_ID = 1003
+
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -110,6 +113,43 @@ object NotificationHelper {
             val notificationManager = context.getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
         }
+    }
+
+    fun createSimulationNotificationChannel(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                SIMULATION_CHANNEL_ID,
+                context.getString(R.string.simulation_notification_channel_name),
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = context.getString(R.string.simulation_notification_channel_description)
+                setShowBadge(false)
+            }
+
+            val notificationManager = context.getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    fun createSimulationNotification(context: Context, sensorType: String, lastValue: String): Notification {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            2,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        return NotificationCompat.Builder(context, SIMULATION_CHANNEL_ID)
+            .setContentTitle(context.getString(R.string.simulation_notification_title))
+            .setContentText(context.getString(R.string.simulation_notification_text, sensorType, lastValue))
+            .setSmallIcon(R.drawable.ic_simulation)
+            .setOngoing(true)
+            .setContentIntent(pendingIntent)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .build()
     }
 
     fun showScheduleReminderNotification(context: Context, sensorType: SensorType, scheduleId: Long) {

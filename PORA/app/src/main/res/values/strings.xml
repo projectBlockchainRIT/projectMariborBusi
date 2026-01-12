@@ -180,4 +180,31 @@
     <string name="select_station_first">Najprej izberite postajo</string>
     <string name="events_delay_section">Prijava zamude</string>
     <string name="delay_for_line">Zamuda za linijo</string>
+
+    <!-- Simulation mode -->
+    <string name="simulation_disabled">Onemogočeno</string>
+    <string name="simulation_enabled">Omogočeno</string>
+    <string name="simulation_running">Simulacija teče</string>
+    <string name="simulation_sensor_type">Tip senzorja</string>
+    <string name="simulation_type_gps">GPS lokacija</string>
+    <string name="simulation_type_speed">Hitrost</string>
+    <string name="simulation_interval">Interval pošiljanja</string>
+    <string name="simulation_gps_range">Razpon GPS koordinat</string>
+    <string name="simulation_speed_range">Razpon hitrosti (km/h)</string>
+    <string name="simulation_lat_min">Lat min</string>
+    <string name="simulation_lat_max">Lat max</string>
+    <string name="simulation_lon_min">Lon min</string>
+    <string name="simulation_lon_max">Lon max</string>
+    <string name="simulation_speed_min">Min (km/h)</string>
+    <string name="simulation_speed_max">Max (km/h)</string>
+    <string name="simulation_use_manual_location">Uporabi ročno lokacijo</string>
+    <string name="simulation_manual_lat">Latitude</string>
+    <string name="simulation_manual_lon">Longitude</string>
+    <string name="simulation_pick_on_map">Izberi na zemljevidu</string>
+    <string name="simulation_start">Zaženi simulacijo</string>
+    <string name="simulation_stop">Ustavi simulacijo</string>
+    <string name="simulation_notification_channel_name">Simulacija</string>
+    <string name="simulation_notification_channel_description">Obvestila za simulirani način</string>
+    <string name="simulation_notification_title">Simulacija aktivna</string>
+    <string name="simulation_notification_text">%1$s: %2$s</string>
 </resources>

@@ -40,4 +40,21 @@ interface BusiMobileApi {
 
     @GET("routes/stations/{lineId}")
     suspend fun getStationsForRoute(@Path("lineId") lineId: Long): Response<StationsResponse>
+
+    // ==================== Simulation ====================
+    // PLACEHOLDER: Te poti je treba posodobiti, ko bo backend pripravljen
+
+    /**
+     * Pošlje simulirane GPS podatke na strežnik.
+     * PLACEHOLDER pot: /v1/simulation/gps
+     */
+    @POST("simulation/gps")
+    suspend fun submitSimulatedGps(@Body gpsData: SimulatedGpsRequest): Response<SimulationResponse>
+
+    /**
+     * Pošlje simulirane hitrostne podatke na strežnik.
+     * PLACEHOLDER pot: /v1/simulation/speed
+     */
+    @POST("simulation/speed")
+    suspend fun submitSimulatedSpeed(@Body speedData: SimulatedSpeedRequest): Response<SimulationResponse>
 }

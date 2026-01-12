@@ -50,6 +50,15 @@
             android:exported="false"
             android:foregroundServiceType="location" />
 
+        <service
+            android:name=".services.SimulationService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="simulated_sensor_data" />
+        </service>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
