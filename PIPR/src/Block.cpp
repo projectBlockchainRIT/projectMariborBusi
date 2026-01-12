@@ -11,7 +11,7 @@
 #include <time.h>
 #else
 #include <time.h>
-extern "C" time_t timegm(struct tm* tm);  // May not be available on all systems
+extern "C" time_t timegm(struct tm* tm);
 #endif
 
 #include "Sha256.h"
@@ -29,7 +29,7 @@ bool HasLeadingZeros(const std::string& hash, int difficulty) {
     return true;
 }
 
-// Deterministic timestamp formatting - uses UTC to avoid locale issues
+// Pretvori čas v ISO format (UTC)
 std::string TimePointToIso(const std::chrono::system_clock::time_point& tp) {
     std::time_t tt = std::chrono::system_clock::to_time_t(tp);
     std::tm tm{};
@@ -39,7 +39,6 @@ std::string TimePointToIso(const std::chrono::system_clock::time_point& tp) {
     gmtime_r(&tt, &tm);
 #endif
     std::ostringstream oss;
-    // Use C locale for deterministic formatting
     oss.imbue(std::locale::classic());
     oss << std::put_time(&tm, "%Y-%m-%dT%H:%M:%S");
     return oss.str();
@@ -66,8 +65,7 @@ Block::Block(int idx,
 }
 
 std::string Block::toStringForHash() const {
-    // Deterministic serialization: index + data + timestamp + prevHash + difficulty + nonce
-    // Use C locale to ensure consistent formatting
+    // Serializiraj blok za izračun hasha
     std::ostringstream oss;
     oss.imbue(std::locale::classic());
     oss << index << data << TimestampString() << previousHash << difficulty << nonce;
@@ -79,8 +77,7 @@ std::string Block::computeHash() const {
 }
 
 std::string Block::CalculateHash() {
-    // Legacy method - kept for backward compatibility
-    // This method does mining (increments nonce), use computeHash() for just computing hash
+    // Stara metoda - izvaja mining (povečuje nonce)
     std::string computed;
     do {
         computed = computeHash();
@@ -108,29 +105,20 @@ std::chrono::system_clock::time_point Block::ParseTimestamp(
     iss.imbue(std::locale::classic());
     iss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
     if (iss.fail()) {
-        // Fallback to epoch 0 for genesis block compatibility
         return std::chrono::system_clock::from_time_t(0);
     }
     
-    // Parse as UTC time (not local time)
-    // mktime interprets tm as local time, so we need to use timegm or manual calculation
-    // For portability, we'll use a workaround: set timezone to UTC temporarily
+    // Pretvori UTC čas
     #ifdef _WIN32
-        // Windows: _mkgmtime converts UTC tm to time_t
         auto time_c = _mkgmtime(&tm);
     #else
-        // Unix: timegm converts UTC tm to time_t (if available)
-        // Otherwise use mktime with UTC timezone
         auto time_c = timegm(&tm);
         if (time_c == -1) {
-            // Fallback: treat as UTC by using mktime and adjusting
             time_c = std::mktime(&tm);
-            // This is not perfect but better than nothing
         }
     #endif
     
     if (time_c == -1) {
-        // If conversion fails, return epoch 0
         return std::chrono::system_clock::from_time_t(0);
     }
     

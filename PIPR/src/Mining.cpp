@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <limits>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -35,13 +36,11 @@ namespace Mining {
         int nonce = 0;
         std::string hash;
         
-        // Sequential mining: try nonces until we find one that satisfies difficulty
         while (true) {
             Block candidate(index, data, timestamp, prevHash, difficulty, nonce, false);
             hash = candidate.computeHash();
             
             if (hasLeadingZeros(hash, difficulty)) {
-                // Found valid nonce
                 candidate.hash = hash;
                 return candidate;
             }
@@ -58,32 +57,37 @@ namespace Mining {
         int numThreads) {
         
         if (numThreads <= 1) {
-            // Fallback to sequential mining for single thread
             return mineBlock(index, data, prevHash, difficulty);
         }
 
         auto timestamp = std::chrono::system_clock::now();
         
-        // Shared state for coordination between threads
         std::atomic<bool> found(false);
         std::mutex resultMutex;
         Block result(index, data, timestamp, prevHash, difficulty, 0, false);
         bool resultSet = false;
 
-        // Worker function for each thread
         auto worker = [&](int threadId, int stride) {
-            int startNonce = threadId;
-            int nonce = startNonce;
+            // unsigned arithmetic to avoid undefined behavior on overflow
+            // Convert to int only when creating Block (nonce values are typically small)
+            unsigned int startNonce = static_cast<unsigned int>(threadId);
+            unsigned int uNonce = startNonce;
+            const unsigned int maxNonce = static_cast<unsigned int>(std::numeric_limits<int>::max());
             
             while (!found.load(std::memory_order_relaxed)) {
+                // Check for overflow before incrementing
+                if (uNonce > maxNonce - static_cast<unsigned int>(stride)) {
+                    // Wrapped around - restart from beginning of this thread's range
+                    uNonce = startNonce;
+                }
+                
+                int nonce = static_cast<int>(uNonce);
                 Block candidate(index, data, timestamp, prevHash, difficulty, nonce, false);
                 std::string hash = candidate.computeHash();
                 
                 if (hasLeadingZeros(hash, difficulty)) {
-                    // Found valid nonce - try to claim it
                     bool expected = false;
                     if (found.compare_exchange_strong(expected, true, std::memory_order_release, std::memory_order_relaxed)) {
-                        // This thread won the race - set the result
                         std::lock_guard<std::mutex> lock(resultMutex);
                         if (!resultSet) {
                             candidate.hash = hash;
@@ -91,21 +95,13 @@ namespace Mining {
                             resultSet = true;
                         }
                     }
-                    // Even if we lost the race, we found a valid nonce, so we can exit
                     break;
                 }
                 
-                // Increment by stride to avoid overlap with other threads
-                nonce += stride;
-                
-                // Prevent integer overflow (safety check)
-                if (nonce < startNonce) {
-                    break;
-                }
+                uNonce += static_cast<unsigned int>(stride);
             }
         };
 
-        // Launch worker threads
         std::vector<std::thread> threads;
         threads.reserve(numThreads);
         
@@ -113,15 +109,11 @@ namespace Mining {
             threads.emplace_back(worker, i, numThreads);
         }
 
-        // Wait for all threads to complete
         for (auto& t : threads) {
             t.join();
         }
 
-        // Ensure we have a valid result
         if (!resultSet) {
-            // Fallback: if somehow no thread set the result, use sequential mining
-            // This should not happen in practice, but provides safety
             return mineBlock(index, data, prevHash, difficulty);
         }
 

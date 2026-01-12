@@ -89,20 +89,14 @@ void PeerNetwork::HandleClient(SOCKET client) {
             auto chainOpt = DeserializeChain(message);
             if (chainOpt && chainHandler_) {
                 chainHandler_(*chainOpt);
-                const auto& chain = *chainOpt;
-                const auto& last = chain.back();
-                if (messageHandler_) {
-                    messageHandler_("Index: " + std::to_string(last.index));
-                    messageHandler_("Prev. Hash: " + last.previousHash);
-                    messageHandler_("Hash: " + last.hash);
-                    messageHandler_("Difficulty: " +
-                                    std::to_string(last.difficulty));
-                }
+                std::cout << std::flush;
             } else if (messageHandler_) {
                 messageHandler_("Failed to deserialize chain");
+                std::cout << std::flush;
             }
         } else if (messageHandler_) {
             messageHandler_("Received: " + message);
+            std::cout << std::flush;
         }
     }
     closesocket(client);

@@ -13,7 +13,7 @@ public:
 
     explicit MiningService(Blockchain& blockchain, int numThreads = 1, bool useMPI = false);
 
-    std::optional<Block> MineBlock(const std::string& data);
+    std::optional<Block> MineBlock(const std::string& data, bool verbose = false);
     void SetBlockMinedHandler(BlockMinedHandler handler);
 
 private:

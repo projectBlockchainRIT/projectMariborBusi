@@ -15,6 +15,7 @@
 #include "Blockchain.h"
 #include "MiningService.h"
 #include "PeerNetwork.h"
+#include "DistributedMining.h"
 
 int parseThreadsArgument(int argc, char* argv[]) {
     unsigned int hwThreads = std::thread::hardware_concurrency();
@@ -42,10 +43,19 @@ int parseThreadsArgument(int argc, char* argv[]) {
     return numThreads;
 }
 
+bool parseVerboseFlag(int argc, char* argv[]) {
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "--verbose" || arg == "--debug-mpi") {
+            return true;
+        }
+    }
+    return false;
+}
+
 int main(int argc, char* argv[])
 {
 #ifdef USE_MPI
-    // Initialize MPI
     MPI_Init(&argc, &argv);
     
     int rank, size;
@@ -64,9 +74,13 @@ int main(int argc, char* argv[])
 #endif
 
     int numThreads = parseThreadsArgument(argc, argv);
+    bool verbose = parseVerboseFlag(argc, argv);
     
     if (rank == 0) {
         std::cout << "Mining threads per process: " << numThreads << "\n";
+        if (verbose) {
+            std::cout << "Verbose logging enabled\n";
+        }
         std::cout << "Enter your name: ";
     }
     
@@ -76,7 +90,6 @@ int main(int argc, char* argv[])
     }
     
 #ifdef USE_MPI
-    // Broadcast username from rank 0 to all processes
     if (size > 1) {
         int usernameLen = static_cast<int>(username.size());
         MPI_Bcast(&usernameLen, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -109,42 +122,115 @@ int main(int argc, char* argv[])
     MiningService miningService(blockchain, numThreads, useMPI);
     PeerNetwork network;
 
-    network.SetMessageHandler([](const std::string &msg)
-                              { std::cout << msg << "\n"; });
+    network.SetMessageHandler([rank](const std::string &msg)
+                              { 
+                                  if (rank == 0) {
+                                      std::cout << msg << "\n" << std::flush;
+                                  }
+                              });
 
-    network.SetChainHandler([&](const std::vector<Block> &chain)
+    network.SetChainHandler([&, rank, useMPI, size, verbose](const std::vector<Block> &chain)
                             {
+        if (rank != 0) return;
+        
         auto localSize = blockchain.GetChain().size();
         if (chain.size() <= 1 && localSize <= 1) {
-            std::cout << "No chain exchanged, peers have no chain.\n";
+            std::cout << "No chain exchanged, peers have no chain.\n" << std::flush;
+            return;
+        }
+
+        if (chain.size() <= localSize) {
+            if (chain.size() == localSize) {
+                std::cout << "[PEER] Didn't update chain, same length (" << localSize << ").\n" << std::flush;
+            } else {
+                std::cout << "[PEER] Block rejected from peer (local: " << localSize 
+                          << ", received: " << chain.size() << " - shorter).\n" << std::flush;
+            }
             return;
         }
 
         if (blockchain.ReplaceChain(chain)) {
-            std::cout << "Replaced chain.\n";
+            std::cout << "[PEER] Block accepted from peer - chain updated (new length: " << chain.size() << ").\n" << std::flush;
+            
+#ifdef USE_MPI
+            if (useMPI && size > 1) {
+                DistributedMining::broadcastChainToAllRanksMPI(blockchain.GetChain(), verbose);
+            }
+#endif
         } else {
-            std::cout << "Received chain rejected.\n";
+            std::cout << "[PEER] Block rejected from peer (local: " << localSize 
+                      << ", received: " << chain.size() << " - validation failed).\n" << std::flush;
         } });
 
-    miningService.SetBlockMinedHandler([](const Block &block)
-                                       { std::cout << "Block " << block.index << " mined successfully\n"; });
+    miningService.SetBlockMinedHandler([rank](const Block &block)
+                                       { 
+                                           if (rank == 0) {
+                                               std::cout << "Block " << block.index << " mined successfully\n" << std::flush;
+                                           }
+                                       });
 
     if (!network.StartServer(port))
     {
-        std::cout << "Failed to start server.\n";
+        if (rank == 0) {
+            std::cout << "Failed to start server.\n";
+        }
         return 1;
     }
-    std::cout << "Server port: " << port << "\n";
-
-    std::cout << "Commands: connect <port>, mine, show, exit\n";
+    
+    if (rank == 0) {
+        std::cout << "Server port: " << port << "\n";
+        std::cout << "Commands: connect <port>, mine, show, exit\n";
+    }
     std::string command;
     while (true)
     {
+#ifdef USE_MPI
+        if (useMPI && size > 1 && rank != 0) {
+            auto chainUpdate = DistributedMining::checkForChainUpdateMPI(verbose);
+            if (!chainUpdate.empty()) {
+                auto localSize = blockchain.GetChain().size();
+                if (blockchain.ReplaceChain(chainUpdate)) {
+                    if (verbose) {
+                        std::cout << "[rank " << rank << "/" << size << "] Updated chain from rank 0 (size=" 
+                                  << chainUpdate.size() << ")\n" << std::flush;
+                    }
+                } else if (verbose && chainUpdate.size() <= localSize) {
+                    std::cout << "[rank " << rank << "/" << size << "] Chain update rejected (local: " << localSize 
+                              << ", received: " << chainUpdate.size() << " - not better)\n" << std::flush;
+                }
+            }
+        }
+        
+        if (useMPI && size > 1) {
+            if (rank == 0) {
+                std::cout << "> ";
+                if (!std::getline(std::cin, command))
+                {
+                    command = "exit";
+                }
+                int cmdLen = static_cast<int>(command.size());
+                MPI_Bcast(&cmdLen, 1, MPI_INT, 0, MPI_COMM_WORLD);
+                MPI_Bcast(const_cast<char*>(command.data()), cmdLen, MPI_CHAR, 0, MPI_COMM_WORLD);
+            } else {
+                int cmdLen;
+                MPI_Bcast(&cmdLen, 1, MPI_INT, 0, MPI_COMM_WORLD);
+                command.resize(cmdLen);
+                MPI_Bcast(const_cast<char*>(command.data()), cmdLen, MPI_CHAR, 0, MPI_COMM_WORLD);
+            }
+        } else {
+            std::cout << "> ";
+            if (!std::getline(std::cin, command))
+            {
+                break;
+            }
+        }
+#else
         std::cout << "> ";
         if (!std::getline(std::cin, command))
         {
             break;
         }
+#endif
         if (command == "exit")
         {
             break;
@@ -154,56 +240,123 @@ int main(int argc, char* argv[])
             auto pos = command.find(' ');
             if (pos == std::string::npos)
             {
-                std::cout << "Usage: connect <port>\n";
+                if (rank == 0) {
+                    std::cout << "Usage: connect <port>\n";
+                }
                 continue;
             }
             int peerPort = std::stoi(command.substr(pos + 1));
             if (peerPort < 1 || peerPort > 65535)
             {
-                std::cout << "Invalid port.\n";
+                if (rank == 0) {
+                    std::cout << "Invalid port.\n";
+                }
                 continue;
             }
-            if (network.ConnectToPeer(peerPort))
-            {
-                auto chain = blockchain.GetChain();
-                if (chain.size() > 1)
-                {
-                    network.BroadcastChain(chain);
+            
+#ifdef USE_MPI
+            if (useMPI && size > 1) {
+                if (rank == 0) {
+                    if (network.ConnectToPeer(peerPort))
+                    {
+                        auto chain = blockchain.GetChain();
+                        if (chain.size() > 1)
+                        {
+                            network.BroadcastChain(chain);
+                        }
+                        else
+                        {
+                            if (rank == 0) {
+                                std::cout << "No chain to broadcast yet.\n";
+                            }
+                        }
+                    }
                 }
-                else
+            } else {
+#endif
+                if (network.ConnectToPeer(peerPort))
                 {
-                    std::cout << "No chain to broadcast yet.\n";
+                    auto chain = blockchain.GetChain();
+                    if (chain.size() > 1)
+                    {
+                        network.BroadcastChain(chain);
+                    }
+                    else
+                    {
+                        if (rank == 0) {
+                            std::cout << "No chain to broadcast yet.\n";
+                        }
+                    }
                 }
+#ifdef USE_MPI
             }
+#endif
         }
         else if (command == "mine")
         {
-            auto mined = miningService.MineBlock(AppSettings::DefaultBlockData);
+#ifdef USE_MPI
+            if (useMPI && size > 1 && rank != 0) {
+                auto chainUpdate = DistributedMining::checkForChainUpdateMPI(verbose);
+                if (!chainUpdate.empty()) {
+                    auto localSize = blockchain.GetChain().size();
+                    if (blockchain.ReplaceChain(chainUpdate)) {
+                        if (verbose) {
+                            std::cout << "[rank " << rank << "/" << size << "] Updated chain from rank 0 (size=" 
+                                      << chainUpdate.size() << ")\n" << std::flush;
+                        }
+                    } else if (verbose && chainUpdate.size() <= localSize) {
+                        std::cout << "[rank " << rank << "/" << size << "] Chain update rejected (local: " << localSize 
+                                  << ", received: " << chainUpdate.size() << " - not better)\n" << std::flush;
+                    }
+                }
+            }
+#endif
+            auto mined = miningService.MineBlock(AppSettings::DefaultBlockData, verbose);
             if (mined)
             {
-                std::cout << "Block mined and broadcasted.\n";
+#ifdef USE_MPI
+                if (useMPI && size > 1) {
+                    if (rank == 0) {
+                        std::cout << "Block mined and broadcasted to peers.\n" << std::flush;
+                        network.BroadcastChain(blockchain.GetChain());
+                    }
+                } else {
+                    std::cout << "Block mined and broadcasted.\n" << std::flush;
+                    network.BroadcastChain(blockchain.GetChain());
+                }
+#else
+                std::cout << "Block mined and broadcasted.\n" << std::flush;
                 network.BroadcastChain(blockchain.GetChain());
+#endif
             }
             else
             {
-                std::cout << "Mining failed.\n";
+                if (verbose) {
+                    std::cout << "[rank " << rank << "/" << size << "] Mining failed.\n" << std::flush;
+                }
             }
         }
         else if (command == "show")
         {
-            auto chain = blockchain.GetChain();
-            std::cout << "Chain length: " << chain.size() << "\n";
-            if (!chain.empty())
-            {
-                const auto &last = chain.back();
-                std::cout << "Last block index: " << last.index << "\n";
-                std::cout << "Hash: " << last.hash << "\n";
+            if (rank == 0) {
+                auto chain = blockchain.GetChain();
+                std::cout << "Chain length: " << chain.size() << "\n";
+                if (!chain.empty())
+                {
+                    const auto &last = chain.back();
+                    std::cout << "Last block index: " << last.index << "\n";
+                    std::cout << "Hash: " << last.hash << "\n";
+                }
+                std::cout << std::flush;
             }
         }
         else
         {
-            std::cout << "Unknown command.\n";
+            if (rank == 0) {
+                std::cout << "Unknown command.\n";
+            }
         }
+
     }
 
     network.Stop();

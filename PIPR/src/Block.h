@@ -3,7 +3,8 @@
 #include <chrono>
 #include <string>
 
-class Block {
+class Block
+{
 public:
     int index{0};
     std::string data{};
@@ -23,17 +24,16 @@ public:
 
     // Deterministic serialization for hashing
     std::string toStringForHash() const;
-    
+
     // Compute hash without mining (uses current nonce)
     std::string computeHash() const;
-    
+
     // Legacy method - kept for compatibility but should use computeHash()
     std::string CalculateHash();
-    
-    static std::string Sha256Hash(const std::string& input);
+
+    static std::string Sha256Hash(const std::string &input);
 
     std::string TimestampString() const;
     static std::chrono::system_clock::time_point ParseTimestamp(
-        const std::string& timestampStr);
+        const std::string &timestampStr);
 };
-
