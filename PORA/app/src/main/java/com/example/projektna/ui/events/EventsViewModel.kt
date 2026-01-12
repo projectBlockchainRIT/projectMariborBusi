@@ -48,16 +48,16 @@ class EventsViewModel : ViewModel() {
     }
 
     fun submitDelay(
-        stationId: Long,
-        stationName: String,
-        lineId: String,
+        userId: Int,
+        stopId: Int,
+        lineId: Int,
         delayMinutes: Int
     ) {
         viewModelScope.launch {
             _delaySubmitResult.value = Resource.Loading()
             _delaySubmitResult.value = delayRepository.submitDelay(
-                stationId = stationId,
-                stationName = stationName,
+                userId = userId,
+                stopId = stopId,
                 lineId = lineId,
                 delayMinutes = delayMinutes
             )

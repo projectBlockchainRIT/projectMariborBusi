@@ -9,6 +9,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.example.projektna.R
+import com.example.projektna.data.PreferencesManager
 import com.example.projektna.data.api.model.BusStop
 import com.example.projektna.data.api.model.DepartureGroup
 import com.example.projektna.data.repository.DelayRepository
@@ -22,15 +23,17 @@ class DelayInputDialog : DialogFragment() {
     private val binding get() = _binding!!
 
     private val delayRepository = DelayRepository()
+    private lateinit var preferencesManager: PreferencesManager
 
     private var busStop: BusStop? = null
     private var availableLines: List<DepartureGroup> = emptyList()
-    private var selectedLine: String? = null
+    private var selectedLineId: Int? = null
     private var userLatitude: Double? = null
     private var userLongitude: Double? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogDelayInputBinding.inflate(LayoutInflater.from(context))
+        preferencesManager = PreferencesManager(requireContext())
 
         setupViews()
         setupSlider()
@@ -71,13 +74,13 @@ class DelayInputDialog : DialogFragment() {
             binding.autoCompleteLine.setAdapter(adapter)
 
             binding.autoCompleteLine.setOnItemClickListener { _, _, position, _ ->
-                selectedLine = availableLines.getOrNull(position)?.line
+                selectedLineId = availableLines.getOrNull(position)?.line?.toIntOrNull()
             }
 
             // Pre-select first line
             if (lineNames.isNotEmpty()) {
                 binding.autoCompleteLine.setText(lineNames[0], false)
-                selectedLine = availableLines[0].line
+                selectedLineId = availableLines[0].line.toIntOrNull()
             }
         } else {
             binding.textInputLayoutLine.hint = getString(R.string.no_lines_available)
@@ -87,10 +90,16 @@ class DelayInputDialog : DialogFragment() {
 
     private fun submitDelay() {
         val stop = busStop ?: return
-        val line = selectedLine
+        val lineId = selectedLineId
 
-        if (line.isNullOrEmpty()) {
+        if (lineId == null) {
             Toast.makeText(context, R.string.select_line_first, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val userId = preferencesManager.userId
+        if (userId == -1) {
+            Toast.makeText(context, R.string.auth_error_not_logged_in, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -98,12 +107,10 @@ class DelayInputDialog : DialogFragment() {
 
         lifecycleScope.launch {
             val result = delayRepository.submitDelay(
-                stationId = stop.id,
-                stationName = stop.name,
-                lineId = line,
-                delayMinutes = delayMinutes,
-                latitude = userLatitude,
-                longitude = userLongitude
+                userId = userId,
+                stopId = stop.id.toInt(),
+                lineId = lineId,
+                delayMinutes = delayMinutes
             )
 
             when (result) {

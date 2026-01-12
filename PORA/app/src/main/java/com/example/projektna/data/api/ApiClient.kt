@@ -31,18 +31,28 @@ object ApiClient {
         }
     }
 
+    private val requestLoggingInterceptor: RequestLoggingInterceptor by lazy {
+        RequestLoggingInterceptor()
+    }
+
     private val okHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)
             .addInterceptor(loggingInterceptor)
+            .addInterceptor(requestLoggingInterceptor)
             .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
+                val requestBuilder = chain.request().newBuilder()
                     .header("Accept", "application/json")
                     .header("Content-Type", "application/json")
-                    .build()
-                chain.proceed(request)
+
+                // Dodaj Authorization header, če je token na voljo
+                AuthTokenProvider.getToken()?.let { token ->
+                    requestBuilder.header("Authorization", "Bearer $token")
+                }
+
+                chain.proceed(requestBuilder.build())
             }
             .build()
     }

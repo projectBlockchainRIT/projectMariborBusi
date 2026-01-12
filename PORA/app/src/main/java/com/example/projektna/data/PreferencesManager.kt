@@ -7,6 +7,15 @@ class PreferencesManager(context: Context) {
 
     companion object {
         private const val PREFS_NAME = "projektna_prefs"
+
+        // Authentication keys
+        private const val KEY_AUTH_TOKEN = "auth_token"
+        private const val KEY_USER_ID = "user_id"
+        private const val KEY_USER_EMAIL = "user_email"
+        private const val KEY_USER_USERNAME = "user_username"
+        private const val KEY_IS_LOGGED_IN = "is_logged_in"
+
+        // Sensor keys
         private const val KEY_ACCELEROMETER_ENABLED = "accelerometer_enabled"
         private const val KEY_CAMERA_ENABLED = "camera_enabled"
         private const val KEY_GPS_ENABLED = "gps_enabled"
@@ -41,6 +50,52 @@ class PreferencesManager(context: Context) {
     }
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    // ==================== Authentication ====================
+
+    var authToken: String?
+        get() = prefs.getString(KEY_AUTH_TOKEN, null)
+        set(value) = prefs.edit().putString(KEY_AUTH_TOKEN, value).apply()
+
+    var userId: Int
+        get() = prefs.getInt(KEY_USER_ID, -1)
+        set(value) = prefs.edit().putInt(KEY_USER_ID, value).apply()
+
+    var userEmail: String?
+        get() = prefs.getString(KEY_USER_EMAIL, null)
+        set(value) = prefs.edit().putString(KEY_USER_EMAIL, value).apply()
+
+    var userUsername: String?
+        get() = prefs.getString(KEY_USER_USERNAME, null)
+        set(value) = prefs.edit().putString(KEY_USER_USERNAME, value).apply()
+
+    var isLoggedIn: Boolean
+        get() = prefs.getBoolean(KEY_IS_LOGGED_IN, false)
+        set(value) = prefs.edit().putBoolean(KEY_IS_LOGGED_IN, value).apply()
+
+    /**
+     * Shrani podatke po uspešni prijavi.
+     */
+    fun saveLoginData(token: String, visitorId: Int, email: String, username: String? = null) {
+        authToken = token
+        userId = visitorId
+        userEmail = email
+        userUsername = username
+        isLoggedIn = true
+    }
+
+    /**
+     * Počisti podatke ob odjavi.
+     */
+    fun clearAuthData() {
+        authToken = null
+        userId = -1
+        userEmail = null
+        userUsername = null
+        isLoggedIn = false
+    }
+
+    // ==================== Sensors ====================
 
     var isAccelerometerEnabled: Boolean
         get() = prefs.getBoolean(KEY_ACCELEROMETER_ENABLED, false)

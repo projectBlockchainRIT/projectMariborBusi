@@ -181,6 +181,44 @@
     <string name="events_delay_section">Prijava zamude</string>
     <string name="delay_for_line">Zamuda za linijo</string>
 
+    <!-- Authentication -->
+    <string name="login_title">Prijava</string>
+    <string name="login_subtitle">Prijavite se za nadaljevanje</string>
+    <string name="login_button">Prijava</string>
+    <string name="login_no_account">Nimate računa? Registrirajte se</string>
+
+    <string name="register_title">Registracija</string>
+    <string name="register_subtitle">Ustvarite nov račun</string>
+    <string name="register_button">Registracija</string>
+    <string name="register_have_account">Že imate račun? Prijavite se</string>
+    <string name="register_success">Registracija uspešna! Prijavite se.</string>
+
+    <string name="auth_email">E-naslov</string>
+    <string name="auth_password">Geslo</string>
+    <string name="auth_password_confirm">Potrdi geslo</string>
+    <string name="auth_username">Uporabniško ime</string>
+    <string name="auth_user_icon">Ikona uporabnika</string>
+
+    <string name="auth_error_email_required">E-naslov je obvezen</string>
+    <string name="auth_error_email_invalid">Neveljaven e-naslov</string>
+    <string name="auth_error_password_required">Geslo je obvezno</string>
+    <string name="auth_error_password_short">Geslo mora imeti vsaj 6 znakov</string>
+    <string name="auth_error_password_confirm_required">Potrditev gesla je obvezna</string>
+    <string name="auth_error_passwords_mismatch">Gesli se ne ujemata</string>
+    <string name="auth_error_username_required">Uporabniško ime je obvezno</string>
+    <string name="auth_error_username_short">Uporabniško ime mora imeti vsaj 3 znake</string>
+    <string name="auth_error_unknown">Neznana napaka</string>
+    <string name="auth_error_not_logged_in">Niste prijavljeni</string>
+
+    <!-- Account / Settings -->
+    <string name="expand_collapse">Razširi/Skrij</string>
+    <string name="settings_account">Račun</string>
+    <string name="account_logged_in">Prijavljeni</string>
+    <string name="account_no_email">Ni podatkov</string>
+    <string name="logout_button">Odjava</string>
+    <string name="logout_confirm_title">Odjava</string>
+    <string name="logout_confirm_message">Ali se res želite odjaviti?</string>
+
     <!-- Simulation mode -->
     <string name="simulation_disabled">Onemogočeno</string>
     <string name="simulation_enabled">Omogočeno</string>

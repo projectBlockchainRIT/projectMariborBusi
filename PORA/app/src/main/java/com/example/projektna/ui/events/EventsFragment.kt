@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.projektna.R
+import com.example.projektna.data.PreferencesManager
 import com.example.projektna.data.api.model.BusRoute
 import com.example.projektna.data.api.model.BusStop
 import com.example.projektna.databinding.FragmentEventsBinding
@@ -20,6 +21,7 @@ class EventsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: EventsViewModel by viewModels()
+    private lateinit var preferencesManager: PreferencesManager
 
     private var busStops: List<BusStop> = emptyList()
     private var routes: List<BusRoute> = emptyList()
@@ -37,6 +39,8 @@ class EventsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        preferencesManager = PreferencesManager(requireContext())
 
         setupSlider()
         setupStationSelector()
@@ -83,12 +87,18 @@ class EventsFragment : Fragment() {
             return
         }
 
+        val userId = preferencesManager.userId
+        if (userId == -1) {
+            Toast.makeText(context, R.string.auth_error_not_logged_in, Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val delayMinutes = binding.sliderDelay.value.toInt()
 
         viewModel.submitDelay(
-            stationId = stop.id,
-            stationName = stop.name,
-            lineId = route.lineId.toString(),
+            userId = userId,
+            stopId = stop.id.toInt(),
+            lineId = route.lineId.toInt(),
             delayMinutes = delayMinutes
         )
     }

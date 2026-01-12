@@ -6,6 +6,22 @@ import retrofit2.http.*
 
 interface BusiMobileApi {
 
+    // ==================== Authentication ====================
+
+    /**
+     * Registracija novega uporabnika.
+     * Endpoint: POST /v1/authentication/register
+     */
+    @POST("authentication/register")
+    suspend fun register(@Body request: RegisterRequest): Response<Unit>
+
+    /**
+     * Prijava uporabnika.
+     * Endpoint: POST /v1/authentication/login
+     */
+    @POST("authentication/login")
+    suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
+
     // ==================== Delays ====================
 
     @POST("delays/user")

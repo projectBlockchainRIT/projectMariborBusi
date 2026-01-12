@@ -12,16 +12,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.projektna.R
 import com.example.projektna.data.PreferencesManager
 import com.example.projektna.data.SimulationSensorType
 import com.example.projektna.services.SimulationService
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.checkbox.MaterialCheckBox
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.slider.Slider
 import com.google.android.material.snackbar.Snackbar
@@ -30,6 +33,18 @@ import com.google.android.material.textfield.TextInputEditText
 class SettingsFragment : Fragment() {
 
     private lateinit var preferencesManager: PreferencesManager
+
+    // Account views
+    private lateinit var textUserEmail: TextView
+    private lateinit var btnLogout: MaterialButton
+
+    // Collapsible section views
+    private lateinit var headerMqtt: LinearLayout
+    private lateinit var contentMqtt: LinearLayout
+    private lateinit var iconMqttExpand: ImageView
+    private lateinit var headerFrequency: LinearLayout
+    private lateinit var contentFrequency: LinearLayout
+    private lateinit var iconFrequencyExpand: ImageView
 
     // Existing views
     private lateinit var sliderGpsInterval: Slider
@@ -118,6 +133,18 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupViews(view: View) {
+        // Account views
+        textUserEmail = view.findViewById(R.id.text_user_email)
+        btnLogout = view.findViewById(R.id.btn_logout)
+
+        // Collapsible section views
+        headerMqtt = view.findViewById(R.id.header_mqtt)
+        contentMqtt = view.findViewById(R.id.content_mqtt)
+        iconMqttExpand = view.findViewById(R.id.icon_mqtt_expand)
+        headerFrequency = view.findViewById(R.id.header_frequency)
+        contentFrequency = view.findViewById(R.id.content_frequency)
+        iconFrequencyExpand = view.findViewById(R.id.icon_frequency_expand)
+
         // Existing views
         sliderGpsInterval = view.findViewById(R.id.slider_gps_interval)
         sliderAccelerometerInterval = view.findViewById(R.id.slider_accelerometer_interval)
@@ -158,6 +185,9 @@ class SettingsFragment : Fragment() {
     }
 
     private fun loadSavedValues() {
+        // Account values
+        textUserEmail.text = preferencesManager.userEmail ?: getString(R.string.account_no_email)
+
         // Existing interval values
         val gpsInterval = preferencesManager.gpsIntervalSeconds
         val accelerometerInterval = preferencesManager.accelerometerIntervalSeconds
@@ -194,6 +224,19 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupListeners() {
+        // Logout listener
+        btnLogout.setOnClickListener {
+            showLogoutConfirmation()
+        }
+
+        // Collapsible section listeners
+        headerMqtt.setOnClickListener {
+            toggleSection(contentMqtt, iconMqttExpand)
+        }
+        headerFrequency.setOnClickListener {
+            toggleSection(contentFrequency, iconFrequencyExpand)
+        }
+
         // Existing listeners
         sliderGpsInterval.addOnChangeListener { _, value, fromUser ->
             val interval = value.toInt()
@@ -387,5 +430,39 @@ class SettingsFragment : Fragment() {
     private fun stopSimulationService() {
         val intent = Intent(requireContext(), SimulationService::class.java)
         requireContext().stopService(intent)
+    }
+
+    private fun toggleSection(content: LinearLayout, icon: ImageView) {
+        if (content.visibility == View.VISIBLE) {
+            content.visibility = View.GONE
+            icon.animate().rotation(0f).setDuration(200).start()
+        } else {
+            content.visibility = View.VISIBLE
+            icon.animate().rotation(180f).setDuration(200).start()
+        }
+    }
+
+    private fun showLogoutConfirmation() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.logout_confirm_title)
+            .setMessage(R.string.logout_confirm_message)
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.logout_button) { _, _ ->
+                performLogout()
+            }
+            .show()
+    }
+
+    private fun performLogout() {
+        // Ustavi simulacijo, če teče
+        if (isSimulationServiceRunning()) {
+            stopSimulationService()
+        }
+
+        // Počisti auth podatke
+        preferencesManager.clearAuthData()
+
+        // Navigiraj na prijavo
+        findNavController().navigate(R.id.action_settings_to_login)
     }
 }

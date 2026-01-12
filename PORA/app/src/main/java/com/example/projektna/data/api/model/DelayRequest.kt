@@ -5,16 +5,15 @@ import com.squareup.moshi.JsonClass
 
 /**
  * Request body for submitting a delay report.
+ * API endpoint: POST /v1/delays/user
  */
 @JsonClass(generateAdapter = true)
 data class DelayRequest(
-    @Json(name = "stationId") val stationId: Long,
-    @Json(name = "stationName") val stationName: String,
-    @Json(name = "lineId") val lineId: String,
-    @Json(name = "delayMinutes") val delayMinutes: Int,
-    @Json(name = "timestamp") val timestamp: Long = System.currentTimeMillis(),
-    @Json(name = "latitude") val latitude: Double? = null,
-    @Json(name = "longitude") val longitude: Double? = null
+    @Json(name = "user_id") val userId: Int,
+    @Json(name = "date") val date: Long,
+    @Json(name = "delay_min") val delayMin: Int,
+    @Json(name = "stop_id") val stopId: Int,
+    @Json(name = "line_id") val lineId: Int
 )
 
 /**

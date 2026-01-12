@@ -11,23 +11,23 @@ class DelayRepository {
 
     private val api = ApiClient.api
 
+    /**
+     * Pošlje zamudo na strežnik.
+     * API endpoint: POST /v1/delays/user
+     */
     suspend fun submitDelay(
-        stationId: Long,
-        stationName: String,
-        lineId: String,
-        delayMinutes: Int,
-        latitude: Double? = null,
-        longitude: Double? = null
+        userId: Int,
+        stopId: Int,
+        lineId: Int,
+        delayMinutes: Int
     ): Resource<DelayResponse> = withContext(Dispatchers.IO) {
         try {
             val request = DelayRequest(
-                stationId = stationId,
-                stationName = stationName,
-                lineId = lineId,
-                delayMinutes = delayMinutes,
-                timestamp = System.currentTimeMillis(),
-                latitude = latitude,
-                longitude = longitude
+                userId = userId,
+                date = System.currentTimeMillis(),
+                delayMin = delayMinutes,
+                stopId = stopId,
+                lineId = lineId
             )
             val response = api.submitDelay(request)
             if (response.isSuccessful) {
