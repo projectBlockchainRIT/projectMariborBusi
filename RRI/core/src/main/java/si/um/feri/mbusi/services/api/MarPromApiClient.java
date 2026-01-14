@@ -6,6 +6,7 @@ import com.badlogic.gdx.net.HttpStatus;
 import si.um.feri.mbusi.config.Constants;
 import si.um.feri.mbusi.models.Arrival;
 import si.um.feri.mbusi.models.BusRoute;
+import si.um.feri.mbusi.models.OccupancyData;
 import si.um.feri.mbusi.models.Station;
 import si.um.feri.mbusi.models.StationDetails;
 
@@ -26,6 +27,11 @@ public class MarPromApiClient {
 
     public interface StationDetailsCallback {
         void onSuccess(StationDetails stationDetails);
+        void onFailure(String error);
+    }
+
+    public interface OccupancyCallback {
+        void onSuccess(List<OccupancyData> occupancyData);
         void onFailure(String error);
     }
 
@@ -550,5 +556,158 @@ public class MarPromApiClient {
             }
         }
         return -1;
+    }
+
+    public void fetchOccupancyData(int lineId, String date, OccupancyCallback callback) {
+        Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.GET);
+        String url = Constants.MARPROM_API_OCCUPANCY + lineId + "/date/" + date;
+        request.setUrl(url);
+        request.setTimeOut(Constants.API_TIMEOUT_MS);
+
+        Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
+            @Override
+            public void handleHttpResponse(Net.HttpResponse httpResponse) {
+                int statusCode = httpResponse.getStatus().getStatusCode();
+
+                if (statusCode == HttpStatus.SC_OK) {
+                    String responseJson = httpResponse.getResultAsString();
+
+                    try {
+                        List<OccupancyData> occupancyData = parseOccupancyResponse(responseJson, lineId, date);
+                        callback.onSuccess(occupancyData);
+                    } catch (Exception e) {
+                        callback.onFailure("Failed to parse occupancy response: " + e.getMessage());
+                    }
+                } else {
+                    callback.onFailure("HTTP error: " + statusCode);
+                }
+            }
+
+            @Override
+            public void failed(Throwable t) {
+                callback.onFailure("Network request failed: " + t.getMessage());
+            }
+
+            @Override
+            public void cancelled() {
+                callback.onFailure("Request was cancelled");
+            }
+        });
+    }
+
+    private List<OccupancyData> parseOccupancyResponse(String json, int lineId, String date) {
+        List<OccupancyData> occupancyList = new ArrayList<>();
+
+        try {
+            int dataStart = json.indexOf("[", json.indexOf("\"data\""));
+            int dataEnd = json.lastIndexOf("]");
+
+            if (dataStart == -1 || dataEnd == -1) {
+                throw new RuntimeException("Invalid JSON: no data array found");
+            }
+
+            String dataContent = json.substring(dataStart + 1, dataEnd);
+
+            if (dataContent.trim().isEmpty()) {
+                return occupancyList;
+            }
+
+            int objectStart = 0;
+            int braceCount = 0;
+            boolean inString = false;
+            char prevChar = ' ';
+
+            for (int i = 0; i < dataContent.length(); i++) {
+                char c = dataContent.charAt(i);
+
+                if (c == '"' && prevChar != '\\') {
+                    inString = !inString;
+                }
+
+                if (!inString) {
+                    if (c == '{') {
+                        if (braceCount == 0) {
+                            objectStart = i;
+                        }
+                        braceCount++;
+                    } else if (c == '}') {
+                        braceCount--;
+                        if (braceCount == 0) {
+                            String objectJson = dataContent.substring(objectStart, i + 1);
+                            OccupancyData data = parseOccupancyObject(objectJson, lineId, date);
+                            if (data != null) {
+                                occupancyList.add(data);
+                            }
+                        }
+                    }
+                }
+
+                prevChar = c;
+            }
+
+        } catch (Exception e) {
+            Gdx.app.error("MarPromApiClient", "Error parsing occupancy response: " + e.getMessage());
+        }
+
+        return occupancyList;
+    }
+
+    private OccupancyData parseOccupancyObject(String json, int lineId, String date) {
+        try {
+            OccupancyData data = new OccupancyData();
+            data.setLineId(lineId);
+            data.setDate(date);
+
+            int hourStart = json.indexOf("\"hour\"");
+            if (hourStart != -1) {
+                int colonIndex = json.indexOf(":", hourStart);
+                int commaIndex = json.indexOf(",", colonIndex);
+                if (commaIndex == -1) commaIndex = json.indexOf("}", colonIndex);
+                String hourValue = json.substring(colonIndex + 1, commaIndex).trim();
+                data.setHour(Integer.parseInt(hourValue));
+            }
+
+            int minuteStart = json.indexOf("\"minute\"");
+            if (minuteStart != -1) {
+                int colonIndex = json.indexOf(":", minuteStart);
+                int commaIndex = json.indexOf(",", colonIndex);
+                if (commaIndex == -1) commaIndex = json.indexOf("}", colonIndex);
+                String minuteValue = json.substring(colonIndex + 1, commaIndex).trim();
+                data.setMinute(Integer.parseInt(minuteValue));
+            }
+
+            int occupancyStart = json.indexOf("\"occupancy_percent\"");
+            if (occupancyStart != -1) {
+                int colonIndex = json.indexOf(":", occupancyStart);
+                int commaIndex = json.indexOf(",", colonIndex);
+                if (commaIndex == -1) commaIndex = json.indexOf("}", colonIndex);
+                String occupancyValue = json.substring(colonIndex + 1, commaIndex).trim();
+                data.setOccupancyPercent(Float.parseFloat(occupancyValue));
+            }
+
+            int passengerStart = json.indexOf("\"passenger_count\"");
+            if (passengerStart != -1) {
+                int colonIndex = json.indexOf(":", passengerStart);
+                int commaIndex = json.indexOf(",", colonIndex);
+                if (commaIndex == -1) commaIndex = json.indexOf("}", colonIndex);
+                String passengerValue = json.substring(colonIndex + 1, commaIndex).trim();
+                data.setPassengerCount(Integer.parseInt(passengerValue));
+            }
+
+            int capacityStart = json.indexOf("\"capacity\"");
+            if (capacityStart != -1) {
+                int colonIndex = json.indexOf(":", capacityStart);
+                int commaIndex = json.indexOf(",", colonIndex);
+                if (commaIndex == -1) commaIndex = json.indexOf("}", colonIndex);
+                String capacityValue = json.substring(colonIndex + 1, commaIndex).trim();
+                data.setCapacity(Integer.parseInt(capacityValue));
+            }
+
+            return data;
+
+        } catch (Exception e) {
+            Gdx.app.error("MarPromApiClient", "Error parsing occupancy object: " + e.getMessage());
+            return null;
+        }
     }
 }

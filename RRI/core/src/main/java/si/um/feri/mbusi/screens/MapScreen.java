@@ -86,6 +86,9 @@ public class MapScreen extends InputAdapter implements Screen {
     private Vector2 currentBusLocation = null;
     private boolean busLocationConnected = false;
 
+    private si.um.feri.mbusi.services.simulation.OccupancySimulationService occupancySimulation = null;
+    private boolean loadingOccupancyData = false;
+
     public MapScreen() {
         this.currentZoom = Constants.DEFAULT_ZOOM;
         this.centerLatLon = new Vector2((float) Constants.MARIBOR_CENTER_LAT, (float) Constants.MARIBOR_CENTER_LON);
@@ -212,10 +215,29 @@ public class MapScreen extends InputAdapter implements Screen {
 
         if (dataLoaded && !busRoutes.isEmpty()) {
             busLineRenderer.update(delta);
+
+            if (occupancySimulation != null && selectedLine != null) {
+                occupancySimulation.update(delta);
+            }
+
             List<BusRoute> linesToRender = selectedLine != null ?
                 java.util.Collections.singletonList(selectedLine) : busRoutes;
-            busLineRenderer.render(linesToRender, camera,
-                centerLatLon.x, centerLatLon.y, currentZoom, selectedLine);
+
+            if (occupancySimulation != null && selectedLine != null && occupancySimulation.hasData()) {
+                float occupancy = occupancySimulation.getCurrentOccupancy();
+                busLineRenderer.renderWithOccupancy(
+                    linesToRender,
+                    camera,
+                    centerLatLon.x,
+                    centerLatLon.y,
+                    currentZoom,
+                    selectedLine,
+                    occupancy
+                );
+            } else {
+                busLineRenderer.render(linesToRender, camera,
+                    centerLatLon.x, centerLatLon.y, currentZoom, selectedLine);
+            }
         }
 
         if (dataLoaded) {
@@ -235,11 +257,21 @@ public class MapScreen extends InputAdapter implements Screen {
         if (useModernUI) {
             modernOverlay.update(delta);
             modernOverlay.setStats(tilesRendered, tileCache.getStats());
-            
+
             List<Station> stationsToDisplay = selectedLine != null ? selectedLineStations : allStations;
             modernOverlay.render(centerLatLon.x, centerLatLon.y, currentZoom,
                 busRoutes, stationsToDisplay, selectedLine, dataLoaded, loadingData, loadingStatus,
                 selectedStation, loadingStationDetails);
+
+            if (occupancySimulation != null && occupancySimulation.hasData()) {
+                String time = occupancySimulation.getCurrentTimeFormatted();
+                boolean playing = occupancySimulation.isPlaying();
+                float occupancy = occupancySimulation.getCurrentOccupancy();
+                modernOverlay.renderSimulationControls(time, playing, occupancy);
+
+                float timeSeconds = occupancySimulation.getCurrentTimeSeconds();
+                modernOverlay.setTimeSliderValue(timeSeconds / 86400f);
+            }
         } else {
             renderUI(delta);
         }
@@ -397,6 +429,13 @@ public class MapScreen extends InputAdapter implements Screen {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        if (modernOverlay.isTimeSliderArea(screenX, screenY) && occupancySimulation != null) {
+            modernOverlay.setTimeSliderDragging(true);
+            float sliderValue = modernOverlay.getTimeSliderValue(screenX);
+            occupancySimulation.setTime(sliderValue * 86400f);
+            return true;
+        }
+
         dragging = true;
         lastDragPosition.set(screenX, screenY);
         return true;
@@ -404,6 +443,15 @@ public class MapScreen extends InputAdapter implements Screen {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        if (modernOverlay.isPlayButtonArea(screenX, screenY) && occupancySimulation != null) {
+            occupancySimulation.togglePlayPause();
+            modernOverlay.setTimeSliderDragging(false);
+            dragging = false;
+            return true;
+        }
+
+        modernOverlay.setTimeSliderDragging(false);
+
         float dragDistance = Vector2.dst(screenX, screenY, lastDragPosition.x, lastDragPosition.y);
         if (dragDistance < 5f && dataLoaded) {
             if (selectedStation != null || loadingStationDetails) {
@@ -468,6 +516,7 @@ public class MapScreen extends InputAdapter implements Screen {
 
         modernOverlay.setStationScrollOffset(stationListScrollOffset);
         connectBusLocationWebSocket(line.getLineId());
+        loadOccupancyDataForLine(line);
     }
 
     private void deselectLine() {
@@ -477,6 +526,11 @@ public class MapScreen extends InputAdapter implements Screen {
         stationListScrollOffset = 0f;
         modernOverlay.setStationScrollOffset(stationListScrollOffset);
         deselectStation();
+
+        modernOverlay.setSimulationControlsVisible(false);
+        if (occupancySimulation != null) {
+            occupancySimulation.pause();
+        }
     }
 
     private void selectStation(Station station) {
@@ -516,6 +570,104 @@ public class MapScreen extends InputAdapter implements Screen {
     private void deselectStation() {
         selectedStation = null;
         modernOverlay.setStationDetailsVisible(false);
+    }
+
+    private void loadOccupancyDataForLine(BusRoute line) {
+        loadingOccupancyData = true;
+        String today = getCurrentDateString();
+
+        if (occupancySimulation == null) {
+            occupancySimulation = new si.um.feri.mbusi.services.simulation.OccupancySimulationService();
+        }
+
+        modernOverlay.setSimulationControlsVisible(true);
+        modernOverlay.setSelectedDate(today);
+
+        apiClient.fetchOccupancyData(line.getLineId(), today,
+            new MarPromApiClient.OccupancyCallback() {
+                @Override
+                public void onSuccess(List<si.um.feri.mbusi.models.OccupancyData> data) {
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            occupancySimulation.setOccupancyData(data, line.getLineId(), today);
+                            loadingOccupancyData = false;
+                            Gdx.app.log("MapScreen", "Loaded " + data.size() + " occupancy data points");
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadingOccupancyData = false;
+                            Gdx.app.log("MapScreen", "API unavailable, generating mock data");
+
+                            List<si.um.feri.mbusi.models.OccupancyData> mockData = generateMockOccupancyData(line.getLineId(), today);
+                            occupancySimulation.setOccupancyData(mockData, line.getLineId(), today);
+                            Gdx.app.log("MapScreen", "Generated " + mockData.size() + " data points");
+                        }
+                    });
+                }
+            });
+    }
+
+    private String getCurrentDateString() {
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(new java.util.Date());
+    }
+
+    private List<si.um.feri.mbusi.models.OccupancyData> generateMockOccupancyData(int lineId, String date) {
+        List<si.um.feri.mbusi.models.OccupancyData> mockData = new ArrayList<>();
+        java.util.Random random = new java.util.Random(lineId);
+
+        int capacity = 50 + random.nextInt(30);
+
+        for (int hour = 0; hour < 24; hour++) {
+            float baseOccupancy = getBaseOccupancyForHour(hour);
+            float randomVariation = (random.nextFloat() - 0.5f) * 20f;
+            float occupancyPercent = Math.max(0f, Math.min(100f, baseOccupancy + randomVariation));
+
+            int passengerCount = (int) (capacity * occupancyPercent / 100f);
+
+            si.um.feri.mbusi.models.OccupancyData data = new si.um.feri.mbusi.models.OccupancyData();
+            data.setLineId(lineId);
+            data.setDate(date);
+            data.setHour(hour);
+            data.setMinute(0);
+            data.setOccupancyPercent(occupancyPercent);
+            data.setPassengerCount(passengerCount);
+            data.setCapacity(capacity);
+
+            mockData.add(data);
+        }
+
+        return mockData;
+    }
+
+    private float getBaseOccupancyForHour(int hour) {
+        if (hour >= 0 && hour < 5) {
+            return 5f + (float) Math.random() * 10f;
+        } else if (hour >= 5 && hour < 7) {
+            return 20f + (hour - 5) * 15f;
+        } else if (hour >= 7 && hour < 9) {
+            return 65f + (float) Math.random() * 25f;
+        } else if (hour >= 9 && hour < 12) {
+            return 35f + (float) Math.random() * 15f;
+        } else if (hour >= 12 && hour < 14) {
+            return 50f + (float) Math.random() * 15f;
+        } else if (hour >= 14 && hour < 16) {
+            return 30f + (float) Math.random() * 20f;
+        } else if (hour >= 16 && hour < 19) {
+            return 70f + (float) Math.random() * 25f;
+        } else if (hour >= 19 && hour < 22) {
+            float factor = (22 - hour) / 3f;
+            return 25f + factor * 20f;
+        } else {
+            return 10f + (float) Math.random() * 10f;
+        }
     }
 
     private void connectBusLocationWebSocket(int lineId) {
@@ -688,6 +840,12 @@ public class MapScreen extends InputAdapter implements Screen {
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
+        if (modernOverlay.isTimeSliderArea(screenX, screenY) && occupancySimulation != null) {
+            float sliderValue = modernOverlay.getTimeSliderValue(screenX);
+            occupancySimulation.setTime(sliderValue * 86400f);
+            return true;
+        }
+
         if (dragging) {
             float deltaX = (screenX - lastDragPosition.x) * DRAG_SENSITIVITY;
             float deltaY = (screenY - lastDragPosition.y) * DRAG_SENSITIVITY;

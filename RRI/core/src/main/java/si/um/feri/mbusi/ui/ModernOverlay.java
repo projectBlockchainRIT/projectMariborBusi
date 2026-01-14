@@ -53,6 +53,12 @@ public class ModernOverlay implements Disposable {
     private static final float RIGHT_PANEL_HIDE_DELAY = 0.5f;
     private float rightPanelHideTimer = 0f;
 
+    private boolean simulationControlsVisible = false;
+    private float simulationControlsSlide = 0f;
+    private boolean timeSliderDragging = false;
+    private float timeSliderValue = 0.5f;
+    private String selectedDate = "";
+
     public ModernOverlay() {
         uiRenderer = new UIRenderer();
         uiCamera = new OrthographicCamera();
@@ -96,6 +102,9 @@ public class ModernOverlay implements Disposable {
 
         float stationDetailsTarget = stationDetailsVisible ? 1f : 0f;
         stationDetailsPanelSlide = MathUtils.lerp(stationDetailsPanelSlide, stationDetailsTarget, delta * PANEL_SLIDE_SPEED);
+
+        float simulationTarget = simulationControlsVisible ? 1f : 0f;
+        simulationControlsSlide = MathUtils.lerp(simulationControlsSlide, simulationTarget, delta * PANEL_SLIDE_SPEED);
     }
 
     public void setStationDetailsVisible(boolean visible) {
@@ -165,6 +174,22 @@ public class ModernOverlay implements Disposable {
             drawStationDetailsPanelLoading(batch);
         }
         drawMiniStatsText(batch);
+        uiRenderer.endText();
+    }
+
+    public void renderSimulationControls(String time, boolean playing, float occupancyPercent) {
+        ShapeRenderer shapes = uiRenderer.getShapeRenderer();
+        SpriteBatch batch = uiRenderer.getBatch();
+
+        shapes.setProjectionMatrix(uiCamera.combined);
+        batch.setProjectionMatrix(uiCamera.combined);
+
+        uiRenderer.beginShapes();
+        drawSimulationControls(shapes);
+        uiRenderer.endShapes();
+
+        uiRenderer.beginText();
+        drawSimulationControlsText(batch, time, playing, occupancyPercent);
         uiRenderer.endText();
     }
 
@@ -1051,6 +1076,177 @@ public class ModernOverlay implements Disposable {
 
         return screenX >= panelX && screenX <= panelX + panelWidth &&
                renderY >= panelY && renderY <= panelY + panelHeight;
+    }
+
+    private void drawSimulationControls(ShapeRenderer shapes) {
+        if (simulationControlsSlide < 0.01f) return;
+
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float panelWidth = 480;
+        float panelHeight = 140;
+        float panelX = screenWidth - panelWidth - DesignSystem.SPACE_MD;
+        float panelY = DesignSystem.SPACE_MD + DesignSystem.FOOTER_HEIGHT + DesignSystem.SPACE_MD + 10;
+
+        float slideOffset = (1f - simulationControlsSlide) * (panelWidth + DesignSystem.SPACE_MD);
+        panelX += slideOffset;
+
+        uiRenderer.drawRoundedRect(
+            panelX,
+            panelY,
+            panelWidth,
+            panelHeight,
+            DesignSystem.RADIUS_LG,
+            DesignSystem.SURFACE_GLASS
+        );
+
+        float playButtonX = panelX + DesignSystem.SPACE_MD + 20;
+        float playButtonY = panelY + 50 + 20;
+        shapes.set(ShapeRenderer.ShapeType.Filled);
+        shapes.setColor(DesignSystem.ACCENT_PRIMARY);
+        shapes.circle(playButtonX, playButtonY, 20);
+
+        float sliderX = playButtonX + 40 + DesignSystem.SPACE_MD;
+        float sliderY = playButtonY;
+        float sliderWidth = panelWidth - (playButtonX - panelX) - 40 - DesignSystem.SPACE_MD * 3;
+        float sliderHeight = 4;
+
+        shapes.setColor(new Color(1f, 1f, 1f, 0.2f));
+        uiRenderer.drawRoundedRect(sliderX, sliderY - sliderHeight / 2, sliderWidth, sliderHeight, 2, new Color(1f, 1f, 1f, 0.2f));
+
+        float progressWidth = sliderWidth * timeSliderValue;
+        shapes.setColor(DesignSystem.ACCENT_PRIMARY);
+        uiRenderer.drawRoundedRect(sliderX, sliderY - sliderHeight / 2, progressWidth, sliderHeight, 2, DesignSystem.ACCENT_PRIMARY);
+
+        float handleX = sliderX + progressWidth;
+        shapes.setColor(Color.WHITE);
+        shapes.circle(handleX, sliderY, 8);
+    }
+
+    private void drawSimulationControlsText(SpriteBatch batch, String time, boolean playing, float occupancyPercent) {
+        if (simulationControlsSlide < 0.01f) return;
+
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float panelWidth = 480;
+        float panelHeight = 140;
+        float panelX = screenWidth - panelWidth - DesignSystem.SPACE_MD;
+        float panelY = DesignSystem.SPACE_MD + DesignSystem.FOOTER_HEIGHT + DesignSystem.SPACE_MD + 10;
+
+        float slideOffset = (1f - simulationControlsSlide) * (panelWidth + DesignSystem.SPACE_MD);
+        panelX += slideOffset;
+
+        uiRenderer.drawTextMedium("OCCUPANCY SIMULATION",
+            panelX + DesignSystem.SPACE_MD,
+            panelY + panelHeight - DesignSystem.SPACE_MD - 5,
+            DesignSystem.TEXT_PRIMARY);
+
+        float playButtonX = panelX + DesignSystem.SPACE_MD + 20;
+        float playButtonY = panelY + 50 + 20;
+
+        float timeX = panelX + panelWidth - DesignSystem.SPACE_MD - 60;
+        float timeY = playButtonY + 5;
+        uiRenderer.drawTextMedium(time,
+            timeX,
+            timeY,
+            DesignSystem.TEXT_PRIMARY);
+
+        if (occupancyPercent > 0) {
+            String occupancyText = String.format("%.0f%% occupied", occupancyPercent);
+            uiRenderer.drawTextSmall(occupancyText,
+                panelX + DesignSystem.SPACE_MD,
+                panelY + DesignSystem.SPACE_MD + 5,
+                DesignSystem.TEXT_SECONDARY);
+        }
+
+        if (!selectedDate.isEmpty()) {
+            uiRenderer.drawTextSmall(selectedDate,
+                panelX + DesignSystem.SPACE_MD,
+                panelY + 30,
+                DesignSystem.TEXT_SECONDARY);
+        }
+    }
+
+    public boolean isPlayButtonArea(float screenX, float screenY) {
+        if (simulationControlsSlide < 0.5f) return false;
+
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float panelWidth = 480;
+        float panelX = screenWidth - panelWidth - DesignSystem.SPACE_MD;
+        float panelY = DesignSystem.SPACE_MD + DesignSystem.FOOTER_HEIGHT + DesignSystem.SPACE_MD + 10;
+
+        float slideOffset = (1f - simulationControlsSlide) * (panelWidth + DesignSystem.SPACE_MD);
+        panelX += slideOffset;
+
+        float playButtonX = panelX + DesignSystem.SPACE_MD + 20;
+        float playButtonY = panelY + 50 + 20;
+
+        float renderY = screenHeight - screenY;
+
+        float dx = screenX - playButtonX;
+        float dy = renderY - playButtonY;
+        return (dx * dx + dy * dy) <= (20 * 20);
+    }
+
+    public float getTimeSliderValue(float screenX) {
+        float screenWidth = Gdx.graphics.getWidth();
+
+        float panelWidth = 480;
+        float panelX = screenWidth - panelWidth - DesignSystem.SPACE_MD;
+
+        float slideOffset = (1f - simulationControlsSlide) * (panelWidth + DesignSystem.SPACE_MD);
+        panelX += slideOffset;
+
+        float playButtonX = panelX + DesignSystem.SPACE_MD + 20;
+        float sliderX = playButtonX + 40 + DesignSystem.SPACE_MD;
+        float sliderWidth = panelWidth - (playButtonX - panelX) - 40 - DesignSystem.SPACE_MD * 3;
+
+        float value = (screenX - sliderX) / sliderWidth;
+        return MathUtils.clamp(value, 0f, 1f);
+    }
+
+    public boolean isTimeSliderArea(float screenX, float screenY) {
+        if (simulationControlsSlide < 0.5f) return false;
+
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float panelWidth = 480;
+        float panelX = screenWidth - panelWidth - DesignSystem.SPACE_MD;
+        float panelY = DesignSystem.SPACE_MD + DesignSystem.FOOTER_HEIGHT + DesignSystem.SPACE_MD + 10;
+
+        float slideOffset = (1f - simulationControlsSlide) * (panelWidth + DesignSystem.SPACE_MD);
+        panelX += slideOffset;
+
+        float playButtonX = panelX + DesignSystem.SPACE_MD + 20;
+        float sliderX = playButtonX + 40 + DesignSystem.SPACE_MD;
+        float sliderY = panelY + 50 + 20;
+        float sliderWidth = panelWidth - (playButtonX - panelX) - 40 - DesignSystem.SPACE_MD * 3;
+
+        float renderY = screenHeight - screenY;
+
+        return screenX >= sliderX && screenX <= sliderX + sliderWidth &&
+               Math.abs(renderY - sliderY) <= 15;
+    }
+
+    public void setSimulationControlsVisible(boolean visible) {
+        this.simulationControlsVisible = visible;
+    }
+
+    public void setTimeSliderDragging(boolean dragging) {
+        this.timeSliderDragging = dragging;
+    }
+
+    public void setTimeSliderValue(float value) {
+        this.timeSliderValue = MathUtils.clamp(value, 0f, 1f);
+    }
+
+    public void setSelectedDate(String date) {
+        this.selectedDate = date;
     }
 
     public void resize(int width, int height) {

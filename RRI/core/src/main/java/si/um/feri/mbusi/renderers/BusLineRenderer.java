@@ -89,6 +89,89 @@ public class BusLineRenderer {
         Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 
+    public void renderWithOccupancy(List<BusRoute> routes, OrthographicCamera camera,
+                                   float centerLat, float centerLon, int zoom,
+                                   BusRoute selectedLine, float occupancyPercent) {
+        if (routes == null || routes.isEmpty()) return;
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+        shapeRenderer.setProjectionMatrix(camera.combined);
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        for (BusRoute route : routes) {
+            renderRouteOutlineWithOccupancy(route, centerLat, centerLon, zoom, camera, occupancyPercent);
+        }
+        shapeRenderer.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        for (BusRoute route : routes) {
+            renderRouteLineWithOccupancy(route, centerLat, centerLon, zoom, camera, occupancyPercent);
+        }
+        shapeRenderer.end();
+
+        if (selectedLine != null) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            renderRouteArrows(selectedLine, centerLat, centerLon, zoom, camera);
+            shapeRenderer.end();
+        }
+
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
+
+    private void renderRouteOutlineWithOccupancy(BusRoute route, float centerLat, float centerLon,
+                                                 int zoom, OrthographicCamera camera, float occupancyPercent) {
+        List<double[]> path = route.getPath();
+        if (path == null || path.size() < 2) return;
+
+        Color outlineColor = new Color(0.15f, 0.15f, 0.15f, 0.5f);
+        shapeRenderer.setColor(outlineColor);
+
+        float baseLineWidth = getLineWidthForZoom(zoom);
+        float widthMultiplier = getOccupancyLineWidth(occupancyPercent);
+        float lineWidth = baseLineWidth * widthMultiplier + 2f;
+
+        for (int i = 0; i < path.size() - 1; i++) {
+            double[] p1 = path.get(i);
+            double[] p2 = path.get(i + 1);
+
+            Vector2 screen1 = GeoUtils.latLonToScreenPosition(
+                p1[0], p1[1], centerLat, centerLon, zoom, Constants.TILE_SIZE);
+            Vector2 screen2 = GeoUtils.latLonToScreenPosition(
+                p2[0], p2[1], centerLat, centerLon, zoom, Constants.TILE_SIZE);
+
+            drawThickLine(screen1.x, screen1.y, screen2.x, screen2.y, lineWidth);
+        }
+    }
+
+    private void renderRouteLineWithOccupancy(BusRoute route, float centerLat, float centerLon,
+                                             int zoom, OrthographicCamera camera, float occupancyPercent) {
+        List<double[]> path = route.getPath();
+        if (path == null || path.size() < 2) return;
+
+        assignColor(route);
+        Color baseColor = route.getColor();
+        Color lineColor = getOccupancyColor(baseColor, occupancyPercent);
+        shapeRenderer.setColor(lineColor);
+
+        float baseLineWidth = getLineWidthForZoom(zoom);
+        float widthMultiplier = getOccupancyLineWidth(occupancyPercent);
+        float lineWidth = baseLineWidth * widthMultiplier;
+
+        for (int i = 0; i < path.size() - 1; i++) {
+            double[] p1 = path.get(i);
+            double[] p2 = path.get(i + 1);
+
+            Vector2 screen1 = GeoUtils.latLonToScreenPosition(
+                p1[0], p1[1], centerLat, centerLon, zoom, Constants.TILE_SIZE);
+            Vector2 screen2 = GeoUtils.latLonToScreenPosition(
+                p2[0], p2[1], centerLat, centerLon, zoom, Constants.TILE_SIZE);
+
+            drawThickLine(screen1.x, screen1.y, screen2.x, screen2.y, lineWidth);
+        }
+    }
+
     private void renderRouteOutline(BusRoute route, float centerLat, float centerLon,
                                     int zoom, OrthographicCamera camera) {
         List<double[]> path = route.getPath();
@@ -229,6 +312,39 @@ public class BusLineRenderer {
         if (zoom <= 14) return 3f;
         if (zoom <= 16) return 4f;
         return 5f;
+    }
+
+    private Color getOccupancyColor(Color baseColor, float occupancyPercent) {
+        if (occupancyPercent <= 0.0f) return baseColor;
+
+        if (occupancyPercent < 40.0f) {
+            float t = occupancyPercent / 40.0f;
+            return lerpColor(DesignSystem.SUCCESS, DesignSystem.WARNING, t);
+        } else if (occupancyPercent < 75.0f) {
+            float t = (occupancyPercent - 40.0f) / 35.0f;
+            return lerpColor(DesignSystem.WARNING, DesignSystem.ERROR, t);
+        } else {
+            return DesignSystem.ERROR;
+        }
+    }
+
+    private float getOccupancyLineWidth(float occupancyPercent) {
+        if (occupancyPercent <= 0.0f) return 1.0f;
+
+        float minMultiplier = 0.625f;
+        float maxMultiplier = 1.375f;
+        float t = occupancyPercent / 100.0f;
+        return minMultiplier + (maxMultiplier - minMultiplier) * t;
+    }
+
+    private Color lerpColor(Color a, Color b, float t) {
+        t = Math.max(0f, Math.min(1f, t));
+        return new Color(
+            a.r + (b.r - a.r) * t,
+            a.g + (b.g - a.g) * t,
+            a.b + (b.b - a.b) * t,
+            a.a + (b.a - a.a) * t
+        );
     }
 
     public void dispose() {

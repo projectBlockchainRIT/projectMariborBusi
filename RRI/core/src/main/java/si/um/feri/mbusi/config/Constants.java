@@ -37,6 +37,7 @@ public class Constants {
     public static final String MARPROM_API_ROUTES = MARPROM_API_BASE_URL + "/v1/routes/list";
     public static final String MARPROM_API_STATIONS = MARPROM_API_BASE_URL + "/v1/routes/stations/";
     public static final String MARPROM_API_STATION_DETAILS = MARPROM_API_BASE_URL + "/v1/stations/";
+    public static final String MARPROM_API_OCCUPANCY = MARPROM_API_BASE_URL + "/occupancy/line/";
     public static final int API_TIMEOUT_MS = 5000;
 
     private Constants() {
