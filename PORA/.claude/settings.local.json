@@ -14,7 +14,8 @@
       "Bash(\"$PROJ_DIR/gradlew\" -p \"$PROJ_DIR\" assembleDebug)",
       "Bash(java:*)",
       "Bash(bash ./gradlew:*)",
-      "Bash(./gradlew clean:*)"
+      "Bash(./gradlew clean:*)",
+      "Bash(./gradlew compileDebugKotlin:*)"
     ]
   }
 }

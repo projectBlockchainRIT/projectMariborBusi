@@ -18,7 +18,7 @@ class DelayRepository {
     suspend fun submitDelay(
         userId: Int,
         stopId: Int,
-        lineId: Int,
+        lineId: String,
         delayMinutes: Int
     ): Resource<DelayResponse> = withContext(Dispatchers.IO) {
         try {

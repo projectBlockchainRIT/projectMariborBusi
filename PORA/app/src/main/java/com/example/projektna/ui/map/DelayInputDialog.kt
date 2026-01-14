@@ -27,7 +27,7 @@ class DelayInputDialog : DialogFragment() {
 
     private var busStop: BusStop? = null
     private var availableLines: List<DepartureGroup> = emptyList()
-    private var selectedLineId: Int? = null
+    private var selectedLineId: String? = null
     private var userLatitude: Double? = null
     private var userLongitude: Double? = null
 
@@ -74,13 +74,13 @@ class DelayInputDialog : DialogFragment() {
             binding.autoCompleteLine.setAdapter(adapter)
 
             binding.autoCompleteLine.setOnItemClickListener { _, _, position, _ ->
-                selectedLineId = availableLines.getOrNull(position)?.line?.toIntOrNull()
+                selectedLineId = availableLines.getOrNull(position)?.line
             }
 
             // Pre-select first line
             if (lineNames.isNotEmpty()) {
                 binding.autoCompleteLine.setText(lineNames[0], false)
-                selectedLineId = availableLines[0].line.toIntOrNull()
+                selectedLineId = availableLines[0].line
             }
         } else {
             binding.textInputLayoutLine.hint = getString(R.string.no_lines_available)

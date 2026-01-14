@@ -241,6 +241,15 @@
     <string name="simulation_pick_on_map">Izberi na zemljevidu</string>
     <string name="simulation_start">Zaženi simulacijo</string>
     <string name="simulation_stop">Ustavi simulacijo</string>
+    <string name="simulation_follow_route">Sledi avtobusni liniji</string>
+    <string name="simulation_select_route">Izberi linijo</string>
+    <string name="simulation_no_routes">Ni razpoložljivih linij</string>
+    <string name="simulation_loading_routes">Nalaganje linij…</string>
+    <string name="simulation_route_selected">Izbrana linija: %s</string>
+    <string name="simulation_current_position">Trenutna pozicija</string>
+    <string name="simulation_position_format">Lat: %1$.5f\nLon: %2$.5f</string>
+    <string name="simulation_route_progress">Točka %1$d / %2$d</string>
+    <string name="simulation_no_route_selected">Ni izbrane linije</string>
     <string name="simulation_notification_channel_name">Simulacija</string>
     <string name="simulation_notification_channel_description">Obvestila za simulirani način</string>
     <string name="simulation_notification_title">Simulacija aktivna</string>

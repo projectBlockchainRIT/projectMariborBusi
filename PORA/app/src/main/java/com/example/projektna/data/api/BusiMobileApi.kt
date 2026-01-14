@@ -63,14 +63,16 @@ interface BusiMobileApi {
     /**
      * Pošlje simulirane GPS podatke na strežnik.
      * PLACEHOLDER pot: /v1/simulation/gps
+     * Backend vrne samo HTTP 200 brez body-ja.
      */
     @POST("simulation/gps")
-    suspend fun submitSimulatedGps(@Body gpsData: SimulatedGpsRequest): Response<SimulationResponse>
+    suspend fun submitSimulatedGps(@Body gpsData: SimulatedGpsRequest): Response<Unit>
 
     /**
      * Pošlje simulirane hitrostne podatke na strežnik.
      * PLACEHOLDER pot: /v1/simulation/speed
+     * Backend vrne samo HTTP 200 brez body-ja.
      */
     @POST("simulation/speed")
-    suspend fun submitSimulatedSpeed(@Body speedData: SimulatedSpeedRequest): Response<SimulationResponse>
+    suspend fun submitSimulatedSpeed(@Body speedData: SimulatedSpeedRequest): Response<Unit>
 }

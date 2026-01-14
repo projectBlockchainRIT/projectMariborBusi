@@ -50,7 +50,7 @@ class EventsViewModel : ViewModel() {
     fun submitDelay(
         userId: Int,
         stopId: Int,
-        lineId: Int,
+        lineId: String,
         delayMinutes: Int
     ) {
         viewModelScope.launch {

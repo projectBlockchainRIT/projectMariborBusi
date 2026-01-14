@@ -98,7 +98,7 @@ class EventsFragment : Fragment() {
         viewModel.submitDelay(
             userId = userId,
             stopId = stop.id.toInt(),
-            lineId = route.lineId.toInt(),
+            lineId = route.lineId.toString(),
             delayMinutes = delayMinutes
         )
     }

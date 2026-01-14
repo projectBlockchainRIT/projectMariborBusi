@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,24 +18,38 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.projektna.R
 import com.example.projektna.data.PreferencesManager
 import com.example.projektna.data.SimulationSensorType
+import com.example.projektna.data.api.model.BusRoute
+import com.example.projektna.data.repository.BusRouteRepository
 import com.example.projektna.services.SimulationService
+import com.example.projektna.util.Resource
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.slider.Slider
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.launch
+import org.json.JSONArray
 
 class SettingsFragment : Fragment() {
 
+    companion object {
+        private const val TAG = "SettingsFragment"
+    }
+
     private lateinit var preferencesManager: PreferencesManager
+    private val busRouteRepository = BusRouteRepository()
+    private var availableRoutes: List<BusRoute> = emptyList()
 
     // Account views
+    private lateinit var textUserUsername: TextView
     private lateinit var textUserEmail: TextView
     private lateinit var btnLogout: MaterialButton
 
@@ -74,6 +89,14 @@ class SettingsFragment : Fragment() {
     private lateinit var btnPickOnMap: MaterialButton
     private lateinit var btnStartSimulation: MaterialButton
 
+    // Route following views
+    private lateinit var checkboxFollowRoute: MaterialCheckBox
+    private lateinit var layoutRouteSelection: LinearLayout
+    private lateinit var dropdownRoute: AutoCompleteTextView
+    private lateinit var cardCurrentPosition: MaterialCardView
+    private lateinit var textCurrentCoordinates: TextView
+    private lateinit var textRouteProgress: TextView
+
     private val sensorTypes = listOf(
         SimulationSensorType.GPS,
         SimulationSensorType.SPEED
@@ -89,6 +112,19 @@ class SettingsFragment : Fragment() {
                         Snackbar.make(v, message, Snackbar.LENGTH_SHORT).show()
                     }
                 }
+            }
+        }
+    }
+
+    private val simulationDataReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            intent?.let {
+                val latitude = it.getDoubleExtra(SimulationService.EXTRA_LATITUDE, 0.0)
+                val longitude = it.getDoubleExtra(SimulationService.EXTRA_LONGITUDE, 0.0)
+                val pathIndex = it.getIntExtra(SimulationService.EXTRA_PATH_INDEX, -1)
+                val pathTotal = it.getIntExtra(SimulationService.EXTRA_PATH_TOTAL, -1)
+
+                updateCurrentPositionDisplay(latitude, longitude, pathIndex, pathTotal)
             }
         }
     }
@@ -114,11 +150,14 @@ class SettingsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        val filter = IntentFilter(SimulationService.ACTION_SIMULATION_STATUS)
+        val statusFilter = IntentFilter(SimulationService.ACTION_SIMULATION_STATUS)
+        val dataFilter = IntentFilter(SimulationService.ACTION_SIMULATION_DATA)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requireContext().registerReceiver(simulationStatusReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            requireContext().registerReceiver(simulationStatusReceiver, statusFilter, Context.RECEIVER_NOT_EXPORTED)
+            requireContext().registerReceiver(simulationDataReceiver, dataFilter, Context.RECEIVER_NOT_EXPORTED)
         } else {
-            requireContext().registerReceiver(simulationStatusReceiver, filter)
+            requireContext().registerReceiver(simulationStatusReceiver, statusFilter)
+            requireContext().registerReceiver(simulationDataReceiver, dataFilter)
         }
         updateSimulationButtonState()
     }
@@ -130,10 +169,16 @@ class SettingsFragment : Fragment() {
         } catch (e: Exception) {
             // Receiver not registered
         }
+        try {
+            requireContext().unregisterReceiver(simulationDataReceiver)
+        } catch (e: Exception) {
+            // Receiver not registered
+        }
     }
 
     private fun setupViews(view: View) {
         // Account views
+        textUserUsername = view.findViewById(R.id.text_user_username)
         textUserEmail = view.findViewById(R.id.text_user_email)
         btnLogout = view.findViewById(R.id.btn_logout)
 
@@ -173,6 +218,14 @@ class SettingsFragment : Fragment() {
         btnPickOnMap = view.findViewById(R.id.btn_pick_on_map)
         btnStartSimulation = view.findViewById(R.id.btn_start_simulation)
 
+        // Route following views
+        checkboxFollowRoute = view.findViewById(R.id.checkbox_follow_route)
+        layoutRouteSelection = view.findViewById(R.id.layout_route_selection)
+        dropdownRoute = view.findViewById(R.id.autocomplete_route)
+        cardCurrentPosition = view.findViewById(R.id.card_current_position)
+        textCurrentCoordinates = view.findViewById(R.id.text_current_coordinates)
+        textRouteProgress = view.findViewById(R.id.text_route_progress)
+
         // Setup sensor type dropdown
         val sensorTypeLabels = sensorTypes.map { type ->
             when (type) {
@@ -186,6 +239,7 @@ class SettingsFragment : Fragment() {
 
     private fun loadSavedValues() {
         // Account values
+        textUserUsername.text = preferencesManager.userUsername ?: getString(R.string.account_no_email)
         textUserEmail.text = preferencesManager.userEmail ?: getString(R.string.account_no_email)
 
         // Existing interval values
@@ -221,6 +275,41 @@ class SettingsFragment : Fragment() {
         checkboxManualLocation.isChecked = preferencesManager.useManualLocation
         inputManualLat.setText(preferencesManager.simulationManualLat.toString())
         inputManualLon.setText(preferencesManager.simulationManualLon.toString())
+
+        // Route following values
+        checkboxFollowRoute.isChecked = preferencesManager.simulationFollowRoute
+        preferencesManager.simulationRouteName?.let { routeName ->
+            dropdownRoute.setText(routeName, false)
+        }
+
+        // Naloži shranjene koordinate za prikaz
+        loadSavedRouteCoordinates()
+    }
+
+    private fun loadSavedRouteCoordinates() {
+        val pathJson = preferencesManager.simulationRoutePath
+        if (pathJson.isNullOrEmpty()) {
+            textCurrentCoordinates.text = getString(R.string.simulation_no_route_selected)
+            textRouteProgress.visibility = View.GONE
+            return
+        }
+
+        try {
+            val jsonArray = JSONArray(pathJson)
+            if (jsonArray.length() > 0) {
+                val pathIndex = preferencesManager.simulationPathIndex.coerceIn(0, jsonArray.length() - 1)
+                val coordArray = jsonArray.getJSONArray(pathIndex)
+                if (coordArray.length() >= 2) {
+                    val lat = coordArray.getDouble(0)
+                    val lon = coordArray.getDouble(1)
+                    updateCurrentPositionDisplay(lat, lon, pathIndex, jsonArray.length())
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to load saved route coordinates", e)
+            textCurrentCoordinates.text = getString(R.string.simulation_no_route_selected)
+            textRouteProgress.visibility = View.GONE
+        }
     }
 
     private fun setupListeners() {
@@ -334,6 +423,26 @@ class SettingsFragment : Fragment() {
             }
         }
 
+        // Route following listeners
+        checkboxFollowRoute.setOnCheckedChangeListener { _, isChecked ->
+            preferencesManager.simulationFollowRoute = isChecked
+            updateRouteSelectionUI()
+            if (isChecked && availableRoutes.isEmpty()) {
+                loadRoutes()
+            }
+            // Reset route progress when toggling
+            if (isChecked) {
+                preferencesManager.resetRouteProgress()
+            }
+        }
+
+        dropdownRoute.setOnItemClickListener { _, _, position, _ ->
+            if (position in availableRoutes.indices) {
+                val selectedRoute = availableRoutes[position]
+                saveSelectedRoute(selectedRoute)
+            }
+        }
+
         btnStartSimulation.setOnClickListener {
             if (isSimulationServiceRunning()) {
                 stopSimulationService()
@@ -375,15 +484,41 @@ class SettingsFragment : Fragment() {
 
     private fun updateSensorTypeUI() {
         val sensorType = preferencesManager.simulationSensorType
+        val followRoute = preferencesManager.simulationFollowRoute
+
+        // GPS range je skrit, če sledimo liniji
+        val showGpsRange = !followRoute
+        layoutGpsRange.visibility = if (showGpsRange) View.VISIBLE else View.GONE
+
+        // Route selection je viden samo za GPS tip in ko je follow route omogočen
+        updateRouteSelectionUI()
+
         when (sensorType) {
             SimulationSensorType.GPS -> {
-                layoutGpsRange.visibility = View.VISIBLE
                 layoutSpeedRange.visibility = View.GONE
             }
             SimulationSensorType.SPEED -> {
-                layoutGpsRange.visibility = View.VISIBLE // Potrebujemo tudi GPS za hitrost
                 layoutSpeedRange.visibility = View.VISIBLE
             }
+        }
+    }
+
+    private fun updateRouteSelectionUI() {
+        val followRoute = preferencesManager.simulationFollowRoute
+        val sensorType = preferencesManager.simulationSensorType
+
+        // Route selection je viden samo ko je GPS tip in follow route je omogočen
+        val showRouteSelection = followRoute && sensorType == SimulationSensorType.GPS
+        layoutRouteSelection.visibility = if (showRouteSelection) View.VISIBLE else View.GONE
+
+        // GPS range je skrit, ko sledimo liniji
+        if (sensorType == SimulationSensorType.GPS) {
+            layoutGpsRange.visibility = if (followRoute) View.GONE else View.VISIBLE
+        }
+
+        // Če sledimo liniji in še nimamo naloženih linij, jih naložimo
+        if (showRouteSelection && availableRoutes.isEmpty()) {
+            loadRoutes()
         }
     }
 
@@ -464,5 +599,87 @@ class SettingsFragment : Fragment() {
 
         // Navigiraj na prijavo
         findNavController().navigate(R.id.action_settings_to_login)
+    }
+
+    private fun loadRoutes() {
+        dropdownRoute.setText(getString(R.string.simulation_loading_routes), false)
+        dropdownRoute.isEnabled = false
+
+        lifecycleScope.launch {
+            when (val result = busRouteRepository.getAllRoutes()) {
+                is Resource.Success -> {
+                    availableRoutes = result.data ?: emptyList()
+                    val routeNames = availableRoutes.map { it.name }
+                    val adapter = ArrayAdapter(
+                        requireContext(),
+                        android.R.layout.simple_dropdown_item_1line,
+                        routeNames
+                    )
+                    dropdownRoute.setAdapter(adapter)
+                    dropdownRoute.isEnabled = true
+
+                    // Nastavi prejšnjo izbrano linijo, če obstaja
+                    preferencesManager.simulationRouteName?.let { savedName ->
+                        if (routeNames.contains(savedName)) {
+                            dropdownRoute.setText(savedName, false)
+                        } else {
+                            dropdownRoute.setText("", false)
+                        }
+                    } ?: dropdownRoute.setText("", false)
+
+                    Log.d(TAG, "Loaded ${availableRoutes.size} routes")
+                }
+                is Resource.Error -> {
+                    Log.e(TAG, "Failed to load routes: ${result.message}")
+                    view?.let { v ->
+                        Snackbar.make(v, result.message ?: "Napaka pri nalaganju linij", Snackbar.LENGTH_SHORT).show()
+                    }
+                    dropdownRoute.setText(getString(R.string.simulation_no_routes), false)
+                    dropdownRoute.isEnabled = false
+                }
+                is Resource.Loading -> {
+                    // Already showing loading state
+                }
+            }
+        }
+    }
+
+    private fun saveSelectedRoute(route: BusRoute) {
+        preferencesManager.simulationRouteId = route.lineId
+        preferencesManager.simulationRouteName = route.name
+
+        // Serializiraj path v JSON
+        val pathJson = JSONArray().apply {
+            route.path.forEach { coord ->
+                val coordArray = JSONArray()
+                coord.forEach { coordArray.put(it) }
+                put(coordArray)
+            }
+        }.toString()
+        preferencesManager.simulationRoutePath = pathJson
+
+        // Reset progress
+        preferencesManager.resetRouteProgress()
+
+        Log.d(TAG, "Saved route: ${route.name} with ${route.path.size} coordinates")
+
+        // Posodobi prikaz
+        if (route.path.isNotEmpty()) {
+            val firstCoord = route.path[0]
+            if (firstCoord.size >= 2) {
+                updateCurrentPositionDisplay(firstCoord[0], firstCoord[1], 0, route.path.size)
+            }
+        }
+    }
+
+    private fun updateCurrentPositionDisplay(latitude: Double, longitude: Double, pathIndex: Int, pathTotal: Int) {
+        textCurrentCoordinates.text = getString(R.string.simulation_position_format, latitude, longitude)
+
+        if (pathIndex >= 0 && pathTotal > 0) {
+            textRouteProgress.visibility = View.VISIBLE
+            textRouteProgress.text = getString(R.string.simulation_route_progress, pathIndex + 1, pathTotal)
+        } else {
+            textRouteProgress.visibility = View.GONE
+        }
     }
 }

@@ -30,7 +30,8 @@ data class RegisterRequest(
 @JsonClass(generateAdapter = true)
 data class LoginData(
     @Json(name = "token") val token: String,
-    @Json(name = "id") val id: Int
+    @Json(name = "id") val id: Int,
+    @Json(name = "username") val username: String
 )
 
 /**

@@ -35,7 +35,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 preferencesManager.saveLoginData(
                     token = result.data.data.token,
                     visitorId = result.data.data.id,
-                    email = email
+                    email = email,
+                    username = result.data.data.username
                 )
             }
 

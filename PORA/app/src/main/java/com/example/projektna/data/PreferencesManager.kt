@@ -36,6 +36,14 @@ class PreferencesManager(context: Context) {
         private const val KEY_SIMULATION_MANUAL_LON = "simulation_manual_lon"
         private const val KEY_SIMULATION_USE_MANUAL_LOCATION = "simulation_use_manual_location"
 
+        // Simulation route following keys
+        private const val KEY_SIMULATION_FOLLOW_ROUTE = "simulation_follow_route"
+        private const val KEY_SIMULATION_ROUTE_ID = "simulation_route_id"
+        private const val KEY_SIMULATION_ROUTE_NAME = "simulation_route_name"
+        private const val KEY_SIMULATION_ROUTE_PATH = "simulation_route_path"
+        private const val KEY_SIMULATION_PATH_INDEX = "simulation_path_index"
+        private const val KEY_SIMULATION_ROUTE_DIRECTION = "simulation_route_direction"
+
         const val DEFAULT_ACCELEROMETER_INTERVAL = 1 // sekunde
         const val DEFAULT_GPS_INTERVAL = 5 // sekunde
         const val DEFAULT_SIMULATION_INTERVAL = 10 // sekunde
@@ -165,6 +173,39 @@ class PreferencesManager(context: Context) {
     var useManualLocation: Boolean
         get() = prefs.getBoolean(KEY_SIMULATION_USE_MANUAL_LOCATION, false)
         set(value) = prefs.edit().putBoolean(KEY_SIMULATION_USE_MANUAL_LOCATION, value).apply()
+
+    // Route following simulation properties
+    var simulationFollowRoute: Boolean
+        get() = prefs.getBoolean(KEY_SIMULATION_FOLLOW_ROUTE, false)
+        set(value) = prefs.edit().putBoolean(KEY_SIMULATION_FOLLOW_ROUTE, value).apply()
+
+    var simulationRouteId: Long
+        get() = prefs.getLong(KEY_SIMULATION_ROUTE_ID, -1L)
+        set(value) = prefs.edit().putLong(KEY_SIMULATION_ROUTE_ID, value).apply()
+
+    var simulationRouteName: String?
+        get() = prefs.getString(KEY_SIMULATION_ROUTE_NAME, null)
+        set(value) = prefs.edit().putString(KEY_SIMULATION_ROUTE_NAME, value).apply()
+
+    var simulationRoutePath: String?
+        get() = prefs.getString(KEY_SIMULATION_ROUTE_PATH, null)
+        set(value) = prefs.edit().putString(KEY_SIMULATION_ROUTE_PATH, value).apply()
+
+    var simulationPathIndex: Int
+        get() = prefs.getInt(KEY_SIMULATION_PATH_INDEX, 0)
+        set(value) = prefs.edit().putInt(KEY_SIMULATION_PATH_INDEX, value).apply()
+
+    var simulationRouteDirection: Int
+        get() = prefs.getInt(KEY_SIMULATION_ROUTE_DIRECTION, 1) // 1 = naprej, -1 = nazaj
+        set(value) = prefs.edit().putInt(KEY_SIMULATION_ROUTE_DIRECTION, value).apply()
+
+    /**
+     * Počisti podatke o poti ob koncu simulacije ali spremembi linije.
+     */
+    fun resetRouteProgress() {
+        simulationPathIndex = 0
+        simulationRouteDirection = 1
+    }
 }
 
 enum class SimulationSensorType {

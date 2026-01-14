@@ -13,7 +13,7 @@ data class DelayRequest(
     @Json(name = "date") val date: Long,
     @Json(name = "delay_min") val delayMin: Int,
     @Json(name = "stop_id") val stopId: Int,
-    @Json(name = "line_id") val lineId: Int
+    @Json(name = "line_id") val lineId: String
 )
 
 /**
