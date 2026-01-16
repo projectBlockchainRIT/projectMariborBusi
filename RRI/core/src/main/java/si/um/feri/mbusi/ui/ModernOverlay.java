@@ -13,6 +13,8 @@ import si.um.feri.mbusi.models.Arrival;
 import si.um.feri.mbusi.models.BusRoute;
 import si.um.feri.mbusi.models.Station;
 import si.um.feri.mbusi.models.StationDetails;
+import si.um.feri.mbusi.models.User;
+import si.um.feri.mbusi.services.api.MarPromApiClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +60,17 @@ public class ModernOverlay implements Disposable {
     private boolean timeSliderDragging = false;
     private float timeSliderValue = 0.5f;
     private String selectedDate = "";
+
+    private boolean loginModalVisible = false;
+    private float loginModalSlide = 0f;
+    private boolean showRegisterTab = false;
+    private String usernameInput = "";
+    private String passwordInput = "";
+    private String emailInput = "";
+    private int activeInputField = -1;
+    private String authErrorMessage = "";
+    private User currentUser = null;
+    private String authToken = null;
 
     public ModernOverlay() {
         uiRenderer = new UIRenderer();
@@ -105,6 +118,9 @@ public class ModernOverlay implements Disposable {
 
         float simulationTarget = simulationControlsVisible ? 1f : 0f;
         simulationControlsSlide = MathUtils.lerp(simulationControlsSlide, simulationTarget, delta * PANEL_SLIDE_SPEED);
+
+        float loginModalTarget = loginModalVisible ? 1f : 0f;
+        loginModalSlide = MathUtils.lerp(loginModalSlide, loginModalTarget, delta * PANEL_SLIDE_SPEED);
     }
 
     public void setStationDetailsVisible(boolean visible) {
@@ -159,6 +175,9 @@ public class ModernOverlay implements Disposable {
             drawStationDetailsPanel(shapes, selectedStation);
         }
         drawMiniStats(shapes);
+        if (loginModalSlide > 0.01f) {
+            drawLoginModal(shapes);
+        }
         uiRenderer.endShapes();
 
         uiRenderer.beginText();
@@ -174,6 +193,9 @@ public class ModernOverlay implements Disposable {
             drawStationDetailsPanelLoading(batch);
         }
         drawMiniStatsText(batch);
+        if (loginModalSlide > 0.01f) {
+            drawLoginModalText(batch);
+        }
         uiRenderer.endText();
     }
 
@@ -209,6 +231,12 @@ public class ModernOverlay implements Disposable {
         );
 
         shapes.setColor(DesignSystem.BORDER_LIGHT);
+
+        float headerY = screenHeight - DesignSystem.HEADER_HEIGHT - DesignSystem.SPACE_MD;
+        float loginBtnX = screenWidth - 120 - DesignSystem.SPACE_MD * 4;
+        float loginBtnY = headerY + DesignSystem.HEADER_HEIGHT / 2 - 20;
+        Color btnColor = currentUser != null ? DesignSystem.SUCCESS : DesignSystem.ACCENT_PRIMARY;
+        uiRenderer.drawPill(loginBtnX, loginBtnY, 100f, 40f, btnColor);
     }
 
     private void drawTopBarText(SpriteBatch batch, int zoom, float lat, float lon) {
@@ -241,6 +269,13 @@ public class ModernOverlay implements Disposable {
             coordX,
             barY + DesignSystem.HEADER_HEIGHT / 2 + 6,
             DesignSystem.TEXT_SECONDARY);
+
+        float screenWidth = Gdx.graphics.getWidth();
+        float loginBtnX = screenWidth - 120 - DesignSystem.SPACE_MD * 4;
+        float loginBtnY = barY + DesignSystem.HEADER_HEIGHT / 2;
+        String btnText = currentUser != null ? currentUser.getUsername() : "Login";
+        if (btnText.length() > 8) btnText = btnText.substring(0, 7) + "...";
+        uiRenderer.drawTextCentered(btnText, loginBtnX, loginBtnY, 100f, DesignSystem.TEXT_INVERSE, uiRenderer.getFontRegular());
     }
 
 
@@ -1247,6 +1282,321 @@ public class ModernOverlay implements Disposable {
 
     public void setSelectedDate(String date) {
         this.selectedDate = date;
+    }
+
+    private void drawLoginModal(ShapeRenderer shapes) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+        float alpha = loginModalSlide;
+
+        shapes.setColor(0, 0, 0, 0.6f * alpha);
+        shapes.rect(0, 0, screenWidth, screenHeight);
+
+        float modalW = 400;
+        float modalH = showRegisterTab ? 560 : 480;
+        float modalX = (screenWidth - modalW) / 2;
+        float modalY = (screenHeight - modalH) / 2;
+
+        float scale = 0.9f + 0.1f * alpha;
+        float scaledW = modalW * scale;
+        float scaledH = modalH * scale;
+        float scaledX = modalX - (scaledW - modalW) / 2;
+        float scaledY = modalY - (scaledH - modalH) / 2;
+
+        uiRenderer.drawRoundedRect(scaledX, scaledY, scaledW, scaledH,
+            DesignSystem.RADIUS_XL, DesignSystem.SURFACE_DARK);
+
+        float tabY = scaledY + scaledH - 60;
+        float tab1X = scaledX + DesignSystem.SPACE_LG;
+        float tab2X = tab1X + 180 + DesignSystem.SPACE_MD;
+
+        Color tab1Color = !showRegisterTab ? DesignSystem.ACCENT_PRIMARY :
+            DesignSystem.withAlpha(DesignSystem.SURFACE_ELEVATED, 0.5f);
+        Color tab2Color = showRegisterTab ? DesignSystem.ACCENT_PRIMARY :
+            DesignSystem.withAlpha(DesignSystem.SURFACE_ELEVATED, 0.5f);
+
+        uiRenderer.drawPill(tab1X, tabY, 180f, 40f, tab1Color);
+        uiRenderer.drawPill(tab2X, tabY, 180f, 40f, tab2Color);
+
+        float fieldY = tabY - 80;
+        float fieldX = scaledX + DesignSystem.SPACE_LG;
+        float fieldW = scaledW - 2 * DesignSystem.SPACE_LG;
+
+        Color userBorder = activeInputField == 0 ? DesignSystem.ACCENT_PRIMARY : DesignSystem.SURFACE_ELEVATED;
+        uiRenderer.drawRoundedRect(fieldX, fieldY, fieldW, 48f,
+            DesignSystem.RADIUS_MD, userBorder);
+
+        fieldY -= 80;
+        Color passBorder = activeInputField == 1 ? DesignSystem.ACCENT_PRIMARY : DesignSystem.SURFACE_ELEVATED;
+        uiRenderer.drawRoundedRect(fieldX, fieldY, fieldW, 48f,
+            DesignSystem.RADIUS_MD, passBorder);
+
+        if (showRegisterTab) {
+            fieldY -= 80;
+            Color emailBorder = activeInputField == 2 ? DesignSystem.ACCENT_PRIMARY : DesignSystem.SURFACE_ELEVATED;
+            uiRenderer.drawRoundedRect(fieldX, fieldY, fieldW, 48f,
+                DesignSystem.RADIUS_MD, emailBorder);
+        }
+
+        float btnY = scaledY + DesignSystem.SPACE_LG;
+        float submitBtnX = scaledX + scaledW / 2 - 150;
+        float cancelBtnX = submitBtnX + 150 + DesignSystem.SPACE_MD;
+
+        uiRenderer.drawRoundedRect(submitBtnX, btnY, 140f, 44f,
+            DesignSystem.RADIUS_MD, DesignSystem.ACCENT_PRIMARY);
+        uiRenderer.drawRoundedRect(cancelBtnX, btnY, 140f, 44f,
+            DesignSystem.RADIUS_MD, DesignSystem.withAlpha(DesignSystem.SURFACE_ELEVATED, 0.7f));
+    }
+
+    private void drawLoginModalText(SpriteBatch batch) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float modalW = 400;
+        float modalH = showRegisterTab ? 560 : 480;
+        float modalX = (screenWidth - modalW) / 2;
+        float modalY = (screenHeight - modalH) / 2;
+
+        float scale = 0.9f + 0.1f * loginModalSlide;
+        float scaledW = modalW * scale;
+        float scaledH = modalH * scale;
+        float scaledX = modalX - (scaledW - modalW) / 2;
+        float scaledY = modalY - (scaledH - modalH) / 2;
+
+        float tabY = scaledY + scaledH - 60;
+        float tabTextY = tabY + 25;
+        uiRenderer.drawTextCentered("Login", scaledX + DesignSystem.SPACE_LG, tabTextY, 180f, DesignSystem.TEXT_INVERSE, uiRenderer.getFontRegular());
+        uiRenderer.drawTextCentered("Register", scaledX + DesignSystem.SPACE_LG + 180 + DesignSystem.SPACE_MD, tabTextY, 180f, DesignSystem.TEXT_INVERSE, uiRenderer.getFontRegular());
+
+        float fieldY = tabY - 80;
+        float fieldX = scaledX + DesignSystem.SPACE_LG;
+
+        uiRenderer.drawText("Email", fieldX + 8, fieldY + 42, DesignSystem.TEXT_SECONDARY);
+        String displayUsername = usernameInput.isEmpty() ? "" : usernameInput;
+        uiRenderer.drawText(displayUsername, fieldX + 12, fieldY + 18, DesignSystem.TEXT_PRIMARY);
+
+        fieldY -= 80;
+        uiRenderer.drawText("Password", fieldX + 8, fieldY + 42, DesignSystem.TEXT_SECONDARY);
+        StringBuilder maskedPassBuilder = new StringBuilder();
+        for (int i = 0; i < passwordInput.length(); i++) {
+            maskedPassBuilder.append("•");
+        }
+        String maskedPass = maskedPassBuilder.toString();
+        uiRenderer.drawText(maskedPass, fieldX + 12, fieldY + 18, DesignSystem.TEXT_PRIMARY);
+
+        if (showRegisterTab) {
+            fieldY -= 80;
+            uiRenderer.drawText("Email", fieldX + 8, fieldY + 42, DesignSystem.TEXT_SECONDARY);
+            String displayEmail = emailInput.isEmpty() ? "" : emailInput;
+            uiRenderer.drawText(displayEmail, fieldX + 12, fieldY + 18, DesignSystem.TEXT_PRIMARY);
+        }
+
+        float btnY = scaledY + DesignSystem.SPACE_LG;
+        float submitBtnX = scaledX + scaledW / 2 - 150;
+        float cancelBtnX = submitBtnX + 150 + DesignSystem.SPACE_MD;
+
+        String submitText = showRegisterTab ? "Register" : "Login";
+        uiRenderer.drawTextCentered(submitText, submitBtnX, btnY + 26, 140f, DesignSystem.TEXT_INVERSE, uiRenderer.getFontRegular());
+        uiRenderer.drawTextCentered("Cancel", cancelBtnX, btnY + 26, 140f, DesignSystem.TEXT_INVERSE, uiRenderer.getFontRegular());
+
+        if (!authErrorMessage.isEmpty()) {
+            uiRenderer.drawTextCentered(authErrorMessage, modalX, btnY + 60, modalW, DesignSystem.ERROR, uiRenderer.getFontSmall());
+        }
+    }
+
+    public boolean isLoginButtonArea(float screenX, float screenY) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float btnX = screenWidth - 120 - DesignSystem.SPACE_MD * 4;
+        float btnY = screenHeight - DesignSystem.HEADER_HEIGHT - DesignSystem.SPACE_MD + 8;
+        float renderY = screenHeight - screenY;
+
+        return screenX >= btnX && screenX <= btnX + 100 &&
+               renderY >= btnY && renderY <= btnY + 40;
+    }
+
+    public boolean handleLoginModalClick(float screenX, float screenY, MarPromApiClient apiClient) {
+        float screenHeight = Gdx.graphics.getHeight();
+        float renderY = screenHeight - screenY;
+
+        float screenWidth = Gdx.graphics.getWidth();
+        float modalW = 400;
+        float modalH = showRegisterTab ? 560 : 480;
+        float modalX = (screenWidth - modalW) / 2;
+        float modalY = (screenHeight - modalH) / 2;
+
+        if (screenX < modalX || screenX > modalX + modalW ||
+            renderY < modalY || renderY > modalY + modalH) {
+            hideLoginModal();
+            return true;
+        }
+
+        float tabY = modalY + modalH - 60;
+        if (renderY >= tabY && renderY <= tabY + 40) {
+            if (screenX >= modalX + DesignSystem.SPACE_LG && screenX <= modalX + DesignSystem.SPACE_LG + 180) {
+                showRegisterTab = false;
+                return true;
+            }
+            if (screenX >= modalX + DesignSystem.SPACE_LG + 180 + DesignSystem.SPACE_MD &&
+                screenX <= modalX + DesignSystem.SPACE_LG + 360 + DesignSystem.SPACE_MD) {
+                showRegisterTab = true;
+                return true;
+            }
+        }
+
+        float fieldY = modalY + modalH - 140;
+        float fieldX = modalX + DesignSystem.SPACE_LG;
+        float fieldW = modalW - 2 * DesignSystem.SPACE_LG;
+
+        if (screenX >= fieldX && screenX <= fieldX + fieldW) {
+            if (renderY >= fieldY && renderY <= fieldY + 48) {
+                activeInputField = 0;
+                return true;
+            }
+            fieldY -= 80;
+            if (renderY >= fieldY && renderY <= fieldY + 48) {
+                activeInputField = 1;
+                return true;
+            }
+            if (showRegisterTab) {
+                fieldY -= 80;
+                if (renderY >= fieldY && renderY <= fieldY + 48) {
+                    activeInputField = 2;
+                    return true;
+                }
+            }
+        }
+
+        float btnY = modalY + DesignSystem.SPACE_LG;
+        float submitBtnX = modalX + modalW / 2 - 150;
+        float cancelBtnX = submitBtnX + 150 + DesignSystem.SPACE_MD;
+
+        if (renderY >= btnY && renderY <= btnY + 44) {
+            if (screenX >= submitBtnX && screenX <= submitBtnX + 140) {
+                submitAuth(apiClient);
+                return true;
+            }
+            if (screenX >= cancelBtnX && screenX <= cancelBtnX + 140) {
+                hideLoginModal();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void submitAuth(MarPromApiClient apiClient) {
+        if (showRegisterTab) {
+            if (usernameInput.trim().isEmpty() || passwordInput.isEmpty() || emailInput.trim().isEmpty()) {
+                authErrorMessage = "Please fill all fields";
+                return;
+            }
+            if (!emailInput.contains("@")) {
+                authErrorMessage = "Invalid email address";
+                return;
+            }
+
+            apiClient.register(usernameInput, passwordInput, emailInput, new MarPromApiClient.RegisterCallback() {
+                @Override
+                public void onSuccess(User user, String token) {
+                    currentUser = user;
+                    authToken = token;
+                    hideLoginModal();
+                    authErrorMessage = "";
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    if (error.equals("REGISTRATION_SUCCESS_NO_AUTO_LOGIN")) {
+                        showRegisterTab = false;
+                        emailInput = "";
+                        authErrorMessage = "Account created! Please login.";
+                    } else {
+                        authErrorMessage = error;
+                    }
+                }
+            });
+        } else {
+            if (usernameInput.trim().isEmpty() || passwordInput.isEmpty()) {
+                authErrorMessage = "Please fill all fields";
+                return;
+            }
+
+            apiClient.login(usernameInput, passwordInput, new MarPromApiClient.LoginCallback() {
+                @Override
+                public void onSuccess(User user, String token) {
+                    currentUser = user;
+                    authToken = token;
+                    hideLoginModal();
+                    authErrorMessage = "";
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    authErrorMessage = error;
+                }
+            });
+        }
+    }
+
+    public void showLoginModal() {
+        loginModalVisible = true;
+        usernameInput = "";
+        passwordInput = "";
+        emailInput = "";
+        authErrorMessage = "";
+        activeInputField = 0;
+        showRegisterTab = false;
+    }
+
+    public void hideLoginModal() {
+        loginModalVisible = false;
+    }
+
+    public void appendToActiveField(char c) {
+        if (c == '\b') {
+            if (activeInputField == 0 && usernameInput.length() > 0) {
+                usernameInput = usernameInput.substring(0, usernameInput.length() - 1);
+            } else if (activeInputField == 1 && passwordInput.length() > 0) {
+                passwordInput = passwordInput.substring(0, passwordInput.length() - 1);
+            } else if (activeInputField == 2 && emailInput.length() > 0) {
+                emailInput = emailInput.substring(0, emailInput.length() - 1);
+            }
+        } else if (c >= 32 && c <= 126) {
+            if (activeInputField == 0 && usernameInput.length() < 20) {
+                usernameInput += c;
+            } else if (activeInputField == 1 && passwordInput.length() < 50) {
+                passwordInput += c;
+            } else if (activeInputField == 2 && emailInput.length() < 50) {
+                emailInput += c;
+            }
+        }
+    }
+
+    public boolean isLoginModalVisible() {
+        return loginModalVisible;
+    }
+
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public void logout() {
+        currentUser = null;
+        authToken = null;
+    }
+
+    public int getActiveInputField() {
+        return activeInputField;
+    }
+
+    public void setActiveInputField(int field) {
+        activeInputField = field;
+    }
+
+    public boolean isShowRegisterTab() {
+        return showRegisterTab;
     }
 
     public void resize(int width, int height) {

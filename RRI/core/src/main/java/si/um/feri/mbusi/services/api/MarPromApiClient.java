@@ -9,6 +9,7 @@ import si.um.feri.mbusi.models.BusRoute;
 import si.um.feri.mbusi.models.OccupancyData;
 import si.um.feri.mbusi.models.Station;
 import si.um.feri.mbusi.models.StationDetails;
+import si.um.feri.mbusi.models.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,16 @@ public class MarPromApiClient {
 
     public interface OccupancyCallback {
         void onSuccess(List<OccupancyData> occupancyData);
+        void onFailure(String error);
+    }
+
+    public interface LoginCallback {
+        void onSuccess(User user, String token);
+        void onFailure(String error);
+    }
+
+    public interface RegisterCallback {
+        void onSuccess(User user, String token);
         void onFailure(String error);
     }
 
@@ -708,6 +719,196 @@ public class MarPromApiClient {
         } catch (Exception e) {
             Gdx.app.error("MarPromApiClient", "Error parsing occupancy object: " + e.getMessage());
             return null;
+        }
+    }
+
+    public void login(String username, String password, LoginCallback callback) {
+        Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.POST);
+        request.setUrl(Constants.MARPROM_API_LOGIN);
+        request.setTimeOut(Constants.API_TIMEOUT_MS);
+
+        String jsonBody = "{\"email\":\"" + username + "\",\"password\":\"" + password + "\"}";
+        request.setContent(jsonBody);
+        request.setHeader("Content-Type", "application/json");
+
+        Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
+            @Override
+            public void handleHttpResponse(Net.HttpResponse httpResponse) {
+                int statusCode = httpResponse.getStatus().getStatusCode();
+                String responseStr = httpResponse.getResultAsString();
+
+                if (statusCode == HttpStatus.SC_OK) {
+                    try {
+                        User user = parseAuthResponse(responseStr);
+                        String token = parseToken(responseStr);
+                        Gdx.app.postRunnable(() -> callback.onSuccess(user, token));
+                    } catch (Exception e) {
+                        Gdx.app.postRunnable(() -> callback.onFailure("Parse error: " + e.getMessage()));
+                    }
+                } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
+                    Gdx.app.postRunnable(() -> callback.onFailure("Invalid email or password"));
+                } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
+                    String errorMsg = "Invalid login data";
+                    if (responseStr.contains("\"error\"")) {
+                        int errorStart = responseStr.indexOf("\"error\":\"") + 9;
+                        if (errorStart > 8) {
+                            int errorEnd = responseStr.indexOf("\"", errorStart);
+                            if (errorEnd > errorStart) {
+                                errorMsg = responseStr.substring(errorStart, errorEnd);
+                            }
+                        }
+                    }
+                    final String finalErrorMsg = errorMsg;
+                    Gdx.app.postRunnable(() -> callback.onFailure(finalErrorMsg));
+                } else if (statusCode == HttpStatus.SC_NOT_FOUND) {
+                    Gdx.app.postRunnable(() -> callback.onFailure("Login endpoint not found"));
+                } else {
+                    Gdx.app.postRunnable(() -> callback.onFailure("Login failed (error " + statusCode + ")"));
+                }
+            }
+
+            @Override
+            public void failed(Throwable t) {
+                Gdx.app.postRunnable(() -> callback.onFailure("Connection failed: " + t.getMessage()));
+            }
+
+            @Override
+            public void cancelled() {
+                Gdx.app.postRunnable(() -> callback.onFailure("Request cancelled"));
+            }
+        });
+    }
+
+    public void register(String username, String password, String email, RegisterCallback callback) {
+        Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.POST);
+        request.setUrl(Constants.MARPROM_API_REGISTER);
+        request.setTimeOut(Constants.API_TIMEOUT_MS);
+
+        String jsonBody = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\",\"email\":\"" + email + "\"}";
+        request.setContent(jsonBody);
+        request.setHeader("Content-Type", "application/json");
+
+        Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
+            @Override
+            public void handleHttpResponse(Net.HttpResponse httpResponse) {
+                int statusCode = httpResponse.getStatus().getStatusCode();
+                String responseStr = httpResponse.getResultAsString();
+
+                if (statusCode == HttpStatus.SC_OK || statusCode == HttpStatus.SC_CREATED) {
+                    if (responseStr.contains("\"data\":null")) {
+                        Gdx.app.postRunnable(() -> callback.onFailure("REGISTRATION_SUCCESS_NO_AUTO_LOGIN"));
+                    } else {
+                        try {
+                            User user = parseAuthResponse(responseStr);
+                            String token = parseToken(responseStr);
+                            Gdx.app.postRunnable(() -> callback.onSuccess(user, token));
+                        } catch (Exception e) {
+                            Gdx.app.postRunnable(() -> callback.onFailure("Registration failed - invalid response"));
+                        }
+                    }
+                } else if (statusCode == HttpStatus.SC_CONFLICT) {
+                    Gdx.app.postRunnable(() -> callback.onFailure("Username already exists"));
+                } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
+                    String errorMsg = "Invalid registration data";
+                    if (responseStr.contains("\"error\"")) {
+                        int errorStart = responseStr.indexOf("\"error\":\"") + 9;
+                        if (errorStart > 8) {
+                            int errorEnd = responseStr.indexOf("\"", errorStart);
+                            if (errorEnd > errorStart) {
+                                errorMsg = responseStr.substring(errorStart, errorEnd);
+                            }
+                        }
+                    }
+                    final String finalErrorMsg = errorMsg;
+                    Gdx.app.postRunnable(() -> callback.onFailure(finalErrorMsg));
+                } else if (statusCode == HttpStatus.SC_NOT_FOUND) {
+                    Gdx.app.postRunnable(() -> callback.onFailure("Register endpoint not found"));
+                } else {
+                    Gdx.app.postRunnable(() -> callback.onFailure("Registration failed (error " + statusCode + ")"));
+                }
+            }
+
+            @Override
+            public void failed(Throwable t) {
+                Gdx.app.postRunnable(() -> callback.onFailure("Connection failed: " + t.getMessage()));
+            }
+
+            @Override
+            public void cancelled() {
+                Gdx.app.postRunnable(() -> callback.onFailure("Request cancelled"));
+            }
+        });
+    }
+
+    private User parseAuthResponse(String json) {
+        User user = new User();
+
+        try {
+            int dataStart = json.indexOf("\"data\"");
+            if (dataStart == -1) {
+                throw new RuntimeException("No 'data' field found in response");
+            }
+
+            int dataObjStart = json.indexOf("{", dataStart);
+            if (dataObjStart == -1) {
+                throw new RuntimeException("Data object not found in response");
+            }
+
+            int idStart = json.indexOf("\"id\":", dataObjStart);
+            if (idStart == -1) {
+                throw new RuntimeException("No 'id' field found in data object");
+            }
+            idStart += 5;
+            int idEnd = json.indexOf(",", idStart);
+            if (idEnd == -1) idEnd = json.indexOf("}", idStart);
+            String idStr = json.substring(idStart, idEnd).trim();
+            user.setId(Integer.parseInt(idStr));
+
+            int nameStart = json.indexOf("\"username\":\"", dataObjStart);
+            if (nameStart == -1) {
+                throw new RuntimeException("No 'username' field found");
+            }
+            nameStart += 12;
+            int nameEnd = json.indexOf("\"", nameStart);
+            String username = json.substring(nameStart, nameEnd);
+            user.setUsername(username);
+
+            int emailStart = json.indexOf("\"email\":\"", dataObjStart);
+            if (emailStart != -1) {
+                emailStart += 9;
+                int emailEnd = json.indexOf("\"", emailStart);
+                String email = json.substring(emailStart, emailEnd);
+                user.setEmail(email);
+            } else {
+                user.setEmail("");
+            }
+
+        } catch (Exception e) {
+            Gdx.app.error("MarPromApiClient", "Error parsing auth response: " + e.getMessage());
+            Gdx.app.error("MarPromApiClient", "JSON was: " + json);
+            throw new RuntimeException("Failed to parse user data: " + e.getMessage());
+        }
+
+        return user;
+    }
+
+    private String parseToken(String json) {
+        try {
+            int tokenStart = json.indexOf("\"token\":\"");
+            if (tokenStart == -1) {
+                throw new RuntimeException("Token not found in response");
+            }
+            tokenStart += 9;
+            int tokenEnd = json.indexOf("\"", tokenStart);
+            if (tokenEnd == -1) {
+                throw new RuntimeException("Token end quote not found");
+            }
+            String token = json.substring(tokenStart, tokenEnd);
+            return token;
+        } catch (Exception e) {
+            Gdx.app.error("MarPromApiClient", "Error parsing token: " + e.getMessage());
+            Gdx.app.error("MarPromApiClient", "JSON was: " + json);
+            throw new RuntimeException("Failed to parse token: " + e.getMessage());
         }
     }
 }

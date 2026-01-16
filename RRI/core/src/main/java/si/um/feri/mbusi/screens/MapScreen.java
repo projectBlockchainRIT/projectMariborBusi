@@ -44,7 +44,6 @@ public class MapScreen extends InputAdapter implements Screen {
     private BusLineRenderer busLineRenderer;
     private StationRenderer stationRenderer;
     private ModernOverlay modernOverlay;
-    private boolean useModernUI = true;
 
     private MarPromApiClient apiClient;
 
@@ -254,26 +253,22 @@ public class MapScreen extends InputAdapter implements Screen {
         }
 
 
-        if (useModernUI) {
-            modernOverlay.update(delta);
-            modernOverlay.setStats(tilesRendered, tileCache.getStats());
+        modernOverlay.update(delta);
+        modernOverlay.setStats(tilesRendered, tileCache.getStats());
 
-            List<Station> stationsToDisplay = selectedLine != null ? selectedLineStations : allStations;
-            modernOverlay.render(centerLatLon.x, centerLatLon.y, currentZoom,
-                busRoutes, stationsToDisplay, selectedLine, dataLoaded, loadingData, loadingStatus,
-                selectedStation, loadingStationDetails);
+        List<Station> stationsToDisplay = selectedLine != null ? selectedLineStations : allStations;
+        modernOverlay.render(centerLatLon.x, centerLatLon.y, currentZoom,
+            busRoutes, stationsToDisplay, selectedLine, dataLoaded, loadingData, loadingStatus,
+            selectedStation, loadingStationDetails);
 
-            if (occupancySimulation != null && occupancySimulation.hasData()) {
-                String time = occupancySimulation.getCurrentTimeFormatted();
-                boolean playing = occupancySimulation.isPlaying();
-                float occupancy = occupancySimulation.getCurrentOccupancy();
-                modernOverlay.renderSimulationControls(time, playing, occupancy);
+        if (occupancySimulation != null && occupancySimulation.hasData()) {
+            String time = occupancySimulation.getCurrentTimeFormatted();
+            boolean playing = occupancySimulation.isPlaying();
+            float occupancy = occupancySimulation.getCurrentOccupancy();
+            modernOverlay.renderSimulationControls(time, playing, occupancy);
 
-                float timeSeconds = occupancySimulation.getCurrentTimeSeconds();
-                modernOverlay.setTimeSliderValue(timeSeconds / 86400f);
-            }
-        } else {
-            renderUI(delta);
+            float timeSeconds = occupancySimulation.getCurrentTimeSeconds();
+            modernOverlay.setTimeSliderValue(timeSeconds / 86400f);
         }
 
         fps = Gdx.graphics.getFramesPerSecond();
@@ -389,44 +384,6 @@ public class MapScreen extends InputAdapter implements Screen {
         return new Vector2(x, y);
     }
 
-    private void renderUI(float delta) {
-        batch.setProjectionMatrix(camera.combined);
-        batch.begin();
-
-        Vector3 uiPos = camera.unproject(new Vector3(10, 30, 0));
-        font.draw(batch, "MbusiiMap - Maribor Bus Digital Twin", uiPos.x, uiPos.y);
-
-        uiPos = camera.unproject(new Vector3(10, 60, 0));
-        font.draw(batch, String.format("Zoom: %d | Tiles: %d | FPS: %.0f",
-                currentZoom, tilesRendered, fps), uiPos.x, uiPos.y);
-
-        uiPos = camera.unproject(new Vector3(10, 90, 0));
-        font.draw(batch, String.format("Position: %.4f, %.4f",
-                centerLatLon.x, centerLatLon.y), uiPos.x, uiPos.y);
-
-        uiPos = camera.unproject(new Vector3(10, 120, 0));
-        font.draw(batch, tileCache.getStats(), uiPos.x, uiPos.y);
-
-        uiPos = camera.unproject(new Vector3(10, 150, 0));
-        if (loadingData) {
-            font.draw(batch, loadingStatus, uiPos.x, uiPos.y);
-        } else if (dataLoaded) {
-            if (selectedLine != null) {
-                font.draw(batch, String.format("Selected: %s | Stations: %d | Click again to deselect",
-                    selectedLine.getName(), selectedLineStations.size()), uiPos.x, uiPos.y);
-            } else {
-                font.draw(batch, String.format("Routes: %d | Stations: %d | Click line to select",
-                    busRoutes.size(), allStations.size()), uiPos.x, uiPos.y);
-            }
-        }
-
-        uiPos = camera.unproject(new Vector3(10, Gdx.graphics.getHeight() - 20, 0));
-        font.draw(batch, "Controls: Click line to select | Drag to pan | Scroll to zoom | R to reset | Q to quit",
-                uiPos.x, uiPos.y);
-
-        batch.end();
-    }
-
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if (modernOverlay.isTimeSliderArea(screenX, screenY) && occupancySimulation != null) {
@@ -443,6 +400,23 @@ public class MapScreen extends InputAdapter implements Screen {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        if (modernOverlay.isLoginModalVisible()) {
+            if (modernOverlay.handleLoginModalClick(screenX, screenY, apiClient)) {
+                dragging = false;
+                return true;
+            }
+        }
+
+        if (modernOverlay.isLoginButtonArea(screenX, screenY)) {
+            if (modernOverlay.getCurrentUser() != null) {
+                modernOverlay.logout();
+            } else {
+                modernOverlay.showLoginModal();
+            }
+            dragging = false;
+            return true;
+        }
+
         if (modernOverlay.isPlayButtonArea(screenX, screenY) && occupancySimulation != null) {
             occupancySimulation.togglePlayPause();
             modernOverlay.setTimeSliderDragging(false);
@@ -590,9 +564,13 @@ public class MapScreen extends InputAdapter implements Screen {
                     Gdx.app.postRunnable(new Runnable() {
                         @Override
                         public void run() {
-                            occupancySimulation.setOccupancyData(data, line.getLineId(), today);
+                            if (data == null || data.isEmpty()) {
+                                List<si.um.feri.mbusi.models.OccupancyData> mockData = generateMockOccupancyData(line.getLineId(), today);
+                                occupancySimulation.setOccupancyData(mockData, line.getLineId(), today);
+                            } else {
+                                occupancySimulation.setOccupancyData(data, line.getLineId(), today);
+                            }
                             loadingOccupancyData = false;
-                            Gdx.app.log("MapScreen", "Loaded " + data.size() + " occupancy data points");
                         }
                     });
                 }
@@ -603,11 +581,8 @@ public class MapScreen extends InputAdapter implements Screen {
                         @Override
                         public void run() {
                             loadingOccupancyData = false;
-                            Gdx.app.log("MapScreen", "API unavailable, generating mock data");
-
                             List<si.um.feri.mbusi.models.OccupancyData> mockData = generateMockOccupancyData(line.getLineId(), today);
                             occupancySimulation.setOccupancyData(mockData, line.getLineId(), today);
-                            Gdx.app.log("MapScreen", "Generated " + mockData.size() + " data points");
                         }
                     });
                 }
@@ -959,6 +934,24 @@ public class MapScreen extends InputAdapter implements Screen {
 
     @Override
     public boolean keyDown(int keycode) {
+        if (modernOverlay.isLoginModalVisible()) {
+            if (keycode == Input.Keys.ENTER) {
+                modernOverlay.submitAuth(apiClient);
+                return true;
+            }
+            if (keycode == Input.Keys.ESCAPE) {
+                modernOverlay.hideLoginModal();
+                return true;
+            }
+            if (keycode == Input.Keys.TAB) {
+                int current = modernOverlay.getActiveInputField();
+                int max = modernOverlay.isShowRegisterTab() ? 2 : 1;
+                modernOverlay.setActiveInputField((current + 1) % (max + 1));
+                return true;
+            }
+            return false;
+        }
+
         if (keycode == Input.Keys.ESCAPE) {
             if (selectedStation != null) {
                 deselectStation();
@@ -977,14 +970,20 @@ public class MapScreen extends InputAdapter implements Screen {
         } else if (keycode == Input.Keys.Q) {
             Gdx.app.exit();
             return true;
-        } else if (keycode == Input.Keys.U) {
-            useModernUI = !useModernUI;
-            return true;
         } else if (keycode == Input.Keys.P) {
 
             if (modernOverlay != null) {
                 modernOverlay.togglePanel();
             }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        if (modernOverlay.isLoginModalVisible()) {
+            modernOverlay.appendToActiveField(character);
             return true;
         }
         return false;
