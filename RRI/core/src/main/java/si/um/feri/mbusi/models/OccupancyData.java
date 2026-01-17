@@ -1,11 +1,16 @@
 package si.um.feri.mbusi.models;
 
+import com.google.gson.annotations.SerializedName;
+
 public class OccupancyData {
+  @SerializedName("line_id")
   private int lineId;
   private String date;
   private int hour;
   private int minute;
+  @SerializedName("occupancy_percent")
   private float occupancyPercent;
+  @SerializedName("passenger_count")
   private int passengerCount;
   private int capacity;
 

@@ -400,6 +400,13 @@ public class MapScreen extends InputAdapter implements Screen {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        if (modernOverlay.isDelayReportModalVisible()) {
+            if (modernOverlay.handleDelayReportModalClick(screenX, screenY, apiClient)) {
+                dragging = false;
+                return true;
+            }
+        }
+
         if (modernOverlay.isLoginModalVisible()) {
             if (modernOverlay.handleLoginModalClick(screenX, screenY, apiClient)) {
                 dragging = false;
@@ -429,6 +436,10 @@ public class MapScreen extends InputAdapter implements Screen {
         float dragDistance = Vector2.dst(screenX, screenY, lastDragPosition.x, lastDragPosition.y);
         if (dragDistance < 5f && dataLoaded) {
             if (selectedStation != null || loadingStationDetails) {
+                if (selectedStation != null && handleDelayButtonClick(screenX, screenY)) {
+                    dragging = false;
+                    return true;
+                }
                 if (!modernOverlay.isStationDetailsPanelArea(screenX, screenY)) {
                     deselectStation();
                 }
@@ -544,6 +555,56 @@ public class MapScreen extends InputAdapter implements Screen {
     private void deselectStation() {
         selectedStation = null;
         modernOverlay.setStationDetailsVisible(false);
+    }
+
+    private boolean handleDelayButtonClick(float screenX, float screenY) {
+        if (selectedStation == null) return false;
+
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+        float panelWidth = 420;
+        float headerHeight = 140;
+        float panelHeight = screenHeight - 16 * 2;
+        float panelY = 16;
+        float headerY = panelY + panelHeight - headerHeight;
+        float contentTop = headerY - 16;
+        float contentBottom = panelY + 60;
+
+        java.util.Map<Integer, java.util.List<si.um.feri.mbusi.models.Arrival>> groupedArrivals = new java.util.LinkedHashMap<>();
+        for (si.um.feri.mbusi.models.Arrival arrival : selectedStation.getArrivals()) {
+            Integer lineKey = arrival.getLineId();
+            if (!groupedArrivals.containsKey(lineKey)) {
+                groupedArrivals.put(lineKey, new java.util.ArrayList<>());
+            }
+            groupedArrivals.get(lineKey).add(arrival);
+        }
+
+        float lineCardHeight = 115;
+        float cardY = contentTop - lineCardHeight + stationDetailsScrollOffset;
+
+        for (java.util.Map.Entry<Integer, java.util.List<si.um.feri.mbusi.models.Arrival>> entry : groupedArrivals.entrySet()) {
+            java.util.List<si.um.feri.mbusi.models.Arrival> lineArrivals = entry.getValue();
+            if (lineArrivals.isEmpty()) continue;
+
+            si.um.feri.mbusi.models.Arrival firstArrival = lineArrivals.get(0);
+
+            if (modernOverlay.isDelayReportButtonArea(screenX, screenY, cardY, selectedStation.getId(), firstArrival.getLineName())) {
+                String lineIdString = extractLineIdString(firstArrival.getLineName());
+                modernOverlay.showDelayReportModal(selectedStation.getId(), lineIdString, firstArrival.getLineName());
+                return true;
+            }
+
+            cardY -= lineCardHeight;
+        }
+
+        return false;
+    }
+
+    private String extractLineIdString(String lineName) {
+        if (lineName == null || !lineName.contains(" - ")) {
+            return "?";
+        }
+        return lineName.substring(0, lineName.indexOf(" - "));
     }
 
     private void loadOccupancyDataForLine(BusRoute line) {

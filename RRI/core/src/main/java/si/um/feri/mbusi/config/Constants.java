@@ -40,6 +40,7 @@ public class Constants {
     public static final String MARPROM_API_OCCUPANCY = MARPROM_API_BASE_URL + "/v1/occupancy/line/";
     public static final String MARPROM_API_LOGIN = MARPROM_API_BASE_URL + "/v1/authentication/login";
     public static final String MARPROM_API_REGISTER = MARPROM_API_BASE_URL + "/v1/authentication/register";
+    public static final String MARPROM_API_DELAY_REPORT = MARPROM_API_BASE_URL + "/v1/delays/user";
     public static final int API_TIMEOUT_MS = 5000;
 
     private Constants() {

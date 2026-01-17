@@ -1,9 +1,15 @@
 package si.um.feri.mbusi.models;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Arrival {
+    @SerializedName("line_id")
     private int lineId;
+    @SerializedName("line_name")
     private String lineName;
+    @SerializedName("arrival_time")
     private String arrivalTime;
+    @SerializedName("delay_minutes")
     private int delayMinutes;
     private String status;
 

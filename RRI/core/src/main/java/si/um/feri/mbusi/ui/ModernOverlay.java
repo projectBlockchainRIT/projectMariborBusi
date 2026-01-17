@@ -72,6 +72,17 @@ public class ModernOverlay implements Disposable {
     private User currentUser = null;
     private String authToken = null;
 
+    private boolean delayReportModalVisible = false;
+    private float delayReportModalSlide = 0f;
+    private int selectedDelayMinutes = 5;
+    private int delayReportStopId = -1;
+    private String delayReportLineId = "";
+    private String delayReportLineName = "";
+    private String delayErrorMessage = "";
+    private String delaySuccessMessage = "";
+    private float delaySuccessAlpha = 0f;
+    private java.util.Set<String> reportedDelays = new java.util.HashSet<>();
+
     public ModernOverlay() {
         uiRenderer = new UIRenderer();
         uiCamera = new OrthographicCamera();
@@ -121,6 +132,13 @@ public class ModernOverlay implements Disposable {
 
         float loginModalTarget = loginModalVisible ? 1f : 0f;
         loginModalSlide = MathUtils.lerp(loginModalSlide, loginModalTarget, delta * PANEL_SLIDE_SPEED);
+
+        float delayModalTarget = delayReportModalVisible ? 1f : 0f;
+        delayReportModalSlide = MathUtils.lerp(delayReportModalSlide, delayModalTarget, delta * PANEL_SLIDE_SPEED);
+
+        if (delaySuccessAlpha > 0) {
+            delaySuccessAlpha = Math.max(0, delaySuccessAlpha - delta * 2f);
+        }
     }
 
     public void setStationDetailsVisible(boolean visible) {
@@ -178,6 +196,12 @@ public class ModernOverlay implements Disposable {
         if (loginModalSlide > 0.01f) {
             drawLoginModal(shapes);
         }
+        if (delayReportModalSlide > 0.01f) {
+            drawDelayReportModal(shapes);
+        }
+        if (delaySuccessAlpha > 0.01f) {
+            drawDelaySuccessToastBg(shapes);
+        }
         uiRenderer.endShapes();
 
         uiRenderer.beginText();
@@ -195,6 +219,12 @@ public class ModernOverlay implements Disposable {
         drawMiniStatsText(batch);
         if (loginModalSlide > 0.01f) {
             drawLoginModalText(batch);
+        }
+        if (delayReportModalSlide > 0.01f) {
+            drawDelayReportModalText(batch);
+        }
+        if (delaySuccessAlpha > 0.01f) {
+            drawDelaySuccessToast(batch);
         }
         uiRenderer.endText();
     }
@@ -706,7 +736,7 @@ public class ModernOverlay implements Disposable {
         }
 
 
-        float lineCardHeight = 90;
+        float lineCardHeight = 115;
         float totalContentHeight = groupedArrivals.size() * lineCardHeight + DesignSystem.SPACE_MD;
 
 
@@ -722,7 +752,7 @@ public class ModernOverlay implements Disposable {
 
 
         float cardY = contentTop - lineCardHeight + stationDetailsScrollOffset;
-        int lineIndex = 0;
+        float cardSpacing = 10;
 
         for (java.util.Map.Entry<Integer, java.util.List<Arrival>> entry : groupedArrivals.entrySet()) {
             java.util.List<Arrival> lineArrivals = entry.getValue();
@@ -730,37 +760,49 @@ public class ModernOverlay implements Disposable {
 
             Arrival firstArrival = lineArrivals.get(0);
             Color lineColor = DesignSystem.getLineColor(entry.getKey());
-
+            float cardHeight = lineCardHeight - cardSpacing;
 
             uiRenderer.drawRoundedRect(
                 panelX + DesignSystem.SPACE_MD,
                 cardY,
                 panelWidth - DesignSystem.SPACE_MD * 2,
-                lineCardHeight - 8,
+                cardHeight,
                 DesignSystem.RADIUS_MD,
-                DesignSystem.withAlpha(DesignSystem.SURFACE_ELEVATED, 0.7f)
+                DesignSystem.SURFACE_ELEVATED
             );
-
 
             uiRenderer.drawRoundedRect(
                 panelX + DesignSystem.SPACE_MD,
                 cardY,
-                5,
-                lineCardHeight - 8,
+                4,
+                cardHeight,
                 DesignSystem.RADIUS_SM,
                 lineColor
             );
 
-
             uiRenderer.drawCircle(
-                panelX + DesignSystem.SPACE_MD + 40,
-                cardY + (lineCardHeight - 8) / 2,
-                22,
+                panelX + DesignSystem.SPACE_MD + 38,
+                cardY + cardHeight - 35,
+                20,
                 lineColor
             );
 
+            String delayKey = station.getId() + "-" + extractLineIdString(firstArrival.getLineName());
+            boolean isReported = reportedDelays.contains(delayKey);
+
+            float btnW = 100;
+            float btnH = 28;
+            float btnX = panelX + panelWidth - DesignSystem.SPACE_MD * 2 - btnW;
+            float btnY = cardY + DesignSystem.SPACE_SM;
+
+            Color btnBg = isReported ?
+                DesignSystem.withAlpha(DesignSystem.WARNING, 0.2f) :
+                DesignSystem.withAlpha(DesignSystem.ACCENT_PRIMARY, 0.15f);
+
+            uiRenderer.drawRoundedRect(btnX, btnY, btnW, btnH,
+                DesignSystem.RADIUS_SM, btnBg);
+
             cardY -= lineCardHeight;
-            lineIndex++;
         }
 
 
@@ -879,7 +921,8 @@ public class ModernOverlay implements Disposable {
         ScissorStack.calculateScissors(uiCamera, batch.getTransformMatrix(), clipBounds, scissors);
         ScissorStack.pushScissors(scissors);
 
-        float lineCardHeight = 90;
+        float lineCardHeight = 115;
+        float cardSpacing = 10;
         float cardY = contentTop - lineCardHeight + stationDetailsScrollOffset;
 
         for (java.util.Map.Entry<Integer, java.util.List<Arrival>> entry : groupedArrivals.entrySet()) {
@@ -887,64 +930,77 @@ public class ModernOverlay implements Disposable {
             if (lineArrivals.isEmpty()) continue;
 
             Arrival firstArrival = lineArrivals.get(0);
-
+            float cardHeight = lineCardHeight - cardSpacing;
 
             uiRenderer.drawTextCentered(
                 String.valueOf(entry.getKey()),
                 panelX + DesignSystem.SPACE_MD + 18,
-                cardY + (lineCardHeight - 8) / 2 + 6,
-                44,
+                cardY + cardHeight - 29,
+                40,
                 DesignSystem.TEXT_INVERSE,
                 uiRenderer.getFontMedium()
             );
 
-
             String direction = firstArrival.getLineName();
             if (direction != null) {
-
                 int dashIndex = direction.indexOf(" - ");
                 if (dashIndex > 0 && dashIndex < direction.length() - 3) {
                     direction = direction.substring(dashIndex + 3);
                 }
-                if (direction.length() > 30) {
-                    direction = direction.substring(0, 27) + "...";
+                if (direction.length() > 25) {
+                    direction = direction.substring(0, 22) + "...";
                 }
             }
             uiRenderer.drawText(direction != null ? direction : "Smer neznana",
-                panelX + DesignSystem.SPACE_MD + 75,
-                cardY + lineCardHeight - 24,
+                panelX + DesignSystem.SPACE_MD + 70,
+                cardY + cardHeight - 18,
                 DesignSystem.TEXT_PRIMARY);
-
 
             java.util.Set<String> uniqueTimes = new java.util.LinkedHashSet<>();
             for (Arrival arr : lineArrivals) {
                 uniqueTimes.add(arr.getArrivalTime());
             }
 
-
             java.util.List<String> sortedTimes = new java.util.ArrayList<>(uniqueTimes);
             java.util.Collections.sort(sortedTimes);
 
             StringBuilder timesStr = new StringBuilder();
-            int maxTimes = Math.min(sortedTimes.size(), 6);
+            int maxTimes = Math.min(sortedTimes.size(), 5);
             for (int i = 0; i < maxTimes; i++) {
-                if (i > 0) timesStr.append("   ");
+                if (i > 0) timesStr.append("  ");
                 timesStr.append(sortedTimes.get(i));
             }
-            if (sortedTimes.size() > 6) {
-                timesStr.append("  ...");
+            if (sortedTimes.size() > 5) {
+                timesStr.append(" ...");
             }
 
             uiRenderer.drawTextMedium(timesStr.toString(),
-                panelX + DesignSystem.SPACE_MD + 75,
-                cardY + lineCardHeight - 50,
+                panelX + DesignSystem.SPACE_MD + 70,
+                cardY + cardHeight - 45,
                 DesignSystem.ACCENT_PRIMARY);
 
-
             uiRenderer.drawTextSmall(sortedTimes.size() + " odhodov",
-                panelX + DesignSystem.SPACE_MD + 75,
-                cardY + 18,
+                panelX + DesignSystem.SPACE_MD + 70,
+                cardY + DesignSystem.SPACE_SM + 16,
                 DesignSystem.TEXT_MUTED);
+
+            float btnW = 100;
+            float btnH = 28;
+            float btnX = panelX + panelWidth - DesignSystem.SPACE_MD * 2 - btnW;
+            float btnY = cardY + DesignSystem.SPACE_SM;
+
+            String delayKey = station.getId() + "-" + extractLineIdString(firstArrival.getLineName());
+            if (reportedDelays.contains(delayKey)) {
+                uiRenderer.drawTextCentered("Prijavljeno",
+                    btnX, btnY + 18, btnW,
+                    DesignSystem.WARNING,
+                    uiRenderer.getFontSmall());
+            } else {
+                uiRenderer.drawTextCentered("Prijavi zamudo",
+                    btnX, btnY + 18, btnW,
+                    DesignSystem.ACCENT_PRIMARY,
+                    uiRenderer.getFontSmall());
+            }
 
             cardY -= lineCardHeight;
         }
@@ -1582,6 +1638,10 @@ public class ModernOverlay implements Disposable {
         return currentUser;
     }
 
+    public String getAuthToken() {
+        return authToken;
+    }
+
     public void logout() {
         currentUser = null;
         authToken = null;
@@ -1597,6 +1657,294 @@ public class ModernOverlay implements Disposable {
 
     public boolean isShowRegisterTab() {
         return showRegisterTab;
+    }
+
+    public void showDelayReportModal(int stopId, String lineIdString, String lineName) {
+        if (currentUser == null) {
+            showLoginModal();
+            return;
+        }
+        this.delayReportModalVisible = true;
+        this.delayReportStopId = stopId;
+        this.delayReportLineId = lineIdString;
+        this.delayReportLineName = lineName;
+        this.selectedDelayMinutes = 5;
+        this.delayErrorMessage = "";
+    }
+
+    public void hideDelayReportModal() {
+        this.delayReportModalVisible = false;
+    }
+
+    private void drawDelayReportModal(ShapeRenderer shapes) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        shapes.setColor(0, 0, 0, 0.6f * delayReportModalSlide);
+        shapes.rect(0, 0, screenWidth, screenHeight);
+
+        float modalW = 360;
+        float modalH = 320;
+        float modalX = (screenWidth - modalW) / 2;
+        float modalY = (screenHeight - modalH) / 2;
+
+        float scale = 0.95f + 0.05f * delayReportModalSlide;
+        float scaledW = modalW * scale;
+        float scaledH = modalH * scale;
+        float scaledX = modalX - (scaledW - modalW) / 2;
+        float scaledY = modalY - (scaledH - modalH) / 2;
+
+        uiRenderer.drawRoundedRect(scaledX, scaledY, scaledW, scaledH,
+            DesignSystem.RADIUS_LG, DesignSystem.SURFACE_DARK);
+
+        uiRenderer.drawRoundedRect(scaledX, scaledY + scaledH - 70, scaledW, 70,
+            DesignSystem.RADIUS_LG, DesignSystem.SURFACE_ELEVATED);
+        uiRenderer.drawRoundedRect(scaledX, scaledY + scaledH - 70, scaledW, 20,
+            0, DesignSystem.SURFACE_ELEVATED);
+
+        float btnW = 70;
+        float btnH = 44;
+        float btnSpacing = 12;
+        float totalBtnsW = btnW * 4 + btnSpacing * 3;
+        float btnStartX = scaledX + (scaledW - totalBtnsW) / 2;
+        float btnY = scaledY + scaledH / 2 - 10;
+
+        int[] delays = {5, 10, 15, 30};
+        for (int i = 0; i < delays.length; i++) {
+            float x = btnStartX + i * (btnW + btnSpacing);
+            boolean isSelected = selectedDelayMinutes == delays[i];
+            Color btnBg = isSelected ?
+                DesignSystem.ACCENT_PRIMARY :
+                DesignSystem.withAlpha(DesignSystem.SURFACE_ELEVATED, 0.8f);
+            uiRenderer.drawRoundedRect(x, btnY, btnW, btnH,
+                DesignSystem.RADIUS_MD, btnBg);
+        }
+
+        float actionBtnW = 130;
+        float actionBtnH = 42;
+        float actionBtnSpacing = 16;
+        float confirmX = scaledX + scaledW / 2 - actionBtnW - actionBtnSpacing / 2;
+        float cancelX = scaledX + scaledW / 2 + actionBtnSpacing / 2;
+        float actionBtnY = scaledY + DesignSystem.SPACE_LG;
+
+        uiRenderer.drawRoundedRect(cancelX, actionBtnY, actionBtnW, actionBtnH,
+            DesignSystem.RADIUS_MD, DesignSystem.withAlpha(DesignSystem.SURFACE_ELEVATED, 0.6f));
+        uiRenderer.drawRoundedRect(confirmX, actionBtnY, actionBtnW, actionBtnH,
+            DesignSystem.RADIUS_MD, DesignSystem.ACCENT_PRIMARY);
+    }
+
+    private void drawDelayReportModalText(SpriteBatch batch) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float modalW = 360;
+        float modalH = 320;
+        float modalX = (screenWidth - modalW) / 2;
+        float modalY = (screenHeight - modalH) / 2;
+
+        float scale = 0.95f + 0.05f * delayReportModalSlide;
+        float scaledW = modalW * scale;
+        float scaledH = modalH * scale;
+        float scaledX = modalX - (scaledW - modalW) / 2;
+        float scaledY = modalY - (scaledH - modalH) / 2;
+
+        uiRenderer.drawTextCentered("Prijavi zamudo",
+            scaledX, scaledY + scaledH - 30, scaledW,
+            DesignSystem.TEXT_PRIMARY, uiRenderer.getFontLarge());
+
+        String lineInfo = "Linija " + delayReportLineId;
+        if (delayReportLineName != null && delayReportLineName.contains(" - ")) {
+            String direction = delayReportLineName.substring(
+                delayReportLineName.indexOf(" - ") + 3);
+            if (direction.length() > 25) {
+                direction = direction.substring(0, 22) + "...";
+            }
+            lineInfo += " \u2022 " + direction;
+        }
+        uiRenderer.drawTextCentered(lineInfo,
+            scaledX, scaledY + scaledH - 55, scaledW,
+            DesignSystem.TEXT_SECONDARY, uiRenderer.getFontSmall());
+
+        uiRenderer.drawTextCentered("Izberi trajanje zamude",
+            scaledX, scaledY + scaledH / 2 + 50, scaledW,
+            DesignSystem.TEXT_MUTED, uiRenderer.getFontSmall());
+
+        float btnW = 70;
+        float btnH = 44;
+        float btnSpacing = 12;
+        float totalBtnsW = btnW * 4 + btnSpacing * 3;
+        float btnStartX = scaledX + (scaledW - totalBtnsW) / 2;
+        float btnY = scaledY + scaledH / 2 - 10;
+
+        int[] delays = {5, 10, 15, 30};
+        for (int i = 0; i < delays.length; i++) {
+            float x = btnStartX + i * (btnW + btnSpacing);
+            boolean isSelected = selectedDelayMinutes == delays[i];
+            Color textColor = isSelected ? DesignSystem.TEXT_INVERSE : DesignSystem.TEXT_PRIMARY;
+            uiRenderer.drawTextCentered(delays[i] + "",
+                x, btnY + btnH / 2 + 12, btnW,
+                textColor, uiRenderer.getFontMedium());
+            uiRenderer.drawTextCentered("min",
+                x, btnY + btnH / 2 - 6, btnW,
+                DesignSystem.withAlpha(textColor, 0.7f), uiRenderer.getFontSmall());
+        }
+
+        float actionBtnW = 130;
+        float actionBtnH = 42;
+        float actionBtnSpacing = 16;
+        float confirmX = scaledX + scaledW / 2 - actionBtnW - actionBtnSpacing / 2;
+        float cancelX = scaledX + scaledW / 2 + actionBtnSpacing / 2;
+        float actionBtnY = scaledY + DesignSystem.SPACE_LG;
+
+        uiRenderer.drawTextCentered("Prekliči", cancelX, actionBtnY + actionBtnH / 2 + 6, actionBtnW,
+            DesignSystem.TEXT_SECONDARY, uiRenderer.getFontRegular());
+        uiRenderer.drawTextCentered("Potrdi", confirmX, actionBtnY + actionBtnH / 2 + 6, actionBtnW,
+            DesignSystem.TEXT_INVERSE, uiRenderer.getFontRegular());
+
+        if (!delayErrorMessage.isEmpty()) {
+            uiRenderer.drawTextCentered(delayErrorMessage,
+                scaledX, actionBtnY + actionBtnH + 20, scaledW,
+                DesignSystem.ERROR, uiRenderer.getFontSmall());
+        }
+    }
+
+    private void drawDelaySuccessToastBg(ShapeRenderer shapes) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float toastW = 260;
+        float toastH = 48;
+        float toastX = (screenWidth - toastW) / 2;
+        float toastY = DesignSystem.SPACE_MD + DesignSystem.FOOTER_HEIGHT + DesignSystem.SPACE_LG;
+
+        uiRenderer.drawRoundedRect(toastX, toastY, toastW, toastH,
+            DesignSystem.RADIUS_MD,
+            DesignSystem.withAlpha(DesignSystem.SUCCESS, 0.9f * delaySuccessAlpha));
+    }
+
+    private void drawDelaySuccessToast(SpriteBatch batch) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float toastW = 260;
+        float toastH = 48;
+        float toastX = (screenWidth - toastW) / 2;
+        float toastY = DesignSystem.SPACE_MD + DesignSystem.FOOTER_HEIGHT + DesignSystem.SPACE_LG;
+
+        uiRenderer.drawTextCentered("\u2713  " + delaySuccessMessage,
+            toastX, toastY + toastH / 2 + 6, toastW,
+            DesignSystem.withAlpha(DesignSystem.TEXT_INVERSE, delaySuccessAlpha),
+            uiRenderer.getFontRegular());
+    }
+
+    public boolean handleDelayReportModalClick(float screenX, float screenY, MarPromApiClient apiClient) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+        float renderY = screenHeight - screenY;
+
+        float modalW = 360;
+        float modalH = 320;
+        float modalX = (screenWidth - modalW) / 2;
+        float modalY = (screenHeight - modalH) / 2;
+
+        if (screenX < modalX || screenX > modalX + modalW ||
+            renderY < modalY || renderY > modalY + modalH) {
+            hideDelayReportModal();
+            return true;
+        }
+
+        float btnW = 70;
+        float btnH = 44;
+        float btnSpacing = 12;
+        float totalBtnsW = btnW * 4 + btnSpacing * 3;
+        float btnStartX = modalX + (modalW - totalBtnsW) / 2;
+        float btnY = modalY + modalH / 2 - 10;
+
+        int[] delays = {5, 10, 15, 30};
+        for (int i = 0; i < delays.length; i++) {
+            float x = btnStartX + i * (btnW + btnSpacing);
+            if (screenX >= x && screenX <= x + btnW &&
+                renderY >= btnY && renderY <= btnY + btnH) {
+                selectedDelayMinutes = delays[i];
+                return true;
+            }
+        }
+
+        float actionBtnW = 130;
+        float actionBtnH = 42;
+        float actionBtnSpacing = 16;
+        float confirmX = modalX + modalW / 2 - actionBtnW - actionBtnSpacing / 2;
+        float cancelX = modalX + modalW / 2 + actionBtnSpacing / 2;
+        float actionBtnY = modalY + DesignSystem.SPACE_LG;
+
+        if (renderY >= actionBtnY && renderY <= actionBtnY + actionBtnH) {
+            if (screenX >= confirmX && screenX <= confirmX + actionBtnW) {
+                submitDelayReport(apiClient);
+                return true;
+            }
+            if (screenX >= cancelX && screenX <= cancelX + actionBtnW) {
+                hideDelayReportModal();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void submitDelayReport(MarPromApiClient apiClient) {
+        User user = getCurrentUser();
+        String token = getAuthToken();
+
+        if (user == null) {
+            delayErrorMessage = "Najprej se prijavite";
+            return;
+        }
+
+        apiClient.reportDelay(
+            user.getId(),
+            delayReportLineId,
+            delayReportStopId,
+            selectedDelayMinutes,
+            token,
+            new MarPromApiClient.DelayReportCallback() {
+                @Override
+                public void onSuccess() {
+                    hideDelayReportModal();
+                    reportedDelays.add(delayReportStopId + "-" + delayReportLineId);
+                    delaySuccessMessage = "Zamuda uspešno prijavljena";
+                    delaySuccessAlpha = 1f;
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    delayErrorMessage = error;
+                }
+            }
+        );
+    }
+
+    public boolean isDelayReportButtonArea(float screenX, float screenY, float cardY, int stationId, String lineName) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+        float renderY = screenHeight - screenY;
+
+        float panelWidth = 420;
+        float panelX = screenWidth - panelWidth - DesignSystem.SPACE_MD;
+
+        float btnW = 100;
+        float btnH = 28;
+        float btnX = panelX + panelWidth - DesignSystem.SPACE_MD * 2 - btnW;
+        float btnY = cardY + DesignSystem.SPACE_SM;
+
+        return screenX >= btnX && screenX <= btnX + btnW &&
+               renderY >= btnY && renderY <= btnY + btnH;
+    }
+
+    public boolean isDelayReportModalVisible() {
+        return delayReportModalVisible;
+    }
+
+    private String extractLineIdString(String lineName) {
+        if (lineName == null || !lineName.contains(" - ")) {
+            return "?";
+        }
+        return lineName.substring(0, lineName.indexOf(" - "));
     }
 
     public void resize(int width, int height) {

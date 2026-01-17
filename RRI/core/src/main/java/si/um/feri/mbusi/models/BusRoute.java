@@ -1,6 +1,7 @@
 package si.um.feri.mbusi.models;
 
 import com.badlogic.gdx.graphics.Color;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
 public class BusRoute {
     private int id;
     private String name;
+    @SerializedName("line_id")
     private int lineId;
     private List<double[]> path;
     private Color color;
