@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import si.um.feri.mbusi.config.Constants;
 import si.um.feri.mbusi.models.BusRoute;
+import si.um.feri.mbusi.models.RouteData;
 import si.um.feri.mbusi.models.Station;
 import si.um.feri.mbusi.models.StationDetails;
 import si.um.feri.mbusi.renderers.BusLineRenderer;
@@ -73,12 +74,12 @@ public class MapScreen extends InputAdapter implements Screen {
     private int tilesRendered = 0;
     private float fps = 0;
 
-    
+
     private boolean rightPanelHovered = false;
     private float stationListScrollOffset = 0f;
     private static final float SCROLL_SPEED = 30f;
 
-    
+
     private float stationDetailsScrollOffset = 0f;
 
     private BusLocationWebSocketClient busLocationClient = null;
@@ -199,7 +200,7 @@ public class MapScreen extends InputAdapter implements Screen {
 
     @Override
     public void render(float delta) {
-        
+
         Gdx.gl.glClearColor(
             DesignSystem.MAP_BACKGROUND.r,
             DesignSystem.MAP_BACKGROUND.g,
@@ -252,6 +253,9 @@ public class MapScreen extends InputAdapter implements Screen {
             renderBusMarker();
         }
 
+        if (modernOverlay.isRoutePlanningMode()) {
+            renderRouteMarkers();
+        }
 
         modernOverlay.update(delta);
         modernOverlay.setStats(tilesRendered, tileCache.getStats());
@@ -307,7 +311,7 @@ public class MapScreen extends InputAdapter implements Screen {
 
         TileCoordinate centerTile = GeoUtils.latLonToTile(centerLatLon.x, centerLatLon.y, currentZoom);
 
-        
+
         int tilesX = (int) Math.ceil(Gdx.graphics.getWidth() / (float) Constants.TILE_SIZE) + 6;
         int tilesY = (int) Math.ceil(Gdx.graphics.getHeight() / (float) Constants.TILE_SIZE) + 6;
 
@@ -414,6 +418,30 @@ public class MapScreen extends InputAdapter implements Screen {
             }
         }
 
+        if (modernOverlay.isStatisticsModalVisible()) {
+            if (modernOverlay.handleStatisticsModalClick(screenX, screenY)) {
+                dragging = false;
+                return true;
+            }
+        }
+
+        if (modernOverlay.handleRouteInstructionsPanelClick(screenX, screenY)) {
+            dragging = false;
+            return true;
+        }
+
+        if (modernOverlay.isRouteButtonArea(screenX, screenY)) {
+            modernOverlay.toggleRoutePlanningMode();
+            dragging = false;
+            return true;
+        }
+
+        if (modernOverlay.isStatisticsButtonArea(screenX, screenY)) {
+            modernOverlay.showStatisticsModal(apiClient);
+            dragging = false;
+            return true;
+        }
+
         if (modernOverlay.isLoginButtonArea(screenX, screenY)) {
             if (modernOverlay.getCurrentUser() != null) {
                 modernOverlay.logout();
@@ -433,6 +461,19 @@ public class MapScreen extends InputAdapter implements Screen {
 
         modernOverlay.setTimeSliderDragging(false);
 
+        if (modernOverlay.isRoutePlanningMode()) {
+            Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
+            Vector2 latLon = GeoUtils.screenToLatLon(
+                worldCoords.x, worldCoords.y,
+                centerLatLon.x, centerLatLon.y,
+                currentZoom, Constants.TILE_SIZE);
+            modernOverlay.setRoutePoint(latLon.x, latLon.y, apiClient);
+            dragging = false;
+            return true;
+        }
+
+        Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
+
         float dragDistance = Vector2.dst(screenX, screenY, lastDragPosition.x, lastDragPosition.y);
         if (dragDistance < 5f && dataLoaded) {
             if (selectedStation != null || loadingStationDetails) {
@@ -447,11 +488,11 @@ public class MapScreen extends InputAdapter implements Screen {
                 return true;
             }
 
-            
+
             BusRoute clickedInMenu = modernOverlay.handleLeftPanelClick(screenX, screenY, busRoutes);
 
             if (clickedInMenu != null) {
-                
+
                 if (selectedLine == clickedInMenu) {
                     deselectLine();
                 } else {
@@ -461,10 +502,7 @@ public class MapScreen extends InputAdapter implements Screen {
                 return true;
             }
 
-            
-            Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
 
-            
             Station clickedStation = findStationAtPosition(worldCoords.x, worldCoords.y);
 
             if (clickedStation != null) {
@@ -473,7 +511,7 @@ public class MapScreen extends InputAdapter implements Screen {
                 return true;
             }
 
-            
+
             BusRoute clickedLine = findLineAtPosition(worldCoords.x, worldCoords.y);
 
             if (clickedLine != null) {
@@ -625,7 +663,7 @@ public class MapScreen extends InputAdapter implements Screen {
                     Gdx.app.postRunnable(new Runnable() {
                         @Override
                         public void run() {
-                            if (data == null || data.isEmpty()) {
+                            if (data != null || data.isEmpty()) {
                                 List<si.um.feri.mbusi.models.OccupancyData> mockData = generateMockOccupancyData(line.getLineId(), today);
                                 occupancySimulation.setOccupancyData(mockData, line.getLineId(), today);
                             } else {
@@ -763,7 +801,7 @@ public class MapScreen extends InputAdapter implements Screen {
         List<Station> stationsToCheck = selectedLine != null ? selectedLineStations : allStations;
         if (stationsToCheck.isEmpty()) return null;
 
-        float clickThreshold = 20f; 
+        float clickThreshold = 20f;
         Station closestStation = null;
         float minDistance = Float.MAX_VALUE;
 
@@ -809,6 +847,110 @@ public class MapScreen extends InputAdapter implements Screen {
 
         shapeRenderer.setColor(1f, 1f, 1f, 1.0f);
         shapeRenderer.circle(busScreen.x, busScreen.y, 4f, 16);
+
+        shapeRenderer.end();
+    }
+
+    private void renderRouteMarkers() {
+        Double startLat = modernOverlay.getRouteStartLat();
+        Double startLon = modernOverlay.getRouteStartLon();
+        Double endLat = modernOverlay.getRouteEndLat();
+        Double endLon = modernOverlay.getRouteEndLon();
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        if (startLat != null && startLon != null) {
+            Vector2 startScreen = GeoUtils.latLonToScreenPosition(
+                startLat, startLon,
+                centerLatLon.x, centerLatLon.y,
+                currentZoom, Constants.TILE_SIZE);
+
+            shapeRenderer.setColor(0.18f, 0.80f, 0.44f, 0.4f);
+            shapeRenderer.circle(startScreen.x, startScreen.y, 18f, 32);
+
+            shapeRenderer.setColor(0.18f, 0.80f, 0.44f, 1.0f);
+            shapeRenderer.circle(startScreen.x, startScreen.y, 12f, 32);
+
+            shapeRenderer.setColor(1f, 1f, 1f, 1.0f);
+            shapeRenderer.circle(startScreen.x, startScreen.y, 4f, 16);
+        }
+
+        if (endLat != null && endLon != null) {
+            Vector2 endScreen = GeoUtils.latLonToScreenPosition(
+                endLat, endLon,
+                centerLatLon.x, centerLatLon.y,
+                currentZoom, Constants.TILE_SIZE);
+
+            shapeRenderer.setColor(0.91f, 0.30f, 0.24f, 0.4f);
+            shapeRenderer.circle(endScreen.x, endScreen.y, 18f, 32);
+
+            shapeRenderer.setColor(0.91f, 0.30f, 0.24f, 1.0f);
+            shapeRenderer.circle(endScreen.x, endScreen.y, 12f, 32);
+
+            shapeRenderer.setColor(1f, 1f, 1f, 1.0f);
+            shapeRenderer.circle(endScreen.x, endScreen.y, 4f, 16);
+        }
+
+        RouteData route = modernOverlay.getCurrentRoute();
+        if (route != null && route.getStations() != null && !route.getStations().isEmpty()) {
+            shapeRenderer.end();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            Gdx.gl.glLineWidth(5f);
+
+            shapeRenderer.setColor(0.25f, 0.53f, 0.97f, 0.8f);
+
+            List<RouteData.RouteStation> stations = route.getStations();
+            Vector2 prevPoint = null;
+
+            if (startLat != null && startLon != null) {
+                prevPoint = GeoUtils.latLonToScreenPosition(
+                    startLat, startLon,
+                    centerLatLon.x, centerLatLon.y,
+                    currentZoom, Constants.TILE_SIZE);
+            }
+
+            for (RouteData.RouteStation station : stations) {
+                Vector2 stationPoint = GeoUtils.latLonToScreenPosition(
+                    station.getLatitude(), station.getLongitude(),
+                    centerLatLon.x, centerLatLon.y,
+                    currentZoom, Constants.TILE_SIZE);
+
+                if (prevPoint != null) {
+                    shapeRenderer.line(prevPoint.x, prevPoint.y, stationPoint.x, stationPoint.y);
+                }
+                prevPoint = stationPoint;
+            }
+
+            if (endLat != null && endLon != null && prevPoint != null) {
+                Vector2 endPoint = GeoUtils.latLonToScreenPosition(
+                    endLat, endLon,
+                    centerLatLon.x, centerLatLon.y,
+                    currentZoom, Constants.TILE_SIZE);
+
+                shapeRenderer.line(prevPoint.x, prevPoint.y, endPoint.x, endPoint.y);
+            }
+
+            Gdx.gl.glLineWidth(1f);
+            shapeRenderer.end();
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            for (RouteData.RouteStation station : stations) {
+                Vector2 stationPoint = GeoUtils.latLonToScreenPosition(
+                    station.getLatitude(), station.getLongitude(),
+                    centerLatLon.x, centerLatLon.y,
+                    currentZoom, Constants.TILE_SIZE);
+
+                shapeRenderer.setColor(0.25f, 0.53f, 0.97f, 0.3f);
+                shapeRenderer.circle(stationPoint.x, stationPoint.y, 12f, 32);
+
+                shapeRenderer.setColor(0.25f, 0.53f, 0.97f, 1.0f);
+                shapeRenderer.circle(stationPoint.x, stationPoint.y, 8f, 32);
+            }
+        }
 
         shapeRenderer.end();
     }
@@ -908,7 +1050,7 @@ public class MapScreen extends InputAdapter implements Screen {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        
+
         rightPanelHovered = modernOverlay.isStationListPanelArea(screenX, screenY);
         modernOverlay.setRightPanelHovered(rightPanelHovered);
         return false;
@@ -916,7 +1058,7 @@ public class MapScreen extends InputAdapter implements Screen {
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
-        
+
         if (selectedStation != null) {
             float maxScroll = modernOverlay.getStationDetailsMaxScroll(selectedStation);
             stationDetailsScrollOffset += amountY * SCROLL_SPEED;
@@ -925,24 +1067,24 @@ public class MapScreen extends InputAdapter implements Screen {
             return true;
         }
 
-        
-        if (rightPanelHovered && selectedLine != null && !selectedLineStations.isEmpty()) {
-            
-            float itemHeight = 70; 
 
-            
-            
-            
-            float bottomBarTop = 80; 
+        if (rightPanelHovered && selectedLine != null && !selectedLineStations.isEmpty()) {
+
+            float itemHeight = 70;
+
+
+
+
+            float bottomBarTop = 80;
             float panelVisibleHeight = Gdx.graphics.getHeight() - 64 - 32 - bottomBarTop - 100;
 
             float totalContentHeight = selectedLineStations.size() * itemHeight;
             float maxScroll = Math.max(0, totalContentHeight - panelVisibleHeight);
 
-            
+
             stationListScrollOffset -= amountY * SCROLL_SPEED;
 
-            
+
             stationListScrollOffset = Math.max(-maxScroll, Math.min(0, stationListScrollOffset));
 
             modernOverlay.setStationScrollOffset(stationListScrollOffset);
@@ -950,7 +1092,7 @@ public class MapScreen extends InputAdapter implements Screen {
             return true;
         }
 
-        
+
         int oldZoom = currentZoom;
 
         if (amountY < 0 && currentZoom < Constants.MAX_ZOOM) {
@@ -961,32 +1103,32 @@ public class MapScreen extends InputAdapter implements Screen {
             return true;
         }
 
-        
-        
+
+
         float screenCenterX = Gdx.graphics.getWidth() / 2f;
         float screenCenterY = Gdx.graphics.getHeight() / 2f;
 
-        
+
         Vector2 screenCenter = GeoUtils.screenToLatLon(
             screenCenterX, screenCenterY,
             centerLatLon.x, centerLatLon.y,
             oldZoom, Constants.TILE_SIZE
         );
 
-        
-        
-        
+
+
+
         Vector2 newScreenCenter = GeoUtils.screenToLatLon(
             screenCenterX, screenCenterY,
             centerLatLon.x, centerLatLon.y,
             currentZoom, Constants.TILE_SIZE
         );
 
-        
+
         double latShift = screenCenter.x - newScreenCenter.x;
         double lonShift = screenCenter.y - newScreenCenter.y;
 
-        
+
         centerLatLon.x += latShift;
         centerLatLon.y += lonShift;
 

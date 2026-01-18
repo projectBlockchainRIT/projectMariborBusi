@@ -12,7 +12,7 @@ public class Constants {
     public static final int TILE_SIZE = 256;
 
     public static final String MAPBOX_API_KEY = "pk.eyJ1IjoidGl5Zml5IiwiYSI6ImNtamcyM3YycDBwd20zZ3NtOHpocXlhZjEifQ.y02NSzJ1XQ5t8UETlW-imw";
-    public static final String GEOAPIFY_API_KEY = "YOUR_GEOAPIFY_KEY_HERE";
+    public static final String GEOAPIFY_API_KEY = "";
 
     public static final String MAP_PROVIDER = "mapbox";
 
@@ -41,6 +41,11 @@ public class Constants {
     public static final String MARPROM_API_LOGIN = MARPROM_API_BASE_URL + "/v1/authentication/login";
     public static final String MARPROM_API_REGISTER = MARPROM_API_BASE_URL + "/v1/authentication/register";
     public static final String MARPROM_API_DELAY_REPORT = MARPROM_API_BASE_URL + "/v1/delays/user";
+    public static final String MARPROM_API_DELAYS_AVERAGE = MARPROM_API_BASE_URL + "/v1/delays/average";
+    public static final String MARPROM_API_DELAYS_RECENT = MARPROM_API_BASE_URL + "/v1/delays/recent";
+    public static final String MARPROM_API_DELAYS_USER = MARPROM_API_BASE_URL + "/v1/delays/user/";
+    public static final String MARPROM_API_OCCUPANCY_AVERAGE = MARPROM_API_BASE_URL + "/v1/occupancy/average/";
+    public static final String MARPROM_API_ROUTE_SHORTEST = MARPROM_API_BASE_URL + "/v1/show/shortest";
     public static final int API_TIMEOUT_MS = 5000;
 
     private Constants() {
