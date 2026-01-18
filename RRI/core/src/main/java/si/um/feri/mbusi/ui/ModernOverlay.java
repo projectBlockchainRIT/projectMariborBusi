@@ -14,9 +14,13 @@ import si.um.feri.mbusi.models.BusRoute;
 import si.um.feri.mbusi.models.Station;
 import si.um.feri.mbusi.models.StationDetails;
 import si.um.feri.mbusi.models.User;
+import si.um.feri.mbusi.models.StatisticsData;
+import si.um.feri.mbusi.models.RouteData;
 import si.um.feri.mbusi.services.api.MarPromApiClient;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ModernOverlay implements Disposable {
@@ -83,6 +87,23 @@ public class ModernOverlay implements Disposable {
     private float delaySuccessAlpha = 0f;
     private java.util.Set<String> reportedDelays = new java.util.HashSet<>();
 
+    private boolean statisticsModalVisible = false;
+    private float statisticsModalSlide = 0f;
+    private boolean statisticsLoading = false;
+    private double statsAverageDelay = 0;
+    private double statsAverageOccupancy = 0;
+    private List<StatisticsData.RecentDelay> statsRecentDelays = new ArrayList<>();
+    private List<StatisticsData.UserDelay> statsUserDelays = new ArrayList<>();
+    private float statisticsScrollOffset = 0f;
+
+    private boolean routePlanningMode = false;
+    private Double routeStartLat = null;
+    private Double routeStartLon = null;
+    private Double routeEndLat = null;
+    private Double routeEndLon = null;
+    private RouteData currentRoute = null;
+    private boolean routeLoading = false;
+
     public ModernOverlay() {
         uiRenderer = new UIRenderer();
         uiCamera = new OrthographicCamera();
@@ -135,6 +156,9 @@ public class ModernOverlay implements Disposable {
 
         float delayModalTarget = delayReportModalVisible ? 1f : 0f;
         delayReportModalSlide = MathUtils.lerp(delayReportModalSlide, delayModalTarget, delta * PANEL_SLIDE_SPEED);
+
+        float statisticsModalTarget = statisticsModalVisible ? 1f : 0f;
+        statisticsModalSlide = MathUtils.lerp(statisticsModalSlide, statisticsModalTarget, delta * PANEL_SLIDE_SPEED);
 
         if (delaySuccessAlpha > 0) {
             delaySuccessAlpha = Math.max(0, delaySuccessAlpha - delta * 2f);
@@ -199,6 +223,12 @@ public class ModernOverlay implements Disposable {
         if (delayReportModalSlide > 0.01f) {
             drawDelayReportModal(shapes);
         }
+        if (statisticsModalSlide > 0.01f) {
+            drawStatisticsModal(shapes);
+        }
+        if (currentRoute != null && currentRoute.getStations() != null && !currentRoute.getStations().isEmpty()) {
+            drawRouteInstructionsPanel(shapes);
+        }
         if (delaySuccessAlpha > 0.01f) {
             drawDelaySuccessToastBg(shapes);
         }
@@ -222,6 +252,12 @@ public class ModernOverlay implements Disposable {
         }
         if (delayReportModalSlide > 0.01f) {
             drawDelayReportModalText(batch);
+        }
+        if (statisticsModalSlide > 0.01f) {
+            drawStatisticsModalText(batch);
+        }
+        if (currentRoute != null && currentRoute.getStations() != null && !currentRoute.getStations().isEmpty()) {
+            drawRouteInstructionsPanelText(batch);
         }
         if (delaySuccessAlpha > 0.01f) {
             drawDelaySuccessToast(batch);
@@ -267,6 +303,15 @@ public class ModernOverlay implements Disposable {
         float loginBtnY = headerY + DesignSystem.HEADER_HEIGHT / 2 - 20;
         Color btnColor = currentUser != null ? DesignSystem.SUCCESS : DesignSystem.ACCENT_PRIMARY;
         uiRenderer.drawPill(loginBtnX, loginBtnY, 100f, 40f, btnColor);
+
+        if (currentUser != null) {
+            float statsBtnX = loginBtnX - 110 - DesignSystem.SPACE_SM;
+            uiRenderer.drawPill(statsBtnX, loginBtnY, 100f, 40f, DesignSystem.ACCENT_SECONDARY);
+
+            float routeBtnX = statsBtnX - 110 - DesignSystem.SPACE_SM;
+            Color routeBtnColor = routePlanningMode ? DesignSystem.WARNING : DesignSystem.INFO;
+            uiRenderer.drawPill(routeBtnX, loginBtnY, 100f, 40f, routeBtnColor);
+        }
     }
 
     private void drawTopBarText(SpriteBatch batch, int zoom, float lat, float lon) {
@@ -302,10 +347,19 @@ public class ModernOverlay implements Disposable {
 
         float screenWidth = Gdx.graphics.getWidth();
         float loginBtnX = screenWidth - 120 - DesignSystem.SPACE_MD * 4;
-        float loginBtnY = barY + DesignSystem.HEADER_HEIGHT / 2;
+        float loginBtnY = barY + DesignSystem.HEADER_HEIGHT / 2 + 6;
         String btnText = currentUser != null ? currentUser.getUsername() : "Login";
         if (btnText.length() > 8) btnText = btnText.substring(0, 7) + "...";
-        uiRenderer.drawTextCentered(btnText, loginBtnX, loginBtnY, 100f, DesignSystem.TEXT_INVERSE, uiRenderer.getFontRegular());
+        uiRenderer.drawTextCentered(btnText, loginBtnX, loginBtnY, 100f, Color.WHITE, uiRenderer.getFontRegular());
+
+        if (currentUser != null) {
+            float statsBtnX = loginBtnX - 110 - DesignSystem.SPACE_SM;
+            uiRenderer.drawTextCentered("Statistics", statsBtnX, loginBtnY, 100f, Color.WHITE, uiRenderer.getFontRegular());
+
+            float routeBtnX = statsBtnX - 110 - DesignSystem.SPACE_SM;
+            String routeText = routePlanningMode ? "Cancel Route" : "Plan Route";
+            uiRenderer.drawTextCentered(routeText, routeBtnX, loginBtnY, 100f, Color.WHITE, uiRenderer.getFontRegular());
+        }
     }
 
 
@@ -1363,16 +1417,20 @@ public class ModernOverlay implements Disposable {
             DesignSystem.RADIUS_XL, DesignSystem.SURFACE_DARK);
 
         float tabY = scaledY + scaledH - 60;
-        float tab1X = scaledX + DesignSystem.SPACE_LG;
-        float tab2X = tab1X + 180 + DesignSystem.SPACE_MD;
+        float tabW = 180f;
+        float tabH = 40f;
+        float tabSpacing = 12f;
+        float totalTabWidth = tabW * 2 + tabSpacing;
+        float tab1X = scaledX + (scaledW - totalTabWidth) / 2;
+        float tab2X = tab1X + tabW + tabSpacing;
 
         Color tab1Color = !showRegisterTab ? DesignSystem.ACCENT_PRIMARY :
-            DesignSystem.withAlpha(DesignSystem.SURFACE_ELEVATED, 0.5f);
+            DesignSystem.SURFACE_ELEVATED;
         Color tab2Color = showRegisterTab ? DesignSystem.ACCENT_PRIMARY :
-            DesignSystem.withAlpha(DesignSystem.SURFACE_ELEVATED, 0.5f);
+            DesignSystem.SURFACE_ELEVATED;
 
-        uiRenderer.drawPill(tab1X, tabY, 180f, 40f, tab1Color);
-        uiRenderer.drawPill(tab2X, tabY, 180f, 40f, tab2Color);
+        uiRenderer.drawPill(tab1X, tabY, tabW, tabH, tab1Color);
+        uiRenderer.drawPill(tab2X, tabY, tabW, tabH, tab2Color);
 
         float fieldY = tabY - 80;
         float fieldX = scaledX + DesignSystem.SPACE_LG;
@@ -1394,14 +1452,18 @@ public class ModernOverlay implements Disposable {
                 DesignSystem.RADIUS_MD, emailBorder);
         }
 
+        float btnW = 140f;
+        float btnH = 44f;
+        float btnSpacing = 12f;
+        float totalBtnWidth = btnW * 2 + btnSpacing;
         float btnY = scaledY + DesignSystem.SPACE_LG;
-        float submitBtnX = scaledX + scaledW / 2 - 150;
-        float cancelBtnX = submitBtnX + 150 + DesignSystem.SPACE_MD;
+        float submitBtnX = scaledX + (scaledW - totalBtnWidth) / 2;
+        float cancelBtnX = submitBtnX + btnW + btnSpacing;
 
-        uiRenderer.drawRoundedRect(submitBtnX, btnY, 140f, 44f,
+        uiRenderer.drawRoundedRect(submitBtnX, btnY, btnW, btnH,
             DesignSystem.RADIUS_MD, DesignSystem.ACCENT_PRIMARY);
-        uiRenderer.drawRoundedRect(cancelBtnX, btnY, 140f, 44f,
-            DesignSystem.RADIUS_MD, DesignSystem.withAlpha(DesignSystem.SURFACE_ELEVATED, 0.7f));
+        uiRenderer.drawRoundedRect(cancelBtnX, btnY, btnW, btnH,
+            DesignSystem.RADIUS_MD, DesignSystem.SURFACE_ELEVATED);
     }
 
     private void drawLoginModalText(SpriteBatch batch) {
@@ -1420,9 +1482,19 @@ public class ModernOverlay implements Disposable {
         float scaledY = modalY - (scaledH - modalH) / 2;
 
         float tabY = scaledY + scaledH - 60;
-        float tabTextY = tabY + 25;
-        uiRenderer.drawTextCentered("Login", scaledX + DesignSystem.SPACE_LG, tabTextY, 180f, DesignSystem.TEXT_INVERSE, uiRenderer.getFontRegular());
-        uiRenderer.drawTextCentered("Register", scaledX + DesignSystem.SPACE_LG + 180 + DesignSystem.SPACE_MD, tabTextY, 180f, DesignSystem.TEXT_INVERSE, uiRenderer.getFontRegular());
+        float tabW = 180f;
+        float tabH = 40f;
+        float tabSpacing = 12f;
+        float totalTabWidth = tabW * 2 + tabSpacing;
+        float tab1X = scaledX + (scaledW - totalTabWidth) / 2;
+        float tab2X = tab1X + tabW + tabSpacing;
+        float tabTextY = tabY + tabH / 2 + 6;
+
+        Color tab1TextColor = !showRegisterTab ? Color.WHITE : DesignSystem.TEXT_SECONDARY;
+        Color tab2TextColor = showRegisterTab ? Color.WHITE : DesignSystem.TEXT_SECONDARY;
+
+        uiRenderer.drawTextCentered("Login", tab1X, tabTextY, tabW, tab1TextColor, uiRenderer.getFontRegular());
+        uiRenderer.drawTextCentered("Register", tab2X, tabTextY, tabW, tab2TextColor, uiRenderer.getFontRegular());
 
         float fieldY = tabY - 80;
         float fieldX = scaledX + DesignSystem.SPACE_LG;
@@ -1447,13 +1519,17 @@ public class ModernOverlay implements Disposable {
             uiRenderer.drawText(displayEmail, fieldX + 12, fieldY + 18, DesignSystem.TEXT_PRIMARY);
         }
 
+        float btnW = 140f;
+        float btnH = 44f;
+        float btnSpacing = 12f;
+        float totalBtnWidth = btnW * 2 + btnSpacing;
         float btnY = scaledY + DesignSystem.SPACE_LG;
-        float submitBtnX = scaledX + scaledW / 2 - 150;
-        float cancelBtnX = submitBtnX + 150 + DesignSystem.SPACE_MD;
+        float submitBtnX = scaledX + (scaledW - totalBtnWidth) / 2;
+        float cancelBtnX = submitBtnX + btnW + btnSpacing;
 
         String submitText = showRegisterTab ? "Register" : "Login";
-        uiRenderer.drawTextCentered(submitText, submitBtnX, btnY + 26, 140f, DesignSystem.TEXT_INVERSE, uiRenderer.getFontRegular());
-        uiRenderer.drawTextCentered("Cancel", cancelBtnX, btnY + 26, 140f, DesignSystem.TEXT_INVERSE, uiRenderer.getFontRegular());
+        uiRenderer.drawTextCentered(submitText, submitBtnX, btnY + btnH / 2 + 6, btnW, Color.WHITE, uiRenderer.getFontRegular());
+        uiRenderer.drawTextCentered("Cancel", cancelBtnX, btnY + btnH / 2 + 6, btnW, DesignSystem.TEXT_PRIMARY, uiRenderer.getFontRegular());
 
         if (!authErrorMessage.isEmpty()) {
             uiRenderer.drawTextCentered(authErrorMessage, modalX, btnY + 60, modalW, DesignSystem.ERROR, uiRenderer.getFontSmall());
@@ -1489,13 +1565,19 @@ public class ModernOverlay implements Disposable {
         }
 
         float tabY = modalY + modalH - 60;
-        if (renderY >= tabY && renderY <= tabY + 40) {
-            if (screenX >= modalX + DesignSystem.SPACE_LG && screenX <= modalX + DesignSystem.SPACE_LG + 180) {
+        float tabW = 180f;
+        float tabH = 40f;
+        float tabSpacing = 12f;
+        float totalTabWidth = tabW * 2 + tabSpacing;
+        float tab1X = modalX + (modalW - totalTabWidth) / 2;
+        float tab2X = tab1X + tabW + tabSpacing;
+
+        if (renderY >= tabY && renderY <= tabY + tabH) {
+            if (screenX >= tab1X && screenX <= tab1X + tabW) {
                 showRegisterTab = false;
                 return true;
             }
-            if (screenX >= modalX + DesignSystem.SPACE_LG + 180 + DesignSystem.SPACE_MD &&
-                screenX <= modalX + DesignSystem.SPACE_LG + 360 + DesignSystem.SPACE_MD) {
+            if (screenX >= tab2X && screenX <= tab2X + tabW) {
                 showRegisterTab = true;
                 return true;
             }
@@ -1524,16 +1606,20 @@ public class ModernOverlay implements Disposable {
             }
         }
 
+        float btnW = 140f;
+        float btnH = 44f;
+        float btnSpacing = 12f;
+        float totalBtnWidth = btnW * 2 + btnSpacing;
         float btnY = modalY + DesignSystem.SPACE_LG;
-        float submitBtnX = modalX + modalW / 2 - 150;
-        float cancelBtnX = submitBtnX + 150 + DesignSystem.SPACE_MD;
+        float submitBtnX = modalX + (modalW - totalBtnWidth) / 2;
+        float cancelBtnX = submitBtnX + btnW + btnSpacing;
 
-        if (renderY >= btnY && renderY <= btnY + 44) {
-            if (screenX >= submitBtnX && screenX <= submitBtnX + 140) {
+        if (renderY >= btnY && renderY <= btnY + btnH) {
+            if (screenX >= submitBtnX && screenX <= submitBtnX + btnW) {
                 submitAuth(apiClient);
                 return true;
             }
-            if (screenX >= cancelBtnX && screenX <= cancelBtnX + 140) {
+            if (screenX >= cancelBtnX && screenX <= cancelBtnX + btnW) {
                 hideLoginModal();
                 return true;
             }
@@ -1645,6 +1731,13 @@ public class ModernOverlay implements Disposable {
     public void logout() {
         currentUser = null;
         authToken = null;
+        routePlanningMode = false;
+        routeStartLat = null;
+        routeStartLon = null;
+        routeEndLat = null;
+        routeEndLon = null;
+        currentRoute = null;
+        routeLoading = false;
     }
 
     public int getActiveInputField() {
@@ -1949,6 +2042,465 @@ public class ModernOverlay implements Disposable {
 
     public void resize(int width, int height) {
         uiCamera.setToOrtho(false, width, height);
+    }
+
+    public boolean isRouteButtonArea(float screenX, float screenY) {
+        if (currentUser == null) return false;
+
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float loginBtnX = screenWidth - 120 - DesignSystem.SPACE_MD * 4;
+        float statsBtnX = loginBtnX - 110 - DesignSystem.SPACE_SM;
+        float routeBtnX = statsBtnX - 110 - DesignSystem.SPACE_SM;
+        float btnY = screenHeight - DesignSystem.HEADER_HEIGHT - DesignSystem.SPACE_MD + 8;
+        float renderY = screenHeight - screenY;
+
+        return screenX >= routeBtnX && screenX <= routeBtnX + 100 &&
+               renderY >= btnY && renderY <= btnY + 40;
+    }
+
+    public void toggleRoutePlanningMode() {
+        if (currentUser == null) return;
+
+        routePlanningMode = !routePlanningMode;
+        if (!routePlanningMode) {
+            routeStartLat = null;
+            routeStartLon = null;
+            routeEndLat = null;
+            routeEndLon = null;
+            currentRoute = null;
+            routeLoading = false;
+        }
+    }
+
+    public boolean isRoutePlanningMode() {
+        return routePlanningMode;
+    }
+
+    public void setRoutePoint(double lat, double lon, MarPromApiClient apiClient) {
+        if (!routePlanningMode) {
+            return;
+        }
+
+        if (routeStartLat == null) {
+            routeStartLat = lat;
+            routeStartLon = lon;
+        } else if (routeEndLat == null) {
+            routeEndLat = lat;
+            routeEndLon = lon;
+            fetchRoute(apiClient);
+        }
+    }
+
+    private void fetchRoute(MarPromApiClient apiClient) {
+        if (routeStartLat == null || routeEndLat == null) {
+            return;
+        }
+
+        routeLoading = true;
+
+        apiClient.fetchShortestRoute(routeStartLat, routeStartLon, routeEndLat, routeEndLon,
+            new MarPromApiClient.RouteCallback() {
+                @Override
+                public void onSuccess(RouteData route) {
+                    currentRoute = route;
+                    routeLoading = false;
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    routeLoading = false;
+                }
+            });
+    }
+
+    public Double getRouteStartLat() {
+        return routeStartLat;
+    }
+
+    public Double getRouteStartLon() {
+        return routeStartLon;
+    }
+
+    public Double getRouteEndLat() {
+        return routeEndLat;
+    }
+
+    public Double getRouteEndLon() {
+        return routeEndLon;
+    }
+
+    public RouteData getCurrentRoute() {
+        return currentRoute;
+    }
+
+    public boolean isStatisticsButtonArea(float screenX, float screenY) {
+        if (currentUser == null) return false;
+
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float loginBtnX = screenWidth - 120 - DesignSystem.SPACE_MD * 4;
+        float statsBtnX = loginBtnX - 110 - DesignSystem.SPACE_SM;
+        float btnY = screenHeight - DesignSystem.HEADER_HEIGHT - DesignSystem.SPACE_MD + 8;
+        float renderY = screenHeight - screenY;
+
+        return screenX >= statsBtnX && screenX <= statsBtnX + 100 &&
+               renderY >= btnY && renderY <= btnY + 40;
+    }
+
+    public void showStatisticsModal(MarPromApiClient apiClient) {
+        if (currentUser == null) return;
+
+        statisticsModalVisible = true;
+        statisticsLoading = true;
+        statisticsScrollOffset = 0f;
+
+        statsAverageDelay = 0;
+        statsAverageOccupancy = 0;
+        statsRecentDelays.clear();
+        statsUserDelays.clear();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String today = sdf.format(new Date());
+
+        MarPromApiClient.StatisticsCallback callback = new MarPromApiClient.StatisticsCallback() {
+            @Override
+            public void onAverageDelay(double average) {
+                statsAverageDelay = average;
+            }
+
+            @Override
+            public void onRecentDelays(List<StatisticsData.RecentDelay> delays) {
+                statsRecentDelays = delays != null ? delays : new ArrayList<>();
+            }
+
+            @Override
+            public void onUserDelays(List<StatisticsData.UserDelay> delays) {
+                statsUserDelays = delays != null ? delays : new ArrayList<>();
+                statisticsLoading = false;
+            }
+
+            @Override
+            public void onAverageOccupancy(double average) {
+                statsAverageOccupancy = average;
+            }
+
+            @Override
+            public void onFailure(String error) {
+                statisticsLoading = false;
+            }
+        };
+
+        apiClient.fetchAverageDelay(callback);
+        apiClient.fetchRecentDelays(callback);
+        apiClient.fetchAverageOccupancy(today, callback);
+        apiClient.fetchUserDelays(currentUser.getId(), authToken, callback);
+    }
+
+    public void hideStatisticsModal() {
+        statisticsModalVisible = false;
+    }
+
+    public boolean isStatisticsModalVisible() {
+        return statisticsModalVisible;
+    }
+
+    private void drawStatisticsModal(ShapeRenderer shapes) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+        float alpha = statisticsModalSlide;
+
+        shapes.setColor(0, 0, 0, 0.6f * alpha);
+        shapes.rect(0, 0, screenWidth, screenHeight);
+
+        float modalW = 500;
+        float modalH = 520;
+        float modalX = (screenWidth - modalW) / 2;
+        float modalY = (screenHeight - modalH) / 2;
+
+        float scale = 0.9f + 0.1f * alpha;
+        float scaledW = modalW * scale;
+        float scaledH = modalH * scale;
+        float scaledX = modalX - (scaledW - modalW) / 2;
+        float scaledY = modalY - (scaledH - modalH) / 2;
+
+        uiRenderer.drawRoundedRect(scaledX, scaledY, scaledW, scaledH,
+            DesignSystem.RADIUS_XL, DesignSystem.SURFACE_DARK);
+
+        uiRenderer.drawRoundedRect(scaledX, scaledY + scaledH - 70, scaledW, 70,
+            DesignSystem.RADIUS_XL, DesignSystem.SURFACE_ELEVATED);
+        uiRenderer.drawRoundedRect(scaledX, scaledY + scaledH - 70, scaledW, 20,
+            0, DesignSystem.SURFACE_ELEVATED);
+
+        float cardY = scaledY + scaledH - 100;
+        float cardW = (scaledW - DesignSystem.SPACE_LG * 3) / 2;
+        float cardH = 80;
+
+        uiRenderer.drawRoundedRect(scaledX + DesignSystem.SPACE_LG, cardY - cardH,
+            cardW, cardH, DesignSystem.RADIUS_MD, DesignSystem.SURFACE_ELEVATED);
+
+        uiRenderer.drawRoundedRect(scaledX + DesignSystem.SPACE_LG * 2 + cardW, cardY - cardH,
+            cardW, cardH, DesignSystem.RADIUS_MD, DesignSystem.SURFACE_ELEVATED);
+
+        float closeBtnY = scaledY + DesignSystem.SPACE_LG;
+        float closeBtnW = 120;
+        float closeBtnX = scaledX + (scaledW - closeBtnW) / 2;
+        uiRenderer.drawRoundedRect(closeBtnX, closeBtnY, closeBtnW, 44,
+            DesignSystem.RADIUS_MD, DesignSystem.ACCENT_PRIMARY);
+    }
+
+    private void drawStatisticsModalText(SpriteBatch batch) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float modalW = 500;
+        float modalH = 520;
+        float modalX = (screenWidth - modalW) / 2;
+        float modalY = (screenHeight - modalH) / 2;
+
+        float scale = 0.9f + 0.1f * statisticsModalSlide;
+        float scaledW = modalW * scale;
+        float scaledH = modalH * scale;
+        float scaledX = modalX - (scaledW - modalW) / 2;
+        float scaledY = modalY - (scaledH - modalH) / 2;
+
+        uiRenderer.drawTextCentered("Statistics",
+            scaledX, scaledY + scaledH - 30, scaledW,
+            DesignSystem.TEXT_PRIMARY, uiRenderer.getFontLarge());
+
+        uiRenderer.drawTextCentered("Bus system overview for today",
+            scaledX, scaledY + scaledH - 55, scaledW,
+            DesignSystem.TEXT_SECONDARY, uiRenderer.getFontSmall());
+
+        float cardY = scaledY + scaledH - 100;
+        float cardW = (scaledW - DesignSystem.SPACE_LG * 3) / 2;
+        float cardH = 80;
+
+        float card1X = scaledX + DesignSystem.SPACE_LG;
+        uiRenderer.drawTextSmall("AVG DELAY",
+            card1X + DesignSystem.SPACE_SM, cardY - 15, DesignSystem.TEXT_MUTED);
+        String delayText = String.format("%.1f min", statsAverageDelay);
+        uiRenderer.drawTextLarge(delayText,
+            card1X + DesignSystem.SPACE_SM, cardY - 45, DesignSystem.WARNING);
+
+        float card2X = scaledX + DesignSystem.SPACE_LG * 2 + cardW;
+        uiRenderer.drawTextSmall("AVG OCCUPANCY",
+            card2X + DesignSystem.SPACE_SM, cardY - 15, DesignSystem.TEXT_MUTED);
+        String occText = String.format("%.0f%%", statsAverageOccupancy);
+        uiRenderer.drawTextLarge(occText,
+            card2X + DesignSystem.SPACE_SM, cardY - 45, DesignSystem.SUCCESS);
+
+        float sectionY = cardY - cardH - DesignSystem.SPACE_LG;
+
+        uiRenderer.drawTextBold("RECENT DELAYS",
+            scaledX + DesignSystem.SPACE_LG, sectionY, DesignSystem.TEXT_PRIMARY);
+
+        if (statisticsLoading) {
+            uiRenderer.drawText("Loading...",
+                scaledX + DesignSystem.SPACE_LG, sectionY - 30, DesignSystem.TEXT_SECONDARY);
+        } else if (statsRecentDelays.isEmpty()) {
+            uiRenderer.drawText("No recent delays reported",
+                scaledX + DesignSystem.SPACE_LG, sectionY - 30, DesignSystem.TEXT_MUTED);
+        } else {
+            float itemY = sectionY - 30;
+            int maxItems = Math.min(statsRecentDelays.size(), 3);
+            for (int i = 0; i < maxItems; i++) {
+                StatisticsData.RecentDelay delay = statsRecentDelays.get(i);
+                if (delay == null) continue;
+
+                String lineCode = delay.getLineCode();
+                if (lineCode == null || lineCode.trim().isEmpty()) {
+                    lineCode = "?";
+                }
+
+                String stopName = delay.getStopName();
+                if (stopName != null && stopName.length() > 20) {
+                    stopName = stopName.substring(0, 17) + "...";
+                }
+
+                String username = delay.getUsername();
+                if (username == null || username.trim().isEmpty()) {
+                    username = "Anonymous";
+                }
+
+                String line1 = "Line " + lineCode + " - " + delay.getDelayMin() + " min delay";
+                uiRenderer.drawText(line1, scaledX + DesignSystem.SPACE_LG, itemY, DesignSystem.TEXT_SECONDARY);
+                itemY -= 20;
+
+                String line2 = "At: " + (stopName != null ? stopName : "Unknown") + " (by " + username + ")";
+                uiRenderer.drawText(line2, scaledX + DesignSystem.SPACE_LG + 10, itemY, DesignSystem.TEXT_MUTED);
+                itemY -= 30;
+            }
+        }
+
+        float userSectionY = sectionY - 200;
+        uiRenderer.drawTextBold("YOUR REPORTS",
+            scaledX + DesignSystem.SPACE_LG, userSectionY, DesignSystem.TEXT_PRIMARY);
+
+        if (statisticsLoading) {
+            uiRenderer.drawText("Loading...",
+                scaledX + DesignSystem.SPACE_LG, userSectionY - 30, DesignSystem.TEXT_SECONDARY);
+        } else if (statsUserDelays.isEmpty()) {
+            uiRenderer.drawText("You haven't reported any delays",
+                scaledX + DesignSystem.SPACE_LG, userSectionY - 30, DesignSystem.TEXT_MUTED);
+        } else {
+            float itemY = userSectionY - 30;
+            int maxItems = Math.min(statsUserDelays.size(), 3);
+            for (int i = 0; i < maxItems; i++) {
+                StatisticsData.UserDelay delay = statsUserDelays.get(i);
+                if (delay == null) continue;
+
+                String lineCode = delay.getLineCode();
+                if (lineCode == null || lineCode.trim().isEmpty()) {
+                    lineCode = "?";
+                }
+
+                String stopName = delay.getStopName();
+                if (stopName != null && stopName.length() > 20) {
+                    stopName = stopName.substring(0, 17) + "...";
+                }
+
+                String line1 = "Line " + lineCode + " - " + delay.getDelayMin() + " min delay";
+                uiRenderer.drawText(line1, scaledX + DesignSystem.SPACE_LG, itemY, DesignSystem.TEXT_SECONDARY);
+                itemY -= 20;
+
+                if (stopName != null && !stopName.isEmpty()) {
+                    String line2 = "At: " + stopName;
+                    uiRenderer.drawText(line2, scaledX + DesignSystem.SPACE_LG + 10, itemY, DesignSystem.TEXT_MUTED);
+                    itemY -= 30;
+                } else {
+                    itemY -= 25;
+                }
+            }
+        }
+
+        float closeBtnY = scaledY + DesignSystem.SPACE_LG;
+        float closeBtnW = 120;
+        float closeBtnX = scaledX + (scaledW - closeBtnW) / 2;
+        uiRenderer.drawTextCentered("Close", closeBtnX, closeBtnY + 28, closeBtnW,
+            Color.WHITE, uiRenderer.getFontRegular());
+    }
+
+    public boolean handleStatisticsModalClick(float screenX, float screenY) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+        float renderY = screenHeight - screenY;
+
+        float modalW = 500;
+        float modalH = 520;
+        float modalX = (screenWidth - modalW) / 2;
+        float modalY = (screenHeight - modalH) / 2;
+
+        if (screenX < modalX || screenX > modalX + modalW ||
+            renderY < modalY || renderY > modalY + modalH) {
+            hideStatisticsModal();
+            return true;
+        }
+
+        float closeBtnY = modalY + DesignSystem.SPACE_LG;
+        float closeBtnW = 120;
+        float closeBtnX = modalX + (modalW - closeBtnW) / 2;
+
+        if (renderY >= closeBtnY && renderY <= closeBtnY + 44 &&
+            screenX >= closeBtnX && screenX <= closeBtnX + closeBtnW) {
+            hideStatisticsModal();
+            return true;
+        }
+
+        return false;
+    }
+
+    private void drawRouteInstructionsPanel(ShapeRenderer shapes) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float panelW = Math.min(500f, screenWidth - 40);
+        float panelH = 200f;
+        float panelX = (screenWidth - panelW) / 2;
+        float panelY = DesignSystem.SPACE_MD;
+
+        uiRenderer.drawRoundedRect(panelX, panelY, panelW, panelH,
+            DesignSystem.RADIUS_LG, DesignSystem.SURFACE_DARK);
+
+        uiRenderer.drawRoundedRect(panelX, panelY + panelH - 50, panelW, 50,
+            DesignSystem.RADIUS_LG, DesignSystem.SURFACE_ELEVATED);
+        uiRenderer.drawRoundedRect(panelX, panelY + panelH - 50, panelW, 20,
+            0, DesignSystem.SURFACE_ELEVATED);
+
+        float closeBtnX = panelX + panelW - 100 - DesignSystem.SPACE_SM;
+        float closeBtnY = panelY + DesignSystem.SPACE_SM;
+        uiRenderer.drawRoundedRect(closeBtnX, closeBtnY, 100f, 36f,
+            DesignSystem.RADIUS_MD, DesignSystem.ERROR);
+    }
+
+    private void drawRouteInstructionsPanelText(SpriteBatch batch) {
+        float screenWidth = Gdx.graphics.getWidth();
+
+        float panelW = Math.min(500f, screenWidth - 40);
+        float panelH = 200f;
+        float panelX = (screenWidth - panelW) / 2;
+        float panelY = DesignSystem.SPACE_MD;
+
+        uiRenderer.drawTextBold("Route Instructions",
+            panelX + DesignSystem.SPACE_MD, panelY + panelH - 22,
+            DesignSystem.TEXT_PRIMARY);
+
+        if (currentRoute != null && currentRoute.getStations() != null) {
+            List<RouteData.RouteStation> stations = currentRoute.getStations();
+
+            if (!stations.isEmpty()) {
+                float textY = panelY + panelH - 70;
+
+                uiRenderer.drawText("Walk to " + stations.get(0).getName(),
+                    panelX + DesignSystem.SPACE_MD, textY, DesignSystem.TEXT_PRIMARY);
+                textY -= 25;
+
+                for (int i = 0; i < Math.min(4, stations.size()); i++) {
+                    RouteData.RouteStation station = stations.get(i);
+                    String text = (i + 1) + ". " + station.getName();
+                    uiRenderer.drawText(text,
+                        panelX + DesignSystem.SPACE_MD, textY, DesignSystem.TEXT_SECONDARY);
+                    textY -= 22;
+                }
+
+                if (stations.size() > 4) {
+                    uiRenderer.drawText("... and " + (stations.size() - 4) + " more stops",
+                        panelX + DesignSystem.SPACE_MD, textY, DesignSystem.TEXT_MUTED);
+                }
+            }
+        }
+
+        float closeBtnX = panelX + panelW - 100 - DesignSystem.SPACE_SM;
+        float closeBtnY = panelY + DesignSystem.SPACE_SM;
+        uiRenderer.drawTextCentered("Close Route", closeBtnX, closeBtnY + 22, 100f,
+            Color.WHITE, uiRenderer.getFontRegular());
+    }
+
+    public boolean handleRouteInstructionsPanelClick(float screenX, float screenY) {
+        if (currentRoute == null || currentRoute.getStations() == null || currentRoute.getStations().isEmpty()) {
+            return false;
+        }
+
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+        float renderY = screenHeight - screenY;
+
+        float panelW = Math.min(500f, screenWidth - 40);
+        float panelX = (screenWidth - panelW) / 2;
+        float panelY = DesignSystem.SPACE_MD;
+
+        float closeBtnX = panelX + panelW - 100 - DesignSystem.SPACE_SM;
+        float closeBtnY = panelY + DesignSystem.SPACE_SM;
+
+        if (renderY >= closeBtnY && renderY <= closeBtnY + 36 &&
+            screenX >= closeBtnX && screenX <= closeBtnX + 100) {
+            toggleRoutePlanningMode();
+            return true;
+        }
+
+        return false;
     }
 
     @Override

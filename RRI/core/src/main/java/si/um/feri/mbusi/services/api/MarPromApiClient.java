@@ -52,6 +52,19 @@ public class MarPromApiClient {
         void onFailure(String error);
     }
 
+    public interface StatisticsCallback {
+        void onAverageDelay(double average);
+        void onRecentDelays(List<StatisticsData.RecentDelay> delays);
+        void onUserDelays(List<StatisticsData.UserDelay> delays);
+        void onAverageOccupancy(double average);
+        void onFailure(String error);
+    }
+
+    public interface RouteCallback {
+        void onSuccess(RouteData route);
+        void onFailure(String error);
+    }
+
     public MarPromApiClient() {
         this.gson = new GsonBuilder()
                 .setLenient()
@@ -352,6 +365,8 @@ public class MarPromApiClient {
                 data.setDate(date);
             }
 
+
+
             return occupancyList;
         } catch (Exception e) {
             Gdx.app.error("MarPromApiClient", "Error parsing occupancy response: " + e.getMessage());
@@ -529,6 +544,239 @@ public class MarPromApiClient {
             @Override
             public void cancelled() {
                 Gdx.app.postRunnable(() -> callback.onFailure("Zahteva preklicana"));
+            }
+        });
+    }
+
+    public void fetchAverageDelay(StatisticsCallback callback) {
+        Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.GET);
+        request.setUrl(Constants.MARPROM_API_DELAYS_AVERAGE);
+        request.setTimeOut(Constants.API_TIMEOUT_MS);
+
+        Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
+            @Override
+            public void handleHttpResponse(Net.HttpResponse httpResponse) {
+                int statusCode = httpResponse.getStatus().getStatusCode();
+                String responseStr = httpResponse.getResultAsString();
+
+                if (statusCode == HttpStatus.SC_OK) {
+                    try {
+                        if (responseStr.contains("\"data\"")) {
+                            int dataStart = responseStr.indexOf("\"data\":") + 7;
+                            int dataEnd = responseStr.indexOf(",", dataStart);
+                            if (dataEnd == -1) dataEnd = responseStr.indexOf("}", dataStart);
+                            String valueStr = responseStr.substring(dataStart, dataEnd).trim();
+                            double average = Double.parseDouble(valueStr);
+                            Gdx.app.postRunnable(() -> callback.onAverageDelay(average));
+                        } else {
+                            Gdx.app.postRunnable(() -> callback.onAverageDelay(0));
+                        }
+                    } catch (Exception e) {
+                        Gdx.app.postRunnable(() -> callback.onAverageDelay(0));
+                    }
+                } else {
+                    Gdx.app.postRunnable(() -> callback.onFailure("HTTP error: " + statusCode));
+                }
+            }
+
+            @Override
+            public void failed(Throwable t) {
+                Gdx.app.postRunnable(() -> callback.onFailure("Network error"));
+            }
+
+            @Override
+            public void cancelled() {
+                Gdx.app.postRunnable(() -> callback.onFailure("Request cancelled"));
+            }
+        });
+    }
+
+    public void fetchRecentDelays(StatisticsCallback callback) {
+        Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.GET);
+        request.setUrl(Constants.MARPROM_API_DELAYS_RECENT);
+        request.setTimeOut(Constants.API_TIMEOUT_MS);
+
+        Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
+            @Override
+            public void handleHttpResponse(Net.HttpResponse httpResponse) {
+                int statusCode = httpResponse.getStatus().getStatusCode();
+                String responseStr = httpResponse.getResultAsString();
+
+                if (statusCode == HttpStatus.SC_OK) {
+                    try {
+                        Type type = new TypeToken<ApiResponse<List<StatisticsData.RecentDelay>>>(){}.getType();
+                        ApiResponse<List<StatisticsData.RecentDelay>> response = gson.fromJson(responseStr, type);
+                        List<StatisticsData.RecentDelay> delays = response.getData() != null ?
+                            response.getData() : new ArrayList<>();
+                        Gdx.app.postRunnable(() -> callback.onRecentDelays(delays));
+                    } catch (Exception e) {
+                        Gdx.app.postRunnable(() -> callback.onRecentDelays(new ArrayList<>()));
+                    }
+                } else {
+                    Gdx.app.postRunnable(() -> callback.onFailure("HTTP error: " + statusCode));
+                }
+            }
+
+            @Override
+            public void failed(Throwable t) {
+                Gdx.app.postRunnable(() -> callback.onFailure("Network error"));
+            }
+
+            @Override
+            public void cancelled() {
+                Gdx.app.postRunnable(() -> callback.onFailure("Request cancelled"));
+            }
+        });
+    }
+
+    public void fetchUserDelays(int userId, String authToken, StatisticsCallback callback) {
+        Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.GET);
+        request.setUrl(Constants.MARPROM_API_DELAYS_USER + userId);
+        request.setTimeOut(Constants.API_TIMEOUT_MS);
+        if (authToken != null && !authToken.isEmpty()) {
+            request.setHeader("Authorization", "Bearer " + authToken);
+        }
+
+        Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
+            @Override
+            public void handleHttpResponse(Net.HttpResponse httpResponse) {
+                int statusCode = httpResponse.getStatus().getStatusCode();
+                String responseStr = httpResponse.getResultAsString();
+
+                if (statusCode == HttpStatus.SC_OK) {
+                    try {
+                        Type type = new TypeToken<ApiResponse<List<StatisticsData.UserDelay>>>(){}.getType();
+                        ApiResponse<List<StatisticsData.UserDelay>> response = gson.fromJson(responseStr, type);
+                        List<StatisticsData.UserDelay> delays = response.getData() != null ?
+                            response.getData() : new ArrayList<>();
+                        Gdx.app.postRunnable(() -> callback.onUserDelays(delays));
+                    } catch (Exception e) {
+                        Gdx.app.postRunnable(() -> callback.onUserDelays(new ArrayList<>()));
+                    }
+                } else {
+                    Gdx.app.postRunnable(() -> callback.onFailure("HTTP error: " + statusCode));
+                }
+            }
+
+            @Override
+            public void failed(Throwable t) {
+                Gdx.app.postRunnable(() -> callback.onFailure("Network error"));
+            }
+
+            @Override
+            public void cancelled() {
+                Gdx.app.postRunnable(() -> callback.onFailure("Request cancelled"));
+            }
+        });
+    }
+
+    public void fetchAverageOccupancy(String date, StatisticsCallback callback) {
+        Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.GET);
+        request.setUrl(Constants.MARPROM_API_OCCUPANCY_AVERAGE + date);
+        request.setTimeOut(Constants.API_TIMEOUT_MS);
+
+        Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
+            @Override
+            public void handleHttpResponse(Net.HttpResponse httpResponse) {
+                int statusCode = httpResponse.getStatus().getStatusCode();
+                String responseStr = httpResponse.getResultAsString();
+
+                if (statusCode == HttpStatus.SC_OK) {
+                    try {
+                        if (responseStr.contains("\"data\"")) {
+                            int dataStart = responseStr.indexOf("\"data\":") + 7;
+                            int dataEnd = responseStr.indexOf(",", dataStart);
+                            if (dataEnd == -1) dataEnd = responseStr.indexOf("}", dataStart);
+                            String valueStr = responseStr.substring(dataStart, dataEnd).trim();
+                            double average = Double.parseDouble(valueStr);
+                            Gdx.app.postRunnable(() -> callback.onAverageOccupancy(average));
+                        } else {
+                            Gdx.app.postRunnable(() -> callback.onAverageOccupancy(0));
+                        }
+                    } catch (Exception e) {
+                        Gdx.app.postRunnable(() -> callback.onAverageOccupancy(0));
+                    }
+                } else {
+                    Gdx.app.postRunnable(() -> callback.onFailure("HTTP error: " + statusCode));
+                }
+            }
+
+            @Override
+            public void failed(Throwable t) {
+                Gdx.app.postRunnable(() -> callback.onFailure("Network error"));
+            }
+
+            @Override
+            public void cancelled() {
+                Gdx.app.postRunnable(() -> callback.onFailure("Request cancelled"));
+            }
+        });
+    }
+
+    public void fetchShortestRoute(double startLat, double startLon, double endLat, double endLon, RouteCallback callback) {
+        Net.HttpRequest request = new Net.HttpRequest(Net.HttpMethods.POST);
+        request.setUrl(Constants.MARPROM_API_ROUTE_SHORTEST);
+        request.setTimeOut(Constants.API_TIMEOUT_MS);
+
+        String jsonBody = "{\"location_latitude\":" + startLat +
+                         ",\"location_longitude\":" + startLon +
+                         ",\"destination_latitude\":" + endLat +
+                         ",\"destination_longitude\":" + endLon + "}";
+        request.setContent(jsonBody);
+        request.setHeader("Content-Type", "application/json");
+
+        Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
+            @Override
+            public void handleHttpResponse(Net.HttpResponse httpResponse) {
+                int statusCode = httpResponse.getStatus().getStatusCode();
+                String responseStr = httpResponse.getResultAsString();
+
+                if (statusCode == HttpStatus.SC_OK) {
+                    try {
+                        // API returns two separate JSON objects - one for stations, one for lines
+                        String[] jsonParts = responseStr.split("\n");
+
+                        RouteData route = new RouteData();
+                        route.setLocationLatitude(startLat);
+                        route.setLocationLongitude(startLon);
+                        route.setDestinationLatitude(endLat);
+                        route.setDestinationLongitude(endLon);
+
+                        // Parse stations (first JSON object)
+                        if (jsonParts.length > 0 && !jsonParts[0].trim().isEmpty()) {
+                            Type stationsType = new TypeToken<ApiResponse<List<RouteData.RouteStation>>>(){}.getType();
+                            ApiResponse<List<RouteData.RouteStation>> stationsResponse = gson.fromJson(jsonParts[0], stationsType);
+                            if (stationsResponse != null && stationsResponse.getData() != null) {
+                                route.setStations(stationsResponse.getData());
+                            }
+                        }
+
+                        // Parse lines (second JSON object)
+                        if (jsonParts.length > 1 && !jsonParts[1].trim().isEmpty()) {
+                            Type linesType = new TypeToken<ApiResponse<List<RouteData.RouteLine>>>(){}.getType();
+                            ApiResponse<List<RouteData.RouteLine>> linesResponse = gson.fromJson(jsonParts[1], linesType);
+                            if (linesResponse != null && linesResponse.getData() != null) {
+                                route.setLines(linesResponse.getData());
+                            }
+                        }
+
+                        Gdx.app.postRunnable(() -> callback.onSuccess(route));
+                    } catch (Exception e) {
+                        Gdx.app.postRunnable(() -> callback.onFailure("Parse error: " + e.getMessage()));
+                    }
+                } else {
+                    Gdx.app.postRunnable(() -> callback.onFailure("HTTP error: " + statusCode));
+                }
+            }
+
+            @Override
+            public void failed(Throwable t) {
+                Gdx.app.postRunnable(() -> callback.onFailure("Network error"));
+            }
+
+            @Override
+            public void cancelled() {
+                Gdx.app.postRunnable(() -> callback.onFailure("Request cancelled"));
             }
         });
     }
