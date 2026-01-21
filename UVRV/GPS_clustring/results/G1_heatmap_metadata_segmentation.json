@@ -1,0 +1,10 @@
+{
+  "lat_min": 46.52133145675835,
+  "lat_max": 46.566158473464405,
+  "lon_min": 15.632371137206656,
+  "lon_max": 15.696541209522938,
+  "grid_size": 64,
+  "num_samples": 500,
+  "input_type": "all_users",
+  "output_type": "segmentation"
+}

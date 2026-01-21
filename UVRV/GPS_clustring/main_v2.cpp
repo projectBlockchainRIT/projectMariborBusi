@@ -27,7 +27,7 @@ struct UserLocation {
     long long timestamp;
     float signalStrength;
     float accuracy;
-    std::string userType; // "on_bus" ali "waiting_at_station"
+    std::string userType; // "on_bus", "waiting_at_station", "pedestrian", "nearby"
 };
 
 struct BusStation {
@@ -184,10 +184,17 @@ int main() {
     std::mt19937 gen(rd());
     
     std::uniform_real_distribution<> speedDist(30.0, 50.0);
-    std::uniform_int_distribution<> onBusUsersDist(2, 6); // Uporabniki v avtobusu
-    std::uniform_int_distribution<> waitingUsersDist(1, 3); // Uporabniki na postajah
+    std::uniform_int_distribution<> onBusUsersDist(3, 8); // Uporabniki v avtobusu
+    std::uniform_int_distribution<> waitingUsersDist(1, 4); // Uporabniki na postajah
+    std::uniform_int_distribution<> pedestriansDist(0, 3); // Pesci v blizini
+    std::uniform_int_distribution<> nearbyUsersDist(0, 2); // Uporabniki v blizini (avti, zgradbe)
     std::uniform_int_distribution<> measurementPoints(3, 6);
-    std::uniform_real_distribution<> stationProbDist(0.0, 1.0);
+    std::uniform_real_distribution<> probDist(0.0, 1.0);
+
+    // Razponi za razprsenost (v metrih)
+    std::uniform_real_distribution<> onBusSpreadDist(20.0, 50.0); // Vecja razprsenost v avtobusu
+    std::uniform_real_distribution<> pedestrianSpreadDist(50.0, 150.0); // Pesci so dalec
+    std::uniform_real_distribution<> nearbySpreadDist(80.0, 200.0); // Bliznji uporabniki
     
     double busSpeed = speedDist(gen) * 1000.0 / 3600.0;
     
@@ -206,6 +213,7 @@ int main() {
     csvFile << "user_id,route,lat,lon,timestamp,signal_strength,accuracy_meters,user_type,bus_lat,bus_lon\n";
 
     int totalRecords = 0;
+    long long syntheticTime = startTime;  // Uporabi sintetični čas za unikatne timestampe
 
     for (size_t i = 1; i < path.size(); ++i) {
         double distance = haversine(path[i-1], path[i]);
@@ -219,7 +227,7 @@ int main() {
         // Simuliraj več meritev skozi segment
         for (int m = 0; m < measurePoints_count; ++m) {
             std::vector<UserLocation> locations;
-            long long currentTime = std::time(nullptr) + (long long)(m * travelTime / measurePoints_count);
+            long long currentTime = syntheticTime++;  // Povečaj za vsako meritev
             
             // Interpolacija avtobusne pozicije
             double progress = static_cast<double>(m) / measurePoints_count;
@@ -227,14 +235,19 @@ int main() {
             busCurrent.lat = path[i-1].lat + (path[i].lat - path[i-1].lat) * progress;
             busCurrent.lon = path[i-1].lon + (path[i].lon - path[i-1].lon) * progress;
 
-            // 🚌 UPORABNIKI V AVTOBUSU
+            // 🚌 UPORABNIKI V AVTOBUSU (glavna gruca)
             int onBusCount = onBusUsersDist(gen);
+            double busSpread = onBusSpreadDist(gen); // Variabilna razprsenost
             for (int u = 0; u < onBusCount; ++u) {
-                Point userPos = generateRealisticOffset(busCurrent, gen, 15.0); // Majhen scatter v avtobusu
-                float signal = generateSignalStrength(userPos, gen) + 5.0f; // Boljši signal v avtobusu
-                signal = std::min(100.0f, signal);
+                // Nekateri uporabniki imajo boljsi GPS, nekateri slabsi
+                double userSpread = busSpread * (0.5 + probDist(gen)); // 50-150% osnovne razprsenosti
+                Point userPos = generateRealisticOffset(busCurrent, gen, userSpread);
+                float signal = generateSignalStrength(userPos, gen);
+                // Vecina ima ok signal, nekateri slabsega
+                if (probDist(gen) > 0.3) signal += 10.0f;
+                signal = std::min(100.0f, std::max(20.0f, signal));
                 float accuracy = signalToAccuracy(signal);
-                
+
                 locations.push_back({
                     1000 + (int)i * 100 + u,
                     userPos.lat,
@@ -246,16 +259,41 @@ int main() {
                 });
             }
 
-            // 🏠 UPORABNIKI NA POSTAJAH
+            // 🚶 PESCI V BLIZINI LINIJE
+            int pedestrianCount = pedestriansDist(gen);
+            if (probDist(gen) < 0.4) { // 40% verjetnost za pesce
+                for (int p = 0; p < pedestrianCount; ++p) {
+                    double pedSpread = pedestrianSpreadDist(gen);
+                    Point userPos = generateRealisticOffset(busCurrent, gen, pedSpread);
+                    float signal = generateSignalStrength(userPos, gen) - 10.0f; // Slabsi signal zunaj
+                    signal = std::max(20.0f, signal);
+                    float accuracy = signalToAccuracy(signal);
+
+                    locations.push_back({
+                        3000 + (int)i * 100 + p,
+                        userPos.lat,
+                        userPos.lon,
+                        currentTime,
+                        signal,
+                        accuracy,
+                        "pedestrian"
+                    });
+                }
+            }
+
+            // 🏠 UPORABNIKI NA POSTAJAH (gruce)
             for (const auto& station : stations) {
-                // Manjša verjetnost za uporabnike na postajah
-                if (stationProbDist(gen) < 0.3) { // 30% verjetnost
+                double distToStation = haversine(busCurrent, {station.lat, station.lon});
+                // Vecja verjetnost za uporabnike ce je avtobus blizu postaje
+                double stationProb = (distToStation < 200) ? 0.6 : 0.25;
+
+                if (probDist(gen) < stationProb) {
                     int waitingCount = waitingUsersDist(gen);
                     for (int w = 0; w < waitingCount; ++w) {
-                        Point userPos = generateRealisticOffset({station.lat, station.lon}, gen, 40.0);
+                        Point userPos = generateRealisticOffset({station.lat, station.lon}, gen, 30.0);
                         float signal = generateSignalStrength(userPos, gen);
                         float accuracy = signalToAccuracy(signal);
-                        
+
                         locations.push_back({
                             2000 + station.stationId * 100 + w,
                             userPos.lat,
@@ -266,6 +304,28 @@ int main() {
                             "waiting_at_station"
                         });
                     }
+                }
+            }
+
+            // 🏢 BLIZNJI UPORABNIKI (v avtih, zgradbah ob poti)
+            int nearbyCount = nearbyUsersDist(gen);
+            if (probDist(gen) < 0.3) { // 30% verjetnost
+                for (int n = 0; n < nearbyCount; ++n) {
+                    double nearbySpread = nearbySpreadDist(gen);
+                    Point userPos = generateRealisticOffset(busCurrent, gen, nearbySpread);
+                    float signal = generateSignalStrength(userPos, gen) - 15.0f;
+                    signal = std::max(20.0f, signal);
+                    float accuracy = signalToAccuracy(signal);
+
+                    locations.push_back({
+                        4000 + (int)i * 100 + n,
+                        userPos.lat,
+                        userPos.lon,
+                        currentTime,
+                        signal,
+                        accuracy,
+                        "nearby"
+                    });
                 }
             }
 
@@ -289,16 +349,16 @@ int main() {
                 printProgressBar(i, path.size() - 1, totalRecords, startTime);
             }
 
-            // Čakaj malo med meritvami
-            std::this_thread::sleep_for(
-                std::chrono::milliseconds(static_cast<int>(travelTime * 1000 / measurePoints_count * 0.5))
-            );
+            // Čakaj malo med meritvami (zakomentirano za hitro testiranje)
+            // std::this_thread::sleep_for(
+            //     std::chrono::milliseconds(static_cast<int>(travelTime * 1000 / measurePoints_count * 0.5))
+            // );
         }
 
-        // Čakaj med segmenti
-        std::this_thread::sleep_for(
-            std::chrono::milliseconds(static_cast<int>(travelTime * 1000 * 0.2))
-        );
+        // Čakaj med segmenti (zakomentirano za hitro testiranje)
+        // std::this_thread::sleep_for(
+        //     std::chrono::milliseconds(static_cast<int>(travelTime * 1000 * 0.2))
+        // );
     }
 
     csvFile.close();

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Treniranje nevronske mreže za napoved avtobusne lokacije.
+Treniranje nevronske mreze za napoved avtobusne lokacije.
+PyTorch verzija.
 """
 
 import numpy as np
@@ -11,21 +12,48 @@ import json
 import glob
 from pathlib import Path
 
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers, models
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 TRAINING_FOLDER = "training_data"
 RESULTS_FOLDER = "results"
 
+class BusLocationModel(nn.Module):
+    """Nevronska mreza za regresijo (lat, lon)."""
+    def __init__(self, input_size):
+        super().__init__()
+        self.network = nn.Sequential(
+            nn.Linear(input_size, 128),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+
+            nn.Linear(32, 16),
+            nn.ReLU(),
+
+            nn.Linear(16, 2)  # Output: lat, lon
+        )
+
+    def forward(self, x):
+        return self.network(x)
+
 def load_training_data(route):
-    """Naloži treningske podatke za izbrano linijo."""
-    print(f"📂 Nalagam podatke za {route}...")
+    """Nalozi treningske podatke za izbrano linijo."""
+    print(f"Nalagam podatke za {route}...")
 
     files = glob.glob(f"{TRAINING_FOLDER}/{route}_training_*_X_train.npy")
     if not files:
-        print(f"❌ Ni podatkov za {route}")
+        print(f"Ni podatkov za {route}")
         return None
 
     latest = sorted(files)[-1]
@@ -46,10 +74,10 @@ def load_training_data(route):
     with open(f"{base_name}_metadata.json", 'r') as f:
         metadata = json.load(f)
 
-    print(f"✅ Podatki naloženi:")
-    print(f"   • Train: {X_train.shape}")
-    print(f"   • Val:   {X_val.shape}")
-    print(f"   • Test:  {X_test.shape}")
+    print(f"Podatki nalozeni:")
+    print(f"   Train: {X_train.shape}")
+    print(f"   Val:   {X_val.shape}")
+    print(f"   Test:  {X_test.shape}")
 
     return {
         'X_train': X_train, 'y_train': y_train,
@@ -60,55 +88,93 @@ def load_training_data(route):
         'base_name': base_name
     }
 
-def build_model(input_shape):
-    """Zgradi nevronsko mrežo za regresijo (lat, lon)."""
-    print(f"🔨 Gradim model (input: {input_shape})...")
-
-    model = models.Sequential([
-        layers.Dense(128, activation='relu', input_shape=(input_shape,)),
-        layers.Dropout(0.2),
-
-        layers.Dense(64, activation='relu'),
-        layers.Dropout(0.2),
-
-        layers.Dense(32, activation='relu'),
-        layers.Dropout(0.1),
-
-        layers.Dense(16, activation='relu'),
-
-        layers.Dense(2, activation='linear')
-    ])
-
-    model.compile(
-        optimizer=keras.optimizers.Adam(learning_rate=0.001),
-        loss='mse',
-        metrics=['mae']
-    )
-
-    print(model.summary())
-    return model
-
-def train_model(model, data, epochs=50, batch_size=16):
+def train_model(model, data, epochs=50, batch_size=16, lr=0.001):
     """Trenira model."""
-    print(f"\n🚀 Treniranje ({epochs} epochs)...")
+    print(f"\nTreniranje ({epochs} epochs)...")
 
-    history = model.fit(
-        data['X_train'], data['y_train'],
-        validation_data=(data['X_val'], data['y_val']),
-        epochs=epochs,
-        batch_size=batch_size,
-        verbose=1
-    )
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Device: {device}")
+    model = model.to(device)
 
-    return history
+    # Pripravi DataLoaderje
+    X_train_t = torch.FloatTensor(data['X_train'])
+    y_train_t = torch.FloatTensor(data['y_train'])
+    X_val_t = torch.FloatTensor(data['X_val'])
+    y_val_t = torch.FloatTensor(data['y_val'])
+
+    train_dataset = TensorDataset(X_train_t, y_train_t)
+    val_dataset = TensorDataset(X_val_t, y_val_t)
+
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size)
+
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+
+    history = {'loss': [], 'val_loss': [], 'mae': [], 'val_mae': []}
+
+    for epoch in range(epochs):
+        # Training
+        model.train()
+        train_loss = 0.0
+        train_mae = 0.0
+
+        for X_batch, y_batch in train_loader:
+            X_batch, y_batch = X_batch.to(device), y_batch.to(device)
+
+            optimizer.zero_grad()
+            outputs = model(X_batch)
+            loss = criterion(outputs, y_batch)
+            loss.backward()
+            optimizer.step()
+
+            train_loss += loss.item() * X_batch.size(0)
+            train_mae += torch.mean(torch.abs(outputs - y_batch)).item() * X_batch.size(0)
+
+        train_loss /= len(train_loader.dataset)
+        train_mae /= len(train_loader.dataset)
+
+        # Validation
+        model.eval()
+        val_loss = 0.0
+        val_mae = 0.0
+
+        with torch.no_grad():
+            for X_batch, y_batch in val_loader:
+                X_batch, y_batch = X_batch.to(device), y_batch.to(device)
+                outputs = model(X_batch)
+                val_loss += criterion(outputs, y_batch).item() * X_batch.size(0)
+                val_mae += torch.mean(torch.abs(outputs - y_batch)).item() * X_batch.size(0)
+
+        val_loss /= len(val_loader.dataset)
+        val_mae /= len(val_loader.dataset)
+
+        history['loss'].append(train_loss)
+        history['val_loss'].append(val_loss)
+        history['mae'].append(train_mae)
+        history['val_mae'].append(val_mae)
+
+        if (epoch + 1) % 10 == 0 or epoch == 0:
+            print(f"Epoch {epoch+1:3d}/{epochs} - loss: {train_loss:.6f} - mae: {train_mae:.6f} - val_loss: {val_loss:.6f} - val_mae: {val_mae:.6f}")
+
+    return model, history
 
 def evaluate_model(model, data):
-    """Evalvira model in izračuna MAE, RMSE."""
-    print("\n📊 Evaluacija...")
+    """Evalvira model in izracuna MAE, RMSE."""
+    print("\nEvaluacija...")
 
-    y_train_pred = model.predict(data['X_train'], verbose=0)
-    y_val_pred = model.predict(data['X_val'], verbose=0)
-    y_test_pred = model.predict(data['X_test'], verbose=0)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = model.to(device)
+    model.eval()
+
+    with torch.no_grad():
+        X_train_t = torch.FloatTensor(data['X_train']).to(device)
+        X_val_t = torch.FloatTensor(data['X_val']).to(device)
+        X_test_t = torch.FloatTensor(data['X_test']).to(device)
+
+        y_train_pred = model(X_train_t).cpu().numpy()
+        y_val_pred = model(X_val_t).cpu().numpy()
+        y_test_pred = model(X_test_t).cpu().numpy()
 
     y_train_real = data['scaler_y'].inverse_transform(data['y_train'])
     y_train_pred_real = data['scaler_y'].inverse_transform(y_train_pred)
@@ -128,9 +194,9 @@ def evaluate_model(model, data):
     test_mae = mean_absolute_error(y_test_real, y_test_pred_real)
     test_rmse = np.sqrt(mean_squared_error(y_test_real, y_test_pred_real))
 
-    print(f"\n   Train - MAE: {train_mae:.6f}° ({train_mae*111000:.1f}m), RMSE: {train_rmse:.6f}°")
-    print(f"   Val   - MAE: {val_mae:.6f}° ({val_mae*111000:.1f}m), RMSE: {val_rmse:.6f}°")
-    print(f"   Test  - MAE: {test_mae:.6f}° ({test_mae*111000:.1f}m), RMSE: {test_rmse:.6f}°")
+    print(f"\n   Train - MAE: {train_mae:.6f} ({train_mae*111000:.1f}m), RMSE: {train_rmse:.6f}")
+    print(f"   Val   - MAE: {val_mae:.6f} ({val_mae*111000:.1f}m), RMSE: {val_rmse:.6f}")
+    print(f"   Test  - MAE: {test_mae:.6f} ({test_mae*111000:.1f}m), RMSE: {test_rmse:.6f}")
 
     return {
         'y_train_pred_real': y_train_pred_real,
@@ -148,22 +214,22 @@ def evaluate_model(model, data):
     }
 
 def plot_training_history(history, route):
-    """Nariši loss in MAE krivulje."""
-    print("\n📈 Narisovanje krivulj...")
+    """Narisi loss in MAE krivulje."""
+    print("\nNarisovanje krivulj...")
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
     fig.suptitle(f'Treniranje - {route}', fontsize=14, fontweight='bold')
 
-    axes[0].plot(history.history['loss'], label='Train', linewidth=2)
-    axes[0].plot(history.history['val_loss'], label='Val', linewidth=2)
+    axes[0].plot(history['loss'], label='Train', linewidth=2)
+    axes[0].plot(history['val_loss'], label='Val', linewidth=2)
     axes[0].set_xlabel('Epoch')
     axes[0].set_ylabel('Loss (MSE)')
     axes[0].set_title('Loss')
     axes[0].legend()
     axes[0].grid(True, alpha=0.3)
 
-    axes[1].plot(history.history['mae'], label='Train', linewidth=2)
-    axes[1].plot(history.history['val_mae'], label='Val', linewidth=2)
+    axes[1].plot(history['mae'], label='Train', linewidth=2)
+    axes[1].plot(history['val_mae'], label='Val', linewidth=2)
     axes[1].set_xlabel('Epoch')
     axes[1].set_ylabel('MAE')
     axes[1].set_title('MAE')
@@ -174,8 +240,8 @@ def plot_training_history(history, route):
     return fig
 
 def plot_predictions(eval_results, route):
-    """Nariši napovedi vs prave vrednosti."""
-    print("\n📍 Narisovanje napovedi...")
+    """Narisi napovedi vs prave vrednosti."""
+    print("\nNarisovanje napovedi...")
 
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
     fig.suptitle(f'Napovedi - {route}', fontsize=14, fontweight='bold')
@@ -214,7 +280,7 @@ def plot_predictions(eval_results, route):
     errors = np.linalg.norm(y_test_real - y_test_pred, axis=1) * 111000
     axes[1, 1].hist(errors, bins=30, color='orange', edgecolor='black')
     axes[1, 1].axvline(errors.mean(), color='red', linestyle='--', linewidth=2,
-                      label=f'Povprečje: {errors.mean():.1f}m')
+                      label=f'Povprecje: {errors.mean():.1f}m')
     axes[1, 1].set_xlabel('Napaka (m)')
     axes[1, 1].set_ylabel('Frekvenca')
     axes[1, 1].set_title(f'Razporeditev Napak (MAE={eval_results["test_mae"]*111000:.1f}m)')
@@ -224,18 +290,22 @@ def plot_predictions(eval_results, route):
     plt.tight_layout()
     return fig
 
-def save_results(model, history, eval_results, route):
+def save_results(model, history, eval_results, route, input_size):
     """Shrani model, historijo in evalvacijo."""
-    print(f"\n💾 Shranjujem rezultate...")
+    print(f"\nShranjujem rezultate...")
 
     Path(RESULTS_FOLDER).mkdir(exist_ok=True)
 
-    model_path = f"{RESULTS_FOLDER}/{route}_model.h5"
-    model.save(model_path)
-    print(f"✅ Model: {model_path}")
+    # Shrani PyTorch model
+    model_path = f"{RESULTS_FOLDER}/{route}_model.pt"
+    torch.save({
+        'model_state_dict': model.state_dict(),
+        'input_size': input_size
+    }, model_path)
+    print(f"Model: {model_path}")
 
     with open(f"{RESULTS_FOLDER}/{route}_history.pkl", 'wb') as f:
-        pickle.dump(history.history, f)
+        pickle.dump(history, f)
 
     eval_summary = {
         'train_mae': float(eval_results['train_mae']),
@@ -253,7 +323,7 @@ def save_results(model, history, eval_results, route):
         json.dump(eval_summary, f, indent=2)
 
 def main():
-    print("🧠 TRENIRANJE NEVRONSKE MREŽE")
+    print("TRENIRANJE NEVRONSKE MREZE (PyTorch)")
     print("="*70)
 
     routes = set()
@@ -262,45 +332,49 @@ def main():
         routes.add(route)
 
     if not routes:
-        print("❌ Ni podatkov! Zaženi prepare_training_data.py")
+        print("Ni podatkov! Zazeni prepare_training_data.py")
         return
 
     print("\nDostopne linije:")
     for r in sorted(routes):
-        print(f"   • {r}")
+        print(f"   {r}")
 
     route = input("\nVnesi linijo: ").strip().upper()
 
     if route not in routes:
-        print(f"❌ Linija {route} ni dostopna")
+        print(f"Linija {route} ni dostopna")
         return
 
     data = load_training_data(route)
     if data is None:
         return
 
-    model = build_model(data['X_train'].shape[1])
-    history = train_model(model, data, epochs=50, batch_size=16)
+    input_size = data['X_train'].shape[1]
+    print(f"\nGradim model (input: {input_size})...")
+    model = BusLocationModel(input_size)
+    print(model)
+
+    model, history = train_model(model, data, epochs=50, batch_size=16)
     eval_results = evaluate_model(model, data)
 
     Path(RESULTS_FOLDER).mkdir(exist_ok=True)
 
-    save_results(model, history, eval_results, route)
+    save_results(model, history, eval_results, route, input_size)
 
-    print("\n📊 Narisovanje rezultatov...")
+    print("\nNarisovanje rezultatov...")
 
     fig1 = plot_training_history(history, route)
     fig1.savefig(f"{RESULTS_FOLDER}/{route}_training_history.png", dpi=150, bbox_inches='tight')
-    print(f"✅ {RESULTS_FOLDER}/{route}_training_history.png")
+    print(f"{RESULTS_FOLDER}/{route}_training_history.png")
 
     fig2 = plot_predictions(eval_results, route)
     fig2.savefig(f"{RESULTS_FOLDER}/{route}_predictions.png", dpi=150, bbox_inches='tight')
-    print(f"✅ {RESULTS_FOLDER}/{route}_predictions.png")
+    print(f"{RESULTS_FOLDER}/{route}_predictions.png")
 
     plt.show()
 
     print("\n" + "="*70)
-    print("✅ TRENIRANJE ZAKLJUČENO")
+    print("TRENIRANJE ZAKLJUCENO")
     print("="*70)
 
 if __name__ == "__main__":

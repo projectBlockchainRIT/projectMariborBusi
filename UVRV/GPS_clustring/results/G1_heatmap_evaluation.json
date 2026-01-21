@@ -1,0 +1,6 @@
+{
+  "test_mae_meters": 146.82367734763568,
+  "test_rmse_meters": 181.9236149816259,
+  "test_median_meters": 101.28367098304837,
+  "num_test_samples": 245
+}
