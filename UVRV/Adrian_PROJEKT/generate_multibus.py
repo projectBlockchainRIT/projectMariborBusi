@@ -10,20 +10,18 @@ import json
 from pathlib import Path
 
 DATA_FOLDER = "data"
-NUM_BUSES = 3  # Stevilo avtobusov na liniji (3 za vecjo kompleksnost)
-NUM_TIMESTAMPS = 500  # Stevilo casovnih tock
+NUM_BUSES = 3
+NUM_TIMESTAMPS = 500
 
-# Parametri razprsenosti (v metrih) - povecano za bolj razprsene podatke
-ON_BUS_SPREAD = (40, 100)  # min, max - povecano iz (30, 80)
-PEDESTRIAN_SPREAD = (120, 350)  # povecano iz (100, 300)
-NEARBY_SPREAD = (180, 450)  # povecano iz (150, 400)
-STATION_SPREAD = (25, 60)  # povecano iz (20, 50)
+ON_BUS_SPREAD = (40, 100)
+PEDESTRIAN_SPREAD = (120, 350)
+NEARBY_SPREAD = (180, 450)
+STATION_SPREAD = (25, 60)
 
-# Stevilo uporabnikov - povecano za boljse gruce
-ON_BUS_USERS = (6, 15)  # na avtobus - povecano iz (4, 12)
-PEDESTRIANS = (1, 10)  # skupaj - povecano iz (0, 8)
-NEARBY_USERS = (1, 7)  # skupaj - povecano iz (0, 5)
-STATION_USERS = (1, 8)  # na postajo - povecano iz (0, 6)
+ON_BUS_USERS = (6, 15)
+PEDESTRIANS = (1, 10)
+NEARBY_USERS = (1, 7)
+STATION_USERS = (1, 8)  
 
 
 def load_route(route_name):
@@ -47,10 +45,8 @@ def add_noise(lat, lon, spread_m):
     """Dodaj Gaussov sum v metrih"""
     lat_noise, lon_noise = meters_to_degrees(spread_m, lat)
     angle = np.random.uniform(0, 2 * np.pi)
-    # Rayleigh distribution (sqrt(chi-squared with 2 DOF)) - more realistic for 2D GPS noise
-    # Clipped to 2.5 sigma to avoid extreme outliers
-    r = np.sqrt(np.random.gamma(2.0, 0.25))  # shape=2, scale=0.25 gives mean~0.7, std~0.35
-    r = np.clip(r, 0, 2.5)  # Limit to reasonable range
+    r = np.sqrt(np.random.gamma(2.0, 0.25))
+    r = np.clip(r, 0, 2.5)
     return lat + r * lat_noise * np.cos(angle), lon + r * lon_noise * np.sin(angle)
 
 
@@ -65,62 +61,46 @@ def generate_multibus_data(route_name):
     print(f"  Avtobusov: {NUM_BUSES}")
     print(f"  Casovnih tock: {NUM_TIMESTAMPS}")
 
-    # Postaje - vsakih ~12% poti
     num_stations = 8
     station_indices = np.linspace(0, len(path) - 1, num_stations, dtype=int)
     stations = path[station_indices]
 
     records = []
 
-    # Zacetne pozicije avtobusov - razporejeni po celotni liniji (0-100%)
-    # Nekateri grejo naprej (+1), drugi nazaj (-1) - se bodo srečevali!
     bus_positions = np.linspace(0, len(path) * 0.8, NUM_BUSES)
-    bus_directions = []  # +1 = naprej (proti koncu), -1 = nazaj (proti začetku)
+    bus_directions = []
 
-    # Razporeditev smeri: nekateri naprej, drugi nazaj
     for i in range(NUM_BUSES):
-        # Alternirajoca smer: 0=naprej, 1=nazaj, 2=naprej, etc.
         if i % 2 == 0:
-            bus_directions.append(1)  # Naprej
+            bus_directions.append(1)
         else:
-            bus_directions.append(-1)  # Nazaj
-            # Za avtobus ki gre nazaj, postavi ga bolj na konec
+            bus_directions.append(-1)
             bus_positions[i] = len(path) * 0.8 - i * (len(path) * 0.2)
 
     for ts in range(NUM_TIMESTAMPS):
-        timestamp = 1700000000 + ts * 10  # 10 sekund med meritvami
+        timestamp = 1700000000 + ts * 10
 
-        # Premakni avtobuse - vsak s svojo hitrostjo in smerjo
         for bus_id in range(NUM_BUSES):
-            # Vsak avtobus se premika s svojo hitrostjo (0.8 - 2.5 korakov)
             speed = np.random.uniform(0.8, 2.5)
             bus_positions[bus_id] += speed * bus_directions[bus_id]
 
-            # Preveri meje in obrni smer
             if bus_positions[bus_id] >= len(path) - 1:
-                # Prisel do konca - obrni nazaj
                 bus_positions[bus_id] = len(path) - 1
                 bus_directions[bus_id] = -1
             elif bus_positions[bus_id] <= 0:
-                # Prisel do zacetka - obrni naprej
                 bus_positions[bus_id] = 0
                 bus_directions[bus_id] = 1
 
-        # Za vsak avtobus generiraj uporabnike
         for bus_id in range(NUM_BUSES):
             pos_idx = int(bus_positions[bus_id]) % len(path)
             bus_lat, bus_lon = path[pos_idx]
 
-            # Uporabniki na avtobusu
             num_on_bus = np.random.randint(*ON_BUS_USERS)
             spread = np.random.uniform(*ON_BUS_SPREAD)
 
             for u in range(num_on_bus):
-                # Slightly more variability for realistic spread (0.6-1.3)
-                # Still reasonable for clustering
                 user_spread = spread * np.random.uniform(0.6, 1.3)
                 lat, lon = add_noise(bus_lat, bus_lon, user_spread)
-                # More variable signal strength (60-95 instead of 60-90 avg)
                 signal = np.clip(np.random.normal(70, 20), 20, 100)
 
                 records.append({
@@ -137,7 +117,6 @@ def generate_multibus_data(route_name):
                     'bus_id': bus_id
                 })
 
-        # Pesci - nakljucno vzdolz linije
         num_peds = np.random.randint(*PEDESTRIANS)
         for p in range(num_peds):
             ped_pos = np.random.randint(0, len(path))
@@ -160,7 +139,6 @@ def generate_multibus_data(route_name):
                 'bus_id': -1
             })
 
-        # Bliznji uporabniki
         num_nearby = np.random.randint(*NEARBY_USERS)
         for n in range(num_nearby):
             nearby_pos = np.random.randint(0, len(path))
@@ -183,9 +161,8 @@ def generate_multibus_data(route_name):
                 'bus_id': -1
             })
 
-        # Uporabniki na postajah
         for s_idx, (s_lat, s_lon) in enumerate(stations):
-            if np.random.random() < 0.4:  # 40% verjetnost
+            if np.random.random() < 0.4:
                 num_waiting = np.random.randint(*STATION_USERS)
                 for w in range(num_waiting):
                     spread = np.random.uniform(*STATION_SPREAD)
@@ -208,7 +185,6 @@ def generate_multibus_data(route_name):
 
     df = pd.DataFrame(records)
 
-    # Shrani
     Path(DATA_FOLDER).mkdir(exist_ok=True)
     filename = f"{DATA_FOLDER}/{route_name}_multibus_{int(pd.Timestamp.now().timestamp())}.csv"
     df.to_csv(filename, index=False)
@@ -243,17 +219,17 @@ def generate_all_routes():
             if filename:
                 successful.append(route)
         except Exception as e:
-            print(f"❌ Napaka pri {route}: {e}")
+            print(f"Napaka pri {route}: {e}")
             failed.append(route)
 
     print(f"\n{'='*70}")
     print(f"KONČANO")
     print(f"{'='*70}")
-    print(f"✅ Uspešno: {len(successful)} linij")
+    print(f"Uspesno: {len(successful)} linij")
     if successful:
         print(f"   {', '.join(successful)}")
     if failed:
-        print(f"❌ Neuspešno: {len(failed)} linij")
+        print(f"Neuspesno: {len(failed)} linij")
         print(f"   {', '.join(failed)}")
 
 

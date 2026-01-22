@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Treniranje nevronske mreze za napoved avtobusne lokacije.
 PyTorch verzija.
@@ -22,7 +21,6 @@ TRAINING_FOLDER = "training_data"
 RESULTS_FOLDER = "results"
 
 class BusLocationModel(nn.Module):
-    """Nevronska mreza za regresijo (lat, lon)."""
     def __init__(self, input_size):
         super().__init__()
         self.network = nn.Sequential(
@@ -40,8 +38,7 @@ class BusLocationModel(nn.Module):
 
             nn.Linear(32, 16),
             nn.ReLU(),
-
-            nn.Linear(16, 2)  # Output: lat, lon
+            nn.Linear(16, 2)
         )
 
     def forward(self, x):
@@ -95,8 +92,6 @@ def train_model(model, data, epochs=50, batch_size=16, lr=0.001):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Device: {device}")
     model = model.to(device)
-
-    # Pripravi DataLoaderje
     X_train_t = torch.FloatTensor(data['X_train'])
     y_train_t = torch.FloatTensor(data['y_train'])
     X_val_t = torch.FloatTensor(data['X_val'])
@@ -114,7 +109,6 @@ def train_model(model, data, epochs=50, batch_size=16, lr=0.001):
     history = {'loss': [], 'val_loss': [], 'mae': [], 'val_mae': []}
 
     for epoch in range(epochs):
-        # Training
         model.train()
         train_loss = 0.0
         train_mae = 0.0
@@ -133,8 +127,6 @@ def train_model(model, data, epochs=50, batch_size=16, lr=0.001):
 
         train_loss /= len(train_loader.dataset)
         train_mae /= len(train_loader.dataset)
-
-        # Validation
         model.eval()
         val_loss = 0.0
         val_mae = 0.0

@@ -19,12 +19,11 @@ DATA_FOLDER = "data"
 TRAINING_FOLDER = "training_data"
 RESULTS_FOLDER = "results"
 
-# Moderna barvna paleta
 COLORS = {
-    'actual': '#DC2626',      # Rdeča
-    'predicted': '#10B981',   # Zelena
-    'error': '#F59E0B',       # Oranžna
-    'users': '#2563EB',       # Modra
+    'actual': '#DC2626',
+    'predicted': '#10B981',
+    'error': '#F59E0B',
+    'users': '#2563EB',
 }
 
 
@@ -58,11 +57,11 @@ class BusLocationModel(nn.Module):
 def load_model_and_scalers(route):
     """Naloži PyTorch model (.pt) in pripadajoče skalere."""
 
-    print(f"\n📦 Nalagam model za linijo {route}...")
+    print(f"\nNalagam model za linijo {route}...")
 
     checkpoint_path = f"{RESULTS_FOLDER}/{route}_model.pt"
     if not Path(checkpoint_path).exists():
-        print(f"❌ Model ne obstaja: {checkpoint_path}")
+        print(f"Model ne obstaja: {checkpoint_path}")
         print("   Najprej zaženi: python3 train_model.py")
         return None, None, None, None
 
@@ -70,18 +69,18 @@ def load_model_and_scalers(route):
         checkpoint = torch.load(checkpoint_path, map_location='cpu')
         input_size = checkpoint.get('input_size')
         if input_size is None:
-            print("❌ V checkpointu manjka input_size")
+            print("V checkpointu manjka input_size")
             return None, None, None, None
 
         model = BusLocationModel(input_size)
         model.load_state_dict(checkpoint['model_state_dict'])
         model.eval()
-        print(f"✅ Model naložen: {checkpoint_path} (input_size={input_size})")
+        print(f"Model nalozen: {checkpoint_path} (input_size={input_size})")
 
         # Najdi najnovejši paket scalerjev
         training_files = glob.glob(f"{TRAINING_FOLDER}/{route}_training_*_metadata.json")
         if not training_files:
-            print(f"❌ Ni treninških podatkov za {route}")
+            print(f"Ni treninskih podatkov za {route}")
             return None, None, None, None
 
         latest_training = sorted(training_files)[-1]
@@ -92,11 +91,11 @@ def load_model_and_scalers(route):
         with open(f"{base_name}_scaler_y.pkl", 'rb') as f:
             scaler_y = pickle.load(f)
 
-        print("✅ Skaleri naloženi")
+        print("Skaleri nalozeni")
         return model, scaler_X, scaler_y, input_size
 
     except Exception as e:
-        print(f"❌ Napaka pri nalaganju: {e}")
+        print(f"Napaka pri nalaganju: {e}")
         return None, None, None, None
 
 def load_simulation_data(route):
@@ -105,17 +104,17 @@ def load_simulation_data(route):
     if not csv_files:
         csv_files = glob.glob(f"{DATA_FOLDER}/{route}_all_*.csv")
     if not csv_files:
-        print(f"❌ Ni podatkov za linijo {route}")
+        print(f"Ni podatkov za linijo {route}")
         return None
     
     csv_file = sorted(csv_files)[-1]
-    print(f"📂 Učitavam podatke: {csv_file}")
+    print(f"Ucitavam podatke: {csv_file}")
     return pd.read_csv(csv_file)
 
 def predict_bus_locations(df, model, scaler_X, scaler_y, input_size):
     """Napove lokacije avtobusov za vsak timestamp (PyTorch model)."""
 
-    print("\n🤖 Uporabljam model za napovedovanje...")
+    print("\nUporabljam model za napovedovanje...")
 
     timestamps = sorted(df['timestamp'].unique())
     predictions_data = {
@@ -170,18 +169,18 @@ def predict_bus_locations(df, model, scaler_X, scaler_y, input_size):
         predictions_data['num_users'].append(len(on_bus))
         predictions_data['error_meters'].append(error_m)
 
-    print(f"\n✅ Gotovo! Obdelava {len(predictions_data['timestamp'])} okvirjev")
+    print(f"\nGotovo! Obdelava {len(predictions_data['timestamp'])} okvirjev")
     return pd.DataFrame(predictions_data)
 
 def visualize_predictions(pred_df, route):
     """Vizualizacija napovedovanja modela"""
-    print(f"\n📊 Kreiram vizualizacijo...")
+    print(f"\nKreiram vizualizacijo...")
     
     fig = plt.figure(figsize=(18, 12))
     fig.patch.set_facecolor('#F8FAFC')
     
     # Naslov
-    fig.suptitle(f'🚍 Napovedi Nevronske Mreže - Linija {route}', 
+    fig.suptitle(f'Napovedi Nevronske Mreze - Linija {route}', 
                 fontsize=20, fontweight='bold', color='#1E293B', y=0.98)
     
     # 1. Mapa - Prava vs Napovedana
@@ -260,7 +259,7 @@ def visualize_predictions(pred_df, route):
     ax6.axis('off')
     
     stats_text = (
-        f"📊 STATISTIKA MODELA\n"
+        f"STATISTIKA MODELA\n"
         f"{'─' * 35}\n"
         f"Skupaj Napovedi: {len(pred_df)}\n"
         f"\n📏 METRIKE NAPAKE\n"
@@ -269,7 +268,7 @@ def visualize_predictions(pred_df, route):
         f"Std Odklona: {pred_df['error_meters'].std():.2f} m\n"
         f"Najmanja Napaka: {pred_df['error_meters'].min():.2f} m\n"
         f"Največja Napaka: {pred_df['error_meters'].max():.2f} m\n"
-        f"\n✅ NATANČNOST\n"
+        f"\nNATANCNOST\n"
         f"< 100m: {len(pred_df[pred_df['error_meters'] < 100]) / len(pred_df) * 100:.1f}%\n"
         f"< 200m: {len(pred_df[pred_df['error_meters'] < 200]) / len(pred_df) * 100:.1f}%\n"
         f"< 300m: {len(pred_df[pred_df['error_meters'] < 300]) / len(pred_df) * 100:.1f}%\n"
@@ -286,13 +285,13 @@ def visualize_predictions(pred_df, route):
 
 def main():
     print("\n" + "="*70)
-    print("🤖 NAPOVEDI NEVRONSKE MREŽE ZA AVTOBUSNE LOKACIJE".center(70))
+    print("NAPOVEDI NEVRONSKE MREZE ZA AVTOBUSNE LOKACIJE".center(70))
     print("="*70)
     
     # Pronađi dostopne linije
     csv_files = glob.glob(f"{DATA_FOLDER}/*_multibus_*.csv") + glob.glob(f"{DATA_FOLDER}/*_all_*.csv")
     if not csv_files:
-        print("❌ Ni simulacijskih podatkov!")
+        print("Ni simulacijskih podatkov!")
         return
     
     routes = set()
@@ -300,7 +299,7 @@ def main():
         route = f.split('/')[-1].split('_')[0]
         routes.add(route)
     
-    print("\n📍 Dostopne linije:")
+    print("\nDostopne linije:")
     for route in sorted(routes):
         print(f"   • {route}", end="  ")
     print("\n")
@@ -308,13 +307,13 @@ def main():
     route = input("Izberi linijo (npr. G1): ").strip().upper() or "G1"
     
     if route not in routes:
-        print(f"❌ Linija {route} ni dostopna")
+        print(f"Linija {route} ni dostopna")
         return
     
     # Učitaj model
     model, scaler_X, scaler_y, input_size = load_model_and_scalers(route)
     if model is None:
-        print("❌ Ni mogoče učitati model. Prvo trebam trenirati!")
+        print("Ni mogoce ucitati model. Prvo je treba trenirati!")
         print("   Zaženi: python3 train_model.py")
         return
     
@@ -329,7 +328,7 @@ def main():
     # Vizualiziraj
     visualize_predictions(pred_df, route)
     
-    print("\n✅ Vizualizacija končana!")
+    print("\nVizualizacija koncana!")
 
 if __name__ == "__main__":
     main()

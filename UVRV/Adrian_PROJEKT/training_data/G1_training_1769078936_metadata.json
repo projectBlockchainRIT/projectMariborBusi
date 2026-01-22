@@ -1,0 +1,12 @@
+{
+  "route": "G1",
+  "total_samples": 1500,
+  "train_samples": 1049,
+  "val_samples": 150,
+  "test_samples": 301,
+  "feature_length": 45,
+  "max_users": 15,
+  "output_dim": 2,
+  "normalization": "StandardScaler",
+  "timestamp": 1769078936
+}

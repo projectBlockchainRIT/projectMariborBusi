@@ -18,26 +18,24 @@ TRAINING_FOLDER = "training_data"
 
 def load_simulation_data(route):
     """Naloži CSV podatke za izbrano linijo."""
-    # Try multibus files first, then fallback to old _all_ files
     csv_files = glob.glob(f"{DATA_FOLDER}/{route}_multibus_*.csv")
     if not csv_files:
         csv_files = glob.glob(f"{DATA_FOLDER}/{route}_all_*.csv")
 
     if not csv_files:
-        print(f"❌ Ni podatkov za linijo {route}")
+            print(f"Ni podatkov za linijo {route}")
         return None
 
     csv_file = sorted(csv_files)[-1]
-    print(f"📂 Nalagam podatke iz: {csv_file}")
+    print(f"Nalagam podatke iz: {csv_file}")
     df = pd.read_csv(csv_file)
 
-    # Check if multibus format
     is_multibus = 'bus_id' in df.columns
     if is_multibus:
         num_buses = len([x for x in df['bus_id'].unique() if x >= 0])
-        print(f"   📊 Multi-bus dataset: {num_buses} avtobusov")
+        print(f"   Multi-bus dataset: {num_buses} avtobusov")
     else:
-        print(f"   📊 Single-bus dataset")
+        print(f"   Single-bus dataset")
 
     return df
 
@@ -49,7 +47,7 @@ def create_training_pairs(df):
 
     Za multi-bus scenarije ustvari več primerov (en za vsak avtobus).
     """
-    print("🔄 Ustvarjam treningske pare...")
+    print("Ustvarjam treningske pare...")
 
     X_raw = []
     y = []
@@ -57,23 +55,18 @@ def create_training_pairs(df):
     is_multibus = 'bus_id' in df.columns
 
     if is_multibus:
-        # Multi-bus scenario: create training pair for each bus
         for timestamp, group in df.groupby('timestamp'):
-            # Get all buses at this timestamp
             bus_ids = [x for x in group['bus_id'].unique() if x >= 0]
 
             for bus_id in bus_ids:
-                # Get users for this specific bus
                 bus_users = group[group['bus_id'] == bus_id]
 
                 if len(bus_users) < 2:
                     continue
 
-                # Get actual bus location
                 bus_lat = bus_users.iloc[0]['bus_lat']
                 bus_lon = bus_users.iloc[0]['bus_lon']
 
-                # Create features from bus users (prioritize on_bus)
                 group_sorted = bus_users.sort_values('user_id')
 
                 features = []
@@ -87,9 +80,7 @@ def create_training_pairs(df):
                 X_raw.append(features)
                 y.append([bus_lat, bus_lon])
     else:
-        # Single-bus scenario (legacy)
         for timestamp, group in df.groupby('timestamp'):
-            # Use bus_lat/bus_lon from first on_bus user or fallback
             on_bus_users = group[group['user_type'] == 'on_bus']
 
             if len(on_bus_users) < 2:
@@ -111,7 +102,6 @@ def create_training_pairs(df):
             X_raw.append(features)
             y.append([bus_lat, bus_lon])
 
-    # Pad to same length
     if len(X_raw) > 0:
         max_length = max(len(row) for row in X_raw)
         X = np.zeros((len(X_raw), max_length))
@@ -122,11 +112,11 @@ def create_training_pairs(df):
 
     y = np.array(y)
 
-    print(f"✅ Ustvarjenih parov: {len(X)}")
-    print(f"   • Dimenzija X: {X.shape}")
-    print(f"   • Dimenzija y: {y.shape}")
+    print(f"Ustvarjenih parov: {len(X)}")
+    print(f"   Dimenzija X: {X.shape}")
+    print(f"   Dimenzija y: {y.shape}")
     if is_multibus:
-        print(f"   • Multi-bus format: Več primerov na timestamp")
+        print(f"   Multi-bus format: Vec primerov na timestamp")
 
     return X, y
 
@@ -150,7 +140,7 @@ def pad_features(X):
 
 def normalize_data(X, y):
     """StandardScaler normalizacija X in y."""
-    print("📊 Normaliziram podatke...")
+    print("Normaliziram podatke...")
 
     scaler_X = StandardScaler()
     X_normalized = scaler_X.fit_transform(X)
@@ -162,7 +152,7 @@ def normalize_data(X, y):
 
 def split_data(X, y, test_size=0.2, val_size=0.1):
     """Razdeli podatke na train/val/test (70%/10%/20%)."""
-    print(f"📋 Razdeljujem podatke...")
+    print(f"Razdeljujem podatke...")
 
     X_train, X_temp, y_train, y_temp = train_test_split(
         X, y, test_size=(test_size + val_size), random_state=42
@@ -203,14 +193,14 @@ def save_training_data(route, train_data, val_data, test_data, scaler_X, scaler_
     with open(f"{base_name}_metadata.json", 'w') as f:
         json.dump(metadata, f, indent=2)
 
-    print(f"✅ Shranjeno: {base_name}*")
+    print(f"Shranjeno: {base_name}*")
 
     return base_name
 
 def print_summary(X, y, train_data, val_data, test_data):
     """Izpiši povzetek pripravljenih podatkov."""
     print("\n" + "="*70)
-    print("📊 POVZETEK".center(70))
+    print("POVZETEK".center(70))
     print("="*70)
 
     print(f"\n🔢 Podatki:")
@@ -239,7 +229,7 @@ def main():
         csv_files = glob.glob(f"{DATA_FOLDER}/*_all_*.csv")
 
     if not csv_files:
-        print("❌ Ni simulacijskih podatkov!")
+        print("Ni simulacijskih podatkov!")
         return
 
     print("\nDostopne linije:")
@@ -261,7 +251,7 @@ def main():
     X, y = create_training_pairs(df)
 
     if len(X) == 0:
-        print("❌ Ni zadosti podatkov!")
+        print("Ni zadosti podatkov!")
         return
 
     X_padded, target_length, max_users = pad_features(X)
@@ -284,8 +274,8 @@ def main():
     save_training_data(route, train_data, val_data, test_data, scaler_X, scaler_y, metadata)
     print_summary(X_padded, y, train_data, val_data, test_data)
 
-    print("✅ Treningski podatki pripravljeni!")
-    print(f"\n💡 Naslednji korak: python3 train_model.py")
+    print("Treningski podatki pripravljeni!")
+    print(f"\nNaslednji korak: python3 train_model.py")
 
 if __name__ == "__main__":
     main()

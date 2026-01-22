@@ -20,7 +20,6 @@ def load_latest_multibus(route):
     """Nalozi najnovejse multibus podatke"""
     files = glob.glob(f"{DATA_FOLDER}/{route}_multibus_*.csv")
     if not files:
-        # Fallback na obicajne podatke
         files = glob.glob(f"{DATA_FOLDER}/{route}_all_*.csv")
     if not files:
         return None
@@ -61,10 +60,8 @@ def estimate_bus_locations(users_df, eps=0.0015, min_samples=5):
 
     coords = users_df[['lat', 'lon']].values
 
-    # Weight by signal strength if available
     if 'signal_strength' in users_df.columns:
         weights = users_df['signal_strength'].values / 100.0
-        # Upweight on_bus users for more accurate detection
         if 'user_type' in users_df.columns:
             type_weights = users_df['user_type'].apply(
                 lambda x: 1.5 if x == 'on_bus' else 1.0
@@ -78,13 +75,12 @@ def estimate_bus_locations(users_df, eps=0.0015, min_samples=5):
 
     bus_locations = []
     unique_labels = set(labels)
-    unique_labels.discard(-1)  # Odstrani sum
+    unique_labels.discard(-1)
 
     for label in unique_labels:
         mask = labels == label
         cluster_users = users_df.iloc[np.where(mask)[0]]
 
-        # Weighted centroid (priortize on_bus and high signal strength users)
         if 'signal_strength' in cluster_users.columns:
             weights_cluster = cluster_users['signal_strength'].values / 100.0
             if 'user_type' in cluster_users.columns:
@@ -101,12 +97,10 @@ def estimate_bus_locations(users_df, eps=0.0015, min_samples=5):
 
         num_users = len(cluster_users)
 
-        # Count on_bus users for quality metric
         on_bus_count = len(cluster_users[cluster_users['user_type'] == 'on_bus']) if 'user_type' in cluster_users.columns else 0
 
         bus_locations.append((center_lat, center_lon, num_users, on_bus_count))
 
-    # Sort by on_bus users first, then by cluster size
     bus_locations.sort(key=lambda x: (-x[3], -x[2]))
 
     return bus_locations
@@ -139,26 +133,22 @@ def main():
     print(f"Timestampov: {df['timestamp'].nunique()}")
     print(f"Tipi: {df['user_type'].value_counts().to_dict()}")
 
-    # Meje
     margin = 0.003
     lat_min, lat_max = df['lat'].min() - margin, df['lat'].max() + margin
     lon_min, lon_max = df['lon'].min() - margin, df['lon'].max() + margin
 
     timestamps = sorted(df['timestamp'].unique())
 
-    # Precompute - hitrejse
     print("\nPriprava podatkov...")
     cache = {}
     for ts in timestamps:
         group = df[df['timestamp'] == ts]
         heatmap = create_heatmap(group, lat_min, lat_max, lon_min, lon_max, GRID_SIZE)
-        # Estimacija lokacij avtobusov - consistent parameters with function definition
         bus_estimates = estimate_bus_locations(group, eps=0.0015, min_samples=5)
         cache[ts] = {'group': group, 'heatmap': heatmap, 'buses': bus_estimates}
 
     print(f"Pripravljeno {len(cache)} tock")
 
-    # Barve
     colors = {
         'on_bus': '#2196F3',
         'waiting_at_station': '#FF9800',
@@ -166,14 +156,12 @@ def main():
         'nearby': '#607D8B'
     }
 
-    # Vizualizacija - 2 panela
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
     plt.subplots_adjust(bottom=0.18)
 
     ax_slider = plt.axes([0.15, 0.06, 0.7, 0.03])
     slider = Slider(ax_slider, 'Cas', 0, len(timestamps) - 1, valinit=0, valstep=1)
 
-    # Elementi za hitro posodabljanje
     scatter_artists = {}
     heatmap_img = [None]
 
@@ -196,7 +184,6 @@ def main():
         group = data['group']
         buses = data['buses']
 
-        # Scatter
         ax1.clear()
         for ut, color in colors.items():
             subset = group[group['user_type'] == ut]
@@ -236,7 +223,6 @@ def main():
         ax2.imshow(hm, cmap='hot', origin='lower',
                    extent=[lon_min, lon_max, lat_min, lat_max], aspect='auto')
 
-        # Estimirane lokacije na heatmapu - razlicne barve
         bus_colors_heatmap = ['cyan', 'lime', 'yellow', 'magenta', 'orange']
         for i, (blat, blon, nusers, on_bus_count) in enumerate(buses):
             color = bus_colors_heatmap[i % len(bus_colors_heatmap)]

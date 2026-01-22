@@ -84,7 +84,6 @@ float signalToAccuracy(float signalStrength) {
     return 50.0f;
 }
 
-// Progress bar funkcija s prikazom zapisov in ETA
 void printProgressBar(size_t current, size_t total, int totalRecords = 0,
                       long long startTime = 0, int barWidth = 50) {
     float progress = static_cast<float>(current) / total;
@@ -100,19 +99,18 @@ void printProgressBar(size_t current, size_t total, int totalRecords = 0,
               << current << "/" << total << ")";
 
     if (totalRecords > 0) {
-        std::cout << " | 📝 " << totalRecords << " zapisov";
+            std::cout << " | " << totalRecords << " zapisov";
     }
 
-    // ETA prikaz
     if (startTime > 0 && current > 0 && progress > 0.01) {
         long long elapsed = std::time(nullptr) - startTime;
         long long eta = static_cast<long long>(elapsed / progress) - elapsed;
-        if (eta > 0 && eta < 3600) { // Samo če je manj kot 1 ura
-            std::cout << " | ⏱️  ETA: " << eta << "s";
+        if (eta > 0 && eta < 3600) {
+                std::cout << " | ETA: " << eta << "s";
         }
     }
 
-    std::cout << "      ";  // Dodatni space za brisanje starih znakov
+    std::cout << "      ";
     std::cout.flush();
 }
 
@@ -418,12 +416,12 @@ int main() {
 
     csvFile.close();
 
-    std::cout << "\n\n=== ✅ Simulacija zaključena ===\n";
-    std::cout << "⏱️  Čas simulacije: "
+    std::cout << "\n\n=== Simulacija zaključena ===\n";
+    std::cout << "Cas simulacije: "
               << (std::time(nullptr) - startTime) << " sekund\n";
-    std::cout << "📊 Skupaj zapisov: " << totalRecords << "\n";
-    std::cout << "📁 CSV datoteka: " << csvFilename << "\n";
-    std::cout << "💾 Velikost: ";
+    std::cout << "Skupaj zapisov: " << totalRecords << "\n";
+    std::cout << "CSV datoteka: " << csvFilename << "\n";
+    std::cout << "Velikost: ";
 
     // Izračunaj velikost datoteke
     std::ifstream checkFile(csvFilename, std::ios::binary | std::ios::ate);
