@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+/* Marprom brand colors as CSS variables */
+:root {
+  --marprom-50: #fef2f2;
+  --marprom-100: #fee2e2;
+  --marprom-200: #fecaca;
+  --marprom-300: #fca5a5;
+  --marprom-400: #f87171;
+  --marprom-500: #ef4444;
+  --marprom-600: #E30613;
+  --marprom-700: #c81010;
+  --marprom-800: #a31111;
+  --marprom-900: #881414;
+  --marprom-950: #450a0a;
+}
+
+/* Background colors */
+.bg-marprom-50 { background-color: #fef2f2 !important; }
+.bg-marprom-100 { background-color: #fee2e2 !important; }
+.bg-marprom-200 { background-color: #fecaca !important; }
+.bg-marprom-300 { background-color: #fca5a5 !important; }
+.bg-marprom-400 { background-color: #f87171 !important; }
+.bg-marprom-500 { background-color: #ef4444 !important; }
+.bg-marprom-600 { background-color: #E30613 !important; }
+.bg-marprom-700 { background-color: #c81010 !important; }
+.bg-marprom-800 { background-color: #a31111 !important; }
+.bg-marprom-900 { background-color: #881414 !important; }
+.bg-marprom-950 { background-color: #450a0a !important; }
+
+/* Text colors */
+.text-marprom-50 { color: #fef2f2 !important; }
+.text-marprom-100 { color: #fee2e2 !important; }
+.text-marprom-200 { color: #fecaca !important; }
+.text-marprom-300 { color: #fca5a5 !important; }
+.text-marprom-400 { color: #f87171 !important; }
+.text-marprom-500 { color: #ef4444 !important; }
+.text-marprom-600 { color: #E30613 !important; }
+.text-marprom-700 { color: #c81010 !important; }
+.text-marprom-800 { color: #a31111 !important; }
+.text-marprom-900 { color: #881414 !important; }
+.text-marprom-950 { color: #450a0a !important; }
+
+/* Border colors */
+.border-marprom-50 { border-color: #fef2f2 !important; }
+.border-marprom-100 { border-color: #fee2e2 !important; }
+.border-marprom-200 { border-color: #fecaca !important; }
+.border-marprom-300 { border-color: #fca5a5 !important; }
+.border-marprom-400 { border-color: #f87171 !important; }
+.border-marprom-500 { border-color: #ef4444 !important; }
+.border-marprom-600 { border-color: #E30613 !important; }
+.border-marprom-700 { border-color: #c81010 !important; }
+.border-marprom-800 { border-color: #a31111 !important; }
+.border-marprom-900 { border-color: #881414 !important; }
+.border-marprom-950 { border-color: #450a0a !important; }
+
+/* Background colors with opacity */
+.bg-marprom-600\/3 { background-color: rgba(227, 6, 19, 0.03) !important; }
+.bg-marprom-600\/5 { background-color: rgba(227, 6, 19, 0.05) !important; }
+.bg-marprom-600\/10 { background-color: rgba(227, 6, 19, 0.1) !important; }
+.bg-marprom-500\/10 { background-color: rgba(239, 68, 68, 0.1) !important; }
+.bg-marprom-600\/20 { background-color: rgba(227, 6, 19, 0.2) !important; }
+.bg-white\/5 { background-color: rgba(255, 255, 255, 0.05) !important; }
+.bg-white\/10 { background-color: rgba(255, 255, 255, 0.1) !important; }
+.text-white\/80 { color: rgba(255, 255, 255, 0.8) !important; }
+.border-white\/30 { border-color: rgba(255, 255, 255, 0.3) !important; }
+
+/* Shadow colors */
+.shadow-marprom-600\/20 { --tw-shadow-color: rgba(227, 6, 19, 0.2); }
+.shadow-marprom-600\/25 { --tw-shadow-color: rgba(227, 6, 19, 0.25); }
+.shadow-marprom-600\/30 { --tw-shadow-color: rgba(227, 6, 19, 0.30); }
+
+/* Fill colors */
+.fill-marprom-600 { fill: #E30613 !important; }
+
+/* Hover states */
+.hover\:bg-marprom-50:hover { background-color: #fef2f2 !important; }
+.hover\:bg-marprom-100:hover { background-color: #fee2e2 !important; }
+.hover\:bg-marprom-600:hover { background-color: #E30613 !important; }
+.hover\:bg-marprom-700:hover { background-color: #c81010 !important; }
+.hover\:bg-white\/10:hover { background-color: rgba(255, 255, 255, 0.1) !important; }
+.hover\:text-marprom-500:hover { color: #ef4444 !important; }
+.hover\:text-marprom-600:hover { color: #E30613 !important; }
+.hover\:text-marprom-700:hover { color: #c81010 !important; }
+.hover\:border-marprom-600:hover { border-color: #E30613 !important; }
+
+/* Group hover states */
+.group:hover .group-hover\:bg-marprom-600 { background-color: #E30613 !important; }
+.group:hover .group-hover\:text-white { color: white !important; }
+
+/* Animations */
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
+.animate-slide-up {
+  animation: slide-up 0.6s ease-out;
+}
+.animate-slide-in-right {
+  animation: slide-in-right 0.6s ease-out;
+}
+.animate-bounce-slow {
+  animation: bounce 3s infinite;
+}
+
+@media (min-width: 1024px) {
+  .lg\:animate-slide-in-right {
+    animation: slide-in-right 0.6s ease-out;
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}

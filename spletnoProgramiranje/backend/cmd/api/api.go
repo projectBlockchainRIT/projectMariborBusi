@@ -48,8 +48,8 @@ func (app *app) mount() http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173"},
-		AllowedHeaders:   []string{"Accept", "Content-Type"},
+		AllowedOrigins:   []string{"http://localhost:5173", "http://127.0.0.1:5173"},
+		AllowedHeaders:   []string{"Accept", "Content-Type", "Authorization"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
