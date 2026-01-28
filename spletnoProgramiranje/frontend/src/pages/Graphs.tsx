@@ -3,8 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import BusDensityHeatmap from '../components/BusDensityHeatmap';
 import PassengerDensityGraph from '../components/PassengerDensityGraph';
 import ActiveBusesProgress from '../components/ActiveBusesProgress';
-import DelayAnalysis from '../components/DelayAnalysis'; // Import the DelayAnalysis component
+import DelayAnalysis from '../components/DelayAnalysis';
 import { useTheme } from '../context/ThemeContext';
+import {
+  ChartBarIcon,
+  UserGroupIcon,
+  ClockIcon,
+} from '@heroicons/react/24/outline';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -17,7 +22,6 @@ import {
   BarElement,
 } from 'chart.js';
 
-// Register ChartJS components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -33,23 +37,27 @@ interface Tab {
   id: string;
   name: string;
   description: string;
+  icon: React.ElementType;
 }
 
 const tabs: Tab[] = [
   {
     id: 'bus-density',
     name: 'Bus Density',
-    description: 'Real-time visualization of bus distribution across the network'
+    description: 'Real-time visualization of bus distribution',
+    icon: ChartBarIcon,
   },
   {
     id: 'passenger-flow',
     name: 'Passenger Flow',
-    description: 'Analysis of passenger movement patterns and peak hours'
+    description: 'Analysis of passenger movement patterns',
+    icon: UserGroupIcon,
   },
   {
     id: 'delay-analysis',
     name: 'Delay Analysis',
-    description: 'Comprehensive breakdown of service delays and their causes'
+    description: 'Breakdown of service delays',
+    icon: ClockIcon,
   }
 ];
 
@@ -64,63 +72,109 @@ export default function Graphs() {
       case 'passenger-flow':
         return <PassengerDensityGraph />;
       case 'delay-analysis':
-        return <DelayAnalysis />; // Use the DelayAnalysis component
+        return <DelayAnalysis />;
       default:
         return null;
     }
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 lg:p-8 max-w-7xl mx-auto">
+      {/* Header */}
       <div className="mb-8">
-        <h1 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-          Analytics Dashboard
+        <h1 className={`text-2xl font-semibold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+          Analytics
         </h1>
-        <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-          Comprehensive insights into Maribor's public transportation system
+        <p className={`mt-1 text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+          Insights into Maribor's public transportation system
         </p>
       </div>
 
+      {/* Active Buses Card */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-8"
+        transition={{ duration: 0.3 }}
+        className="mb-6"
       >
-        <ActiveBusesProgress />
+        <div
+          className={`
+            rounded-xl border p-5 transition-colors
+            ${isDarkMode
+              ? 'bg-slate-800/50 border-slate-700/50'
+              : 'bg-white border-slate-200'
+            }
+          `}
+        >
+          <ActiveBusesProgress />
+        </div>
       </motion.div>
 
-      <div className={`rounded-lg shadow-lg overflow-hidden ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-        <div className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-          <nav className="flex space-x-8 px-6" aria-label="Tabs">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`
-                  py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200
-                  ${activeTab === tab.id
-                    ? isDarkMode
-                      ? 'border-blue-500 text-blue-400'
-                      : 'border-blue-600 text-blue-600'
-                    : isDarkMode
-                      ? 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }
-                `}
-              >
-                {tab.name}
-              </button>
-            ))}
-          </nav>
+      {/* Main content card */}
+      <div
+        className={`
+          rounded-xl border overflow-hidden transition-colors
+          ${isDarkMode
+            ? 'bg-slate-800/50 border-slate-700/50'
+            : 'bg-white border-slate-200'
+          }
+        `}
+      >
+        {/* Tabs */}
+        <div className={`border-b ${isDarkMode ? 'border-slate-700/50' : 'border-slate-200'}`}>
+          <div className="flex overflow-x-auto">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`
+                    relative flex items-center gap-2.5 px-5 py-4
+                    text-sm font-medium whitespace-nowrap
+                    transition-colors duration-200
+                    ${isActive
+                      ? isDarkMode
+                        ? 'text-white'
+                        : 'text-slate-900'
+                      : isDarkMode
+                        ? 'text-slate-400 hover:text-slate-200'
+                        : 'text-slate-500 hover:text-slate-700'
+                    }
+                  `}
+                >
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-marprom-600' : ''}`} />
+                  <span>{tab.name}</span>
+
+                  {/* Active indicator */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-marprom-600"
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
+
+        {/* Tab content */}
         <div className="p-6">
+          {/* Tab description */}
+          <p className={`text-sm mb-6 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+            {tabs.find(t => t.id === activeTab)?.description}
+          </p>
+
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
               {renderContent()}

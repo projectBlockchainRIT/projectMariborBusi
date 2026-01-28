@@ -1,8 +1,8 @@
-const API_BASE_URL = 'http://40.68.198.73:8080/v1';
+import { API_BASE_URL } from '../config/api';
 
 export async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
   const token = localStorage.getItem('token');
-  
+
   const headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
@@ -10,7 +10,7 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
     ...options.headers,
   };
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const response = await fetch(`${API_BASE_URL}/${endpoint.startsWith('/') ? endpoint.slice(1) : endpoint}`, {
     ...options,
     headers,
   });

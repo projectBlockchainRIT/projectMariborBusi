@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useUser } from '../context/UserContext';
+import { getApiUrl } from '../config/api';
 import {
   ExclamationTriangleIcon,
   ClockIcon,
@@ -76,7 +77,7 @@ export default function DelaysController({
     const loadRoutes = async () => {
       try {
         setRoutesLoading(true);
-        const response = await fetch('http://40.68.198.73:8080/v1/routes/list');
+        const response = await fetch(getApiUrl('routes/list'));
         if (!response.ok) {
           throw new Error(`Failed to fetch routes: ${response.status} ${response.statusText}`);
         }
@@ -117,7 +118,7 @@ export default function DelaysController({
       setExpandedRouteId(route.id);
       setStationsLoading(true);
       try {
-        const response = await fetch(`http://40.68.198.73:8080/v1/routes/stations/${route.line_id}`);
+        const response = await fetch(getApiUrl(`routes/stations/${route.line_id}`));
         if (!response.ok) {
           throw new Error(`Failed to fetch stations: ${response.status} ${response.statusText}`);
         }
@@ -208,8 +209,8 @@ export default function DelaysController({
       console.log('Submitting delay report:', delayReport);
       
       const corsProxyUrl = 'https://cors-anywhere.herokuapp.com/';
-      const apiUrl = 'http://40.68.198.73:8080/v1/delays/report';
-      
+      const apiUrl = getApiUrl('delays/report');
+
       const response = await fetch(corsProxyUrl + apiUrl, {
         method: 'POST',
         headers: {

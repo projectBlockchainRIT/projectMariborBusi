@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import { API_BASE_URL } from '../config/api';
 
 // Types
 export interface BusStop {
@@ -17,9 +18,6 @@ export interface FetchBusStopsOptions {
   signal?: AbortSignal;
   onLoadingChange?: (isLoading: boolean) => void;
 }
-
-// API configuration
-const API_BASE_URL = 'http://40.68.198.73:8080/v1';
 
 // Error types
 export class BusStopsError extends Error {

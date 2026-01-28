@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Clock, TrendingUp, AlertCircle, Calendar, MapPin, User } from 'lucide-react';
+import { getApiUrl } from '../config/api';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -73,7 +74,7 @@ export default function DelayAnalysis() {
         setError(null);
         
         // Step 1: Fetch all routes
-        const routesResponse = await fetch('http://40.68.198.73:8080/v1/routes/list', {
+        const routesResponse = await fetch(getApiUrl('routes/list'), {
           headers: { 'Accept': 'application/json' }
         });
 
@@ -86,7 +87,7 @@ export default function DelayAnalysis() {
         setRoutes(allRoutes);
         
         // Step 2: Fetch system-wide average delay
-        const systemDelayResponse = await fetch('http://40.68.198.73:8080/v1/delays/average', {
+        const systemDelayResponse = await fetch(getApiUrl('delays/average'), {
           headers: { 'Accept': 'application/json' }
         });
 
@@ -103,7 +104,7 @@ export default function DelayAnalysis() {
         }
         
         // Step 3: Fetch recent delays
-        const recentDelaysResponse = await fetch('http://40.68.198.73:8080/v1/delays/recent', {
+        const recentDelaysResponse = await fetch(getApiUrl('delays/recent'), {
           headers: { 'Accept': 'application/json' }
         });
 
@@ -120,7 +121,7 @@ export default function DelayAnalysis() {
         // Step 4: Fetch delay for each route
         const delayPromises = allRoutes.map(async (route: Route) => {
           try {
-            const response = await fetch(`http://40.68.198.73:8080/v1/delays/average/${route.line_id}`, {
+            const response = await fetch(getApiUrl(`delays/average/${route.line_id}`), {
               headers: { 'Accept': 'application/json' }
             });
             

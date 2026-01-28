@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Bus, Mail, Lock, ArrowLeft, ArrowRight } from "lucide-react";
 import { useUser } from "../context/UserContext";
+import { getApiUrl } from "../config/api";
 
 export default function Login() {
   const { setIsAuthenticated, setIsAdmin, setUser: setUserContext } = useUser();
@@ -22,7 +23,7 @@ export default function Login() {
 
     try {
       const response = await fetch(
-        "http://20.208.138.248:8080/v1/authentication/login",
+        getApiUrl("authentication/login"),
         {
           method: "POST",
           headers: {

@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { TruckIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { getApiUrl } from '../config/api';
 
 interface ActiveBusesProgressProps {
   className?: string;
@@ -23,7 +24,7 @@ export default function ActiveBusesProgress({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://40.68.198.73:8080/v1/routes/active');
+        const response = await fetch(getApiUrl('routes/active'));
         if (!response.ok) {
           throw new Error('Failed to fetch active buses data');
         }

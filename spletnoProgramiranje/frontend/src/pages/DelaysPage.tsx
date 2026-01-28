@@ -6,6 +6,7 @@ import { drawRouteOnMap } from '../utils/drawRouteOnMap';
 import { createRoot } from 'react-dom/client';
 import EventMarker from '../components/EventMarker';
 import mapboxgl from 'mapbox-gl';
+import { getApiUrl } from '../config/api';
 
 export default function DelaysPage() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -41,7 +42,7 @@ export default function DelaysPage() {
 
     if (mapRef.current) {
       try {
-        const response = await fetch(`http://40.68.198.73:8080/v1/delays/station/${station.id}`);
+        const response = await fetch(getApiUrl(`delays/station/${station.id}`));
         if (!response.ok) {
           throw new Error(`Failed to fetch delays: ${response.status} ${response.statusText}`);
         }

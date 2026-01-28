@@ -6,6 +6,7 @@ import mapboxgl from 'mapbox-gl';
 import type { Station, Route } from '../types/station';
 import { drawRoutesOnMap } from '../utils/drawRoutesOnMap';
 import { useTheme } from '../context/ThemeContext';
+import { getApiUrl, getWebSocketUrl } from '../config/api';
 
 // Function to generate a random color
 const getRandomColor = () => {
@@ -61,7 +62,7 @@ export default function InteractiveMap() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch('http://40.68.198.73:8080/v1/stations/list', {
+        const response = await fetch(getApiUrl('stations/list'), {
           signal,
           headers: {
             'Accept': 'application/json',
@@ -77,7 +78,6 @@ export default function InteractiveMap() {
         }
 
         const result = await response.json();
-        console.log('Raw response data:', result);
 
         if (!isMounted) return;
 
@@ -90,7 +90,6 @@ export default function InteractiveMap() {
         } else {
           stationsData = [];
         }
-        console.log('Processed stations data:', stationsData);
 
         if (!Array.isArray(stationsData)) {
           throw new Error('Invalid response format: stations data is not an array');
@@ -101,9 +100,7 @@ export default function InteractiveMap() {
         if (!isMounted) return;
 
         if (e instanceof Error) {
-          if (e.name === 'AbortError') {
-            console.log('Fetch aborted by cleanup');
-          } else {
+          if (e.name !== 'AbortError') {
             setError(`Failed to fetch stations: ${e.message}`);
           }
         } else {
@@ -125,7 +122,6 @@ export default function InteractiveMap() {
   }, []);
 
   const handleMapLoad = useCallback((map: MapboxMap) => {
-    console.log('Map loaded in InteractiveMap');
     setMapInstance(map);
     setIsMapLoaded(true);
   }, []);
@@ -143,36 +139,29 @@ export default function InteractiveMap() {
     
     // Start new WebSocket connection for the selected route
     const routeId = selectedRoute.id;
-    console.log(`Starting bus tracking for route ${routeId}`);
-    
-    const wsUrl = `ws://40.68.198.73:8080/v1/estimate/simulate/${routeId}`;
+
+    const wsUrl = getWebSocketUrl(`estimate/simulate/${routeId}`);
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
-      console.log(`WebSocket connected for route ${routeId}`);
       setBusTrackingActive(true);
     };
 
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log('Received bus location data:', data);
-        
+
         // Handle different data formats (single bus or array of buses)
         const busData = Array.isArray(data) ? data : [data];
-        
-        // If no valid data or empty array, just log and return
-        if (!data || (Array.isArray(busData) && busData.length === 0)) {
-          console.log('Received empty bus data, ignoring update');
-          setError('Failed to load busses / no buses active on this route ');
 
+        // If no valid data or empty array, set error and return
+        if (!data || (Array.isArray(busData) && busData.length === 0)) {
+          setError('Failed to load busses / no buses active on this route ');
           return;
         }
-        
-        if (!selectedRoute || !selectedRoute.id) {
-          console.warn('No selected route available for bus data');
-          setError('Failed to load busses / no buses active on this route ');
 
+        if (!selectedRoute || !selectedRoute.id) {
+          setError('Failed to load busses / no buses active on this route ');
           return;
         }
         
@@ -185,17 +174,15 @@ export default function InteractiveMap() {
           busData.forEach(bus => {
             // Skip if bus object is null or undefined
             if (!bus) {
-              console.warn('Received null/undefined bus entry');
               return;
             }
-            
+
             // Map the API's lat/lon properties to our latitude/longitude interface
             const id = bus.departure_id || bus.direction_id || bus.id || Math.random().toString();
             const latitude = bus.lat || bus.latitude;
             const longitude = bus.lon || bus.longitude;
-            
+
             if (id && typeof latitude === 'number' && typeof longitude === 'number') {
-              console.log(`Processing bus ${id} at position [${latitude}, ${longitude}]`);
               locationMap.set(id.toString(), {
                 id: id.toString(),
                 latitude,
@@ -206,28 +193,23 @@ export default function InteractiveMap() {
                 speed: bus.speed,
                 heading: bus.heading
               });
-            } else {
-              console.warn('Invalid bus data:', bus);
             }
           });
-          
+
           const updatedLocations = Array.from(locationMap.values());
-          console.log(`Updated bus locations (${updatedLocations.length}):`, updatedLocations);
           return updatedLocations;
         });
       } catch (err) {
-        console.error('Error processing WebSocket message:', err);
+        setError('Error processing bus location data');
       }
     };
-    
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
+
+    ws.onerror = () => {
       setError(`Bus tracking error: Connection failed`);
       setBusTrackingActive(false);
     };
-    
+
     ws.onclose = () => {
-      console.log('WebSocket connection closed');
       setBusTrackingActive(false);
     };
     
@@ -241,9 +223,7 @@ export default function InteractiveMap() {
   // Update bus markers on the map when bus locations change
   useEffect(() => {
     if (!mapInstance || !busLocations.length) return;
-    
-    console.log(`Updating ${busLocations.length} bus markers on the map`);
-    
+
     // Get the color for the route
     const routeId = busLocations[0]?.routeId;
     let busColor = '#3388FF';
@@ -261,7 +241,6 @@ export default function InteractiveMap() {
           isNaN(bus.latitude) || isNaN(bus.longitude) ||
           bus.latitude < -90 || bus.latitude > 90 ||
           bus.longitude < -180 || bus.longitude > 180) {
-        console.warn(`Invalid bus location for ID ${markerId}:`, bus);
         return;
       }
       
@@ -376,7 +355,6 @@ export default function InteractiveMap() {
   const cleanupBusTracking = useCallback(() => {
     // Close WebSocket connection
     if (webSocketRef.current) {
-      console.log('Closing WebSocket connection');
       webSocketRef.current.close();
       webSocketRef.current = null;
     }
@@ -409,22 +387,20 @@ export default function InteractiveMap() {
       currentRouteLayerId.current = null;
       currentRouteSourceId.current = null;
     } catch (err) {
-      console.error('Error cleaning up previous route:', err);
+      // Silently handle cleanup errors
     }
   }, []);
 
   const handleRouteSelect = useCallback(async (routeId: number) => {
     if (!mapInstance) {
-      console.log('Map not initialized yet');
       return;
     }
 
     try {
       setLoading(true);
       setError(null);
-      
-      console.log(`Fetching route data for ID: ${routeId}`);
-      const response = await fetch(`http://40.68.198.73:8080/v1/routes/${routeId}`, {
+
+      const response = await fetch(getApiUrl(`routes/${routeId}`), {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
@@ -436,11 +412,9 @@ export default function InteractiveMap() {
       }
 
       const rawData = await response.json();
-      console.log('Raw route data received:', rawData);
-      
+
       // Handle nested data structure
       const routeData = rawData.data || rawData;
-      console.log('Processed route data:', routeData);
       setSelectedRoute(routeData);
 
       // Clean up previous route
@@ -465,8 +439,6 @@ export default function InteractiveMap() {
 
       // If we found valid coordinates, add them to the map
       if (coordinates && Array.isArray(coordinates) && coordinates.length > 1) {
-        console.log(`Adding route with ${coordinates.length} coordinates. First point:`, coordinates[0]);
-        
         // Filter out invalid coordinates
         const validCoordinates = coordinates.filter(coord => 
           Array.isArray(coord) && 
@@ -477,8 +449,6 @@ export default function InteractiveMap() {
           coord[0] >= -180 && coord[0] <= 180 &&
           coord[1] >= -90 && coord[1] <= 90
         );
-
-        console.log(`Found ${validCoordinates.length} valid coordinates out of ${coordinates.length}`);
 
         if (validCoordinates.length < 2) {
           throw new Error('Not enough valid coordinates to display route');
@@ -529,13 +499,12 @@ export default function InteractiveMap() {
             maxZoom: 15 // Prevent zooming in too far if the route is small
           });
         } catch (error) {
-          console.error('Error setting map bounds:', error);
+          // Silently handle bounds error
         }
       } else {
         throw new Error('No valid coordinates found in route data');
       }
     } catch (error) {
-      console.error('Error handling route selection:', error);
       setError('Failed to load route path: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setLoading(false);
@@ -544,66 +513,54 @@ export default function InteractiveMap() {
 
   // Helper function to extract coordinates from different data formats
   function extractCoordinates(routeData: any): number[][] | null {
-    // ...existing extractCoordinates function...
     let coordinates = null;
-    
+
     // Case 1: Path array of coordinates
     if (routeData.path && Array.isArray(routeData.path) && routeData.path.length > 0) {
-      console.log('Found path property with data');
       const firstPoint = routeData.path[0];
-      
+
       if (Array.isArray(firstPoint) && firstPoint.length === 2) {
         // Check if the first coordinate is likely latitude (Slovenia is around 46°N)
         if (firstPoint[0] > 45 && firstPoint[0] < 47) {
-          console.log('Coordinates appear to be in [lat, lng] format, swapping to [lng, lat]');
           coordinates = routeData.path.map((point: number[]) => [point[1], point[0]]);
         } else {
-          console.log('Coordinates appear to be already in [lng, lat] format');
           coordinates = routeData.path;
         }
       } else if (typeof firstPoint === 'object' && firstPoint !== null) {
         // Case: Array of objects with lat/lng properties
         if ('lat' in firstPoint && 'lng' in firstPoint) {
-          console.log('Converting from {lat,lng} format');
           coordinates = routeData.path.map((point: any) => [point.lng, point.lat]);
         } else if ('latitude' in firstPoint && 'longitude' in firstPoint) {
-          console.log('Converting from {latitude,longitude} format');
           coordinates = routeData.path.map((point: any) => [point.longitude, point.latitude]);
         }
       }
-    } 
+    }
     // Case 2: Direct coordinates array
     else if (routeData.coordinates && Array.isArray(routeData.coordinates)) {
-      console.log('Found coordinates property');
       coordinates = routeData.coordinates;
-      
+
       // Check if these also need swapping (if first point looks like latitude)
-      if (coordinates.length > 0 && Array.isArray(coordinates[0]) && 
+      if (coordinates.length > 0 && Array.isArray(coordinates[0]) &&
           coordinates[0].length === 2 && coordinates[0][0] > 45 && coordinates[0][0] < 47) {
-        console.log('Coordinates in coordinates property need swapping');
         coordinates = coordinates.map((point: number[]) => [point[1], point[0]]);
       }
-    } 
+    }
     // Case 3: GeoJSON format
-    else if (routeData.geometry && routeData.geometry.coordinates && 
+    else if (routeData.geometry && routeData.geometry.coordinates &&
              Array.isArray(routeData.geometry.coordinates)) {
-      console.log('Found GeoJSON geometry.coordinates');
       coordinates = routeData.geometry.coordinates;
     }
     // Case 4: Try to find any property that might contain an array of points
     else {
-      console.log('Trying to find coordinates in any property');
       for (const key in routeData) {
         const value = routeData[key];
         if (Array.isArray(value) && value.length > 1 &&
             Array.isArray(value[0]) && value[0].length === 2 &&
             typeof value[0][0] === 'number' && typeof value[0][1] === 'number') {
-          console.log(`Found possible coordinates in ${key} property`);
           coordinates = value;
-          
+
           // Check if these coordinates need swapping
           if (value[0][0] > 45 && value[0][0] < 47) {
-            console.log(`Coordinates in ${key} need swapping`);
             coordinates = value.map((point: number[]) => [point[1], point[0]]);
           }
           break;
@@ -619,7 +576,7 @@ export default function InteractiveMap() {
 
     try {
       // Fetch station metadata
-      const metadataResponse = await fetch(`http://40.68.198.73:8080/v1/stations/${station.id}`, {
+      const metadataResponse = await fetch(getApiUrl(`stations/${station.id}`), {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
@@ -629,13 +586,12 @@ export default function InteractiveMap() {
       let metadata;
       if (metadataResponse.ok) {
         const responseData = await metadataResponse.json();
-        console.log("metadata: ", responseData);
         metadata = responseData.data || responseData;
         setStationMetadata(metadata);
       }
 
       // Try to fetch station location
-      const response = await fetch(`http://40.68.198.73:8080/v1/stations/location/${station.id}`, {
+      const response = await fetch(getApiUrl(`stations/location/${station.id}`), {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
@@ -645,13 +601,10 @@ export default function InteractiveMap() {
       let locationData;
       if (response.ok) {
         const responseData = await response.json();
-        console.log('Station location data response:', responseData);
-        
+
         // Handle nested data structure
         locationData = responseData.data || responseData;
-        console.log('Processed station location data:', locationData);
       } else {
-        console.log('API error. Using original station coordinates');
         locationData = {
           latitude: station.latitude,
           longitude: station.longitude
@@ -659,14 +612,13 @@ export default function InteractiveMap() {
       }
 
       // Validate location data
-      if (!locationData || 
-          typeof locationData.latitude !== 'number' || 
+      if (!locationData ||
+          typeof locationData.latitude !== 'number' ||
           typeof locationData.longitude !== 'number' ||
-          isNaN(locationData.latitude) || 
+          isNaN(locationData.latitude) ||
           isNaN(locationData.longitude) ||
           locationData.latitude < -90 || locationData.latitude > 90 ||
           locationData.longitude < -180 || locationData.longitude > 180) {
-        console.log('Invalid location data, using original station coordinates');
         locationData = {
           latitude: station.latitude,
           longitude: station.longitude
@@ -685,8 +637,6 @@ export default function InteractiveMap() {
       // Update markers on the map
       if (mapInstance && typeof (mapInstance as any).updateMarkers === 'function') {
         (mapInstance as any).updateMarkers([updatedStation]);
-      } else {
-        console.warn('updateMarkers method not found on map instance');
       }
 
       // Fly to the station location
@@ -697,7 +647,6 @@ export default function InteractiveMap() {
       });
 
     } catch (error) {
-      console.error('Error handling station click:', error);
       // Use original station coordinates as fallback
       if (station.latitude && station.longitude &&
           !isNaN(station.latitude) && !isNaN(station.longitude) &&

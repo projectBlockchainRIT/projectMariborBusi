@@ -9,6 +9,7 @@ import {
   ArrowRight,
   CheckCircle,
 } from "lucide-react";
+import { getApiUrl } from "../config/api";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -37,7 +38,7 @@ export default function Register() {
 
     try {
       const response = await fetch(
-        "http://20.208.138.248:8080/v1/authentication/register",
+        getApiUrl("authentication/register"),
         {
           method: "POST",
           headers: {

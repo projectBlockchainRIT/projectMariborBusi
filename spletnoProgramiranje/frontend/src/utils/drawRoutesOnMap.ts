@@ -1,6 +1,7 @@
 // utils/map/drawRoutesOnMap.ts
 import mapboxgl from 'mapbox-gl';
 import type { Route } from '../types';
+import { getApiUrl } from '../config/api';
 
 // Shrani barve po route.id za konsistentnost
 const routeColors = new Map<number, string>();
@@ -44,7 +45,7 @@ export async function drawRoutesOnMap(
     try {
       setStatus(`Loading route ${route.id}`);
 
-      const res = await fetch(`http://40.68.198.73:8080/v1/routes/${route.id}`);
+      const res = await fetch(getApiUrl(`routes/${route.id}`));
       if (!res.ok) throw new Error(`API error ${res.status}`);
       const data = await res.json();
       const routeData = data.data || data;

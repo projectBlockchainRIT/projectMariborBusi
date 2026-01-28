@@ -45,7 +45,9 @@ export default function OccupancyMapBox({ onMapLoad }: OccupancyMapBoxProps) {
         pitch: pitch,
         bearing: bearing,
         projection: 'globe',
-        antialias: true
+        antialias: true,
+        collectResourceTiming: false, // Disable telemetry to prevent ad blocker issues
+        trackResize: true
       });
 
       map.current.addControl(new NavigationControl(), 'top-right');
@@ -87,12 +89,12 @@ export default function OccupancyMapBox({ onMapLoad }: OccupancyMapBoxProps) {
         }
       });
 
-      map.current.on('error', (e) => {
-        console.error('Mapbox error:', e);
+      map.current.on('error', () => {
+        // Mapbox error occurred - silently handled
       });
 
     } catch (error) {
-      console.error('Error initializing map:', error);
+      // Error initializing map - silently handled
     }
 
     return () => {

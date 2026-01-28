@@ -1,5 +1,6 @@
 import mapboxgl from 'mapbox-gl';
 import type { Route, Station } from '../types';
+import { getApiUrl } from '../config/api';
 
 // Store colors for consistency
 const routeColors = new Map<number, string>();
@@ -77,7 +78,7 @@ export async function drawRouteOnMap(
     setStatus(`Loading route ${routeId}`);
 
     // Fetch route details
-    const res = await fetch(`http://40.68.198.73:8080/v1/routes/${routeId}`);
+    const res = await fetch(getApiUrl(`routes/${routeId}`));
     if (!res.ok) {
       throw new Error(`Failed to fetch route data: ${res.statusText}`);
     }
@@ -85,10 +86,10 @@ export async function drawRouteOnMap(
     const routeData = data.data || data;
 
     // Fetch stations for the route - using line_id instead of id
-    const stationsRes = await fetch(`http://40.68.198.73:8080/v1/routes/${routeId}/stations`);
+    const stationsRes = await fetch(getApiUrl(`routes/${routeId}/stations`));
     if (!stationsRes.ok) {
       // Try alternative endpoint format if the first one fails
-      const alternativeRes = await fetch(`http://40.68.198.73:8080/v1/routes/stations/${routeId}`);
+      const alternativeRes = await fetch(getApiUrl(`routes/stations/${routeId}`));
       if (!alternativeRes.ok) {
         throw new Error(`Failed to fetch stations data: ${stationsRes.statusText}`);
       }

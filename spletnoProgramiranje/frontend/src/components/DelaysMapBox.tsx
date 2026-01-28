@@ -46,7 +46,6 @@ export default function DelaysMapBox({ onMapLoad, onStationClick }: DelaysMapBox
     if (map.current || !mapContainer.current) return;
 
     try {
-      console.log('Initializing map...');
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: MAP_STYLES[0].styleId,
@@ -55,7 +54,9 @@ export default function DelaysMapBox({ onMapLoad, onStationClick }: DelaysMapBox
         pitch: pitch,
         bearing: bearing,
         projection: 'globe',
-        antialias: true
+        antialias: true,
+        collectResourceTiming: false, // Disable telemetry to prevent ad blocker issues
+        trackResize: true
       });
 
       // Add controls
@@ -97,18 +98,17 @@ export default function DelaysMapBox({ onMapLoad, onStationClick }: DelaysMapBox
 
       // Call onMapLoad callback when map is loaded
       map.current.on('load', () => {
-        console.log('Map loaded successfully');
         if (map.current && onMapLoad) {
           onMapLoad(map.current);
         }
       });
 
-      map.current.on('error', (e) => {
-        console.error('Mapbox error:', e);
+      map.current.on('error', () => {
+        // Mapbox error occurred - silently handled
       });
 
     } catch (error) {
-      console.error('Error initializing map:', error);
+      // Error initializing map - silently handled
     }
 
     return () => {

@@ -53,7 +53,6 @@ export default function InteractiveDataMapBox({ onMapLoad, onStationClick }: Int
     if (map.current || !mapContainer.current) return;
 
     try {
-      console.log('Initializing map...');
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: MAP_STYLES[0].styleId,
@@ -62,7 +61,9 @@ export default function InteractiveDataMapBox({ onMapLoad, onStationClick }: Int
         pitch: pitch,
         bearing: bearing,
         projection: 'globe',
-        antialias: true
+        antialias: true,
+        collectResourceTiming: false, // Disable telemetry to prevent ad blocker issues
+        trackResize: true
       });
 
       // Add controls
@@ -115,7 +116,6 @@ export default function InteractiveDataMapBox({ onMapLoad, onStationClick }: Int
 
       // Call onMapLoad callback when map is loaded
       map.current.on('load', () => {
-        console.log('Map loaded successfully');
         if (map.current && onMapLoad) {
           // Add updateMarkers to the map instance
           (map.current as any).updateMarkers = updateMarkers;
@@ -124,11 +124,9 @@ export default function InteractiveDataMapBox({ onMapLoad, onStationClick }: Int
       });
 
       map.current.on('error', (e) => {
-        console.error('Mapbox error:', e);
       });
 
     } catch (error) {
-      console.error('Error initializing map:', error);
     }
 
     return () => {
@@ -142,11 +140,9 @@ export default function InteractiveDataMapBox({ onMapLoad, onStationClick }: Int
   // Function to update markers
   const updateMarkers = (stations: Station[]) => {
     try {
-      console.log('Updating markers with stations:', stations);
       
       // Validate stations data
       if (!Array.isArray(stations)) {
-        console.error('Invalid stations data: not an array', stations);
         return;
       }
 
@@ -163,24 +159,20 @@ export default function InteractiveDataMapBox({ onMapLoad, onStationClick }: Int
               typeof station.latitude !== 'number' ||
               typeof station.name !== 'string' ||
               typeof station.number !== 'string') {
-            console.error('Invalid station data:', station);
             return;
           }
 
           // Validate coordinates
           if (isNaN(station.longitude) || isNaN(station.latitude)) {
-            console.error('Invalid coordinates for station:', station);
             return;
           }
 
           // Validate coordinate ranges
           if (station.longitude < -180 || station.longitude > 180 || 
               station.latitude < -90 || station.latitude > 90) {
-            console.error('Coordinates out of valid range for station:', station);
             return;
           }
 
-          console.log('Creating marker for station:', station);
 
           // Create a container for the marker
           const el = document.createElement('div');
@@ -205,17 +197,14 @@ export default function InteractiveDataMapBox({ onMapLoad, onStationClick }: Int
           if (map.current) {
             marker.addTo(map.current);
             markersRef.current.push(marker);
-            console.log('Marker added successfully for station:', station.name);
           }
         });
 
         // Store markers on the map instance for external access
         (map.current as any).markers = markersRef.current;
         
-        console.log('All markers updated successfully');
       }
     } catch (error) {
-      console.error('Error updating markers:', error);
     }
   };
 
