@@ -12,7 +12,6 @@ export default function OccupancyPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { isDarkMode } = useTheme();
 
-  // Legend colors and labels
   const legend = [
     { color: "#4ade80", label: "Low (Green)" },
     { color: "#fde047", label: "Moderate (Yellow)" },
