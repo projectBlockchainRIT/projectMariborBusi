@@ -27,13 +27,15 @@ ChartJS.register(
 );
 
 interface Route {
-  line_id: string;
+  id: number;
   name: string;
+  path: number[][];
+  line_id: number;
   color?: string;
 }
 
 interface RouteDelay {
-  routeId: string;
+  routeId: number;
   routeName: string;
   averageDelay: number;
 }
@@ -127,7 +129,7 @@ export default function DelayAnalysis() {
             
             if (response.ok) {
               const data = await response.json();
-              console.log(`Delay data for route ${route.line_id}:`, data);
+              console.log(`Delay data for route ${route.id}:`, data);
               
               // Extract the delay value from the correct path in the response
               // The API returns { data: { LineID: 14, LineCode: "P12", AvgDelayMins: 6.21 } }
@@ -136,23 +138,23 @@ export default function DelayAnalysis() {
                 : 0;
                 
               return {
-                routeId: route.line_id,
-                routeName: route.name || `Line ${route.line_id}`,
+                routeId: route.id,
+                routeName: route.name || `Line ${route.id}`,
                 averageDelay: Number(delayValue) || 0
               };
             } else {
-              console.warn(`Failed to fetch delay for route ${route.line_id}: ${response.status}`);
+              console.warn(`Failed to fetch delay for route ${route.id}: ${response.status}`);
               return {
-                routeId: route.line_id,
-                routeName: route.name || `Line ${route.line_id}`,
+                routeId: route.id,
+                routeName: route.name || `Line ${route.id}`,
                 averageDelay: 0
               };
             }
           } catch (err) {
-            console.error(`Error fetching delay for route ${route.line_id}:`, err);
+            console.error(`Error fetching delay for route ${route.id}:`, err);
             return {
-              routeId: route.line_id,
-              routeName: route.name || `Line ${route.line_id}`,
+              routeId: route.id,
+              routeName: route.name || `Line ${route.id}`,
               averageDelay: 0
             };
           }
@@ -345,7 +347,7 @@ export default function DelayAnalysis() {
                     .sort((a, b) => new Date(b.Date).getTime() - new Date(a.Date).getTime())
                     .map(delay => {
                       // Find matching route name
-                      const routeName = routes.find(r => r.line_id === String(delay.LineID))?.name || delay.LineCode;
+                      const routeName = routes.find(r => r.line_id === delay.LineID)?.name || delay.LineCode;
                       
                       return (
                         <div 

@@ -7,7 +7,7 @@ import type { Route } from '../../types';
 interface RouteListProps {
   routes: Route[];
   loading: boolean;
-  expandedRouteId: string | null;
+  expandedRouteId: number | null;
   onRouteClick: (route: Route) => void;
   children?: (route: Route) => React.ReactNode;
 }

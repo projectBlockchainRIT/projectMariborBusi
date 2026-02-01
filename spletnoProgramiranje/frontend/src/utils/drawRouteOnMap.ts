@@ -51,8 +51,7 @@ export async function drawRouteOnMap(
 
   if (!map || !route) return;
 
-  // Get the proper route ID (use line_id if available, fall back to id)
-  const routeId = route.line_id !== undefined ? route.line_id : route.id;
+  const routeId = route.line_id;
 
   // Clear previous routes and stations if requested
   if (clearPrevious) {
@@ -85,7 +84,7 @@ export async function drawRouteOnMap(
     const data = await res.json();
     const routeData = data.data || data;
 
-    // Fetch stations for the route - using line_id instead of id
+    // Fetch stations for the route
     const stationsRes = await fetch(getApiUrl(`routes/${routeId}/stations`));
     if (!stationsRes.ok) {
       // Try alternative endpoint format if the first one fails

@@ -30,7 +30,7 @@ export default function OccupancyController({
   mapInstance,
 }: OccupancyControllerProps) {
   const [routes, setRoutes] = useState<Route[]>([]);
-  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
+  const [selectedRouteId, setSelectedRouteId] = useState<number | null>(null);
   const [routesLoading, setRoutesLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const { isDarkMode } = useTheme();
@@ -56,16 +56,7 @@ export default function OccupancyController({
         const response = await fetch(getApiUrl("routes/list"));
         if (!response.ok) throw new Error(`Failed to fetch routes`);
         const data = await response.json();
-        const routesList = Array.isArray(data) ? data : data.data || data.routes || [];
-        
-        // Debug: Log all routes with their IDs
-        console.log('=== ROUTES LOADED ===');
-        routesList.forEach((route: Route) => {
-          console.log(`Route: ${route.name} | line_id: ${route.line_id} | id: ${route.id}`);
-        });
-        console.log('====================');
-        
-        setRoutes(routesList);
+        setRoutes(Array.isArray(data) ? data : data.data || data.routes || []);
       } catch (error) {
         console.error("Error loading routes:", error);
       } finally {
@@ -76,7 +67,7 @@ export default function OccupancyController({
   }, []);
 
   const fetchOccupancyData = async (
-    lineId: string,
+    lineId: number,
     date: string,
     hour: number,
   ) => {
@@ -111,8 +102,7 @@ export default function OccupancyController({
   };
 
   const handleRouteClick = async (route: Route) => {
-    const routeId = route.line_id || route.id;
-    console.log(`[OccupancyController] Selected route - name: ${route.name}, line_id: ${route.line_id}, id: ${route.id}`);
+    const routeId = route.id;
     setSelectedRouteId(routeId);
     onRouteSelect(route);
     setLoadingOccupancy(true);
@@ -144,7 +134,6 @@ export default function OccupancyController({
     route.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  // Fetch today when date span is toggled off
   useEffect(() => {
     if (!showDateSpan && selectedRouteId) {
       const fetchToday = async () => {
@@ -248,13 +237,13 @@ export default function OccupancyController({
   // Keep route rendered on map
   useEffect(() => {
     if (!mapInstance || !selectedRouteId) return;
-    const route = routes.find((r) => (r.line_id || r.id) === selectedRouteId);
+    const route = routes.find((r) => r.id === selectedRouteId);
     if (route) {
       drawRouteOnMap(mapInstance, route, { setStatus: () => {} });
     }
   }, [mapInstance, selectedRouteId, routes]);
 
-  const selectedRoute = routes.find((r) => (r.line_id || r.id) === selectedRouteId);
+  const selectedRoute = routes.find((r) => r.id === selectedRouteId);
 
   return (
     <div
@@ -332,8 +321,8 @@ export default function OccupancyController({
         </button>
 
         {showDateSpan && (
-          <div className="flex gap-2 mt-3">
-            <div className="flex-1">
+          <div className="flex gap-1.5 mt-3">
+            <div className="flex-1 min-w-0">
               <label
                 className={`text-xs font-medium mb-1 block ${isDarkMode ? "text-slate-500" : "text-slate-500"}`}
               >
@@ -343,14 +332,14 @@ export default function OccupancyController({
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className={`w-full px-3 py-1.5 text-sm rounded-lg border ${
+                className={`w-full px-2 py-1.5 text-xs rounded-lg border ${
                   isDarkMode
                     ? "bg-slate-800 border-slate-700 text-white"
                     : "bg-white border-slate-200 text-slate-900"
                 } focus:outline-none focus:ring-1 focus:ring-blue-500/30`}
               />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <label
                 className={`text-xs font-medium mb-1 block ${isDarkMode ? "text-slate-500" : "text-slate-500"}`}
               >
@@ -360,7 +349,7 @@ export default function OccupancyController({
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className={`w-full px-3 py-1.5 text-sm rounded-lg border ${
+                className={`w-full px-2 py-1.5 text-xs rounded-lg border ${
                   isDarkMode
                     ? "bg-slate-800 border-slate-700 text-white"
                     : "bg-white border-slate-200 text-slate-900"
@@ -441,11 +430,10 @@ export default function OccupancyController({
         ) : (
           <div className="space-y-1.5">
             {filteredRoutes.map((route) => {
-              const routeIdentifier = route.line_id || route.id;
-              const isSelected = selectedRouteId === routeIdentifier;
+              const isSelected = selectedRouteId === route.id;
               return (
                 <button
-                  key={`route-${routeIdentifier}`}
+                  key={`route-${route.id}`}
                   onClick={() => handleRouteClick(route)}
                   className={`w-full px-3 py-2.5 text-left rounded-lg transition-all duration-200 flex items-center gap-3 ${
                     isSelected

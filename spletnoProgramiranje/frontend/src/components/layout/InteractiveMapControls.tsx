@@ -145,10 +145,9 @@ export default function InteractiveMapControls({
   }, [routes, searchTerm]);
 
   const handleRouteClick = (route: Route) => {
-    // Use line_id if available, fall back to id if not
-    const routeId = route.line_id || route.id;
-    console.log('Route clicked:', routeId);
-    
+    const routeId = route.line_id;
+    console.log('Route clicked:', routeId, route.id);
+
     if (expandedRouteId === routeId) {
       setExpandedRouteId(null);
       setSelectedRoute(null);
@@ -222,11 +221,9 @@ export default function InteractiveMapControls({
           ) : (
             <div className="space-y-2">
               {filteredRoutes.map((route) => {
-                // Use line_id if available, fall back to id
-                const routeId = route.line_id !== undefined ? route.line_id : route.id;
-                // Generate a key using available properties
-                const key = `route-${routeId || Math.random().toString()}`;
-                
+                const routeId = route.line_id;
+                const key = `route-${route.id}`;
+
                 return (
                   <div key={key} className="mb-2">
                     <button

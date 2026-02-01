@@ -45,7 +45,7 @@ export async function drawRoutesOnMap(
     try {
       setStatus(`Loading route ${route.id}`);
 
-      const res = await fetch(getApiUrl(`routes/${route.id}`));
+      const res = await fetch(getApiUrl(`routes/${route.line_id}`));
       if (!res.ok) throw new Error(`API error ${res.status}`);
       const data = await res.json();
       const routeData = data.data || data;

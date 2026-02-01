@@ -10,4 +10,5 @@ export interface Route {
   id: number;
   name: string;
   path: number[][];
+  line_id: number;
 } 

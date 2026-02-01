@@ -7,7 +7,7 @@ interface PassengerData {
 }
 
 interface Route {
-  line_id: number;
+  id: number;
   name: string;
   description?: string;
   [key: string]: any;
@@ -207,7 +207,7 @@ export default function PassengerDensityGraph() {
 
   // Find the name of the selected route
   const selectedRouteName = useMemo(() => {
-    const route = routes.find((r) => r.line_id === selectedLineId);
+    const route = routes.find((r) => r.id === selectedLineId);
     return route ? route.name : `Line ${selectedLineId}`;
   }, [routes, selectedLineId]);
 
@@ -368,7 +368,7 @@ export default function PassengerDensityGraph() {
       <div className="flex flex-wrap gap-2 mb-6">
         {routes.map((route) => (
           <button
-            key={route.line_id}
+            key={route.id}
             onClick={() => setSelectedLineId(route.line_id)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               selectedLineId === route.line_id

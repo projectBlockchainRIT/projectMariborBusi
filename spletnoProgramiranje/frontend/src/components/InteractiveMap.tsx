@@ -1,6 +1,9 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import InteractiveDataMapBox from "./InteractiveDataMapBox";
 import InteractiveMapControls from "./layout/InteractiveMapControls";
+import StationDepartures from "./StationDepartures";
+import DelayReportModal from "./DelayReportModal";
+import { BellAlertIcon } from "@heroicons/react/24/outline";
 import type { Map as MapboxMap } from "mapbox-gl";
 import mapboxgl from "mapbox-gl";
 import type { Station, Route } from "../types/station";
@@ -27,6 +30,7 @@ interface BusLocation {
   timestamp: number;
   speed?: number;
   heading?: number;
+  directionName?: string;
 }
 
 export default function InteractiveMap() {
@@ -39,6 +43,8 @@ export default function InteractiveMap() {
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
   const [stationMetadata, setStationMetadata] = useState<any>(null);
   const [showStationInfo, setShowStationInfo] = useState(false);
+  const [availableRoutes, setAvailableRoutes] = useState<Route[]>([]);
+  const [isDelayModalOpen, setIsDelayModalOpen] = useState(false);
   const routeColorsRef = useRef(new Map<number, string>());
   const { isDarkMode } = useTheme();
 
@@ -134,7 +140,7 @@ export default function InteractiveMap() {
 
   // Connect to WebSocket for bus tracking when a route is selected
   useEffect(() => {
-    if (!selectedRoute || !selectedRoute.id) {
+    if (!selectedRoute || !selectedRoute.line_id) {
       // Clean up existing WebSocket if there's no selected route
       cleanupBusTracking();
       return;
@@ -144,29 +150,33 @@ export default function InteractiveMap() {
     cleanupBusTracking();
 
     // Start new WebSocket connection for the selected route
-    const routeId = selectedRoute.id;
+    const routeId = selectedRoute.line_id;
 
     const wsUrl = getWebSocketUrl(`estimate/simulate/${routeId}`);
+    console.log(`Connecting to WebSocket for route ${routeId}: ${wsUrl}`);
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
+      console.log(`WebSocket connected for route ${routeId}`);
       setBusTrackingActive(true);
     };
 
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+        console.log("WebSocket received data:", data);
 
         // Handle different data formats (single bus or array of buses)
         const busData = Array.isArray(data) ? data : [data];
 
         // If no valid data or empty array, set error and return
         if (!data || (Array.isArray(busData) && busData.length === 0)) {
+          console.error("No buses data received");
           setError("Failed to load busses / no buses active on this route ");
           return;
         }
 
-        if (!selectedRoute || !selectedRoute.id) {
+        if (!selectedRoute || !selectedRoute.line_id) {
           setError("Failed to load busses / no buses active on this route ");
           return;
         }
@@ -185,14 +195,34 @@ export default function InteractiveMap() {
               return;
             }
 
-            // Map the API's lat/lon properties to our latitude/longitude interface
+            // Map the API's properties to our interface
+            // Backend returns: { trip_index, direction_id, direction_name, coordinates: [lat, lon] }
             const id =
+              bus.trip_index ||
               bus.departure_id ||
               bus.direction_id ||
               bus.id ||
               Math.random().toString();
-            const latitude = bus.lat || bus.latitude;
-            const longitude = bus.lon || bus.longitude;
+
+            // Handle coordinates array format: [latitude, longitude]
+            let latitude: number | undefined;
+            let longitude: number | undefined;
+
+            if (
+              Array.isArray(bus.coordinates) &&
+              bus.coordinates.length === 2
+            ) {
+              latitude = bus.coordinates[0];
+              longitude = bus.coordinates[1];
+            } else {
+              // Fallback to old format
+              latitude = bus.lat || bus.latitude;
+              longitude = bus.lon || bus.longitude;
+            }
+
+            console.log(
+              `Bus ${id}: lat=${latitude}, lon=${longitude}, routeId=${selectedRoute.line_id}`,
+            );
 
             if (
               id &&
@@ -203,29 +233,36 @@ export default function InteractiveMap() {
                 id: id.toString(),
                 latitude,
                 longitude,
-                routeId: selectedRoute.id,
+                routeId: selectedRoute.line_id,
                 timestamp: bus.timestamp || Date.now(),
                 // Optional: add these if available
                 speed: bus.speed,
                 heading: bus.heading,
+                directionName: bus.direction_name,
               });
             }
           });
 
           const updatedLocations = Array.from(locationMap.values());
+          console.log(`Updated ${updatedLocations.length} bus locations`);
           return updatedLocations;
         });
       } catch (err) {
+        console.error("Error processing bus location data:", err);
         setError("Error processing bus location data");
       }
     };
 
-    ws.onerror = () => {
+    ws.onerror = (error) => {
+      console.error(`WebSocket error for route ${routeId}:`, error);
       setError(`Bus tracking error: Connection failed`);
       setBusTrackingActive(false);
     };
 
-    ws.onclose = () => {
+    ws.onclose = (event) => {
+      console.log(
+        `WebSocket closed for route ${routeId}. Code: ${event.code}, Reason: ${event.reason}`,
+      );
       setBusTrackingActive(false);
     };
 
@@ -445,7 +482,16 @@ export default function InteractiveMap() {
 
         // Handle nested data structure
         const routeData = rawData.data || rawData;
-        setSelectedRoute(routeData);
+
+        // IMPORTANT: Backend doesn't return line_id in the route object,
+        // so we need to manually add it from the routeId parameter
+        const routeWithLineId = {
+          ...routeData,
+          line_id: routeId,
+        };
+
+        console.log("Selected route:", routeWithLineId);
+        setSelectedRoute(routeWithLineId);
 
         // Clean up previous route
         cleanupPreviousRoute(mapInstance);
@@ -671,6 +717,18 @@ export default function InteractiveMap() {
           setStationMetadata(metadata);
         }
 
+        // Fetch available routes for this station
+        try {
+          const routesResponse = await fetch(getApiUrl("routes/list"));
+          if (routesResponse.ok) {
+            const routesData = await routesResponse.json();
+            const routes = Array.isArray(routesData) ? routesData : routesData.data || [];
+            setAvailableRoutes(routes);
+          }
+        } catch (err) {
+          console.error("Error fetching routes:", err);
+        }
+
         // Try to fetch station location
         const response = await fetch(
           getApiUrl(`stations/location/${station.id}`),
@@ -860,28 +918,41 @@ export default function InteractiveMap() {
               >
                 {selectedStation.name}
               </h3>
-              <button
-                onClick={() => setShowStationInfo(false)}
-                className={`p-1 rounded-full hover:bg-opacity-10 transition-colors ${
-                  isDarkMode
-                    ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsDelayModalOpen(true)}
+                  className={`p-2 rounded-lg transition-colors ${
+                    isDarkMode
+                      ? "bg-amber-600 hover:bg-amber-700 text-white"
+                      : "bg-amber-500 hover:bg-amber-600 text-white"
+                  }`}
+                  title="Report Delay"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
+                  <BellAlertIcon className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setShowStationInfo(false)}
+                  className={`p-1 rounded-full hover:bg-opacity-10 transition-colors ${
+                    isDarkMode
+                      ? "text-gray-400 hover:text-gray-200 hover:bg-gray-700"
+                      : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <div className="p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
@@ -898,64 +969,33 @@ export default function InteractiveMap() {
               {stationMetadata &&
               stationMetadata.departures &&
               stationMetadata.departures.length > 0 ? (
-                <div>
-                  <h4
-                    className={`font-medium mb-3 ${
-                      isDarkMode ? "text-gray-100" : "text-gray-900"
-                    }`}
-                  >
-                    Upcoming Departures
-                  </h4>
-                  <div className="space-y-4">
-                    {stationMetadata.departures.map(
-                      (departure: any, index: number) => (
-                        <div
-                          key={index}
-                          className={`border-b pb-3 last:border-0 ${
-                            isDarkMode
-                              ? "border-gray-700/50"
-                              : "border-gray-200/50"
-                          }`}
-                        >
-                          <div
-                            className={`font-medium ${
-                              isDarkMode ? "text-gray-100" : "text-gray-900"
-                            }`}
-                          >
-                            Line {departure.line} ({departure.direction})
-                          </div>
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            {departure.times.map(
-                              (time: string, timeIndex: number) => (
-                                <span
-                                  key={timeIndex}
-                                  className={`px-2 py-1 rounded text-sm ${
-                                    isDarkMode
-                                      ? "bg-blue-900/50 text-blue-100"
-                                      : "bg-blue-100 text-blue-800"
-                                  }`}
-                                >
-                                  {time}
-                                </span>
-                              ),
-                            )}
-                          </div>
-                        </div>
-                      ),
-                    )}
-                  </div>
-                </div>
+                <StationDepartures departures={stationMetadata.departures} />
               ) : (
                 <div
-                  className={`text-sm ${
+                  className={`text-center py-8 ${
                     isDarkMode ? "text-gray-400" : "text-gray-500"
                   }`}
                 >
-                  No departure information available
+                  <p className="text-sm">No departure information available</p>
                 </div>
               )}
             </div>
           </div>
+        )}
+
+        {/* Delay Report Modal */}
+        {selectedStation && (
+          <DelayReportModal
+            isOpen={isDelayModalOpen}
+            station={selectedStation}
+            route={selectedRoute}
+            routes={availableRoutes}
+            onClose={() => setIsDelayModalOpen(false)}
+            onSuccess={() => {
+              // Optionally refresh station data or show a success message
+              console.log("Delay reported successfully");
+            }}
+          />
         )}
       </div>
     </div>

@@ -1,9 +1,8 @@
 export interface Route {
-  id: string;
+  id: number;
   name: string;
-  lineCode: string;
-  coordinates: [number, number][];
-  stations: Station[];
+  path: number[][];
+  line_id: number;
 }
 
 export interface Station {
@@ -18,7 +17,7 @@ export interface Delay {
   delay_time: number;
   description: string;
   id: number;
-  line_id: number;
+  route_id: number;
   report_time: string;
   station_id: number;
 }

@@ -52,7 +52,7 @@ export default function DelaysController({
   const [showFilters, setShowFilters] = useState(false);
   const [routes, setRoutes] = useState<Route[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
-  const [expandedRouteId, setExpandedRouteId] = useState<string | null>(null);
+  const [expandedRouteId, setExpandedRouteId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [routesLoading, setRoutesLoading] = useState(true);
   const [stationsLoading, setStationsLoading] = useState(false);
